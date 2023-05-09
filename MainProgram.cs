@@ -55,13 +55,13 @@ namespace AAP
             loadingForm.Hide();
 
 #if DEBUG //For testing
-            ASCIIArtFile testArt = new(new Size(600, 300), Version, Version);
+            /*ASCIIArtFile testArt = new(new Size(600, 300), Version, Version);
             testArt.WriteTo(@$"{DefaultArtFilesDirectoryPath}\testArt");
 
             ASCIIArtFile massiveArt = new(new Size(9999, 100), Version, Version);
             massiveArt.WriteTo(@$"{DefaultArtFilesDirectoryPath}\massiveArt");
 
-            Process.Start("explorer.exe", DefaultArtFilesDirectoryPath);
+            Process.Start("explorer.exe", DefaultArtFilesDirectoryPath);*/
 #endif
 
             Application.Run(mainForm);
