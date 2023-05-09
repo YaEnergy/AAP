@@ -1,0 +1,33 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AAP
+{
+    public class Canvas
+    {
+        public readonly Label CanvasPanel;
+
+        public Canvas(Label canvasPanel)
+        {
+            CanvasPanel = canvasPanel;
+        }
+
+        public void DisplayArtFile(ASCIIArtFile artFile)
+        {
+            string artString = "";
+
+            for (int y = 0; y < artFile.ArtSize.Height; y++)
+            {
+                for (int x = 0; x < artFile.ArtSize.Width; x++)
+                    artString += artFile.ArtLayers[0].Data[x][y] + " ";
+                
+                artString += "\n\n";
+            }
+
+            CanvasPanel.Text = artString;
+        }
+    }
+}

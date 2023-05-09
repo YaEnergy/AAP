@@ -41,8 +41,11 @@
             toolOptionsPanel = new Panel();
             toolPanel = new Panel();
             rightDock = new Panel();
+            fillDock = new Panel();
+            CanvasArt = new Label();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
+            fillDock.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip
@@ -146,12 +149,35 @@
             rightDock.Size = new Size(250, 645);
             rightDock.TabIndex = 4;
             // 
+            // fillDock
+            // 
+            fillDock.AutoScroll = true;
+            fillDock.BackColor = SystemColors.ControlLight;
+            fillDock.Controls.Add(CanvasArt);
+            fillDock.Dock = DockStyle.Fill;
+            fillDock.Location = new Point(250, 28);
+            fillDock.Name = "fillDock";
+            fillDock.Size = new Size(762, 645);
+            fillDock.TabIndex = 5;
+            // 
+            // CanvasArt
+            // 
+            CanvasArt.AutoSize = true;
+            CanvasArt.BorderStyle = BorderStyle.FixedSingle;
+            CanvasArt.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            CanvasArt.Location = new Point(3, 3);
+            CanvasArt.Name = "CanvasArt";
+            CanvasArt.Size = new Size(111, 25);
+            CanvasArt.TabIndex = 0;
+            CanvasArt.Text = "canvasArt";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonFace;
             ClientSize = new Size(1262, 673);
+            Controls.Add(fillDock);
             Controls.Add(rightDock);
             Controls.Add(leftDock);
             Controls.Add(menuStrip);
@@ -163,6 +189,8 @@
             menuStrip.PerformLayout();
             leftDock.ResumeLayout(false);
             leftDock.PerformLayout();
+            fillDock.ResumeLayout(false);
+            fillDock.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -181,5 +209,7 @@
         private Panel toolOptionsPanel;
         private Panel toolPanel;
         private Panel rightDock;
+        private Panel fillDock;
+        public Label CanvasArt;
     }
 }
