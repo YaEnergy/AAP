@@ -79,8 +79,8 @@ namespace AAP
 
             if (artFile.Width * artFile.Height > MaxArtArea)
             {
-                Console.WriteLine("File too large! (" + artFile.Width * artFile.Height + " characters)");
-                MessageBox.Show("Art Area is too large! Max: 9800 characters (" + artFile.Width * artFile.Height + " characters)", "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
+                Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({artFile.Width * artFile.Height} characters)");
+                MessageBox.Show($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)", "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
                 return;
             }
 
@@ -111,11 +111,11 @@ namespace AAP
             void SaveComplete(object? sender, RunWorkerCompletedEventArgs args)
             {
                 if (args.Cancelled)
-                    Console.WriteLine("Art file save to " + path + " cancelled!");
+                    Console.WriteLine("Save File: Art file save to " + path + " cancelled!");
                 else if (args.Error != null)
-                    Console.WriteLine("An error has occurred while saving art file to " + path + "! exception: " + args.Error.Message);
+                    Console.WriteLine("Save File: An error has occurred while saving art file to " + path + "! exception: " + args.Error.Message);
                 else
-                    Console.WriteLine("Art file saved to " + path + "!");
+                    Console.WriteLine("Save File: Art file saved to " + path + "!");
             }
 
             void SaveWork(object? sender, DoWorkEventArgs args)

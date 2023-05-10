@@ -20,8 +20,8 @@ namespace AAP
             foreach (KeyValuePair<Point, Label> pair in CharLabels)
             {
                 pair.Value.Font = font;
-                pair.Value.Size = new Size(CanvasTextSize, CanvasTextSize * 2);
-                pair.Value.Location = new Point(pair.Key.X * CanvasTextSize, pair.Key.Y * CanvasTextSize * 2);
+                pair.Value.Size = new Size(CanvasTextSize + 1, CanvasTextSize * 2);
+                pair.Value.Location = new Point(pair.Key.X * (CanvasTextSize + 2), pair.Key.Y * CanvasTextSize * 2);
             }
         }
         public void SetCanvasSize(int width, int height, int textSize)
@@ -41,12 +41,13 @@ namespace AAP
 
                 pair.Value.Text = " ";
                 pair.Value.Font = font;
-                pair.Value.Size = new Size(CanvasTextSize, CanvasTextSize * 2);
-                pair.Value.Location = new Point(pair.Key.X * CanvasTextSize, pair.Key.Y * CanvasTextSize * 2);
+                pair.Value.Size = new Size(CanvasTextSize + 2, CanvasTextSize * 2);
+                pair.Value.Location = new Point(pair.Key.X * (CanvasTextSize + 2), pair.Key.Y * CanvasTextSize * 2);
             }
 
             foreach (Point coordToRemove in coordsToRemove)
             {
+                CharLabels[coordToRemove].Dispose();
                 Canvas.Controls.Remove(CharLabels[coordToRemove]);
                 CharLabels.Remove(coordToRemove);
             }
@@ -64,8 +65,8 @@ namespace AAP
 
                     label.Text = " ";
                     label.Font = font;
-                    label.Size = new Size(CanvasTextSize, CanvasTextSize * 2);
-                    label.Location = new Point(x * CanvasTextSize, y * CanvasTextSize * 2);
+                    label.Size = new Size(CanvasTextSize + 2, CanvasTextSize * 2);
+                    label.Location = new Point(x * (CanvasTextSize + 2), y * CanvasTextSize * 2);
 
                     CharLabels.Add(new Point(x, y), label);
                     Canvas.Controls.Add(label);

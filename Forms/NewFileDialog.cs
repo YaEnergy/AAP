@@ -49,7 +49,7 @@ namespace AAP
 
             if (sizeWidth * sizeHeight > 9800)
             {
-                MessageBox.Show("Art size width multiplied by art size height should be less than or equal to 9800. Sorry! (Currently: " + sizeWidth * sizeHeight + " characters)", InvalidFileMessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Art Area is too large! Max: {MainProgram.MaxArtArea} characters ({sizeWidth * sizeHeight} characters)", InvalidFileMessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
