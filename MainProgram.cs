@@ -10,6 +10,8 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
+        public static readonly int MaxArtArea = 9800;
+
         private static MainForm mainForm = new();
 
         public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
@@ -72,6 +74,13 @@ namespace AAP
             if (artFile == null)
             {
                 Console.WriteLine("Open File Path: art file is null!");
+                return;
+            }
+
+            if (artFile.Width * artFile.Height > MaxArtArea)
+            {
+                Console.WriteLine("File too large! (" + artFile.Width * artFile.Height + " characters)");
+                MessageBox.Show("Art Area is too large! Max: 9800 characters (" + artFile.Width * artFile.Height + " characters)", "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
                 return;
             }
 
