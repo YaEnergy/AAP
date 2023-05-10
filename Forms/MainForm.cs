@@ -6,5 +6,8 @@ namespace AAP
         {
             InitializeComponent();
         }
+
+        private void NewFileToolStripMenuItem_Click(object sender, EventArgs e)
+            => new NewFileDialog().ShowDialog();
     }
 }

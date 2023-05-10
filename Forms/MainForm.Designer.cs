@@ -68,25 +68,26 @@
             // newFileToolStripMenuItem
             // 
             newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            newFileToolStripMenuItem.Size = new Size(143, 26);
+            newFileToolStripMenuItem.Size = new Size(224, 26);
             newFileToolStripMenuItem.Text = "New";
+            newFileToolStripMenuItem.Click += NewFileToolStripMenuItem_Click;
             // 
             // openFileToolStripMenuItem
             // 
             openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            openFileToolStripMenuItem.Size = new Size(143, 26);
+            openFileToolStripMenuItem.Size = new Size(224, 26);
             openFileToolStripMenuItem.Text = "Open";
             // 
             // saveFileToolStripMenuItem
             // 
             saveFileToolStripMenuItem.Name = "saveFileToolStripMenuItem";
-            saveFileToolStripMenuItem.Size = new Size(143, 26);
+            saveFileToolStripMenuItem.Size = new Size(224, 26);
             saveFileToolStripMenuItem.Text = "Save";
             // 
             // saveAsFileToolStripMenuItem
             // 
             saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            saveAsFileToolStripMenuItem.Size = new Size(143, 26);
+            saveAsFileToolStripMenuItem.Size = new Size(224, 26);
             saveAsFileToolStripMenuItem.Text = "Save As";
             // 
             // editToolStripMenuItem

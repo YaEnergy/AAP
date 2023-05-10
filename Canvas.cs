@@ -22,9 +22,9 @@ namespace AAP
             for (int y = 0; y < artFile.ArtSize.Height; y++)
             {
                 for (int x = 0; x < artFile.ArtSize.Width; x++)
-                    artString += artFile.ArtLayers[0].Data[x][y] + " ";
+                    artString += artFile.ArtLayers[0].Data[x][y];
                 
-                artString += "\n\n";
+                artString += "\n";
             }
 
             CanvasPanel.Text = artString;

@@ -15,11 +15,13 @@ namespace AAP
         private static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
         private static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
 
-        public ASCIIArtFile? CurrentArtFile;
-        public string? CurrentFilePath;
+        public static Canvas MainCanvas = new(mainForm.CanvasArt);
 
-        public Tool CurrentTool = new SelectTool();
-        public Rectangle Selected = Rectangle.Empty;
+        public static ASCIIArtFile? CurrentArtFile;
+        public static string? CurrentFilePath;
+
+        public static Tool CurrentTool = new SelectTool();
+        public static Rectangle Selected = Rectangle.Empty;
 
         /// <summary>
         ///  The main entry point for the application.
@@ -54,10 +56,10 @@ namespace AAP
 
             loadingForm.Hide();
 
-            Canvas canvas = new(mainForm.CanvasArt);
             ASCIIArtFile testArt = new(new Size(50, 30), Version, Version);
+            testArt.AddBackgroundLayer();
             testArt.WriteTo(@$"{DefaultArtFilesDirectoryPath}\testArt");
-            canvas.DisplayArtFile(testArt);
+            MainCanvas.DisplayArtFile(testArt);
 
 /*#if DEBUG //For testing
 
@@ -68,6 +70,14 @@ namespace AAP
 #endif*/
 
             Application.Run(mainForm);
+        }
+
+        public static void NewFile(ASCIIArtFile artFile)
+        {
+            CurrentArtFile = artFile;
+            CurrentFilePath = "";
+
+            MainCanvas.DisplayArtFile(artFile);
         }
     }
 }

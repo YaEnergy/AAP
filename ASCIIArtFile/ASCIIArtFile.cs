@@ -22,8 +22,6 @@ namespace AAP
             CreatedInVersion = createdinVersion;
             UpdatedInVersion = updatedinVersion;
             ArtSize = size;
-
-            AddBackgroundLayer();
         }
 
         public ArtLayer AddBackgroundLayer()
