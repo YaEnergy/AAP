@@ -42,10 +42,12 @@
             toolPanel = new Panel();
             rightDock = new Panel();
             fillDock = new Panel();
-            CanvasArt = new Label();
+            Canvas = new Panel();
+            NoFileOpenLabel = new Label();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             fillDock.SuspendLayout();
+            Canvas.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip
@@ -157,23 +159,35 @@
             // 
             fillDock.AutoScroll = true;
             fillDock.BackColor = SystemColors.ControlLight;
-            fillDock.Controls.Add(CanvasArt);
+            fillDock.Controls.Add(Canvas);
             fillDock.Dock = DockStyle.Fill;
             fillDock.Location = new Point(250, 28);
             fillDock.Name = "fillDock";
             fillDock.Size = new Size(762, 645);
             fillDock.TabIndex = 5;
             // 
-            // CanvasArt
+            // Canvas
             // 
-            CanvasArt.AutoSize = true;
-            CanvasArt.BorderStyle = BorderStyle.FixedSingle;
-            CanvasArt.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            CanvasArt.Location = new Point(3, 3);
-            CanvasArt.Name = "CanvasArt";
-            CanvasArt.Size = new Size(144, 25);
-            CanvasArt.TabIndex = 0;
-            CanvasArt.Text = "No file open";
+            Canvas.AutoSize = true;
+            Canvas.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Canvas.BackColor = SystemColors.InactiveBorder;
+            Canvas.BorderStyle = BorderStyle.FixedSingle;
+            Canvas.Controls.Add(NoFileOpenLabel);
+            Canvas.Location = new Point(3, 3);
+            Canvas.Name = "Canvas";
+            Canvas.Size = new Size(148, 27);
+            Canvas.TabIndex = 1;
+            // 
+            // NoFileOpenLabel
+            // 
+            NoFileOpenLabel.AutoSize = true;
+            NoFileOpenLabel.BorderStyle = BorderStyle.FixedSingle;
+            NoFileOpenLabel.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            NoFileOpenLabel.Location = new Point(-1, 0);
+            NoFileOpenLabel.Name = "NoFileOpenLabel";
+            NoFileOpenLabel.Size = new Size(144, 25);
+            NoFileOpenLabel.TabIndex = 0;
+            NoFileOpenLabel.Text = "No file open";
             // 
             // MainForm
             // 
@@ -195,6 +209,8 @@
             leftDock.PerformLayout();
             fillDock.ResumeLayout(false);
             fillDock.PerformLayout();
+            Canvas.ResumeLayout(false);
+            Canvas.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -214,6 +230,7 @@
         private Panel toolPanel;
         private Panel rightDock;
         private Panel fillDock;
-        public Label CanvasArt;
+        public Panel Canvas;
+        private Label NoFileOpenLabel;
     }
 }

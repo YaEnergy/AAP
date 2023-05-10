@@ -8,15 +8,15 @@ namespace AAP
 {
     public class ArtLayer
     {
-        public char[][] Data;
+        public char?[][] Data;
         public string Name = "";
 
         public ArtLayer(string name, int width, int height) 
         {
             Name = name;
-            Data = new char[width][];
+            Data = new char?[width][];
             for (int x = 0; x < width; x++)
-                Data[x] = new char[height];
+                Data[x] = new char?[height];
         }
     }
 }

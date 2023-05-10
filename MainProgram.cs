@@ -15,8 +15,6 @@ namespace AAP
         public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
         public static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
 
-        public static Canvas MainCanvas = new(mainForm.CanvasArt);
-
         public static ASCIIArtFile? CurrentArtFile;
         public static string? CurrentFilePath;
 
@@ -64,7 +62,7 @@ namespace AAP
             CurrentArtFile = artFile;
             CurrentFilePath = "";
 
-            MainCanvas.DisplayArtFile(artFile);
+            mainForm.DisplayArtFile(artFile);
         }
 
         public static void OpenFilePath(string path)
@@ -84,7 +82,7 @@ namespace AAP
             CurrentArtFile = artFile;
             CurrentFilePath = path;
 
-            MainCanvas.DisplayArtFile(artFile);
+            mainForm.DisplayArtFile(artFile);
         }
 
         public static void SaveFileToPathAsync(ASCIIArtFile artFile, string path)
