@@ -12,8 +12,8 @@ namespace AAP
 
         private static MainForm mainForm = new();
 
-        private static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
-        private static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
+        public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
+        public static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
 
         public static Canvas MainCanvas = new(mainForm.CanvasArt);
 
@@ -56,19 +56,6 @@ namespace AAP
 
             loadingForm.Hide();
 
-            ASCIIArtFile testArt = new(new Size(50, 30), Version, Version);
-            testArt.AddBackgroundLayer();
-            testArt.WriteTo(@$"{DefaultArtFilesDirectoryPath}\testArt");
-            MainCanvas.DisplayArtFile(testArt);
-
-/*#if DEBUG //For testing
-
-            ASCIIArtFile massiveArt = new(new Size(9999, 100), Version, Version);
-            massiveArt.WriteTo(@$"{DefaultArtFilesDirectoryPath}\massiveArt");
-
-            Process.Start("explorer.exe", DefaultArtFilesDirectoryPath);
-#endif*/
-
             Application.Run(mainForm);
         }
 
@@ -78,6 +65,60 @@ namespace AAP
             CurrentFilePath = "";
 
             MainCanvas.DisplayArtFile(artFile);
+        }
+
+        public static void OpenFilePath(string path)
+        {
+            ASCIIArtFile? artFile = ASCIIArtFile.ReadFrom(path);
+            
+            if (artFile == null)
+            {
+                Console.WriteLine("Open File Path: art file is null!");
+                return;
+            }
+
+            CurrentArtFile = artFile;
+            CurrentFilePath = path;
+
+            MainCanvas.DisplayArtFile(artFile);
+        }
+
+        public static void SaveFileToPathAsync(ASCIIArtFile artFile, string path)
+        {
+            if (path == null)
+                return;
+
+            CurrentFilePath = path;
+
+            BackgroundWorker bgWorker = new BackgroundWorker();
+            bgWorker.WorkerReportsProgress = false;
+            bgWorker.DoWork += SaveWork;
+            bgWorker.RunWorkerCompleted += SaveComplete;
+
+            bgWorker.RunWorkerAsync();
+
+            void SaveComplete(object? sender, RunWorkerCompletedEventArgs args)
+            {
+                if (args.Cancelled)
+                    Console.WriteLine("Art file save to " + path + " cancelled!");
+                else if (args.Error != null)
+                    Console.WriteLine("An error has occurred while saving art file to " + path + "! exception: " + args.Error.Message);
+                else
+                    Console.WriteLine("Art file saved to " + path + "!");
+            }
+
+            void SaveWork(object? sender, DoWorkEventArgs args)
+            {
+                BackgroundWorker? bgWorker = sender as BackgroundWorker;
+
+                if (bgWorker == null)
+                    return;
+
+                Console.WriteLine("Saving art file to " + path);
+                FileInfo fileInfo = artFile.WriteTo(path);
+
+                Process.Start("explorer.exe", fileInfo.DirectoryName == null ? DefaultArtFilesDirectoryPath : fileInfo.DirectoryName);
+            }
         }
     }
 }

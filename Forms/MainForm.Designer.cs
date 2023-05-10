@@ -68,27 +68,30 @@
             // newFileToolStripMenuItem
             // 
             newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            newFileToolStripMenuItem.Size = new Size(224, 26);
+            newFileToolStripMenuItem.Size = new Size(143, 26);
             newFileToolStripMenuItem.Text = "New";
             newFileToolStripMenuItem.Click += NewFileToolStripMenuItem_Click;
             // 
             // openFileToolStripMenuItem
             // 
             openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            openFileToolStripMenuItem.Size = new Size(224, 26);
+            openFileToolStripMenuItem.Size = new Size(143, 26);
             openFileToolStripMenuItem.Text = "Open";
+            openFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // saveFileToolStripMenuItem
             // 
             saveFileToolStripMenuItem.Name = "saveFileToolStripMenuItem";
-            saveFileToolStripMenuItem.Size = new Size(224, 26);
+            saveFileToolStripMenuItem.Size = new Size(143, 26);
             saveFileToolStripMenuItem.Text = "Save";
+            saveFileToolStripMenuItem.Click += SaveFileToolStripMenuItem_Click;
             // 
             // saveAsFileToolStripMenuItem
             // 
             saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            saveAsFileToolStripMenuItem.Size = new Size(224, 26);
+            saveAsFileToolStripMenuItem.Size = new Size(143, 26);
             saveAsFileToolStripMenuItem.Text = "Save As";
+            saveAsFileToolStripMenuItem.Click += SaveAsFileToolStripMenuItem_Click;
             // 
             // editToolStripMenuItem
             // 
@@ -168,9 +171,9 @@
             CanvasArt.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point);
             CanvasArt.Location = new Point(3, 3);
             CanvasArt.Name = "CanvasArt";
-            CanvasArt.Size = new Size(111, 25);
+            CanvasArt.Size = new Size(144, 25);
             CanvasArt.TabIndex = 0;
-            CanvasArt.Text = "canvasArt";
+            CanvasArt.Text = "No file open";
             // 
             // MainForm
             // 
