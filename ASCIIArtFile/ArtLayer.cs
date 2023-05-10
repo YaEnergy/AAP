@@ -11,12 +11,12 @@ namespace AAP
         public char[][] Data;
         public string Name = "";
 
-        public ArtLayer(string name, Size size) 
+        public ArtLayer(string name, int width, int height) 
         {
             Name = name;
-            Data = new char[size.Width][];
-            for (int x = 0; x < size.Width; x++)
-                Data[x] = new char[size.Height];
+            Data = new char[width][];
+            for (int x = 0; x < width; x++)
+                Data[x] = new char[height];
         }
     }
 }

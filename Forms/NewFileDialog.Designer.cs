@@ -85,7 +85,7 @@
             // HeightTextBox
             // 
             HeightTextBox.Location = new Point(163, 0);
-            HeightTextBox.MaxLength = 4;
+            HeightTextBox.MaxLength = 3;
             HeightTextBox.Name = "HeightTextBox";
             HeightTextBox.PlaceholderText = "height";
             HeightTextBox.Size = new Size(84, 27);
@@ -94,7 +94,7 @@
             // WidthTextBox
             // 
             WidthTextBox.Location = new Point(48, 0);
-            WidthTextBox.MaxLength = 4;
+            WidthTextBox.MaxLength = 3;
             WidthTextBox.Name = "WidthTextBox";
             WidthTextBox.PlaceholderText = "width";
             WidthTextBox.Size = new Size(84, 27);

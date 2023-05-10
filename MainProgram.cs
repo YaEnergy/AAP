@@ -77,6 +77,10 @@ namespace AAP
                 return;
             }
 
+            Console.WriteLine("Opened art file path: " + path);
+            Console.WriteLine("Created in version: " + artFile.CreatedInVersion);
+            Console.WriteLine("Art size: " + artFile.Width + "x" + artFile.Height);
+
             CurrentArtFile = artFile;
             CurrentFilePath = path;
 

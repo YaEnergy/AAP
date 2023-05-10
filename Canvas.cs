@@ -19,9 +19,9 @@ namespace AAP
         {
             string artString = "";
 
-            for (int y = 0; y < artFile.ArtSize.Height; y++)
+            for (int y = 0; y < artFile.Height; y++)
             {
-                for (int x = 0; x < artFile.ArtSize.Width; x++)
+                for (int x = 0; x < artFile.Width; x++)
                     artString += artFile.ArtLayers[0].Data[x][y];
                 
                 artString += "\n";

@@ -46,7 +46,7 @@ namespace AAP
                 return;
             }
 
-            ASCIIArtFile artFile = new(new Size(sizeWidth, sizeHeight), MainProgram.Version, MainProgram.Version);
+            ASCIIArtFile artFile = new(sizeWidth, sizeHeight, MainProgram.Version, MainProgram.Version);
 
             if (AddBackgroundLayerCheckBox.Checked)
                 artFile.AddBackgroundLayer();

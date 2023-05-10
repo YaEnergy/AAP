@@ -11,24 +11,26 @@ namespace AAP
     {
         private static readonly string EXTENSION = ".aaf";
 
-        public readonly string CreatedInVersion;
-        protected string UpdatedInVersion;
+        public readonly string CreatedInVersion = "???";
+        protected string UpdatedInVersion = "???";
 
         public List<ArtLayer> ArtLayers = new();
-        public readonly Size ArtSize;
+        public readonly int Width = 1;
+        public readonly int Height = 1;
 
-        public ASCIIArtFile(Size size, string updatedinVersion, string createdinVersion) 
+        public ASCIIArtFile(int width, int height, string updatedinVersion, string createdinVersion) 
         {
             CreatedInVersion = createdinVersion;
             UpdatedInVersion = updatedinVersion;
-            ArtSize = size;
+            Width = width;
+            Height = height;
         }
 
         public ArtLayer AddBackgroundLayer()
         {
-            ArtLayer backgroundLayer = new("Background", ArtSize);
-            for (int x = 0; x < ArtSize.Width; x++)
-                for (int y = 0; y < ArtSize.Height; y++)
+            ArtLayer backgroundLayer = new("Background", Width, Height);
+            for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
                     backgroundLayer.Data[x][y] = '█';
 
             ArtLayers.Add(backgroundLayer);
