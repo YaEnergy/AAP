@@ -69,29 +69,36 @@ namespace AAP
 
         public static void OpenFilePath(string path)
         {
-            ASCIIArtFile? artFile = ASCIIArtFile.ReadFrom(path);
-            
-            if (artFile == null)
+            try
             {
-                Console.WriteLine("Open File Path: art file is null!");
-                return;
-            }
+                ASCIIArtFile? artFile = ASCIIArtFile.ReadFrom(path);
 
-            if (artFile.Width * artFile.Height > MaxArtArea)
+                if (artFile == null)
+                {
+                    Console.WriteLine("Open File Path: current art file is null!");
+                    throw new NullReferenceException("Open File Path: current art file is null!");
+                }
+
+                if (artFile.Width * artFile.Height > MaxArtArea)
+                {
+                    Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({artFile.Width * artFile.Height} characters)");
+                    throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)");
+                }
+
+                Console.WriteLine("Opened art file path: " + path);
+                Console.WriteLine("Created in version: " + artFile.CreatedInVersion);
+                Console.WriteLine("Art size: " + artFile.Width + "x" + artFile.Height);
+
+                CurrentArtFile = artFile;
+                CurrentFilePath = path;
+
+                mainForm.DisplayArtFile(artFile);
+            }
+            catch (Exception ex)
             {
-                Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({artFile.Width * artFile.Height} characters)");
-                MessageBox.Show($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)", "Invalid File", MessageBoxButtons.OK, MessageBoxIcon.Error); ;
-                return;
+                Console.WriteLine($"Open File Path: An error has occurred while opening art file ({path})! Exception: {ex.Message}");
+                MessageBox.Show($"An error has occurred while opening art file ({path})! Exception: {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            Console.WriteLine("Opened art file path: " + path);
-            Console.WriteLine("Created in version: " + artFile.CreatedInVersion);
-            Console.WriteLine("Art size: " + artFile.Width + "x" + artFile.Height);
-
-            CurrentArtFile = artFile;
-            CurrentFilePath = path;
-
-            mainForm.DisplayArtFile(artFile);
         }
 
         public static void SaveFileToPathAsync(ASCIIArtFile artFile, string path)

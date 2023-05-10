@@ -80,9 +80,11 @@ namespace AAP
             Canvas.Hide();
             NoFileOpenLabel.Hide();
 
+            TaskInfoLabel.Text = "Setting up canvas...";
             SetCanvasSize(artFile.Width, artFile.Height, CanvasTextSize);
 
-            for(int i = 0; i < artFile.ArtLayers.Count; i++)
+            TaskInfoLabel.Text = "Displaying art on canvas...";
+            for (int i = 0; i < artFile.ArtLayers.Count; i++)
                 for (int x = 0; x < artFile.Width; x++)
                     for (int y = 0; y < artFile.Height; y++)
                     {
@@ -95,6 +97,7 @@ namespace AAP
                     }
 
             Canvas.Show();
+            TaskInfoLabel.Text = "";
         }
 
         private void NewFileToolStripMenuItem_Click(object sender, EventArgs e)

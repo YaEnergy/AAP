@@ -44,10 +44,13 @@
             fillDock = new Panel();
             Canvas = new Panel();
             NoFileOpenLabel = new Label();
+            bottomDock = new Panel();
+            TaskInfoLabel = new Label();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             fillDock.SuspendLayout();
             Canvas.SuspendLayout();
+            bottomDock.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip
@@ -122,7 +125,7 @@
             leftDock.Dock = DockStyle.Left;
             leftDock.Location = new Point(0, 28);
             leftDock.Name = "leftDock";
-            leftDock.Size = new Size(250, 645);
+            leftDock.Size = new Size(250, 605);
             leftDock.TabIndex = 3;
             // 
             // toolOptionsPanel
@@ -152,7 +155,7 @@
             rightDock.Dock = DockStyle.Right;
             rightDock.Location = new Point(1012, 28);
             rightDock.Name = "rightDock";
-            rightDock.Size = new Size(250, 645);
+            rightDock.Size = new Size(250, 605);
             rightDock.TabIndex = 4;
             // 
             // fillDock
@@ -163,7 +166,7 @@
             fillDock.Dock = DockStyle.Fill;
             fillDock.Location = new Point(250, 28);
             fillDock.Name = "fillDock";
-            fillDock.Size = new Size(762, 645);
+            fillDock.Size = new Size(762, 605);
             fillDock.TabIndex = 5;
             // 
             // Canvas
@@ -189,6 +192,26 @@
             NoFileOpenLabel.TabIndex = 0;
             NoFileOpenLabel.Text = "No file open";
             // 
+            // bottomDock
+            // 
+            bottomDock.BackColor = SystemColors.ButtonFace;
+            bottomDock.Controls.Add(TaskInfoLabel);
+            bottomDock.Dock = DockStyle.Bottom;
+            bottomDock.Location = new Point(0, 633);
+            bottomDock.Name = "bottomDock";
+            bottomDock.Size = new Size(1262, 40);
+            bottomDock.TabIndex = 2;
+            // 
+            // TaskInfoLabel
+            // 
+            TaskInfoLabel.Dock = DockStyle.Fill;
+            TaskInfoLabel.Location = new Point(0, 0);
+            TaskInfoLabel.Margin = new Padding(3);
+            TaskInfoLabel.Name = "TaskInfoLabel";
+            TaskInfoLabel.Padding = new Padding(5);
+            TaskInfoLabel.Size = new Size(1262, 40);
+            TaskInfoLabel.TabIndex = 0;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -199,6 +222,7 @@
             Controls.Add(rightDock);
             Controls.Add(leftDock);
             Controls.Add(menuStrip);
+            Controls.Add(bottomDock);
             MainMenuStrip = menuStrip;
             Name = "MainForm";
             Text = "ASCII Art Program";
@@ -211,6 +235,7 @@
             fillDock.PerformLayout();
             Canvas.ResumeLayout(false);
             Canvas.PerformLayout();
+            bottomDock.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -232,5 +257,7 @@
         private Panel fillDock;
         public Panel Canvas;
         private Label NoFileOpenLabel;
+        private Panel bottomDock;
+        public Label TaskInfoLabel;
     }
 }
