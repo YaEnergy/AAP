@@ -10,7 +10,7 @@ namespace AAP
     {
         public char?[][] Data;
         public string Name = "";
-
+        public bool Visible = true;
         public ArtLayer(string name, int width, int height) 
         {
             Name = name;

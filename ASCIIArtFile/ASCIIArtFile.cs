@@ -71,5 +71,60 @@ namespace AAP
 
             return artFile;
         }
+
+        public string GetArtString()
+        {
+            Dictionary<Point, char?> visibleArtMatrix = new();
+
+            for (int i = 0; i < ArtLayers.Count; i++)
+                if (ArtLayers[i].Visible)
+                    for(int x = 0; x < Width; x++)
+                        for (int y = 0; y < Height; y++)
+                        {
+                            char? character = ArtLayers[i].Data[x][y];
+
+                            if (character == null) 
+                                continue;
+
+                            visibleArtMatrix.Add(new(x, y), character.Value);
+                        }
+
+            string art = "";
+
+            for (int y = 0; y < Height; y++)
+            {
+                for (int x = 0; x < Width; x++)
+                {
+                    Point coord = new(x, y);
+                    art += visibleArtMatrix[coord] == null ? " " : visibleArtMatrix[coord];
+                }
+
+                art += "\n";
+            }
+
+            return art;
+        }
+
+        public FileInfo ExportTo(string path)
+        {
+            FileInfo fileInfo = new FileInfo(path);
+
+            switch(fileInfo.Extension)
+            {
+                case ".txt":
+                    string art = GetArtString();
+
+                    StreamWriter sw = File.CreateText(path);
+                    sw.Write(art);
+
+                    sw.Close();
+                    break;
+            }
+
+            return fileInfo;
+        }
+
+        public void CopyToClipboard()
+            => Clipboard.SetText(GetArtString());
     }
 }

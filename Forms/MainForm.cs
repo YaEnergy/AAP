@@ -160,5 +160,45 @@ namespace AAP
 
             return;
         }
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
+            => Application.Exit();
+
+        private void CopyArtToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TaskInfoLabel.Text = "Copying art to clipboard...";
+
+            try
+            {
+                MainProgram.CurrentArtFile?.CopyToClipboard();
+                TaskInfoLabel.Text = "Copied art to clipboard!";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Copy Art To Clipboard: Failed to copy art to clipboard! {ex.ToString()}");
+                MessageBox.Show("Failed to copy art to clipboard!", "Copy Art To Clipboard", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            TaskInfoLabel.Text = "";
+        }
+
+        private void AsFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MainProgram.CurrentArtFile == null)
+                return;
+
+            SaveFileDialog saveFileDialog = new();
+            saveFileDialog.Title = "Export ASCII Art File As";
+            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
+            saveFileDialog.CheckFileExists = false;
+            saveFileDialog.CheckPathExists = true;
+            saveFileDialog.InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath;
+            saveFileDialog.ValidateNames = true;
+            saveFileDialog.FileOk += (sender, args) => MainProgram.CurrentArtFile.ExportTo(saveFileDialog.FileName);
+
+            saveFileDialog.ShowDialog();
+
+            return;
+        }
     }
 }
