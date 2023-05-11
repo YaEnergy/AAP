@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewFileDialog));
             CreateButton = new Button();
             OptionsPanel = new FlowLayoutPanel();
             SizePanel = new Panel();
@@ -140,6 +141,7 @@
             Controls.Add(optionLabel);
             Controls.Add(OptionsPanel);
             Controls.Add(CreateButton);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximumSize = new Size(300, 200);
             MinimumSize = new Size(300, 200);
             Name = "NewFileDialog";

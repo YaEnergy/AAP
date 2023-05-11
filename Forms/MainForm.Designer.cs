@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             menuStrip = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newFileToolStripMenuItem = new ToolStripMenuItem();
@@ -45,22 +46,22 @@
             leftDock = new Panel();
             toolOptionsPanel = new Panel();
             toolPanel = new Panel();
+            eraserToolButton = new PictureBox();
+            drawToolButton = new PictureBox();
             rightDock = new Panel();
             fillDock = new Panel();
             Canvas = new Panel();
             NoFileOpenLabel = new Label();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
-            drawToolButton = new PictureBox();
-            eraserToolButton = new PictureBox();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             toolPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)drawToolButton).BeginInit();
             fillDock.SuspendLayout();
             Canvas.SuspendLayout();
             bottomDock.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)drawToolButton).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
             SuspendLayout();
             // 
             // menuStrip
@@ -83,28 +84,28 @@
             // newFileToolStripMenuItem
             // 
             newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            newFileToolStripMenuItem.Size = new Size(224, 26);
+            newFileToolStripMenuItem.Size = new Size(143, 26);
             newFileToolStripMenuItem.Text = "New";
             newFileToolStripMenuItem.Click += NewFileToolStripMenuItem_Click;
             // 
             // openFileToolStripMenuItem
             // 
             openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            openFileToolStripMenuItem.Size = new Size(224, 26);
+            openFileToolStripMenuItem.Size = new Size(143, 26);
             openFileToolStripMenuItem.Text = "Open";
             openFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // saveFileToolStripMenuItem
             // 
             saveFileToolStripMenuItem.Name = "saveFileToolStripMenuItem";
-            saveFileToolStripMenuItem.Size = new Size(224, 26);
+            saveFileToolStripMenuItem.Size = new Size(143, 26);
             saveFileToolStripMenuItem.Text = "Save";
             saveFileToolStripMenuItem.Click += SaveFileToolStripMenuItem_Click;
             // 
             // saveAsFileToolStripMenuItem
             // 
             saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            saveAsFileToolStripMenuItem.Size = new Size(224, 26);
+            saveAsFileToolStripMenuItem.Size = new Size(143, 26);
             saveAsFileToolStripMenuItem.Text = "Save As";
             saveAsFileToolStripMenuItem.Click += SaveAsFileToolStripMenuItem_Click;
             // 
@@ -112,7 +113,7 @@
             // 
             exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { asFileToolStripMenuItem, copyArtToClipboardToolStripMenuItem });
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(224, 26);
+            exportToolStripMenuItem.Size = new Size(143, 26);
             exportToolStripMenuItem.Text = "Export";
             // 
             // asFileToolStripMenuItem
@@ -132,12 +133,12 @@
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(221, 6);
+            toolStripSeparator1.Size = new Size(140, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(224, 26);
+            exitToolStripMenuItem.Size = new Size(143, 26);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 
@@ -193,6 +194,32 @@
             toolPanel.Name = "toolPanel";
             toolPanel.Size = new Size(250, 300);
             toolPanel.TabIndex = 4;
+            // 
+            // eraserToolButton
+            // 
+            eraserToolButton.BackColor = SystemColors.Control;
+            eraserToolButton.Image = Properties.Resources.EraserToolIcon;
+            eraserToolButton.Location = new Point(76, 4);
+            eraserToolButton.Margin = new Padding(4);
+            eraserToolButton.Name = "eraserToolButton";
+            eraserToolButton.Padding = new Padding(4);
+            eraserToolButton.Size = new Size(64, 64);
+            eraserToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            eraserToolButton.TabIndex = 1;
+            eraserToolButton.TabStop = false;
+            // 
+            // drawToolButton
+            // 
+            drawToolButton.BackColor = SystemColors.Control;
+            drawToolButton.Image = Properties.Resources.DrawToolIcon;
+            drawToolButton.Location = new Point(4, 4);
+            drawToolButton.Margin = new Padding(4);
+            drawToolButton.Name = "drawToolButton";
+            drawToolButton.Padding = new Padding(4);
+            drawToolButton.Size = new Size(64, 64);
+            drawToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            drawToolButton.TabIndex = 0;
+            drawToolButton.TabStop = false;
             // 
             // rightDock
             // 
@@ -257,32 +284,6 @@
             TaskInfoLabel.Size = new Size(1262, 40);
             TaskInfoLabel.TabIndex = 0;
             // 
-            // drawToolButton
-            // 
-            drawToolButton.BackColor = SystemColors.Control;
-            drawToolButton.Image = Properties.Resources.DrawToolIcon;
-            drawToolButton.Location = new Point(4, 4);
-            drawToolButton.Margin = new Padding(4);
-            drawToolButton.Name = "drawToolButton";
-            drawToolButton.Padding = new Padding(4);
-            drawToolButton.Size = new Size(64, 64);
-            drawToolButton.SizeMode = PictureBoxSizeMode.Zoom;
-            drawToolButton.TabIndex = 0;
-            drawToolButton.TabStop = false;
-            // 
-            // eraserToolButton
-            // 
-            eraserToolButton.BackColor = SystemColors.Control;
-            eraserToolButton.Image = Properties.Resources.EraserToolIcon;
-            eraserToolButton.Location = new Point(76, 4);
-            eraserToolButton.Margin = new Padding(4);
-            eraserToolButton.Name = "eraserToolButton";
-            eraserToolButton.Padding = new Padding(4);
-            eraserToolButton.Size = new Size(64, 64);
-            eraserToolButton.SizeMode = PictureBoxSizeMode.Zoom;
-            eraserToolButton.TabIndex = 1;
-            eraserToolButton.TabStop = false;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -294,6 +295,7 @@
             Controls.Add(leftDock);
             Controls.Add(menuStrip);
             Controls.Add(bottomDock);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip;
             Name = "MainForm";
             Text = "ASCII Art Program";
@@ -303,13 +305,13 @@
             leftDock.ResumeLayout(false);
             leftDock.PerformLayout();
             toolPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)drawToolButton).EndInit();
             fillDock.ResumeLayout(false);
             fillDock.PerformLayout();
             Canvas.ResumeLayout(false);
             Canvas.PerformLayout();
             bottomDock.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)drawToolButton).EndInit();
-            ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }

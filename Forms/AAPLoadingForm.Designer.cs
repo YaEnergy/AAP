@@ -30,6 +30,7 @@ namespace AAP
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AAPLoadingForm));
             loadingLabel = new Label();
             progressBar = new ProgressBar();
             splashIcon = new PictureBox();
@@ -70,6 +71,7 @@ namespace AAP
             Controls.Add(splashIcon);
             Controls.Add(progressBar);
             Controls.Add(loadingLabel);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MaximumSize = new Size(500, 300);
             MinimizeBox = false;
