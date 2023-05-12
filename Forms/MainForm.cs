@@ -24,7 +24,7 @@ namespace AAP
         {
             CanvasTextSize = textSize;
 
-            Font font = new Font("Consolas", textSize, FontStyle.Regular);
+            Font font = new("Consolas", textSize, FontStyle.Regular);
 
             foreach (KeyValuePair<Point, Label> pair in CharLabels)
             {
@@ -37,8 +37,8 @@ namespace AAP
         {
             CanvasTextSize = textSize;
 
-            Font font = new Font("Consolas", textSize, FontStyle.Regular);
-            List<Point> coordsToRemove = new List<Point>();
+            Font font = new("Consolas", textSize, FontStyle.Regular);
+            List<Point> coordsToRemove = new();
 
             foreach (KeyValuePair<Point, Label> pair in CharLabels)
             {
@@ -50,8 +50,8 @@ namespace AAP
 
                 pair.Value.Text = " ";
                 pair.Value.Font = font;
-                pair.Value.Size = new Size(CanvasTextSize + 2, CanvasTextSize * 2);
-                pair.Value.Location = new Point(pair.Key.X * (CanvasTextSize + 2), pair.Key.Y * CanvasTextSize * 2);
+                pair.Value.Size = new(CanvasTextSize + 2, CanvasTextSize * 2);
+                pair.Value.Location = new(pair.Key.X * (CanvasTextSize + 2), pair.Key.Y * CanvasTextSize * 2);
             }
 
             foreach (Point coordToRemove in coordsToRemove)
@@ -64,20 +64,20 @@ namespace AAP
             for (int x = 0; x < width; x++)
                 for (int y = 0; y < height; y++)
                 {
-                    Point coords = new Point(x, y);
+                    Point coords = new(x, y);
 
                     if (CharLabels.ContainsKey(coords))
                         continue;
 
-                    Label label = new Label();
+                    Label label = new();
                     label.SuspendLayout();
 
                     label.Text = " ";
                     label.Font = font;
-                    label.Size = new Size(CanvasTextSize + 2, CanvasTextSize * 2);
-                    label.Location = new Point(x * (CanvasTextSize + 2), y * CanvasTextSize * 2);
+                    label.Size = new(CanvasTextSize + 2, CanvasTextSize * 2);
+                    label.Location = new(x * (CanvasTextSize + 2), y * CanvasTextSize * 2);
 
-                    CharLabels.Add(new Point(x, y), label);
+                    CharLabels.Add(new(x, y), label);
                     Canvas.Controls.Add(label);
 
                     label.ResumeLayout(true);
@@ -114,14 +114,16 @@ namespace AAP
 
         private void OpenFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Open ASCII Art File";
-            openFileDialog.Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt";
-            openFileDialog.Multiselect = false;
-            openFileDialog.CheckFileExists = true;
-            openFileDialog.CheckPathExists = true;
-            openFileDialog.InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath;
-            openFileDialog.ValidateNames = true;
+            OpenFileDialog openFileDialog = new()
+            {
+                Title = "Open ASCII Art File",
+                Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt",
+                Multiselect = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
             openFileDialog.FileOk += (sender, args) => MainProgram.OpenFile(new(openFileDialog.FileName));
 
             openFileDialog.ShowDialog();
@@ -134,21 +136,23 @@ namespace AAP
 
             if (MainProgram.CurrentFilePath == null || MainProgram.CurrentFilePath == "")
             {
-                SaveFileDialog saveFileDialog = new();
-                saveFileDialog.Title = "Save ASCII Art File";
-                saveFileDialog.Filter = "Art file (*.aaf)|*.aaf";
-                saveFileDialog.CheckFileExists = false;
-                saveFileDialog.CheckPathExists = true;
-                saveFileDialog.InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath;
-                saveFileDialog.ValidateNames = true;
-                saveFileDialog.FileOk += (sender, args) => MainProgram.SaveFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
+                SaveFileDialog saveFileDialog = new()
+                {
+                    Title = "Save ASCII Art File",
+                    Filter = "Art file (*.aaf)|*.aaf",
+                    CheckFileExists = false,
+                    CheckPathExists = true,
+                    InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
+                    ValidateNames = true
+                };
+                saveFileDialog.FileOk += (sender, args) => MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
 
                 saveFileDialog.ShowDialog();
 
                 return;
             }
 
-            MainProgram.SaveFileToPathAsync(MainProgram.CurrentArtFile, MainProgram.CurrentFilePath);
+            MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentArtFile, MainProgram.CurrentFilePath);
         }
 
         private void SaveAsFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -156,14 +160,16 @@ namespace AAP
             if (MainProgram.CurrentArtFile == null)
                 return;
 
-            SaveFileDialog saveFileDialog = new();
-            saveFileDialog.Title = "Save ASCII Art File";
-            saveFileDialog.Filter = "Art file (*.aaf)|*.aaf";
-            saveFileDialog.CheckFileExists = false;
-            saveFileDialog.CheckPathExists = true;
-            saveFileDialog.InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath;
-            saveFileDialog.ValidateNames = true;
-            saveFileDialog.FileOk += (sender, args) => MainProgram.SaveFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Save ASCII Art File",
+                Filter = "Art file (*.aaf)|*.aaf",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+            saveFileDialog.FileOk += (sender, args) => MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
 
             saveFileDialog.ShowDialog();
 
@@ -184,11 +190,9 @@ namespace AAP
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Copy Art To Clipboard: Failed to copy art to clipboard! {ex.ToString()}");
+                Console.WriteLine($"Copy Art To Clipboard: Failed to copy art to clipboard! {ex.Message}");
                 MessageBox.Show("Failed to copy art to clipboard!", "Copy Art To Clipboard", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            TaskInfoLabel.Text = "";
         }
 
         private void AsFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -196,14 +200,16 @@ namespace AAP
             if (MainProgram.CurrentArtFile == null)
                 return;
 
-            SaveFileDialog saveFileDialog = new();
-            saveFileDialog.Title = "Export ASCII Art File As";
-            saveFileDialog.Filter = "Text file (*.txt)|*.txt";
-            saveFileDialog.CheckFileExists = false;
-            saveFileDialog.CheckPathExists = true;
-            saveFileDialog.InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath;
-            saveFileDialog.ValidateNames = true;
-            saveFileDialog.FileOk += (sender, args) => MainProgram.CurrentArtFile.ExportTo(saveFileDialog.FileName);
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Export ASCII Art File As",
+                Filter = "Text file (*.txt)|*.txt",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+            saveFileDialog.FileOk += (sender, args) => MainProgram.ExportArtFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
 
             saveFileDialog.ShowDialog();
 
