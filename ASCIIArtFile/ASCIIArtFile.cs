@@ -105,17 +105,22 @@ namespace AAP
                     if (lines.Length <= 0)
                         throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): txt file contains no lines!");
 
-                    artFile = new(lines[0].Length, lines.Length, MainProgram.Version, MainProgram.Version);
+                    int width = 0;
+                    int height = lines.Length;
+
+                    //Get total width
+                    foreach(string line in lines)
+                        if (line.Length > width)
+                            width = line.Length;
+
+                    artFile = new(width, height, MainProgram.Version, MainProgram.Version);
                     ArtLayer artLayer = new("Imported Art", artFile.Width, artFile.Height);
 
-                    for(int y = 0; y < artFile.Height; y++)
+                    for(int y = 0; y < height; y++)
                     {
-                        if (lines[y].Length != artFile.Width)
-                            throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): txt file line {y} has a length of {lines[y].Length} characters, which is not equal to the amount of characters in the first line! ({artFile.Width}");
-
                         char[] chars = lines[y].ToCharArray();
-                        for (int x = 0; x < artFile.Width; x++)
-                            artLayer.Data[x][y] = chars[x];
+                        for (int x = 0; x < width; x++)
+                            artLayer.Data[x][y] = x >= chars.Length ? null : chars[x];
                     }
 
                     artFile.ArtLayers.Add(artLayer);
