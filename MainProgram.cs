@@ -67,11 +67,14 @@ namespace AAP
             mainForm.DisplayArtFile(artFile);
         }
 
-        public static void OpenFilePath(string path)
+        public static void OpenFile(FileInfo file)
         {
+            if (!file.Exists)
+                return;
+
             try
             {
-                ASCIIArtFile? artFile = ASCIIArtFile.ReadFrom(path);
+                ASCIIArtFile? artFile = ASCIIArtFile.ImportFilePath(file.FullName);
 
                 if (artFile == null)
                 {
@@ -85,19 +88,19 @@ namespace AAP
                     throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)");
                 }
 
-                Console.WriteLine("Opened art file path: " + path);
+                Console.WriteLine("Opened art file path: " + file.FullName);
                 Console.WriteLine("Created in version: " + artFile.CreatedInVersion);
                 Console.WriteLine("Art size: " + artFile.Width + "x" + artFile.Height);
 
                 CurrentArtFile = artFile;
-                CurrentFilePath = path;
+                CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
 
                 mainForm.DisplayArtFile(artFile);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Open File Path: An error has occurred while opening art file ({path})! Exception: {ex.Message}");
-                MessageBox.Show($"An error has occurred while opening art file ({path})! Exception: {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Console.WriteLine($"Open File Path: An error has occurred while opening art file ({file.FullName})! Exception: {ex.Message}");
+                MessageBox.Show($"An error has occurred while opening art file ({file.FullName})! Exception: {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -108,7 +111,7 @@ namespace AAP
 
             CurrentFilePath = path;
 
-            BackgroundWorker bgWorker = new BackgroundWorker();
+            BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = false;
             bgWorker.DoWork += SaveWork;
             bgWorker.RunWorkerCompleted += SaveComplete;

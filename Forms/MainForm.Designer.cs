@@ -84,28 +84,28 @@
             // newFileToolStripMenuItem
             // 
             newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            newFileToolStripMenuItem.Size = new Size(143, 26);
+            newFileToolStripMenuItem.Size = new Size(224, 26);
             newFileToolStripMenuItem.Text = "New";
             newFileToolStripMenuItem.Click += NewFileToolStripMenuItem_Click;
             // 
             // openFileToolStripMenuItem
             // 
             openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            openFileToolStripMenuItem.Size = new Size(143, 26);
+            openFileToolStripMenuItem.Size = new Size(224, 26);
             openFileToolStripMenuItem.Text = "Open";
             openFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // saveFileToolStripMenuItem
             // 
             saveFileToolStripMenuItem.Name = "saveFileToolStripMenuItem";
-            saveFileToolStripMenuItem.Size = new Size(143, 26);
+            saveFileToolStripMenuItem.Size = new Size(224, 26);
             saveFileToolStripMenuItem.Text = "Save";
             saveFileToolStripMenuItem.Click += SaveFileToolStripMenuItem_Click;
             // 
             // saveAsFileToolStripMenuItem
             // 
             saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            saveAsFileToolStripMenuItem.Size = new Size(143, 26);
+            saveAsFileToolStripMenuItem.Size = new Size(224, 26);
             saveAsFileToolStripMenuItem.Text = "Save As";
             saveAsFileToolStripMenuItem.Click += SaveAsFileToolStripMenuItem_Click;
             // 
@@ -113,7 +113,7 @@
             // 
             exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { asFileToolStripMenuItem, copyArtToClipboardToolStripMenuItem });
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(143, 26);
+            exportToolStripMenuItem.Size = new Size(224, 26);
             exportToolStripMenuItem.Text = "Export";
             // 
             // asFileToolStripMenuItem
@@ -133,12 +133,12 @@
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(140, 6);
+            toolStripSeparator1.Size = new Size(221, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(143, 26);
+            exitToolStripMenuItem.Size = new Size(224, 26);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 

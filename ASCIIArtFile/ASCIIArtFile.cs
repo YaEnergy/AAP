@@ -52,24 +52,7 @@ namespace AAP
 
             sw.Close();
 
-            return new FileInfo(path);
-        }
-
-        public static ASCIIArtFile? ReadFrom(string path) 
-        {
-            if (!path.EndsWith(EXTENSION))
-                return null;
-
-            JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamReader sr = File.OpenText(path);
-            JsonTextReader jr = new JsonTextReader(sr);
-
-            ASCIIArtFile? artFile = js.Deserialize<ASCIIArtFile>(jr);
-
-            jr.CloseInput = true;
-            jr.Close();
-
-            return artFile;
+            return new(path);
         }
 
         public string GetArtString()
@@ -105,9 +88,58 @@ namespace AAP
             return art;
         }
 
+        public static ASCIIArtFile? ImportFilePath(string path)
+        {
+            FileInfo fileInfo = new(path);
+
+            if (!fileInfo.Exists)
+                return null;
+
+            ASCIIArtFile? artFile;
+
+            switch (fileInfo.Extension)
+            {
+                case ".txt":
+                    string[] lines = File.ReadAllLines(fileInfo.FullName);
+
+                    if (lines.Length <= 0)
+                        throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): txt file contains no lines!");
+
+                    artFile = new(lines[0].Length, lines.Length, MainProgram.Version, MainProgram.Version);
+                    ArtLayer artLayer = new("Imported Art", artFile.Width, artFile.Height);
+
+                    for(int y = 0; y < artFile.Height; y++)
+                    {
+                        if (lines[y].Length != artFile.Width)
+                            throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): txt file line {y} has a length of {lines[y].Length} characters, which is not equal to the amount of characters in the first line! ({artFile.Width}");
+
+                        char[] chars = lines[y].ToCharArray();
+                        for (int x = 0; x < artFile.Width; x++)
+                            artLayer.Data[x][y] = chars[x];
+                    }
+
+                    artFile.ArtLayers.Add(artLayer);
+
+                    return artFile;
+                case ".aaf":
+                    JsonSerializer js = JsonSerializer.CreateDefault();
+                    StreamReader sr = File.OpenText(path);
+                    JsonTextReader jr = new(sr);
+
+                    artFile = js.Deserialize<ASCIIArtFile>(jr);
+
+                    jr.CloseInput = true;
+                    jr.Close();
+
+                    return artFile;
+                default:
+                    throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): no case for extension {fileInfo.Extension} exists!");
+            }
+        }
+
         public FileInfo ExportTo(string path)
         {
-            FileInfo fileInfo = new FileInfo(path);
+            FileInfo fileInfo = new(path);
 
             switch(fileInfo.Extension)
             {
@@ -119,6 +151,8 @@ namespace AAP
 
                     sw.Close();
                     break;
+                default:
+                    throw new Exception($"ASCIIArtFile.ExportTo(path: {path}): no case for extension {fileInfo.Extension} exists!");
             }
 
             return fileInfo;

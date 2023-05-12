@@ -107,13 +107,13 @@ namespace AAP
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Title = "Open ASCII Art File";
-            openFileDialog.Filter = "Art files (*.aaf)|*.aaf";
+            openFileDialog.Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt";
             openFileDialog.Multiselect = false;
             openFileDialog.CheckFileExists = true;
             openFileDialog.CheckPathExists = true;
             openFileDialog.InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath;
             openFileDialog.ValidateNames = true;
-            openFileDialog.FileOk += (sender, args) => MainProgram.OpenFilePath(openFileDialog.FileName);
+            openFileDialog.FileOk += (sender, args) => MainProgram.OpenFile(new(openFileDialog.FileName));
 
             openFileDialog.ShowDialog();
         }
