@@ -21,7 +21,8 @@ namespace AAP
         public static string? CurrentFilePath;
 
         public static Tool CurrentTool = new SelectTool();
-        public static Rectangle Selected = Rectangle.Empty;
+        private static readonly Rectangle selected = Rectangle.Empty;
+        public static Rectangle Selected = selected;
 
         /// <summary>
         ///  The main entry point for the application.
