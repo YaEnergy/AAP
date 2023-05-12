@@ -9,6 +9,15 @@ namespace AAP
         public MainForm()
         {
             InitializeComponent();
+
+            OnCurrentFilePathChanged(null);
+
+            MainProgram.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
+        }
+
+        private void OnCurrentFilePathChanged(string? filePath)
+        {
+            Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)}";
         }
 
         public void SetCanvasTextSize(int textSize)

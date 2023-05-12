@@ -5,7 +5,7 @@ using Microsoft.Win32;
 
 namespace AAP
 {
-    public class MainProgram
+    public static class MainProgram
     {
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
@@ -17,12 +17,20 @@ namespace AAP
         public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
         public static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
 
-        public static ASCIIArtFile? CurrentArtFile;
-        public static string? CurrentFilePath;
+        private static ASCIIArtFile? currentArtFile;
+        public static ASCIIArtFile? CurrentArtFile { get => currentArtFile; set => currentArtFile = value; }
 
-        public static Tool CurrentTool = new SelectTool();
-        private static readonly Rectangle selected = Rectangle.Empty;
-        public static Rectangle Selected = selected;
+        private static string? currentFilePath;
+        public static string? CurrentFilePath { get => currentFilePath; set { currentFilePath = value; OnCurrentFilePathChanged?.Invoke(value); } }
+        public delegate void CurrentFilePathChangedEvent(string? filePath);
+        public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
+
+        private static Tool currentTool = new SelectTool();
+        public static Tool CurrentTool { get => currentTool; set => currentTool = value; }
+
+        private static Rectangle selected = Rectangle.Empty;
+        public static Rectangle Selected { get => selected; set => selected = value; }
+
 
         /// <summary>
         ///  The main entry point for the application.
