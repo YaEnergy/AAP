@@ -1,3 +1,6 @@
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace AAP
@@ -20,6 +23,7 @@ namespace AAP
             Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)}";
         }
 
+        #region Canvas
         public void SetCanvasTextSize(int textSize)
         {
             CanvasTextSize = textSize;
@@ -108,6 +112,51 @@ namespace AAP
             Canvas.Show();
             TaskInfoLabel.Text = "";
         }
+        #endregion
+        #region Background Run Worker Complete Functions
+        void BackgroundSaveComplete(object? sender, RunWorkerCompletedEventArgs args)
+        {
+            if (args.Cancelled)
+            {
+                Console.WriteLine("Save File: Art file save cancelled!");
+                MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (args.Error != null)
+            {
+                Console.WriteLine("Save File: An error has occurred while saving art file! Exception: " + args.Error.Message);
+                MessageBox.Show("An error has occurred while saving art file!\nException: " + args.Error.Message, "Save File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                if (args.Result is not FileInfo fileInfo)
+                    throw new Exception("Background Worker Save Art File did not return file info!");
+
+                MessageBox.Show("Saved art file to " + fileInfo.FullName + "!", "Save File", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        void BackgroundExportComplete(object? sender, RunWorkerCompletedEventArgs args)
+        {
+            if (args.Cancelled)
+            {
+                Console.WriteLine("Export File: Art file export cancelled!");
+                MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else if (args.Error != null)
+            {
+                Console.WriteLine("Export File: An error has occurred while exporting art file! Exception: " + args.Error.Message);
+                MessageBox.Show("An error has occurred while exporting art file!\nException: " + args.Error.Message, "Export File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                if (args.Result is not FileInfo fileInfo)
+                    throw new Exception("Background Worker Export Art File did not return file info!");
+
+                MessageBox.Show("Exported art file to " + fileInfo.FullName + "!", "Export File", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Process.Start("explorer.exe", fileInfo.DirectoryName ?? MainProgram.DefaultArtFilesDirectoryPath);
+            }
+        }
+        #endregion
 
         private void NewFileToolStripMenuItem_Click(object sender, EventArgs e)
             => new NewFileDialog().ShowDialog();
@@ -145,14 +194,29 @@ namespace AAP
                     InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
                     ValidateNames = true
                 };
-                saveFileDialog.FileOk += (sender, args) => MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
+                saveFileDialog.FileOk += OnFileOk;
+
+                void OnFileOk(object? sender, CancelEventArgs args)
+                {
+                    BackgroundWorker? bgWorker = MainProgram.SaveArtFileToPathAsync(saveFileDialog.FileName);
+
+                    if (bgWorker == null)
+                        return;
+
+                    bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+                }
 
                 saveFileDialog.ShowDialog();
 
                 return;
             }
 
-            MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentArtFile, MainProgram.CurrentFilePath);
+            BackgroundWorker? bgWorker = MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentFilePath);
+
+            if (bgWorker == null)
+                return;
+
+            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
         }
 
         private void SaveAsFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -169,7 +233,36 @@ namespace AAP
                 InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
                 ValidateNames = true
             };
-            saveFileDialog.FileOk += (sender, args) => MainProgram.SaveArtFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
+            saveFileDialog.FileOk += OnFileOk;
+
+            void OnFileOk(object? sender, CancelEventArgs args)
+            {
+                BackgroundWorker? bgWorker = MainProgram.SaveArtFileToPathAsync(saveFileDialog.FileName);
+
+                if (bgWorker == null)
+                    return;
+
+                bgWorker.RunWorkerCompleted += SaveComplete;
+
+                void SaveComplete(object? sender, RunWorkerCompletedEventArgs args)
+                {
+                    if (args.Cancelled)
+                    {
+                        Console.WriteLine("Save File: Art file save to " + saveFileDialog.FileName + " cancelled!");
+                        MessageBox.Show("Cancelled saving " + saveFileDialog.FileName + "!", "Save File", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else if (args.Error != null)
+                    {
+                        Console.WriteLine("Save File: An error has occurred while saving art file to " + saveFileDialog.FileName + "! Exception: " + args.Error.Message);
+                        MessageBox.Show("An error has occurred while saving art file to " + saveFileDialog.FileName + "!\nException: " + args.Error.Message, "Save File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Save File: Art file saved to " + saveFileDialog.FileName + "!");
+                        MessageBox.Show("Saved art file to " + saveFileDialog.FileName + "!", "Save File", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+            }
 
             saveFileDialog.ShowDialog();
 
@@ -181,18 +274,9 @@ namespace AAP
 
         private void CopyArtToClipboardToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TaskInfoLabel.Text = "Copying art to clipboard...";
+            MainProgram.CopyArtFileToClipboard();
 
-            try
-            {
-                MainProgram.CurrentArtFile?.CopyToClipboard();
-                TaskInfoLabel.Text = "Copied art to clipboard!";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Copy Art To Clipboard: Failed to copy art to clipboard! {ex.Message}");
-                MessageBox.Show("Failed to copy art to clipboard!", "Copy Art To Clipboard", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            MessageBox.Show("Copied art to clipboard!", "Copy To Clipboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void AsFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -202,14 +286,24 @@ namespace AAP
 
             SaveFileDialog saveFileDialog = new()
             {
-                Title = "Export ASCII Art File As",
-                Filter = "Text file (*.txt)|*.txt",
+                Title = "Save ASCII Art File",
+                Filter = "Text Files (*.txt)|*.txt",
                 CheckFileExists = false,
                 CheckPathExists = true,
                 InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
                 ValidateNames = true
             };
-            saveFileDialog.FileOk += (sender, args) => MainProgram.ExportArtFileToPathAsync(MainProgram.CurrentArtFile, saveFileDialog.FileName);
+            saveFileDialog.FileOk += OnFileOk;
+
+            void OnFileOk(object? sender, CancelEventArgs args)
+            {
+                BackgroundWorker? bgWorker = MainProgram.ExportArtFileToPathAsync(saveFileDialog.FileName);
+
+                if (bgWorker == null)
+                    return;
+
+                bgWorker.RunWorkerCompleted += BackgroundExportComplete;
+            }
 
             saveFileDialog.ShowDialog();
 

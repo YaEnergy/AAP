@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,9 +56,9 @@ namespace AAP
             return new(path);
         }
 
-        public string GetArtString()
+        public string GetArtString(BackgroundWorker? bgWorker = null)
         {
-            Dictionary<Point, char?> visibleArtMatrix = new();
+            Dictionary<Point, char> visibleArtMatrix = new();
 
             for (int i = 0; i < ArtLayers.Count; i++)
                 if (ArtLayers[i].Visible)
@@ -69,7 +70,7 @@ namespace AAP
                             if (character == null) 
                                 continue;
 
-                            visibleArtMatrix.Add(new(x, y), character.Value);
+                            visibleArtMatrix[new(x, y)] = character.Value;
                         }
 
             string art = "";
@@ -79,7 +80,8 @@ namespace AAP
                 for (int x = 0; x < Width; x++)
                 {
                     Point coord = new(x, y);
-                    art += visibleArtMatrix[coord] == null ? " " : visibleArtMatrix[coord];
+
+                    art += !visibleArtMatrix.ContainsKey(coord) ? " " : visibleArtMatrix[coord].ToString();
                 }
 
                 art += "\n";
@@ -88,7 +90,7 @@ namespace AAP
             return art;
         }
 
-        public static ASCIIArtFile? ImportFilePath(string path)
+        public static ASCIIArtFile? ImportFilePath(string path, BackgroundWorker? bgWorker = null)
         {
             FileInfo fileInfo = new(path);
 
@@ -142,7 +144,7 @@ namespace AAP
             }
         }
 
-        public FileInfo ExportTo(string path)
+        public FileInfo ExportTo(string path, BackgroundWorker? bgWorker = null)
         {
             FileInfo fileInfo = new(path);
 
@@ -162,8 +164,5 @@ namespace AAP
 
             return fileInfo;
         }
-
-        public void CopyToClipboard()
-            => Clipboard.SetText(GetArtString());
     }
 }

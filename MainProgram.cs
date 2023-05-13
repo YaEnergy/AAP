@@ -114,82 +114,88 @@ namespace AAP
             }
         }
 
-        public static void SaveArtFileToPathAsync(ASCIIArtFile artFile, string path)
+        public static BackgroundWorker? SaveArtFileToPathAsync(string path)
         {
+            if (CurrentArtFile == null) 
+                return null;
+
             if (path == null)
-                return;
+                return null;
 
             CurrentFilePath = path;
 
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = false;
             bgWorker.DoWork += SaveWork;
-            bgWorker.RunWorkerCompleted += SaveComplete;
 
             bgWorker.RunWorkerAsync();
-
-            void SaveComplete(object? sender, RunWorkerCompletedEventArgs args)
-            {
-                if (args.Cancelled)
-                    Console.WriteLine("Save File: Art file save to " + path + " cancelled!");
-                else if (args.Error != null)
-                {
-                    Console.WriteLine("Save File: An error has occurred while saving art file to " + path + "! Exception: " + args.Error.Message);
-                    MessageBox.Show("An error has occurred while saving art file to " + path + "! Exception: " + args.Error.Message, "Save File", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                    Console.WriteLine("Save File: Art file saved to " + path + "!");
-            }
 
             void SaveWork(object? sender, DoWorkEventArgs args)
             {
                 if (sender is not BackgroundWorker bgWorker)
                     return;
 
-                Console.WriteLine("Saving art file to " + path);
-                FileInfo fileInfo = artFile.WriteTo(path);
+                if (CurrentArtFile == null)
+                    return;
 
-                Process.Start("explorer.exe", fileInfo.DirectoryName == null ? DefaultArtFilesDirectoryPath : fileInfo.DirectoryName);
+                Console.WriteLine("Save File: Saving art file to " + path);
+
+                FileInfo fileInfo = CurrentArtFile.WriteTo(path);
+
+                Console.WriteLine("Save File: Art file saved to " + path + "!");
+
+                args.Result = fileInfo;
             }
+
+            return bgWorker;
         }
 
-        public static void ExportArtFileToPathAsync(ASCIIArtFile artFile, string path)
+        public static BackgroundWorker? ExportArtFileToPathAsync(string path)
         {
+            if (CurrentArtFile == null)
+                return null;
+
             if (path == null)
-                return;
+                return null;
 
             CurrentFilePath = path;
 
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = false;
             bgWorker.DoWork += ExportWork;
-            bgWorker.RunWorkerCompleted += ExportComplete;
 
             bgWorker.RunWorkerAsync();
-
-            void ExportComplete(object? sender, RunWorkerCompletedEventArgs args)
-            {
-                if (args.Cancelled)
-                    Console.WriteLine("Export File: Art file export to " + path + " cancelled!");
-                else if (args.Error != null)
-                {
-                    Console.WriteLine("Export File: An error has occurred while exporting art file to " + path + "! Exception: " + args.Error.Message);
-                    MessageBox.Show("An error has occurred while saving art file to " + path + "! Exception: " + args.Error.Message, "Export File", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                    Console.WriteLine("Export File: Art file exported to " + path + "!");
-            }
 
             void ExportWork(object? sender, DoWorkEventArgs args)
             {
                 if (sender is not BackgroundWorker bgWorker)
-                    return;
+                    throw new Exception("Sender is not a background worker!");
 
-                Console.WriteLine("Exporting art file to " + path);
-                FileInfo fileInfo = artFile.ExportTo(path);
+                if (CurrentArtFile == null)
+                    throw new Exception("Current Art File is null!");
 
-                Process.Start("explorer.exe", fileInfo.DirectoryName ?? DefaultArtFilesDirectoryPath);
+                Console.WriteLine("Export File: Exporting art file to " + path);
+
+                FileInfo fileInfo = CurrentArtFile.ExportTo(path, bgWorker);
+
+                Console.WriteLine("Export File: Art file exported to " + path + "!");
+
+                args.Result = fileInfo;
             }
+
+            return bgWorker;
+        }
+
+        public static void CopyArtFileToClipboard()
+        {
+            if (CurrentArtFile == null)
+                return;
+
+            Console.WriteLine("Copy Art To Clipboard: Copying art file to clipboard...");
+            string artString = CurrentArtFile.GetArtString();
+
+            Clipboard.SetText(artString);
+            Console.WriteLine("Copy Art To Clipboard: Copied art file to clipboard!");
         }
     }
 }
