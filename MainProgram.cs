@@ -11,7 +11,7 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        public static readonly int MaxArtArea = 9800;
+        public static readonly int MaxArtArea = 90000;
 
         private static MainForm mainForm = new();
 
@@ -74,7 +74,7 @@ namespace AAP
             CurrentArtFile = artFile;
             CurrentFilePath = "";
 
-            mainForm.DisplayArtFile(artFile);
+            mainForm.DisplayArt();
         }
 
         public static void OpenFile(FileInfo file)
@@ -105,7 +105,7 @@ namespace AAP
                 CurrentArtFile = artFile;
                 CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
 
-                mainForm.DisplayArtFile(artFile);
+                mainForm.DisplayArt();
             }
             catch (Exception ex)
             {

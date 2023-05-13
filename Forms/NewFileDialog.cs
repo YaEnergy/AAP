@@ -47,7 +47,7 @@ namespace AAP
                 return;
             }
 
-            if (sizeWidth * sizeHeight > 9800)
+            if (sizeWidth * sizeHeight > MainProgram.MaxArtArea)
             {
                 MessageBox.Show($"Art Area is too large! Max: {MainProgram.MaxArtArea} characters ({sizeWidth * sizeHeight} characters)", InvalidFileMessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;

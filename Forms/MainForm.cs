@@ -7,8 +7,12 @@ namespace AAP
 {
     public partial class MainForm : System.Windows.Forms.Form
     {
-        public Dictionary<Point, Label> CharLabels { get; private set; } = new();
+        private readonly static SolidBrush CanvasArtBrush = new(Color.Black);
+        private readonly static Point CanvasArtOffset = new(8, 8);
+        private SizeF trueCanvasSize = new(0f, 0f);
+        private Font canvasArtFont;
         public int CanvasTextSize { get; private set; } = 12;
+
         public MainForm()
         {
             InitializeComponent();
@@ -16,101 +20,78 @@ namespace AAP
             OnCurrentFilePathChanged(null);
 
             MainProgram.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
+
+            canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
+
+            Canvas.MouseMove += (object? sender, MouseEventArgs e) => GetArtMatrixPoint(e.Location);
         }
 
         private void OnCurrentFilePathChanged(string? filePath)
         {
-            Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)}";
+            Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)} ({(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Width)}x{(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Height)})";
         }
 
         #region Canvas
-        public void SetCanvasTextSize(int textSize)
-        {
-            CanvasTextSize = textSize;
-
-            Font font = new("Consolas", textSize, FontStyle.Regular);
-
-            foreach (KeyValuePair<Point, Label> pair in CharLabels)
-            {
-                pair.Value.Font = font;
-                pair.Value.Size = new Size(CanvasTextSize + 1, CanvasTextSize * 2);
-                pair.Value.Location = new Point(pair.Key.X * (CanvasTextSize + 2), pair.Key.Y * CanvasTextSize * 2);
-            }
-        }
-        public void SetCanvasSize(int width, int height, int textSize)
-        {
-            CanvasTextSize = textSize;
-
-            Font font = new("Consolas", textSize, FontStyle.Regular);
-            List<Point> coordsToRemove = new();
-
-            foreach (KeyValuePair<Point, Label> pair in CharLabels)
-            {
-                if (pair.Key.X >= width || pair.Key.Y >= height)
-                {
-                    coordsToRemove.Add(pair.Key);
-                    continue;
-                }
-
-                pair.Value.Text = " ";
-                pair.Value.Font = font;
-                pair.Value.Size = new(CanvasTextSize + 2, CanvasTextSize * 2);
-                pair.Value.Location = new(pair.Key.X * (CanvasTextSize + 2), pair.Key.Y * CanvasTextSize * 2);
-            }
-
-            foreach (Point coordToRemove in coordsToRemove)
-            {
-                CharLabels[coordToRemove].Dispose();
-                Canvas.Controls.Remove(CharLabels[coordToRemove]);
-                CharLabels.Remove(coordToRemove);
-            }
-
-            for (int x = 0; x < width; x++)
-                for (int y = 0; y < height; y++)
-                {
-                    Point coords = new(x, y);
-
-                    if (CharLabels.ContainsKey(coords))
-                        continue;
-
-                    Label label = new();
-                    label.SuspendLayout();
-
-                    label.Text = " ";
-                    label.Font = font;
-                    label.Size = new(CanvasTextSize + 2, CanvasTextSize * 2);
-                    label.Location = new(x * (CanvasTextSize + 2), y * CanvasTextSize * 2);
-
-                    CharLabels.Add(new(x, y), label);
-                    Canvas.Controls.Add(label);
-
-                    label.ResumeLayout(true);
-                }
-        }
-
-        public void DisplayArtFile(ASCIIArtFile artFile)
+        public void DisplayArt()
         {
             Canvas.Hide();
-            NoFileOpenLabel.Hide();
 
             TaskInfoLabel.Text = "Setting up canvas...";
-            SetCanvasSize(artFile.Width, artFile.Height, CanvasTextSize);
 
-            TaskInfoLabel.Text = "Displaying art on canvas...";
-            for (int i = 0; i < artFile.ArtLayers.Count; i++)
-                for (int x = 0; x < artFile.Width; x++)
-                    for (int y = 0; y < artFile.Height; y++)
-                    {
-                        Point coords = new(x, y);
-
-                        if (artFile.ArtLayers[i].Data[x][y] == null)
-                            continue;
-
-                        CharLabels[coords].Text = artFile.ArtLayers[i].Data[x][y].ToString();
-                    }
+            Canvas.Update();
 
             Canvas.Show();
             TaskInfoLabel.Text = "";
+        }
+
+        public Point? GetArtMatrixPoint(Point canvasPosition)
+        {
+            if (MainProgram.CurrentArtFile == null)
+                return null;
+
+            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
+            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y) / (nonOffsetCanvasSize.Height / MainProgram.CurrentArtFile.Height) - 1f);
+
+            Point artMatrixPos = new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
+
+            Console.WriteLine(artMatrixPos);
+
+            return artMatrixPos.X >= 0 && artMatrixPos.Y >= 0 ? artMatrixPos : null;
+        }
+        private void Canvas_Paint(object sender, PaintEventArgs args)
+        {
+            if (sender is not Panel canvas)
+                throw new Exception("Sender is not a panel!");
+
+            canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
+
+            if (MainProgram.CurrentArtFile == null)
+            {
+                string noFileOpenText = "No File Open!";
+                canvas.Size = new(CanvasTextSize * noFileOpenText.Length, canvasArtFont.Height);
+
+                args.Graphics.DrawString("No File Open!", canvasArtFont, CanvasArtBrush, new Point(0, 0));
+                return;
+            }
+
+            string artString = MainProgram.CurrentArtFile.GetArtString();
+
+            string[] lines = artString.Split('\n');
+
+            SizeF size = args.Graphics.MeasureString(artString, canvasArtFont);
+
+            trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X * 2, size.Height + CanvasArtOffset.Y * 2);
+            canvas.Size = trueCanvasSize.ToSize();
+
+            for (int y = 0; y < lines.Length; y++)
+            {
+                PointF position = new(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + CanvasArtOffset.Y);
+
+                if (!args.Graphics.IsVisible(position))
+                    continue;
+
+                args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, position);
+            }
         }
         #endregion
         #region Background Run Worker Complete Functions

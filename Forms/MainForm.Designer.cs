@@ -51,7 +51,6 @@
             rightDock = new Panel();
             fillDock = new Panel();
             Canvas = new Panel();
-            NoFileOpenLabel = new Label();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
             menuStrip.SuspendLayout();
@@ -60,7 +59,6 @@
             ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).BeginInit();
             fillDock.SuspendLayout();
-            Canvas.SuspendLayout();
             bottomDock.SuspendLayout();
             SuspendLayout();
             // 
@@ -84,28 +82,28 @@
             // newFileToolStripMenuItem
             // 
             newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            newFileToolStripMenuItem.Size = new Size(224, 26);
+            newFileToolStripMenuItem.Size = new Size(143, 26);
             newFileToolStripMenuItem.Text = "New";
             newFileToolStripMenuItem.Click += NewFileToolStripMenuItem_Click;
             // 
             // openFileToolStripMenuItem
             // 
             openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            openFileToolStripMenuItem.Size = new Size(224, 26);
+            openFileToolStripMenuItem.Size = new Size(143, 26);
             openFileToolStripMenuItem.Text = "Open";
             openFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // saveFileToolStripMenuItem
             // 
             saveFileToolStripMenuItem.Name = "saveFileToolStripMenuItem";
-            saveFileToolStripMenuItem.Size = new Size(224, 26);
+            saveFileToolStripMenuItem.Size = new Size(143, 26);
             saveFileToolStripMenuItem.Text = "Save";
             saveFileToolStripMenuItem.Click += SaveFileToolStripMenuItem_Click;
             // 
             // saveAsFileToolStripMenuItem
             // 
             saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            saveAsFileToolStripMenuItem.Size = new Size(224, 26);
+            saveAsFileToolStripMenuItem.Size = new Size(143, 26);
             saveAsFileToolStripMenuItem.Text = "Save As";
             saveAsFileToolStripMenuItem.Click += SaveAsFileToolStripMenuItem_Click;
             // 
@@ -113,7 +111,7 @@
             // 
             exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { asFileToolStripMenuItem, copyArtToClipboardToolStripMenuItem });
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(224, 26);
+            exportToolStripMenuItem.Size = new Size(143, 26);
             exportToolStripMenuItem.Text = "Export";
             // 
             // asFileToolStripMenuItem
@@ -133,12 +131,12 @@
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(221, 6);
+            toolStripSeparator1.Size = new Size(140, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(224, 26);
+            exitToolStripMenuItem.Size = new Size(143, 26);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 
@@ -243,26 +241,14 @@
             // 
             // Canvas
             // 
-            Canvas.AutoSize = true;
             Canvas.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             Canvas.BackColor = SystemColors.InactiveBorder;
             Canvas.BorderStyle = BorderStyle.FixedSingle;
-            Canvas.Controls.Add(NoFileOpenLabel);
             Canvas.Location = new Point(3, 3);
             Canvas.Name = "Canvas";
             Canvas.Size = new Size(148, 27);
             Canvas.TabIndex = 1;
-            // 
-            // NoFileOpenLabel
-            // 
-            NoFileOpenLabel.AutoSize = true;
-            NoFileOpenLabel.BorderStyle = BorderStyle.FixedSingle;
-            NoFileOpenLabel.Font = new Font("Consolas", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            NoFileOpenLabel.Location = new Point(-1, 0);
-            NoFileOpenLabel.Name = "NoFileOpenLabel";
-            NoFileOpenLabel.Size = new Size(144, 25);
-            NoFileOpenLabel.TabIndex = 0;
-            NoFileOpenLabel.Text = "No file open";
+            Canvas.Paint += Canvas_Paint;
             // 
             // bottomDock
             // 
@@ -308,9 +294,6 @@
             ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).EndInit();
             fillDock.ResumeLayout(false);
-            fillDock.PerformLayout();
-            Canvas.ResumeLayout(false);
-            Canvas.PerformLayout();
             bottomDock.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -332,7 +315,6 @@
         private Panel rightDock;
         private Panel fillDock;
         public Panel Canvas;
-        private Label NoFileOpenLabel;
         private Panel bottomDock;
         public Label TaskInfoLabel;
         private ToolStripSeparator toolStripSeparator1;
