@@ -10,12 +10,9 @@ namespace AAP
     {
         public int FontSize = 8;
 
-        public override void CanvasClick_Start(Point location)
+        public override void ActivateStart(Point location)
         {
-            base.CanvasClick_Start(location);
-
-            //Create Text Pop Up (insert string)
-            //Create Text in canvas at location
+            base.ActivateStart(location);
         }
     }
 }

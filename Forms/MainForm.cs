@@ -23,8 +23,45 @@ namespace AAP
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
-            Canvas.MouseMove += (object? sender, MouseEventArgs e) => GetArtMatrixPoint(e.Location);
+            Canvas.MouseDown += (sender, args) => ToolActivateStart(sender, args);
         }
+
+        #region Tool Functions
+        private void ToolActivateStart(object? sender, MouseEventArgs e)
+        {
+            Point? artMatrixPosition = GetArtMatrixPoint(e.Location);
+
+            if (!artMatrixPosition.HasValue)
+                return;
+
+            Canvas.MouseMove += ToolActivateUpdate;
+            Canvas.MouseUp += ToolActivateEnd;
+
+            MainProgram.CurrentTool.ActivateStart(artMatrixPosition.Value);
+
+            Console.WriteLine("Tool activate start!");
+        }
+
+        private void ToolActivateUpdate(object? sender, MouseEventArgs e)
+        {
+            Point? artMatrixPosition = GetArtMatrixPoint(e.Location);
+
+            if (!artMatrixPosition.HasValue)
+                return;
+
+            MainProgram.CurrentTool.ActivateUpdate(artMatrixPosition.Value);
+
+            Console.WriteLine("Tool activate update!");
+        }
+
+        private void ToolActivateEnd(object? sender, MouseEventArgs e)
+        {
+            Canvas.MouseMove -= ToolActivateUpdate;
+            Canvas.MouseUp -= ToolActivateEnd;
+
+            Console.WriteLine("Tool activate end!");
+        }
+        #endregion
 
         private void OnCurrentFilePathChanged(string? filePath)
         {
@@ -56,7 +93,7 @@ namespace AAP
 
             Console.WriteLine(artMatrixPos);
 
-            return artMatrixPos.X >= 0 && artMatrixPos.Y >= 0 ? artMatrixPos : null;
+            return artMatrixPos;
         }
         private void Canvas_Paint(object sender, PaintEventArgs args)
         {

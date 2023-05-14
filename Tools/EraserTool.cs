@@ -10,9 +10,9 @@ namespace AAP
     {
         public int Size = 1;
 
-        public override void CanvasClick_Start(Point location)
+        public override void ActivateStart(Point location)
         {
-            base.CanvasClick_Start(location);
+            base.ActivateStart(location);
         }
     }
 }
