@@ -18,6 +18,7 @@ namespace AAP
             InitializeComponent();
 
             OnCurrentFilePathChanged(null);
+            OnCurrentArtFileChanged(null);
 
             MainProgram.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
             MainProgram.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
@@ -38,13 +39,6 @@ namespace AAP
             if (!artMatrixPosition.HasValue)
                 return;
 
-            Point? canvasPosition = GetCanvasPoint(artMatrixPosition.Value);
-
-            if (!canvasPosition.HasValue)
-                return;
-
-            //Canvas.Invalidate(new Rectangle(new(canvasPosition.Value.X, canvasPosition.Value.Y), TextRenderer.MeasureText(" ", Font)));
-
             MainProgram.CurrentTool.ActivateStart(artMatrixPosition.Value);
 
             Canvas.Update();
@@ -58,13 +52,6 @@ namespace AAP
 
             if (!artMatrixPosition.HasValue)
                 return;
-
-            Point? canvasPosition = GetCanvasPoint(artMatrixPosition.Value);
-
-            if (!canvasPosition.HasValue)
-                return;
-
-            //Canvas.Invalidate(new Rectangle(new(canvasPosition.Value.X, canvasPosition.Value.Y), TextRenderer.MeasureText(" ", Font)));
 
             MainProgram.CurrentTool.ActivateUpdate(artMatrixPosition.Value);
 
@@ -87,7 +74,7 @@ namespace AAP
         {
             Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)} ({(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Width)}x{(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Height)})";
 #if DEBUG
-            Text += " - DEBUG MODE";
+            Text += " - DEBUG BUILD";
 #endif
         }
         private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
@@ -96,6 +83,14 @@ namespace AAP
 
             if (artFile != null)
                 artFile.OnArtChanged += OnArtChanged;
+
+            bool artFileExists = artFile != null;
+
+            saveFileToolStripMenuItem.Enabled = artFileExists;
+            saveAsFileToolStripMenuItem.Enabled = artFileExists;
+            exportToolStripMenuItem.Enabled = artFileExists;
+            asFileToolStripMenuItem.Enabled = artFileExists;
+            copyArtToClipboardToolStripMenuItem.Enabled = artFileExists;
         }
         #endregion
 
@@ -107,28 +102,12 @@ namespace AAP
                 return null;
 
             SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
-            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (Font.Height / 2)) / (nonOffsetCanvasSize.Height / MainProgram.CurrentArtFile.Height) - 1f);
+
+            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (canvasArtFont.Height / 2)) / canvasArtFont.Height - 1f);
 
             Point artMatrixPos = new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
 
-            Console.WriteLine(artMatrixPos);
-
             return artMatrixPos;
-        }
-
-        public Point? GetCanvasPoint(Point artMatrixPosition)
-        {
-            if (MainProgram.CurrentArtFile == null)
-                return null;
-
-            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
-            PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) + CanvasArtOffset.X, artMatrixPosition.Y * (nonOffsetCanvasSize.Height / MainProgram.CurrentArtFile.Height) + CanvasArtOffset.Y);
-
-            Point canvasPos = new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
-
-            Console.WriteLine(canvasPos);
-
-            return canvasPos;
         }
 
         public Rectangle? GetCanvasCharacterRectangle(Point artMatrixPosition)
@@ -136,9 +115,13 @@ namespace AAP
             if (MainProgram.CurrentArtFile == null)
                 return null;
 
-            throw new NotImplementedException();
+            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
 
-            //return null;
+            PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) + 1, artMatrixPosition.Y * canvasArtFont.Height + CanvasArtOffset.Y);
+
+            Point canvasPos = new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
+
+            return new(canvasPos, TextRenderer.MeasureText(ASCIIArtFile.EMPTYCHARACTER.ToString(), canvasArtFont));
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs args)
@@ -146,6 +129,7 @@ namespace AAP
             if (sender is not Panel canvas)
                 throw new Exception("Sender is not a panel!");
 
+            canvasArtFont.Dispose();
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
             if (MainProgram.CurrentArtFile == null)
@@ -163,7 +147,7 @@ namespace AAP
 
             SizeF size = args.Graphics.MeasureString(artString, canvasArtFont);
 
-            trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X * 2, size.Height + CanvasArtOffset.Y * 2);
+            trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X * 2, size.Height + CanvasArtOffset.Y * 2 + canvasArtFont.Height * 2);
             canvas.Size = trueCanvasSize.ToSize();
 
             for (int y = 0; y < lines.Length; y++)
@@ -179,12 +163,12 @@ namespace AAP
 
         private void OnArtChanged(int layerIndex, Point artMatrixPosition, char character)
         {
-            Point? canvasPosition = GetCanvasPoint(artMatrixPosition);
+            Rectangle? canvasCharacterRect = GetCanvasCharacterRectangle(artMatrixPosition);
 
-            if (!canvasPosition.HasValue)
+            if (!canvasCharacterRect.HasValue)
                 return;
 
-            Canvas.Invalidate(new Rectangle(canvasPosition.Value, TextRenderer.MeasureText(character.ToString(), Font)));
+            Canvas.Invalidate(canvasCharacterRect.Value);
         }
         #endregion
         #region Background Run Worker Complete Functions

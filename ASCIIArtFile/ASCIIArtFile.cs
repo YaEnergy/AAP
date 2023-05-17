@@ -10,6 +10,7 @@ namespace AAP
 {
     public class ASCIIArtFile
     {
+        public static readonly char EMPTYCHARACTER = ' '; //Figure Space
         private static readonly string EXTENSION = ".aaf";
 
         public readonly string CreatedInVersion = "???";
@@ -35,7 +36,7 @@ namespace AAP
             ArtLayer backgroundLayer = new("Background", Width, Height);
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    backgroundLayer.Data[x][y] = ' '; //Figure Space
+                    backgroundLayer.Data[x][y] = EMPTYCHARACTER; //Figure Space
 
             ArtLayers.Add(backgroundLayer);
 

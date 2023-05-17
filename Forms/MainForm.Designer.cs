@@ -231,6 +231,7 @@
             // fillDock
             // 
             fillDock.AutoScroll = true;
+            fillDock.AutoScrollMargin = new Size(20, 20);
             fillDock.BackColor = SystemColors.ControlLight;
             fillDock.Controls.Add(Canvas);
             fillDock.Dock = DockStyle.Fill;
