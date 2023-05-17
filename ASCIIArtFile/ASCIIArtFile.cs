@@ -19,6 +19,9 @@ namespace AAP
         public readonly int Width = 1;
         public readonly int Height = 1;
 
+        public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char character);
+        public event ArtChangedEvent? OnArtChanged;
+
         public ASCIIArtFile(int width, int height, string updatedinVersion, string createdinVersion) 
         {
             CreatedInVersion = createdinVersion;
@@ -32,28 +35,11 @@ namespace AAP
             ArtLayer backgroundLayer = new("Background", Width, Height);
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    backgroundLayer.Data[x][y] = '█';
+                    backgroundLayer.Data[x][y] = ' ';
 
             ArtLayers.Add(backgroundLayer);
 
             return backgroundLayer;
-        }
-
-        public FileInfo WriteTo(string path)
-        {
-            if (!path.EndsWith(EXTENSION))
-                path += EXTENSION;
-
-            UpdatedInVersion = MainProgram.Version;
-
-            JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamWriter sw = File.CreateText(path);
-
-            js.Serialize(sw, this);
-
-            sw.Close();
-
-            return new(path);
         }
 
         public string GetArtString(BackgroundWorker? bgWorker = null)
@@ -62,12 +48,12 @@ namespace AAP
 
             for (int i = 0; i < ArtLayers.Count; i++)
                 if (ArtLayers[i].Visible)
-                    for(int x = 0; x < Width; x++)
+                    for (int x = 0; x < Width; x++)
                         for (int y = 0; y < Height; y++)
                         {
                             char? character = ArtLayers[i].Data[x][y];
 
-                            if (character == null) 
+                            if (character == null)
                                 continue;
 
                             visibleArtMatrix[new(x, y)] = character.Value;
@@ -88,6 +74,24 @@ namespace AAP
             }
 
             return art;
+        }
+
+        #region File
+        public FileInfo WriteTo(string path)
+        {
+            if (!path.EndsWith(EXTENSION))
+                path += EXTENSION;
+
+            UpdatedInVersion = MainProgram.Version;
+
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamWriter sw = File.CreateText(path);
+
+            js.Serialize(sw, this);
+
+            sw.Close();
+
+            return new(path);
         }
 
         public static ASCIIArtFile? ImportFilePath(string path, BackgroundWorker? bgWorker = null)
@@ -164,5 +168,18 @@ namespace AAP
 
             return fileInfo;
         }
+        #endregion
+
+        #region Tool Functions
+        public void Draw(int layerIndex, Point artMatrixPosition, char character)
+        {
+            if (artMatrixPosition.X < 0 || artMatrixPosition.Y < 0 || artMatrixPosition.X >= Width || artMatrixPosition.Y >= Height)
+                return;
+
+            ArtLayers[layerIndex].Data[artMatrixPosition.X][artMatrixPosition.Y] = character;
+
+            OnArtChanged?.Invoke(layerIndex, artMatrixPosition, character);
+        }
+        #endregion
     }
 }

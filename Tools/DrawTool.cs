@@ -8,11 +8,21 @@ namespace AAP
 {
     public class DrawTool: Tool
     {
-        public char Character = '#';
+        public char Character = '/';
         public int Size = 1;
-        public override void ActivateStart(Point location)
+        public override void ActivateStart(Point artMatrixPosition)
         {
-            base.ActivateStart(location);
+            base.ActivateStart(artMatrixPosition);
+
+            Draw(artMatrixPosition);
         }
+
+        public override void ActivateUpdate(Point artMatrixPosition)
+        {
+            Draw(artMatrixPosition);
+        }
+
+        public void Draw(Point artMatrixPosition)
+            => MainProgram.CurrentArtFile?.Draw(MainProgram.CurrentLayerID, artMatrixPosition, Character);
     }
 }

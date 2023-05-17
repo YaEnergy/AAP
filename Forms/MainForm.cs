@@ -20,6 +20,7 @@ namespace AAP
             OnCurrentFilePathChanged(null);
 
             MainProgram.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
+            MainProgram.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
@@ -29,15 +30,24 @@ namespace AAP
         #region Tool Functions
         private void ToolActivateStart(object? sender, MouseEventArgs e)
         {
+            Canvas.MouseMove += ToolActivateUpdate;
+            Canvas.MouseUp += ToolActivateEnd;
+
             Point? artMatrixPosition = GetArtMatrixPoint(e.Location);
 
             if (!artMatrixPosition.HasValue)
                 return;
 
-            Canvas.MouseMove += ToolActivateUpdate;
-            Canvas.MouseUp += ToolActivateEnd;
+            Point? canvasPosition = GetCanvasPoint(artMatrixPosition.Value);
+
+            if (!canvasPosition.HasValue)
+                return;
+
+            //Canvas.Invalidate(new Rectangle(new(canvasPosition.Value.X, canvasPosition.Value.Y), TextRenderer.MeasureText(" ", Font)));
 
             MainProgram.CurrentTool.ActivateStart(artMatrixPosition.Value);
+
+            Canvas.Update();
 
             Console.WriteLine("Tool activate start!");
         }
@@ -49,6 +59,13 @@ namespace AAP
             if (!artMatrixPosition.HasValue)
                 return;
 
+            Point? canvasPosition = GetCanvasPoint(artMatrixPosition.Value);
+
+            if (!canvasPosition.HasValue)
+                return;
+
+            //Canvas.Invalidate(new Rectangle(new(canvasPosition.Value.X, canvasPosition.Value.Y), TextRenderer.MeasureText(" ", Font)));
+
             MainProgram.CurrentTool.ActivateUpdate(artMatrixPosition.Value);
 
             Console.WriteLine("Tool activate update!");
@@ -59,27 +76,30 @@ namespace AAP
             Canvas.MouseMove -= ToolActivateUpdate;
             Canvas.MouseUp -= ToolActivateEnd;
 
+            Canvas.Update();
+
             Console.WriteLine("Tool activate end!");
         }
         #endregion
 
+        #region File Changes
         private void OnCurrentFilePathChanged(string? filePath)
         {
             Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)} ({(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Width)}x{(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Height)})";
+#if DEBUG
+            Text += " - DEBUG MODE";
+#endif
         }
+        private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
+        {
+            Canvas.Refresh();
+
+            if (artFile != null)
+                artFile.OnArtChanged += OnArtChanged;
+        }
+        #endregion
 
         #region Canvas
-        public void DisplayArt()
-        {
-            Canvas.Hide();
-
-            TaskInfoLabel.Text = "Setting up canvas...";
-
-            Canvas.Update();
-
-            Canvas.Show();
-            TaskInfoLabel.Text = "";
-        }
 
         public Point? GetArtMatrixPoint(Point canvasPosition)
         {
@@ -87,7 +107,7 @@ namespace AAP
                 return null;
 
             SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
-            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y) / (nonOffsetCanvasSize.Height / MainProgram.CurrentArtFile.Height) - 1f);
+            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (Font.Height / 2)) / (nonOffsetCanvasSize.Height / MainProgram.CurrentArtFile.Height) - 1f);
 
             Point artMatrixPos = new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
 
@@ -95,6 +115,32 @@ namespace AAP
 
             return artMatrixPos;
         }
+
+        public Point? GetCanvasPoint(Point artMatrixPosition)
+        {
+            if (MainProgram.CurrentArtFile == null)
+                return null;
+
+            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
+            PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) + CanvasArtOffset.X, artMatrixPosition.Y * (nonOffsetCanvasSize.Height / MainProgram.CurrentArtFile.Height) + CanvasArtOffset.Y);
+
+            Point canvasPos = new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
+
+            Console.WriteLine(canvasPos);
+
+            return canvasPos;
+        }
+
+        public Rectangle? GetCanvasCharacterRectangle(Point artMatrixPosition)
+        {
+            if (MainProgram.CurrentArtFile == null)
+                return null;
+
+            throw new NotImplementedException();
+
+            //return null;
+        }
+
         private void Canvas_Paint(object sender, PaintEventArgs args)
         {
             if (sender is not Panel canvas)
@@ -129,6 +175,16 @@ namespace AAP
 
                 args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, position);
             }
+        }
+
+        private void OnArtChanged(int layerIndex, Point artMatrixPosition, char character)
+        {
+            Point? canvasPosition = GetCanvasPoint(artMatrixPosition);
+
+            if (!canvasPosition.HasValue)
+                return;
+
+            Canvas.Invalidate(new Rectangle(canvasPosition.Value, TextRenderer.MeasureText(character.ToString(), Font)));
         }
         #endregion
         #region Background Run Worker Complete Functions
@@ -176,6 +232,7 @@ namespace AAP
         }
         #endregion
 
+        #region ToolStripMenuItem Functions
         private void NewFileToolStripMenuItem_Click(object sender, EventArgs e)
             => new NewFileDialog().ShowDialog();
 
@@ -327,5 +384,6 @@ namespace AAP
 
             return;
         }
+        #endregion
     }
 }
