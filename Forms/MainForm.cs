@@ -54,8 +54,6 @@ namespace AAP
                 return;
 
             MainProgram.CurrentTool.ActivateUpdate(artMatrixPosition.Value);
-
-            Console.WriteLine("Tool activate update!");
         }
 
         private void ToolActivateEnd(object? sender, MouseEventArgs e)

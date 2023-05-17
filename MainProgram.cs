@@ -86,6 +86,8 @@ namespace AAP
             if (!file.Exists)
                 return;
 
+            Console.WriteLine($"Open File Path: importing file from path... {file.FullName}");
+
             ASCIIArtFile? artFile = ASCIIArtFile.ImportFilePath(file.FullName);
 
             if (artFile == null)
@@ -102,6 +104,9 @@ namespace AAP
 
             CurrentArtFile = artFile;
             CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
+
+            Console.WriteLine($"Open File Path: Imported file!");
+            Console.Write($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {artFile.Width}x{artFile.Height}\nArea: {artFile.Width*artFile.Height}\nTotal Art Layers: {artFile.ArtLayers.Count}\nCreated In Version: {artFile.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
             /*
                 Console.WriteLine($"Open File Path: An error has occurred while opening art file ({file.FullName})! Exception: {ex.Message}");
@@ -152,8 +157,6 @@ namespace AAP
 
             if (path == null)
                 return null;
-
-            CurrentFilePath = path;
 
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = false;
