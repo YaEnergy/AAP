@@ -35,7 +35,7 @@ namespace AAP
             ArtLayer backgroundLayer = new("Background", Width, Height);
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    backgroundLayer.Data[x][y] = ' ';
+                    backgroundLayer.Data[x][y] = ' '; //Figure Space
 
             ArtLayers.Add(backgroundLayer);
 
