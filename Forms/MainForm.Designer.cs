@@ -41,8 +41,18 @@
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
             editToolStripMenuItem = new ToolStripMenuItem();
+            viewToolStripMenuItem = new ToolStripMenuItem();
+            canvasToolStripMenuItem = new ToolStripMenuItem();
+            zoomToolStripMenuItem = new ToolStripMenuItem();
+            zoomInToolStripMenuItem = new ToolStripMenuItem();
+            zoomOutToolStripMenuItem = new ToolStripMenuItem();
+            resetZoomToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator2 = new ToolStripSeparator();
+            highlightThicknessNumToolStripMenuItem = new ToolStripMenuItem();
+            increaseThicknessToolStripMenuItem = new ToolStripMenuItem();
+            decreaseThicknessToolStripMenuItem = new ToolStripMenuItem();
+            resetThicknessToolStripMenuItem = new ToolStripMenuItem();
             filtersToolStripMenuItem = new ToolStripMenuItem();
-            windowsToolStripMenuItem = new ToolStripMenuItem();
             leftDock = new Panel();
             toolOptionsPanel = new Panel();
             toolPanel = new Panel();
@@ -65,7 +75,7 @@
             // menuStrip
             // 
             menuStrip.ImageScalingSize = new Size(20, 20);
-            menuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, filtersToolStripMenuItem, windowsToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, viewToolStripMenuItem, filtersToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(1262, 28);
@@ -82,28 +92,32 @@
             // newFileToolStripMenuItem
             // 
             newFileToolStripMenuItem.Name = "newFileToolStripMenuItem";
-            newFileToolStripMenuItem.Size = new Size(143, 26);
+            newFileToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.N;
+            newFileToolStripMenuItem.Size = new Size(233, 26);
             newFileToolStripMenuItem.Text = "New";
             newFileToolStripMenuItem.Click += NewFileToolStripMenuItem_Click;
             // 
             // openFileToolStripMenuItem
             // 
             openFileToolStripMenuItem.Name = "openFileToolStripMenuItem";
-            openFileToolStripMenuItem.Size = new Size(143, 26);
+            openFileToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.O;
+            openFileToolStripMenuItem.Size = new Size(233, 26);
             openFileToolStripMenuItem.Text = "Open";
             openFileToolStripMenuItem.Click += OpenFileToolStripMenuItem_Click;
             // 
             // saveFileToolStripMenuItem
             // 
             saveFileToolStripMenuItem.Name = "saveFileToolStripMenuItem";
-            saveFileToolStripMenuItem.Size = new Size(143, 26);
+            saveFileToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.S;
+            saveFileToolStripMenuItem.Size = new Size(233, 26);
             saveFileToolStripMenuItem.Text = "Save";
             saveFileToolStripMenuItem.Click += SaveFileToolStripMenuItem_Click;
             // 
             // saveAsFileToolStripMenuItem
             // 
             saveAsFileToolStripMenuItem.Name = "saveAsFileToolStripMenuItem";
-            saveAsFileToolStripMenuItem.Size = new Size(143, 26);
+            saveAsFileToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Shift | Keys.S;
+            saveAsFileToolStripMenuItem.Size = new Size(233, 26);
             saveAsFileToolStripMenuItem.Text = "Save As";
             saveAsFileToolStripMenuItem.Click += SaveAsFileToolStripMenuItem_Click;
             // 
@@ -111,32 +125,35 @@
             // 
             exportToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { asFileToolStripMenuItem, copyArtToClipboardToolStripMenuItem });
             exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            exportToolStripMenuItem.Size = new Size(143, 26);
+            exportToolStripMenuItem.Size = new Size(233, 26);
             exportToolStripMenuItem.Text = "Export";
             // 
             // asFileToolStripMenuItem
             // 
             asFileToolStripMenuItem.Name = "asFileToolStripMenuItem";
-            asFileToolStripMenuItem.Size = new Size(240, 26);
+            asFileToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.E;
+            asFileToolStripMenuItem.Size = new Size(331, 26);
             asFileToolStripMenuItem.Text = "As File";
             asFileToolStripMenuItem.Click += AsFileToolStripMenuItem_Click;
             // 
             // copyArtToClipboardToolStripMenuItem
             // 
             copyArtToClipboardToolStripMenuItem.Name = "copyArtToClipboardToolStripMenuItem";
-            copyArtToClipboardToolStripMenuItem.Size = new Size(240, 26);
+            copyArtToClipboardToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Shift | Keys.C;
+            copyArtToClipboardToolStripMenuItem.Size = new Size(331, 26);
             copyArtToClipboardToolStripMenuItem.Text = "Copy Art To Clipboard";
             copyArtToClipboardToolStripMenuItem.Click += CopyArtToClipboardToolStripMenuItem_Click;
             // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(140, 6);
+            toolStripSeparator1.Size = new Size(230, 6);
             // 
             // exitToolStripMenuItem
             // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.Size = new Size(143, 26);
+            exitToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
+            exitToolStripMenuItem.Size = new Size(233, 26);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += ExitToolStripMenuItem_Click;
             // 
@@ -146,17 +163,87 @@
             editToolStripMenuItem.Size = new Size(49, 24);
             editToolStripMenuItem.Text = "Edit";
             // 
+            // viewToolStripMenuItem
+            // 
+            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { canvasToolStripMenuItem });
+            viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+            viewToolStripMenuItem.Size = new Size(55, 24);
+            viewToolStripMenuItem.Text = "View";
+            // 
+            // canvasToolStripMenuItem
+            // 
+            canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
+            canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
+            canvasToolStripMenuItem.Size = new Size(224, 26);
+            canvasToolStripMenuItem.Text = "Canvas";
+            // 
+            // zoomToolStripMenuItem
+            // 
+            zoomToolStripMenuItem.Name = "zoomToolStripMenuItem";
+            zoomToolStripMenuItem.Size = new Size(268, 26);
+            zoomToolStripMenuItem.Text = "Zoom: num%";
+            // 
+            // zoomInToolStripMenuItem
+            // 
+            zoomInToolStripMenuItem.Name = "zoomInToolStripMenuItem";
+            zoomInToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.I;
+            zoomInToolStripMenuItem.Size = new Size(268, 26);
+            zoomInToolStripMenuItem.Text = "Zoom in";
+            zoomInToolStripMenuItem.Click += zoomInToolStripMenuItem_Click;
+            // 
+            // zoomOutToolStripMenuItem
+            // 
+            zoomOutToolStripMenuItem.Name = "zoomOutToolStripMenuItem";
+            zoomOutToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.O;
+            zoomOutToolStripMenuItem.Size = new Size(268, 26);
+            zoomOutToolStripMenuItem.Text = "Zoom out";
+            zoomOutToolStripMenuItem.Click += zoomOutToolStripMenuItem_Click;
+            // 
+            // resetZoomToolStripMenuItem
+            // 
+            resetZoomToolStripMenuItem.Name = "resetZoomToolStripMenuItem";
+            resetZoomToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.P;
+            resetZoomToolStripMenuItem.Size = new Size(268, 26);
+            resetZoomToolStripMenuItem.Text = "Reset Zoom";
+            resetZoomToolStripMenuItem.Click += resetZoomToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(265, 6);
+            // 
+            // highlightThicknessNumToolStripMenuItem
+            // 
+            highlightThicknessNumToolStripMenuItem.Name = "highlightThicknessNumToolStripMenuItem";
+            highlightThicknessNumToolStripMenuItem.Size = new Size(268, 26);
+            highlightThicknessNumToolStripMenuItem.Text = "Highlight Thickness: num%";
+            // 
+            // increaseThicknessToolStripMenuItem
+            // 
+            increaseThicknessToolStripMenuItem.Name = "increaseThicknessToolStripMenuItem";
+            increaseThicknessToolStripMenuItem.Size = new Size(268, 26);
+            increaseThicknessToolStripMenuItem.Text = "Increase thickness";
+            increaseThicknessToolStripMenuItem.Click += increaseThicknessToolStripMenuItem_Click;
+            // 
+            // decreaseThicknessToolStripMenuItem
+            // 
+            decreaseThicknessToolStripMenuItem.Name = "decreaseThicknessToolStripMenuItem";
+            decreaseThicknessToolStripMenuItem.Size = new Size(268, 26);
+            decreaseThicknessToolStripMenuItem.Text = "Decrease thickness";
+            decreaseThicknessToolStripMenuItem.Click += decreaseThicknessToolStripMenuItem_Click;
+            // 
+            // resetThicknessToolStripMenuItem
+            // 
+            resetThicknessToolStripMenuItem.Name = "resetThicknessToolStripMenuItem";
+            resetThicknessToolStripMenuItem.Size = new Size(268, 26);
+            resetThicknessToolStripMenuItem.Text = "Reset thickness";
+            resetThicknessToolStripMenuItem.Click += resetThicknessToolStripMenuItem_Click;
+            // 
             // filtersToolStripMenuItem
             // 
             filtersToolStripMenuItem.Name = "filtersToolStripMenuItem";
             filtersToolStripMenuItem.Size = new Size(62, 24);
             filtersToolStripMenuItem.Text = "Filters";
-            // 
-            // windowsToolStripMenuItem
-            // 
-            windowsToolStripMenuItem.Name = "windowsToolStripMenuItem";
-            windowsToolStripMenuItem.Size = new Size(84, 24);
-            windowsToolStripMenuItem.Text = "Windows";
             // 
             // leftDock
             // 
@@ -307,7 +394,7 @@
         private ToolStripMenuItem openFileToolStripMenuItem;
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem filtersToolStripMenuItem;
-        private ToolStripMenuItem windowsToolStripMenuItem;
+        private ToolStripMenuItem viewToolStripMenuItem;
         private ToolStripMenuItem saveFileToolStripMenuItem;
         private ToolStripMenuItem saveAsFileToolStripMenuItem;
         private Panel leftDock;
@@ -325,5 +412,15 @@
         private ToolStripMenuItem copyArtToClipboardToolStripMenuItem;
         private PictureBox eraserToolButton;
         private PictureBox drawToolButton;
+        private ToolStripMenuItem canvasToolStripMenuItem;
+        private ToolStripMenuItem zoomInToolStripMenuItem;
+        private ToolStripMenuItem zoomOutToolStripMenuItem;
+        private ToolStripMenuItem resetZoomToolStripMenuItem;
+        private ToolStripMenuItem zoomToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripMenuItem highlightThicknessNumToolStripMenuItem;
+        private ToolStripMenuItem increaseThicknessToolStripMenuItem;
+        private ToolStripMenuItem decreaseThicknessToolStripMenuItem;
+        private ToolStripMenuItem resetThicknessToolStripMenuItem;
     }
 }

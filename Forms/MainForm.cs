@@ -9,33 +9,63 @@ namespace AAP
 {
     public partial class MainForm : System.Windows.Forms.Form
     {
+        private readonly static int DefaultCanvasTextSize = 12;
+        private readonly static int DefaultHighlightRectangleThickness = 4;
         private readonly static SolidBrush CanvasArtBrush = new(Color.Black);
         private readonly static Point CanvasArtOffset = new(8, 8);
+
         private SizeF trueCanvasSize = new(0f, 0f);
         private Font canvasArtFont;
 
         private int canvasTextSize = 12;
         private int highlightRectangleThickness = 4;
-        public int CanvasTextSize { get => canvasTextSize; private set { canvasTextSize = value; Canvas.Refresh(); Console.WriteLine("Canvas Text Size: " + value); } }
+        public int CanvasTextSize { get => canvasTextSize; private set { canvasTextSize = Math.Clamp(value, 4, 128); Canvas.Refresh(); Console.WriteLine("Canvas Text Size: " + canvasTextSize); zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%"; } }
+        public int HighlightRectangleThickness
+        {
+            get => highlightRectangleThickness;
+            private set
+            {
+                int val = value;
+
+                if (val < highlightRectangleThickness)
+                {
+                    Canvas.Invalidate(new Rectangle(highlightRectangle.Location.X - highlightRectangleThickness / 2, highlightRectangle.Location.Y - highlightRectangleThickness / 2, highlightRectangle.Size.Width + highlightRectangleThickness, highlightRectangle.Size.Height + highlightRectangleThickness));
+                    Canvas.Invalidate(new Rectangle(oldHighlightRectangle.Location.X - highlightRectangleThickness / 2, oldHighlightRectangle.Location.Y - highlightRectangleThickness / 2, oldHighlightRectangle.Size.Width + highlightRectangleThickness, oldHighlightRectangle.Size.Height + highlightRectangleThickness));
+                }
+
+                highlightRectangleThickness = Math.Clamp(value, 1, 12);
+
+                if (val > highlightRectangleThickness)
+                {
+                    Canvas.Invalidate(new Rectangle(highlightRectangle.Location.X - highlightRectangleThickness / 2, highlightRectangle.Location.Y - highlightRectangleThickness / 2, highlightRectangle.Size.Width + highlightRectangleThickness, highlightRectangle.Size.Height + highlightRectangleThickness));
+                    Canvas.Invalidate(new Rectangle(oldHighlightRectangle.Location.X - highlightRectangleThickness / 2, oldHighlightRectangle.Location.Y - highlightRectangleThickness / 2, oldHighlightRectangle.Size.Width + highlightRectangleThickness, oldHighlightRectangle.Size.Height + highlightRectangleThickness));
+                }
+
+                Canvas.Update();
+
+                highlightThicknessNumToolStripMenuItem.Text = $"Highlight Thickness: {Math.Truncate((float)highlightRectangleThickness / DefaultHighlightRectangleThickness * 100)}%";
+            }
+        }
 
         private Point canvasMousePos = new(0, 0);
 
         private Rectangle oldHighlightRectangle = new();
         private Rectangle highlightRectangle = new();
-        public Rectangle HighlightRectangle { 
-            get => highlightRectangle; 
-            set 
+        public Rectangle HighlightRectangle
+        {
+            get => highlightRectangle;
+            set
             {
                 if (value == highlightRectangle)
                     return;
 
-                oldHighlightRectangle = highlightRectangle; 
+                oldHighlightRectangle = highlightRectangle;
                 highlightRectangle = value;
 
                 Canvas.Invalidate(new Rectangle(highlightRectangle.Location.X - highlightRectangleThickness / 2, highlightRectangle.Location.Y - highlightRectangleThickness / 2, highlightRectangle.Size.Width + highlightRectangleThickness, highlightRectangle.Size.Height + highlightRectangleThickness));
                 Canvas.Invalidate(new Rectangle(oldHighlightRectangle.Location.X - highlightRectangleThickness / 2, oldHighlightRectangle.Location.Y - highlightRectangleThickness / 2, oldHighlightRectangle.Size.Width + highlightRectangleThickness, oldHighlightRectangle.Size.Height + highlightRectangleThickness));
                 Canvas.Update();
-            } 
+            }
         }
         public MainForm()
         {
@@ -48,6 +78,9 @@ namespace AAP
             MainProgram.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
+
+            zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%";
+            highlightThicknessNumToolStripMenuItem.Text = $"Highlight Thickness: {Math.Truncate((float)highlightRectangleThickness / DefaultHighlightRectangleThickness * 100)}%";
 
             Canvas.MouseDown += (sender, args) => ToolActivateStart(sender, args);
             Canvas.MouseMove += (sender, args) =>
@@ -71,8 +104,6 @@ namespace AAP
 
                 HighlightRectangle = newCanvasCharacterRectangle.Value;
             };
-
-            fillDock.MouseWheel += (sender, args) => CanvasTextSize = Math.Clamp(CanvasTextSize + args.Delta / 60, 2, 128);
         }
 
         #region Tool Functions
@@ -429,7 +460,24 @@ namespace AAP
             return;
         }
 
+        private void zoomInToolStripMenuItem_Click(object sender, EventArgs e)
+            => CanvasTextSize += 4;
+
+        private void zoomOutToolStripMenuItem_Click(object sender, EventArgs e)
+            => CanvasTextSize -= 4;
+
+        private void resetZoomToolStripMenuItem_Click(object sender, EventArgs e)
+            => CanvasTextSize = DefaultCanvasTextSize;
+
         #endregion
 
+        private void increaseThicknessToolStripMenuItem_Click(object sender, EventArgs e)
+            => HighlightRectangleThickness += 1;
+
+        private void decreaseThicknessToolStripMenuItem_Click(object sender, EventArgs e)
+            => HighlightRectangleThickness -= 1;
+
+        private void resetThicknessToolStripMenuItem_Click(object sender, EventArgs e)
+            => HighlightRectangleThickness = DefaultHighlightRectangleThickness;
     }
 }
