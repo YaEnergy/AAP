@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace AAP
 {
@@ -14,7 +15,8 @@ namespace AAP
         private static readonly string EXTENSION = ".aaf";
 
         public readonly string CreatedInVersion = "???";
-        protected string UpdatedInVersion = "???";
+        private string updatedInVersion = "???";
+        public string UpdatedInVersion { get => updatedInVersion; }
 
         public List<ArtLayer> ArtLayers = new();
         public readonly int Width = 1;
@@ -26,7 +28,7 @@ namespace AAP
         public ASCIIArtFile(int width, int height, string updatedinVersion, string createdinVersion) 
         {
             CreatedInVersion = createdinVersion;
-            UpdatedInVersion = updatedinVersion;
+            updatedInVersion = updatedinVersion;
             Width = width;
             Height = height;
         }
@@ -68,7 +70,7 @@ namespace AAP
                 {
                     Point coord = new(x, y);
 
-                    art += !visibleArtMatrix.ContainsKey(coord) ? " " : visibleArtMatrix[coord].ToString();
+                    art += !visibleArtMatrix.ContainsKey(coord) ? ASCIIArtFile.EMPTYCHARACTER : visibleArtMatrix[coord].ToString();
                 }
 
                 art += "\n";
@@ -83,7 +85,7 @@ namespace AAP
             if (!path.EndsWith(EXTENSION))
                 path += EXTENSION;
 
-            UpdatedInVersion = MainProgram.Version;
+            updatedInVersion = MainProgram.Version;
 
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(path);

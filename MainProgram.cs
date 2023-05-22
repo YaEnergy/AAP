@@ -81,37 +81,43 @@ namespace AAP
             CurrentFilePath = "";
         }
 
-        public static void OpenFile(FileInfo file)
+        public static Exception? OpenFile(FileInfo file)
         {
             if (!file.Exists)
-                return;
+                return new FileNotFoundException("Failed to open non-existant file", file.FullName);
 
-            Console.WriteLine($"Open File Path: importing file from path... {file.FullName}");
-
-            ASCIIArtFile? artFile = ASCIIArtFile.ImportFilePath(file.FullName);
-
-            if (artFile == null)
+            try
             {
-                Console.WriteLine("Open File Path: current art file is null!");
-                throw new NullReferenceException("Current art file is null!");
+                Console.WriteLine($"Open File Path: importing file from path... {file.FullName}");
+
+                ASCIIArtFile? artFile = ASCIIArtFile.ImportFilePath(file.FullName);
+
+                if (artFile == null)
+                {
+                    Console.WriteLine("Open File Path: current art file is null!");
+                    throw new NullReferenceException("Current art file is null!");
+                }
+
+                if (artFile.Width * artFile.Height > MaxArtArea)
+                {
+                    Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({artFile.Width * artFile.Height} characters)");
+                    throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)");
+                }
+
+                Console.WriteLine($"Open File Path: Imported file!");
+                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {artFile.Width}x{artFile.Height}\nArea: {artFile.Width*artFile.Height}\nTotal Art Layers: {artFile.ArtLayers.Count}\nCreated In Version: {artFile.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+
+                CurrentArtFile = artFile;
+                CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
+                Console.WriteLine($"Open File Path: opened file!");
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Open File Path: An error has occurred while importing art file ({file.FullName})! Exception: {ex}");
+                return ex;
             }
 
-            if (artFile.Width * artFile.Height > MaxArtArea)
-            {
-                Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({artFile.Width * artFile.Height} characters)");
-                throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)");
-            }
-
-            CurrentArtFile = artFile;
-            CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
-
-            Console.WriteLine($"Open File Path: Imported file!");
-            Console.Write($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {artFile.Width}x{artFile.Height}\nArea: {artFile.Width*artFile.Height}\nTotal Art Layers: {artFile.ArtLayers.Count}\nCreated In Version: {artFile.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
-
-            /*
-                Console.WriteLine($"Open File Path: An error has occurred while opening art file ({file.FullName})! Exception: {ex.Message}");
-                MessageBox.Show($"An error has occurred while opening art file ({file.FullName})! Exception: {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            */
+            return null;
         }
 
         public static BackgroundWorker? SaveArtFileToPathAsync(string path)

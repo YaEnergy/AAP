@@ -1,6 +1,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace AAP
@@ -11,21 +13,66 @@ namespace AAP
         private readonly static Point CanvasArtOffset = new(8, 8);
         private SizeF trueCanvasSize = new(0f, 0f);
         private Font canvasArtFont;
-        public int CanvasTextSize { get; private set; } = 12;
 
+        private int canvasTextSize = 12;
+        private int highlightRectangleThickness = 4;
+        public int CanvasTextSize { get => canvasTextSize; private set { canvasTextSize = value; Canvas.Refresh(); Console.WriteLine("Canvas Text Size: " + value); } }
+
+        private Point canvasMousePos = new(0, 0);
+
+        private Rectangle oldHighlightRectangle = new();
+        private Rectangle highlightRectangle = new();
+        public Rectangle HighlightRectangle { 
+            get => highlightRectangle; 
+            set 
+            {
+                if (value == highlightRectangle)
+                    return;
+
+                oldHighlightRectangle = highlightRectangle; 
+                highlightRectangle = value;
+
+                Canvas.Invalidate(new Rectangle(highlightRectangle.Location.X - highlightRectangleThickness / 2, highlightRectangle.Location.Y - highlightRectangleThickness / 2, highlightRectangle.Size.Width + highlightRectangleThickness, highlightRectangle.Size.Height + highlightRectangleThickness));
+                Canvas.Invalidate(new Rectangle(oldHighlightRectangle.Location.X - highlightRectangleThickness / 2, oldHighlightRectangle.Location.Y - highlightRectangleThickness / 2, oldHighlightRectangle.Size.Width + highlightRectangleThickness, oldHighlightRectangle.Size.Height + highlightRectangleThickness));
+                Canvas.Update();
+            } 
+        }
         public MainForm()
         {
             InitializeComponent();
 
-            OnCurrentFilePathChanged(null);
+            UpdateTitle();
             OnCurrentArtFileChanged(null);
 
-            MainProgram.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
+            MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
             MainProgram.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
             Canvas.MouseDown += (sender, args) => ToolActivateStart(sender, args);
+            Canvas.MouseMove += (sender, args) =>
+            {
+                Point? newMouseArtMatrixPosition = GetArtMatrixPoint(args.Location);
+                Point? oldMouseArtMatrixPosition = GetArtMatrixPoint(canvasMousePos);
+
+                if (oldMouseArtMatrixPosition == null)
+                    return;
+
+                if (newMouseArtMatrixPosition == null)
+                    return;
+
+                if (oldMouseArtMatrixPosition.Value == newMouseArtMatrixPosition.Value)
+                    return;
+
+                Rectangle? newCanvasCharacterRectangle = GetCanvasCharacterRectangle(newMouseArtMatrixPosition.Value);
+
+                if (newCanvasCharacterRectangle == null)
+                    return;
+
+                HighlightRectangle = newCanvasCharacterRectangle.Value;
+            };
+
+            fillDock.MouseWheel += (sender, args) => CanvasTextSize = Math.Clamp(CanvasTextSize + args.Delta / 60, 2, 128);
         }
 
         #region Tool Functions
@@ -40,8 +87,6 @@ namespace AAP
                 return;
 
             MainProgram.CurrentTool.ActivateStart(artMatrixPosition.Value);
-
-            Canvas.Update();
 
             Console.WriteLine("Tool activate start!");
         }
@@ -61,16 +106,20 @@ namespace AAP
             Canvas.MouseMove -= ToolActivateUpdate;
             Canvas.MouseUp -= ToolActivateEnd;
 
-            Canvas.Update();
-
             Console.WriteLine("Tool activate end!");
         }
         #endregion
 
         #region File Changes
-        private void OnCurrentFilePathChanged(string? filePath)
+        private void UpdateTitle()
         {
-            Text = $"{MainProgram.ProgramTitle} - {(string.IsNullOrEmpty(filePath) ? "*.*" : new FileInfo(filePath).Name)} ({(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Width)}x{(MainProgram.CurrentArtFile == null ? "?" : MainProgram.CurrentArtFile.Height)})";
+            string filePath = string.IsNullOrEmpty(MainProgram.CurrentFilePath) ? "*.*" : new FileInfo(MainProgram.CurrentFilePath).Name;
+            string size = "?x?";
+
+            if (MainProgram.CurrentArtFile != null)
+                size = MainProgram.CurrentArtFile.Width + "x" + MainProgram.CurrentArtFile.Height;
+
+            Text = $"{MainProgram.ProgramTitle} - {filePath} ({size})";
 #if DEBUG
             Text += " - DEBUG BUILD";
 #endif
@@ -103,7 +152,7 @@ namespace AAP
 
             PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (canvasArtFont.Height / 2)) / canvasArtFont.Height - 1f);
 
-            Point artMatrixPos = new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
+            Point artMatrixPos = Point.Truncate(artMatrixFloatPos);//new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
 
             return artMatrixPos;
         }
@@ -117,7 +166,7 @@ namespace AAP
 
             PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) + 1, artMatrixPosition.Y * canvasArtFont.Height + CanvasArtOffset.Y);
 
-            Point canvasPos = new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
+            Point canvasPos = Point.Truncate(canvasFloatPos); //new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
 
             return new(canvasPos, TextRenderer.MeasureText(ASCIIArtFile.EMPTYCHARACTER.ToString(), canvasArtFont));
         }
@@ -138,6 +187,9 @@ namespace AAP
                 args.Graphics.DrawString("No File Open!", canvasArtFont, CanvasArtBrush, new Point(0, 0));
                 return;
             }
+
+            args.Graphics.DrawRectangle(new(Canvas.BackColor, highlightRectangleThickness), oldHighlightRectangle);
+            args.Graphics.DrawRectangle(new(Color.Blue, highlightRectangleThickness), highlightRectangle);
 
             string artString = MainProgram.CurrentArtFile.GetArtString();
 
@@ -167,6 +219,8 @@ namespace AAP
                 return;
 
             Canvas.Invalidate(canvasCharacterRect.Value);
+
+            UpdateTitle();
         }
         #endregion
         #region Background Run Worker Complete Functions
@@ -230,7 +284,15 @@ namespace AAP
                 InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
                 ValidateNames = true
             };
-            openFileDialog.FileOk += (sender, args) => MainProgram.OpenFile(new(openFileDialog.FileName));
+            openFileDialog.FileOk += OnFileOk;
+
+            void OnFileOk(object? sender, CancelEventArgs args)
+            {
+                Exception? ex = MainProgram.OpenFile(new(openFileDialog.FileName));
+
+                if (ex != null)
+                    MessageBox.Show($"An error has occurred while opening art file ({openFileDialog.FileName})! Exception: {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             openFileDialog.ShowDialog();
         }
@@ -366,6 +428,8 @@ namespace AAP
 
             return;
         }
+
         #endregion
+
     }
 }
