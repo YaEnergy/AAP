@@ -29,8 +29,6 @@ namespace AAP
         public delegate void CurrentFilePathChangedEvent(string? filePath);
         public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
 
-        private static Tool currentTool = new DrawTool();
-        public static Tool CurrentTool { get => currentTool; set => currentTool = value; }
 
         private static Rectangle selected = Rectangle.Empty;
         public static Rectangle Selected { get => selected; set => selected = value; }
@@ -38,6 +36,31 @@ namespace AAP
         private static int currentLayerID = 0;
         public static int CurrentLayerID { get => currentLayerID; set => currentLayerID = value; }
 
+        private static Dictionary<ToolType, Tool> tools = new();
+        public static Dictionary<ToolType, Tool> Tools { get => tools; set => tools = value; }
+
+        private static Tool currentTool = new DrawTool('|', 1);
+        public static Tool CurrentTool { get => currentTool; }
+
+        private static ToolType currentToolType = ToolType.Draw;
+        public static ToolType CurrentToolType { 
+            get => currentToolType; 
+            set 
+            {
+                Tools[currentToolType] = currentTool;
+
+                currentToolType = value;
+
+                currentTool = Tools[value];
+
+                Console.WriteLine("Selected ToolType: " + value.ToString());
+                Console.WriteLine("Selected Tool: " + currentTool.ToString());
+
+                OnCurrentToolTypeChanged?.Invoke(value);
+            } 
+        }
+        public delegate void CurrentToolTypeChangedEvent(ToolType type);
+        public static event CurrentToolTypeChangedEvent? OnCurrentToolTypeChanged;
 
         /// <summary>
         ///  The main entry point for the application.
@@ -67,6 +90,14 @@ namespace AAP
                 DirectoryInfo autoSaveDirInfo = Directory.CreateDirectory(AutoSaveDirectoryPath);
                 Console.WriteLine($"Created directory {autoSaveDirInfo.FullName}");
             }
+
+            Tools.Add(ToolType.Draw, new DrawTool('|', 1));
+            Tools.Add(ToolType.Eraser, new DrawTool(ASCIIArtFile.EMPTYCHARACTER, 1));
+            Tools.Add(ToolType.Select, new SelectTool());
+            Tools.Add(ToolType.Move, new MoveTool(MoveToolMode.Select));
+            Tools.Add(ToolType.Text, new TextTool(8));
+
+            CurrentToolType = ToolType.Draw;
 
             Console.WriteLine("Set up complete!");
 

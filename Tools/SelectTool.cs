@@ -8,9 +8,9 @@ namespace AAP
 {
     public class SelectTool: Tool
     {
-        public override void ActivateStart(Point location)
+        public override void ActivateEnd()
         {
-            base.ActivateStart(location);
+            MainProgram.Selected = new Rectangle(StartPoint, new(EndPoint.X - StartPoint.X, EndPoint.Y - StartPoint.Y));
         }
     }
 }

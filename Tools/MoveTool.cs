@@ -15,6 +15,11 @@ namespace AAP
     {
         public MoveToolMode Mode = MoveToolMode.Layer;
 
+        public MoveTool(MoveToolMode mode)
+        {
+            Mode = mode;
+        }
+
         public override void ActivateStart(Point location)
         {
             base.ActivateStart(location);

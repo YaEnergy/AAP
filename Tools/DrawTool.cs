@@ -10,6 +10,13 @@ namespace AAP
     {
         public char Character = '/';
         public int Size = 1;
+
+        public DrawTool(char character, int size)
+        {
+            Character = character;
+            Size = size;
+        }
+
         public override void ActivateStart(Point artMatrixPosition)
         {
             base.ActivateStart(artMatrixPosition);

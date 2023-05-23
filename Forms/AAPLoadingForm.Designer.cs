@@ -46,6 +46,7 @@ namespace AAP
             loadingLabel.TabIndex = 0;
             loadingLabel.Text = "aaa";
             loadingLabel.TextAlign = ContentAlignment.MiddleCenter;
+            loadingLabel.UseWaitCursor = true;
             // 
             // progressBar
             // 
@@ -54,6 +55,7 @@ namespace AAP
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(458, 29);
             progressBar.TabIndex = 1;
+            progressBar.UseWaitCursor = true;
             // 
             // splashIcon
             // 
@@ -62,6 +64,7 @@ namespace AAP
             splashIcon.Size = new Size(458, 163);
             splashIcon.TabIndex = 2;
             splashIcon.TabStop = false;
+            splashIcon.UseWaitCursor = true;
             // 
             // AAPLoadingForm
             // 
@@ -71,15 +74,16 @@ namespace AAP
             Controls.Add(splashIcon);
             Controls.Add(progressBar);
             Controls.Add(loadingLabel);
+            Cursor = Cursors.WaitCursor;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MaximumSize = new Size(500, 300);
             MinimizeBox = false;
             MinimumSize = new Size(500, 300);
             Name = "AAPLoadingForm";
-            Opacity = 0.5D;
             Text = "ASCII Art Program";
             TopMost = true;
+            UseWaitCursor = true;
             ((System.ComponentModel.ISupportInitialize)splashIcon).EndInit();
             ResumeLayout(false);
         }

@@ -10,6 +10,11 @@ namespace AAP
     {
         public int FontSize = 8;
 
+        public TextTool(int fontSize)
+        {
+            FontSize = fontSize;
+        }
+
         public override void ActivateStart(Point location)
         {
             base.ActivateStart(location);
