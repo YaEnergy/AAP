@@ -72,6 +72,10 @@ namespace AAP
 
             loadingForm.Hide();
 
+            if (args.Length == 1)
+                if (File.Exists(args[0]))
+                    OpenFile(new(args[0]));
+
             Application.Run(mainForm);
         }
 
