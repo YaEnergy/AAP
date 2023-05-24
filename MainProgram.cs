@@ -14,8 +14,8 @@ namespace AAP
 
         private static MainForm mainForm = new();
 
-        public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
-        public static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
+        public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.UserAppDataPath}\Saves";
+        public static readonly string AutoSaveDirectoryPath = $@"{Application.UserAppDataPath}\Autosaves";
 
         private static ASCIIArt? currentArt;
         public static ASCIIArt? CurrentArt { get => currentArt; set { currentArt = value; OnCurrentArtChanged?.Invoke(value); } }
@@ -26,7 +26,6 @@ namespace AAP
         public static string? CurrentFilePath { get => currentFilePath; set { currentFilePath = value; OnCurrentFilePathChanged?.Invoke(value); } }
         public delegate void CurrentFilePathChangedEvent(string? filePath);
         public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
-
 
         private static Rectangle selected = Rectangle.Empty;
         public static Rectangle Selected { get => selected; set => selected = value; }

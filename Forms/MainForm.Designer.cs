@@ -56,6 +56,9 @@
             leftDock = new Panel();
             toolOptionsPanel = new Panel();
             toolPanel = new Panel();
+            textToolButton = new PictureBox();
+            moveToolButton = new PictureBox();
+            selectToolButton = new PictureBox();
             eraserToolButton = new PictureBox();
             drawToolButton = new PictureBox();
             rightDock = new Panel();
@@ -66,6 +69,9 @@
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             toolPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)textToolButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)moveToolButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)selectToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).BeginInit();
             fillDock.SuspendLayout();
@@ -174,7 +180,7 @@
             // 
             canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
             canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
-            canvasToolStripMenuItem.Size = new Size(224, 26);
+            canvasToolStripMenuItem.Size = new Size(138, 26);
             canvasToolStripMenuItem.Text = "Canvas";
             // 
             // zoomToolStripMenuItem
@@ -272,6 +278,9 @@
             // toolPanel
             // 
             toolPanel.BackColor = SystemColors.ActiveCaption;
+            toolPanel.Controls.Add(textToolButton);
+            toolPanel.Controls.Add(moveToolButton);
+            toolPanel.Controls.Add(selectToolButton);
             toolPanel.Controls.Add(eraserToolButton);
             toolPanel.Controls.Add(drawToolButton);
             toolPanel.Dock = DockStyle.Top;
@@ -279,6 +288,46 @@
             toolPanel.Name = "toolPanel";
             toolPanel.Size = new Size(250, 300);
             toolPanel.TabIndex = 4;
+            // 
+            // textToolButton
+            // 
+            textToolButton.BackColor = SystemColors.Control;
+            textToolButton.Image = Properties.Resources.TextToolIcon;
+            textToolButton.Location = new Point(76, 76);
+            textToolButton.Margin = new Padding(4);
+            textToolButton.Name = "textToolButton";
+            textToolButton.Padding = new Padding(4);
+            textToolButton.Size = new Size(64, 64);
+            textToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            textToolButton.TabIndex = 4;
+            textToolButton.TabStop = false;
+            textToolButton.Click += textToolButton_Click;
+            // 
+            // moveToolButton
+            // 
+            moveToolButton.BackColor = SystemColors.Control;
+            moveToolButton.Location = new Point(4, 76);
+            moveToolButton.Margin = new Padding(4);
+            moveToolButton.Name = "moveToolButton";
+            moveToolButton.Padding = new Padding(4);
+            moveToolButton.Size = new Size(64, 64);
+            moveToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            moveToolButton.TabIndex = 3;
+            moveToolButton.TabStop = false;
+            moveToolButton.Click += moveToolButton_Click;
+            // 
+            // selectToolButton
+            // 
+            selectToolButton.BackColor = SystemColors.Control;
+            selectToolButton.Location = new Point(148, 4);
+            selectToolButton.Margin = new Padding(4);
+            selectToolButton.Name = "selectToolButton";
+            selectToolButton.Padding = new Padding(4);
+            selectToolButton.Size = new Size(64, 64);
+            selectToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            selectToolButton.TabIndex = 2;
+            selectToolButton.TabStop = false;
+            selectToolButton.Click += selectToolButton_Click;
             // 
             // eraserToolButton
             // 
@@ -292,6 +341,7 @@
             eraserToolButton.SizeMode = PictureBoxSizeMode.Zoom;
             eraserToolButton.TabIndex = 1;
             eraserToolButton.TabStop = false;
+            eraserToolButton.Click += eraserToolButton_Click;
             // 
             // drawToolButton
             // 
@@ -305,6 +355,7 @@
             drawToolButton.SizeMode = PictureBoxSizeMode.Zoom;
             drawToolButton.TabIndex = 0;
             drawToolButton.TabStop = false;
+            drawToolButton.Click += drawToolButton_Click;
             // 
             // rightDock
             // 
@@ -379,6 +430,9 @@
             leftDock.ResumeLayout(false);
             leftDock.PerformLayout();
             toolPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)textToolButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)moveToolButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)selectToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).EndInit();
             fillDock.ResumeLayout(false);
@@ -422,5 +476,8 @@
         private ToolStripMenuItem increaseThicknessToolStripMenuItem;
         private ToolStripMenuItem decreaseThicknessToolStripMenuItem;
         private ToolStripMenuItem resetThicknessToolStripMenuItem;
+        private PictureBox selectToolButton;
+        private PictureBox textToolButton;
+        private PictureBox moveToolButton;
     }
 }

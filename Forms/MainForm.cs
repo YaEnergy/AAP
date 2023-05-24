@@ -72,10 +72,12 @@ namespace AAP
             InitializeComponent();
 
             UpdateTitle();
-            OnCurrentArtChanged(null);
+            OnCurrentArtChanged(MainProgram.CurrentArt);
+            OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
 
             MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
             MainProgram.OnCurrentArtChanged += OnCurrentArtChanged;
+            MainProgram.OnCurrentToolTypeChanged += OnCurrentToolTypeChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
@@ -141,7 +143,7 @@ namespace AAP
         }
         #endregion
 
-        #region File Changes
+        #region Main Program Changes
         private void UpdateTitle()
         {
             string filePath = string.IsNullOrEmpty(MainProgram.CurrentFilePath) ? "*.*" : new FileInfo(MainProgram.CurrentFilePath).Name;
@@ -169,6 +171,18 @@ namespace AAP
             exportToolStripMenuItem.Enabled = artFileExists;
             asFileToolStripMenuItem.Enabled = artFileExists;
             copyArtToClipboardToolStripMenuItem.Enabled = artFileExists;
+        }
+
+        private void OnCurrentToolTypeChanged(ToolType type)
+        {
+            Color selectedToolColor = Color.DarkGray;
+            Color unselectedToolColor = Color.White;
+
+            drawToolButton.BackColor = type == ToolType.Draw ? selectedToolColor : unselectedToolColor;
+            eraserToolButton.BackColor = type == ToolType.Eraser ? selectedToolColor : unselectedToolColor;
+            selectToolButton.BackColor = type == ToolType.Select ? selectedToolColor : unselectedToolColor;
+            moveToolButton.BackColor = type == ToolType.Move ? selectedToolColor : unselectedToolColor;
+            textToolButton.BackColor = type == ToolType.Text ? selectedToolColor : unselectedToolColor;
         }
         #endregion
 
@@ -477,6 +491,23 @@ namespace AAP
 
         private void resetThicknessToolStripMenuItem_Click(object sender, EventArgs e)
             => HighlightRectangleThickness = DefaultHighlightRectangleThickness;
+
+        #endregion
+        #region Tool Buttons
+        private void drawToolButton_Click(object sender, EventArgs e)
+            => MainProgram.CurrentToolType = ToolType.Draw;
+
+        private void eraserToolButton_Click(object sender, EventArgs e)
+            => MainProgram.CurrentToolType = ToolType.Eraser;
+
+        private void selectToolButton_Click(object sender, EventArgs e)
+            => MainProgram.CurrentToolType = ToolType.Select;
+
+        private void moveToolButton_Click(object sender, EventArgs e)
+            => MainProgram.CurrentToolType = ToolType.Move;
+
+        private void textToolButton_Click(object sender, EventArgs e)
+            => MainProgram.CurrentToolType = ToolType.Text;
 
         #endregion
     }
