@@ -2,8 +2,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Security.Policy;
-using Microsoft.Win32;
 
 namespace AAP
 {
@@ -19,10 +17,10 @@ namespace AAP
         public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.LocalUserAppDataPath}\Saves";
         public static readonly string AutoSaveDirectoryPath = $@"{Application.LocalUserAppDataPath}\Autosaves";
 
-        private static ASCIIArtFile? currentArtFile;
-        public static ASCIIArtFile? CurrentArtFile { get => currentArtFile; set { currentArtFile = value; OnCurrentArtFileChanged?.Invoke(value); } }
-        public delegate void CurrentArtFileChangedEvent(ASCIIArtFile? artFile);
-        public static event CurrentArtFileChangedEvent? OnCurrentArtFileChanged;
+        private static ASCIIArt? currentArt;
+        public static ASCIIArt? CurrentArt { get => currentArt; set { currentArt = value; OnCurrentArtChanged?.Invoke(value); } }
+        public delegate void CurrentArtChangedEvent(ASCIIArt? art);
+        public static event CurrentArtChangedEvent? OnCurrentArtChanged;
 
         private static string? currentFilePath;
         public static string? CurrentFilePath { get => currentFilePath; set { currentFilePath = value; OnCurrentFilePathChanged?.Invoke(value); } }
@@ -92,7 +90,7 @@ namespace AAP
             }
 
             Tools.Add(ToolType.Draw, new DrawTool('|', 1));
-            Tools.Add(ToolType.Eraser, new DrawTool(ASCIIArtFile.EMPTYCHARACTER, 1));
+            Tools.Add(ToolType.Eraser, new DrawTool(ASCIIArt.EMPTYCHARACTER, 1));
             Tools.Add(ToolType.Select, new SelectTool());
             Tools.Add(ToolType.Move, new MoveTool(MoveToolMode.Select));
             Tools.Add(ToolType.Text, new TextTool(8));
@@ -110,9 +108,9 @@ namespace AAP
             Application.Run(mainForm);
         }
 
-        public static void NewFile(ASCIIArtFile artFile)
+        public static void NewFile(ASCIIArt artFile)
         {
-            CurrentArtFile = artFile;
+            CurrentArt = artFile;
             CurrentFilePath = "";
         }
 
@@ -125,24 +123,24 @@ namespace AAP
             {
                 Console.WriteLine($"Open File Path: importing file from path... {file.FullName}");
 
-                ASCIIArtFile? artFile = ASCIIArtFile.ImportFilePath(file.FullName);
+                ASCIIArt? art = ASCIIArt.ImportFilePath(file.FullName);
 
-                if (artFile == null)
+                if (art == null)
                 {
                     Console.WriteLine("Open File Path: current art file is null!");
                     throw new NullReferenceException("Current art file is null!");
                 }
 
-                if (artFile.Width * artFile.Height > MaxArtArea)
+                if (art.Width * art.Height > MaxArtArea)
                 {
-                    Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({artFile.Width * artFile.Height} characters)");
-                    throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({artFile.Width * artFile.Height} characters)");
+                    Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({art.Width * art.Height} characters)");
+                    throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
                 }
 
                 Console.WriteLine($"Open File Path: Imported file!");
-                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {artFile.Width}x{artFile.Height}\nArea: {artFile.Width*artFile.Height}\nTotal Art Layers: {artFile.ArtLayers.Count}\nCreated In Version: {artFile.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nArea: {art.Width*art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
-                CurrentArtFile = artFile;
+                CurrentArt = art;
                 CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
                 Console.WriteLine($"Open File Path: opened file!");
             }
@@ -157,7 +155,7 @@ namespace AAP
 
         public static BackgroundWorker? SaveArtFileToPathAsync(string path)
         {
-            if (CurrentArtFile == null) 
+            if (CurrentArt == null) 
                 return null;
 
             if (path == null)
@@ -176,12 +174,12 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     return;
 
-                if (CurrentArtFile == null)
+                if (CurrentArt == null)
                     return;
 
                 Console.WriteLine("Save File: Saving art file to " + path);
 
-                FileInfo fileInfo = CurrentArtFile.WriteTo(path);
+                FileInfo fileInfo = CurrentArt.WriteTo(path);
 
                 Console.WriteLine("Save File: Art file saved to " + path + "!");
 
@@ -193,7 +191,7 @@ namespace AAP
 
         public static BackgroundWorker? ExportArtFileToPathAsync(string path)
         {
-            if (CurrentArtFile == null)
+            if (CurrentArt == null)
                 return null;
 
             if (path == null)
@@ -210,12 +208,12 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     throw new Exception("Sender is not a background worker!");
 
-                if (CurrentArtFile == null)
+                if (CurrentArt == null)
                     throw new Exception("Current Art File is null!");
 
                 Console.WriteLine("Export File: Exporting art file to " + path);
 
-                FileInfo fileInfo = CurrentArtFile.ExportTo(path, bgWorker);
+                FileInfo fileInfo = CurrentArt.ExportTo(path, bgWorker);
 
                 Console.WriteLine("Export File: Art file exported to " + path + "!");
 
@@ -227,11 +225,11 @@ namespace AAP
 
         public static void CopyArtFileToClipboard()
         {
-            if (CurrentArtFile == null)
+            if (CurrentArt == null)
                 return;
 
             Console.WriteLine("Copy Art To Clipboard: Copying art file to clipboard...");
-            string artString = CurrentArtFile.GetArtString();
+            string artString = CurrentArt.GetArtString();
 
             Clipboard.SetText(artString);
             Console.WriteLine("Copy Art To Clipboard: Copied art file to clipboard!");

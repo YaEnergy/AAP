@@ -72,10 +72,10 @@ namespace AAP
             InitializeComponent();
 
             UpdateTitle();
-            OnCurrentArtFileChanged(null);
+            OnCurrentArtChanged(null);
 
             MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
-            MainProgram.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
+            MainProgram.OnCurrentArtChanged += OnCurrentArtChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
@@ -147,22 +147,22 @@ namespace AAP
             string filePath = string.IsNullOrEmpty(MainProgram.CurrentFilePath) ? "*.*" : new FileInfo(MainProgram.CurrentFilePath).Name;
             string size = "?x?";
 
-            if (MainProgram.CurrentArtFile != null)
-                size = MainProgram.CurrentArtFile.Width + "x" + MainProgram.CurrentArtFile.Height;
+            if (MainProgram.CurrentArt != null)
+                size = MainProgram.CurrentArt.Width + "x" + MainProgram.CurrentArt.Height;
 
             Text = $"{MainProgram.ProgramTitle} - {filePath} ({size})";
 #if DEBUG
             Text += " - DEBUG BUILD";
 #endif
         }
-        private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
+        private void OnCurrentArtChanged(ASCIIArt? art)
         {
             Canvas.Refresh();
 
-            if (artFile != null)
-                artFile.OnArtChanged += OnArtChanged;
+            if (art != null)
+                art.OnArtChanged += OnArtChanged;
 
-            bool artFileExists = artFile != null;
+            bool artFileExists = art != null;
 
             saveFileToolStripMenuItem.Enabled = artFileExists;
             saveAsFileToolStripMenuItem.Enabled = artFileExists;
@@ -176,12 +176,12 @@ namespace AAP
 
         public Point? GetArtMatrixPoint(Point canvasPosition)
         {
-            if (MainProgram.CurrentArtFile == null)
+            if (MainProgram.CurrentArt == null)
                 return null;
 
             SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
 
-            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (canvasArtFont.Height / 2)) / canvasArtFont.Height - 1f);
+            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (canvasArtFont.Height / 2)) / canvasArtFont.Height - 1f);
 
             Point artMatrixPos = Point.Truncate(artMatrixFloatPos);//new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
 
@@ -190,16 +190,16 @@ namespace AAP
 
         public Rectangle? GetCanvasCharacterRectangle(Point artMatrixPosition)
         {
-            if (MainProgram.CurrentArtFile == null)
+            if (MainProgram.CurrentArt == null)
                 return null;
 
             SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
 
-            PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArtFile.Width) + 1, artMatrixPosition.Y * canvasArtFont.Height + CanvasArtOffset.Y);
+            PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) + 1, artMatrixPosition.Y * canvasArtFont.Height + CanvasArtOffset.Y);
 
             Point canvasPos = Point.Truncate(canvasFloatPos); //new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
 
-            return new(canvasPos, TextRenderer.MeasureText(ASCIIArtFile.EMPTYCHARACTER.ToString(), canvasArtFont));
+            return new(canvasPos, TextRenderer.MeasureText(ASCIIArt.EMPTYCHARACTER.ToString(), canvasArtFont));
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs args)
@@ -210,7 +210,7 @@ namespace AAP
             canvasArtFont.Dispose();
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
-            if (MainProgram.CurrentArtFile == null)
+            if (MainProgram.CurrentArt == null)
             {
                 string noFileOpenText = "No File Open!";
                 canvas.Size = new(CanvasTextSize * noFileOpenText.Length, canvasArtFont.Height);
@@ -222,7 +222,7 @@ namespace AAP
             args.Graphics.DrawRectangle(new(Canvas.BackColor, highlightRectangleThickness), oldHighlightRectangle);
             args.Graphics.DrawRectangle(new(Color.Blue, highlightRectangleThickness), highlightRectangle);
 
-            string artString = MainProgram.CurrentArtFile.GetArtString();
+            string artString = MainProgram.CurrentArt.GetArtString();
 
             string[] lines = artString.Split('\n');
 
@@ -330,7 +330,7 @@ namespace AAP
 
         private void SaveFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MainProgram.CurrentArtFile == null)
+            if (MainProgram.CurrentArt == null)
                 return;
 
             if (MainProgram.CurrentFilePath == null || MainProgram.CurrentFilePath == "")
@@ -371,7 +371,7 @@ namespace AAP
 
         private void SaveAsFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MainProgram.CurrentArtFile == null)
+            if (MainProgram.CurrentArt == null)
                 return;
 
             SaveFileDialog saveFileDialog = new()
@@ -431,7 +431,7 @@ namespace AAP
 
         private void AsFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MainProgram.CurrentArtFile == null)
+            if (MainProgram.CurrentArt == null)
                 return;
 
             SaveFileDialog saveFileDialog = new()
@@ -469,8 +469,6 @@ namespace AAP
         private void resetZoomToolStripMenuItem_Click(object sender, EventArgs e)
             => CanvasTextSize = DefaultCanvasTextSize;
 
-        #endregion
-
         private void increaseThicknessToolStripMenuItem_Click(object sender, EventArgs e)
             => HighlightRectangleThickness += 1;
 
@@ -479,5 +477,7 @@ namespace AAP
 
         private void resetThicknessToolStripMenuItem_Click(object sender, EventArgs e)
             => HighlightRectangleThickness = DefaultHighlightRectangleThickness;
+
+        #endregion
     }
 }

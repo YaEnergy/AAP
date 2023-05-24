@@ -5,18 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
-using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace AAP
 {
-    public class ASCIIArtFile
+    public class ASCIIArt
     {
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space
         private static readonly string EXTENSION = ".aaf";
 
-        public readonly string CreatedInVersion = "???";
-        private string updatedInVersion = "???";
-        public string UpdatedInVersion { get => updatedInVersion; }
+        public readonly int CreatedInVersion = 0;
+        private int updatedInVersion = 0;
+        public int UpdatedInVersion { get => updatedInVersion; }
 
         public List<ArtLayer> ArtLayers = new();
         public readonly int Width = 1;
@@ -25,7 +24,7 @@ namespace AAP
         public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char character);
         public event ArtChangedEvent? OnArtChanged;
 
-        public ASCIIArtFile(int width, int height, string updatedinVersion, string createdinVersion) 
+        public ASCIIArt(int width, int height, int updatedinVersion, int createdinVersion) 
         {
             CreatedInVersion = createdinVersion;
             updatedInVersion = updatedinVersion;
@@ -70,7 +69,7 @@ namespace AAP
                 {
                     Point coord = new(x, y);
 
-                    art += !visibleArtMatrix.ContainsKey(coord) ? ASCIIArtFile.EMPTYCHARACTER : visibleArtMatrix[coord].ToString();
+                    art += !visibleArtMatrix.ContainsKey(coord) ? ASCIIArt.EMPTYCHARACTER : visibleArtMatrix[coord].ToString();
                 }
 
                 art += "\n";
@@ -85,67 +84,94 @@ namespace AAP
             if (!path.EndsWith(EXTENSION))
                 path += EXTENSION;
 
-            updatedInVersion = MainProgram.Version;
+            updatedInVersion = ASCIIArtFile.Version;
+                
+            List<ArtLayerFile> artLayerFiles = new();
+            
+            for(int i = 0; i < ArtLayers.Count; i++)
+                artLayerFiles.Add(new(ArtLayers[i].Name, ArtLayers[i].Visible, ArtLayers[i].GetArtString()));
+
+            ASCIIArtFile artFile = new(Width, Height, UpdatedInVersion, CreatedInVersion, artLayerFiles);
 
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(path);
 
-            js.Serialize(sw, this);
+            js.Serialize(sw, artFile);
 
             sw.Close();
 
             return new(path);
         }
 
-        public static ASCIIArtFile? ImportFilePath(string path, BackgroundWorker? bgWorker = null)
+        public static ASCIIArt? ImportFilePath(string path, BackgroundWorker? bgWorker = null)
         {
             FileInfo fileInfo = new(path);
 
             if (!fileInfo.Exists)
                 return null;
 
-            ASCIIArtFile? artFile;
+            ASCIIArt? art;
 
             switch (fileInfo.Extension)
             {
                 case ".txt":
-                    string[] lines = File.ReadAllLines(fileInfo.FullName);
+                    string[] txtLines = File.ReadAllLines(fileInfo.FullName);
 
-                    if (lines.Length <= 0)
+                    if (txtLines.Length <= 0)
                         throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): txt file contains no lines!");
 
-                    int width = 0;
-                    int height = lines.Length;
+                    int txtWidth = 0;
+                    int txtHeight = txtLines.Length;
 
                     //Get total width
-                    foreach(string line in lines)
-                        if (line.Length > width)
-                            width = line.Length;
+                    foreach(string line in txtLines)
+                        if (line.Length > txtWidth)
+                            txtWidth = line.Length;
 
-                    artFile = new(width, height, MainProgram.Version, MainProgram.Version);
-                    ArtLayer artLayer = new("Imported Art", artFile.Width, artFile.Height);
+                    art = new(txtWidth, txtHeight, ASCIIArtFile.Version, ASCIIArtFile.Version);
+                    ArtLayer txtArtLayer = new("Imported Art", art.Width, art.Height);
 
-                    for(int y = 0; y < height; y++)
+                    for(int y = 0; y < txtHeight; y++)
                     {
-                        char[] chars = lines[y].ToCharArray();
-                        for (int x = 0; x < width; x++)
-                            artLayer.Data[x][y] = x >= chars.Length ? null : chars[x];
+                        char[] chars = txtLines[y].ToCharArray();
+                        for (int x = 0; x < txtWidth; x++)
+                            txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x];
                     }
 
-                    artFile.ArtLayers.Add(artLayer);
+                    art.ArtLayers.Add(txtArtLayer);
 
-                    return artFile;
+                    return art;
                 case ".aaf":
                     JsonSerializer js = JsonSerializer.CreateDefault();
                     StreamReader sr = File.OpenText(path);
                     JsonTextReader jr = new(sr);
 
-                    artFile = js.Deserialize<ASCIIArtFile>(jr);
+                    ASCIIArtFile artFile = js.Deserialize<ASCIIArtFile>(jr);
+                    art = new(artFile.Width, artFile.Height, artFile.UpdatedInVersion, artFile.CreatedInVersion);
+
+                    for(int i = 0; i < artFile.ArtLayers.Count; i++)
+                    {
+                        Console.WriteLine("Art layer name: " + artFile.ArtLayers[i].Name);
+                        ArtLayer aafArtLayer = new(artFile.ArtLayers[i].Name, art.Width, art.Height);
+
+                        aafArtLayer.Visible = artFile.ArtLayers[i].Visible;
+
+                        string[] aafLines = artFile.ArtLayers[i].ArtLayerString.Split("\n");
+
+                        for (int y = 0; y < art.Height; y++)
+                        {
+                            char[] chars = aafLines[y].ToCharArray();
+                            for (int x = 0; x < art.Width; x++)
+                                aafArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x];
+                        }
+
+                        art.ArtLayers.Insert(i, aafArtLayer);
+                    }
 
                     jr.CloseInput = true;
                     jr.Close();
 
-                    return artFile;
+                    return art;
                 default:
                     throw new Exception($"ASCIIArtFile.ImportFile(path: {path}): no case for extension {fileInfo.Extension} exists!");
             }
@@ -184,5 +210,25 @@ namespace AAP
             OnArtChanged?.Invoke(layerIndex, artMatrixPosition, character);
         }
         #endregion
+    }
+
+    public struct ASCIIArtFile
+    {
+        public static readonly int Version = 2;
+
+        public readonly int CreatedInVersion = 0;
+        public readonly int UpdatedInVersion = 0;
+
+        public readonly List<ArtLayerFile> ArtLayers = new();
+        public readonly int Width = 1;
+        public readonly int Height = 1;
+        public ASCIIArtFile(int width, int height, int updatedinVersion, int createdinVersion, List<ArtLayerFile> artLayers) 
+        {
+            Width = width;
+            Height = height;
+            UpdatedInVersion = updatedinVersion;
+            CreatedInVersion = createdinVersion;
+            ArtLayers = artLayers;
+        }  
     }
 }

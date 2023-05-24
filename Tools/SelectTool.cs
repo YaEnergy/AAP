@@ -8,9 +8,9 @@ namespace AAP
 {
     public class SelectTool: Tool
     {
-        public override void ActivateEnd()
+        public override void ActivateUpdate(Point artMatrixPosition)
         {
-            MainProgram.Selected = new Rectangle(StartPoint, new(EndPoint.X - StartPoint.X, EndPoint.Y - StartPoint.Y));
+            MainProgram.Selected = new Rectangle(StartPoint, new(artMatrixPosition.X - StartPoint.X, artMatrixPosition.Y - StartPoint.Y));
         }
     }
 }
