@@ -28,7 +28,9 @@ namespace AAP
         public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
 
         private static Rectangle selected = Rectangle.Empty;
-        public static Rectangle Selected { get => selected; set => selected = value; }
+        public static Rectangle Selected { get => selected; set { selected = value; OnSelectionChanged?.Invoke(value); } }
+        public delegate void OnSelectionChangedEvent(Rectangle selection);
+        public static event OnSelectionChangedEvent? OnSelectionChanged;
 
         private static int currentLayerID = 0;
         public static int CurrentLayerID { get => currentLayerID; set => currentLayerID = value; }

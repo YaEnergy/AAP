@@ -66,6 +66,17 @@
             Canvas = new Panel();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
+            undoToolStripMenuItem = new ToolStripMenuItem();
+            redoToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator3 = new ToolStripSeparator();
+            copySelectionToolStripMenuItem = new ToolStripMenuItem();
+            pasteToolStripMenuItem = new ToolStripMenuItem();
+            cutSelectionToolStripMenuItem = new ToolStripMenuItem();
+            deleteSelectionToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator4 = new ToolStripSeparator();
+            selectAllToolStripMenuItem = new ToolStripMenuItem();
+            cropArtToSelectionToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator5 = new ToolStripSeparator();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             toolPanel.SuspendLayout();
@@ -165,6 +176,7 @@
             // 
             // editToolStripMenuItem
             // 
+            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoToolStripMenuItem, redoToolStripMenuItem, toolStripSeparator3, cutSelectionToolStripMenuItem, copySelectionToolStripMenuItem, pasteToolStripMenuItem, deleteSelectionToolStripMenuItem, toolStripSeparator4, selectAllToolStripMenuItem, toolStripSeparator5, cropArtToSelectionToolStripMenuItem });
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(49, 24);
             editToolStripMenuItem.Text = "Edit";
@@ -180,7 +192,7 @@
             // 
             canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
             canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
-            canvasToolStripMenuItem.Size = new Size(138, 26);
+            canvasToolStripMenuItem.Size = new Size(224, 26);
             canvasToolStripMenuItem.Text = "Canvas";
             // 
             // zoomToolStripMenuItem
@@ -409,6 +421,76 @@
             TaskInfoLabel.Size = new Size(1262, 40);
             TaskInfoLabel.TabIndex = 0;
             // 
+            // undoToolStripMenuItem
+            // 
+            undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            undoToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
+            undoToolStripMenuItem.Size = new Size(262, 26);
+            undoToolStripMenuItem.Text = "Undo";
+            // 
+            // redoToolStripMenuItem
+            // 
+            redoToolStripMenuItem.Name = "redoToolStripMenuItem";
+            redoToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
+            redoToolStripMenuItem.Size = new Size(262, 26);
+            redoToolStripMenuItem.Text = "Redo";
+            // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(259, 6);
+            // 
+            // copySelectionToolStripMenuItem
+            // 
+            copySelectionToolStripMenuItem.Name = "copySelectionToolStripMenuItem";
+            copySelectionToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
+            copySelectionToolStripMenuItem.Size = new Size(262, 26);
+            copySelectionToolStripMenuItem.Text = "Copy Selection";
+            // 
+            // pasteToolStripMenuItem
+            // 
+            pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
+            pasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
+            pasteToolStripMenuItem.Size = new Size(262, 26);
+            pasteToolStripMenuItem.Text = "Paste as new layer";
+            // 
+            // cutSelectionToolStripMenuItem
+            // 
+            cutSelectionToolStripMenuItem.Name = "cutSelectionToolStripMenuItem";
+            cutSelectionToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
+            cutSelectionToolStripMenuItem.Size = new Size(262, 26);
+            cutSelectionToolStripMenuItem.Text = "Cut Selection";
+            // 
+            // deleteSelectionToolStripMenuItem
+            // 
+            deleteSelectionToolStripMenuItem.Name = "deleteSelectionToolStripMenuItem";
+            deleteSelectionToolStripMenuItem.ShortcutKeys = Keys.Delete;
+            deleteSelectionToolStripMenuItem.Size = new Size(262, 26);
+            deleteSelectionToolStripMenuItem.Text = "Delete Selection";
+            // 
+            // toolStripSeparator4
+            // 
+            toolStripSeparator4.Name = "toolStripSeparator4";
+            toolStripSeparator4.Size = new Size(259, 6);
+            // 
+            // selectAllToolStripMenuItem
+            // 
+            selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            selectAllToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.A;
+            selectAllToolStripMenuItem.Size = new Size(262, 26);
+            selectAllToolStripMenuItem.Text = "Select All";
+            // 
+            // cropArtToSelectionToolStripMenuItem
+            // 
+            cropArtToSelectionToolStripMenuItem.Name = "cropArtToSelectionToolStripMenuItem";
+            cropArtToSelectionToolStripMenuItem.Size = new Size(262, 26);
+            cropArtToSelectionToolStripMenuItem.Text = "Crop Art To Selection";
+            // 
+            // toolStripSeparator5
+            // 
+            toolStripSeparator5.Name = "toolStripSeparator5";
+            toolStripSeparator5.Size = new Size(259, 6);
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -479,5 +561,16 @@
         private PictureBox selectToolButton;
         private PictureBox textToolButton;
         private PictureBox moveToolButton;
+        private ToolStripMenuItem undoToolStripMenuItem;
+        private ToolStripMenuItem redoToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem cutSelectionToolStripMenuItem;
+        private ToolStripMenuItem copySelectionToolStripMenuItem;
+        private ToolStripMenuItem pasteToolStripMenuItem;
+        private ToolStripMenuItem deleteSelectionToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator4;
+        private ToolStripMenuItem selectAllToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator5;
+        private ToolStripMenuItem cropArtToSelectionToolStripMenuItem;
     }
 }

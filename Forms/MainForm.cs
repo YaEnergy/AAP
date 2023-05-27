@@ -67,6 +67,26 @@ namespace AAP
                 Canvas.Update();
             }
         }
+
+        private Rectangle oldSelectionRectangle = new();
+        private Rectangle selectionRectangle = new();
+        public Rectangle SelectionRectangle
+        {
+            get => selectionRectangle;
+            set
+            {
+                if (value == selectionRectangle)
+                    return;
+
+                oldSelectionRectangle = selectionRectangle;
+                selectionRectangle = value;
+
+                Canvas.Invalidate(new Rectangle(selectionRectangle.Location.X - highlightRectangleThickness / 2, selectionRectangle.Location.Y - highlightRectangleThickness / 2, selectionRectangle.Size.Width + highlightRectangleThickness, selectionRectangle.Size.Height + highlightRectangleThickness));
+                Canvas.Invalidate(new Rectangle(oldSelectionRectangle.Location.X - highlightRectangleThickness / 2, oldSelectionRectangle.Location.Y - highlightRectangleThickness / 2, oldSelectionRectangle.Size.Width + highlightRectangleThickness, oldSelectionRectangle.Size.Height + highlightRectangleThickness));
+                Canvas.Update();
+            }
+        }
+
         public MainForm()
         {
             InitializeComponent();
@@ -78,6 +98,7 @@ namespace AAP
             MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
             MainProgram.OnCurrentArtChanged += OnCurrentArtChanged;
             MainProgram.OnCurrentToolTypeChanged += OnCurrentToolTypeChanged;
+            MainProgram.OnSelectionChanged += OnSelectionChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
@@ -94,6 +115,12 @@ namespace AAP
                     return;
 
                 if (newMouseArtMatrixPosition == null)
+                    return;
+
+                if (newMouseArtMatrixPosition.Value.X >= MainProgram.CurrentArt?.Width)
+                    return;
+
+                if (newMouseArtMatrixPosition.Value.Y >= MainProgram.CurrentArt?.Height)
                     return;
 
                 if (oldMouseArtMatrixPosition.Value == newMouseArtMatrixPosition.Value)
@@ -143,7 +170,7 @@ namespace AAP
         }
         #endregion
 
-        #region Main Program Changes
+        #region Main Program Events
         private void UpdateTitle()
         {
             string filePath = string.IsNullOrEmpty(MainProgram.CurrentFilePath) ? "*.*" : new FileInfo(MainProgram.CurrentFilePath).Name;
@@ -184,6 +211,24 @@ namespace AAP
             moveToolButton.BackColor = type == ToolType.Move ? selectedToolColor : unselectedToolColor;
             textToolButton.BackColor = type == ToolType.Text ? selectedToolColor : unselectedToolColor;
         }
+
+        private void OnSelectionChanged(Rectangle selection)
+        {
+            Rectangle? startRectangle = GetCanvasCharacterRectangle(selection.Location);
+            Rectangle? endRectangle = GetCanvasCharacterRectangle(selection.Location + selection.Size);
+
+            if (startRectangle == null)
+                return;
+
+            if (endRectangle == null)
+                return;
+
+            SelectionRectangle = new
+            (
+                new(startRectangle.Value.Location.X > endRectangle.Value.Location.X ? endRectangle.Value.Location.X + endRectangle.Value.Size.Width : startRectangle.Value.Location.X, startRectangle.Value.Location.Y > endRectangle.Value.Location.Y ? endRectangle.Value.Location.Y + endRectangle.Value.Size.Height : startRectangle.Value.Location.Y),
+                new(Math.Abs(endRectangle.Value.Location.X + endRectangle.Value.Size.Width - startRectangle.Value.Location.X), Math.Abs(endRectangle.Value.Location.Y + endRectangle.Value.Size.Height - startRectangle.Value.Location.Y))
+            );
+        }
         #endregion
 
         #region Canvas
@@ -197,7 +242,7 @@ namespace AAP
 
             PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (canvasArtFont.Height / 2)) / canvasArtFont.Height - 1f);
 
-            Point artMatrixPos = Point.Truncate(artMatrixFloatPos);//new(Convert.ToInt32(Math.Floor(artMatrixFloatPos.X)), Convert.ToInt32(Math.Floor(artMatrixFloatPos.Y)));
+            Point artMatrixPos = Point.Truncate(artMatrixFloatPos);
 
             return artMatrixPos;
         }
@@ -211,7 +256,7 @@ namespace AAP
 
             PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) + 1, artMatrixPosition.Y * canvasArtFont.Height + CanvasArtOffset.Y);
 
-            Point canvasPos = Point.Truncate(canvasFloatPos); //new(Convert.ToInt32(Math.Floor(canvasFloatPos.X)), Convert.ToInt32(Math.Floor(canvasFloatPos.Y)));
+            Point canvasPos = Point.Truncate(canvasFloatPos);
 
             return new(canvasPos, TextRenderer.MeasureText(ASCIIArt.EMPTYCHARACTER.ToString(), canvasArtFont));
         }
@@ -234,6 +279,9 @@ namespace AAP
             }
 
             args.Graphics.DrawRectangle(new(Canvas.BackColor, highlightRectangleThickness), oldHighlightRectangle);
+            args.Graphics.DrawRectangle(new(Canvas.BackColor, highlightRectangleThickness), oldSelectionRectangle);
+
+            args.Graphics.DrawRectangle(new(Color.Orange, highlightRectangleThickness), selectionRectangle);
             args.Graphics.DrawRectangle(new(Color.Blue, highlightRectangleThickness), highlightRectangle);
 
             string artString = MainProgram.CurrentArt.GetArtString();
