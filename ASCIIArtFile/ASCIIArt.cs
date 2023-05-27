@@ -212,7 +212,7 @@ namespace AAP
 
         public ASCIIArt Crop(Rectangle cropRect)
         {
-            ASCIIArt cropArt = new(Math.Abs(cropRect.Width) + (cropRect.Width > 0 ? 1 : -1), Math.Abs(cropRect.Height) + (cropRect.Height > 0 ? 1 : 0), UpdatedInVersion, CreatedInVersion);
+            ASCIIArt cropArt = new(cropRect.Width, cropRect.Height, UpdatedInVersion, CreatedInVersion);
 
             Console.WriteLine(cropRect.ToString());
 
@@ -224,7 +224,7 @@ namespace AAP
 
                 for (int x = 0; x < cropArt.Width; x++)
                     for (int y = 0; y < cropArt.Height; y++)
-                        newArtLayer.Data[x][y] = ArtLayers[i].Data[cropRect.X + (cropRect.Width < 0 ? cropRect.Width : 0) + x][cropRect.Y + (cropRect.Height < 0 ? cropRect.Height : 0) + y];
+                        newArtLayer.Data[x][y] = ArtLayers[i].Data[cropRect.X + x][cropRect.Y + y];
 
                 cropArt.ArtLayers.Add(newArtLayer);
             }

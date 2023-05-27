@@ -111,17 +111,18 @@ namespace AAP
                 Point? newMouseArtMatrixPosition = GetArtMatrixPoint(args.Location);
                 Point? oldMouseArtMatrixPosition = GetArtMatrixPoint(canvasMousePos);
 
-                if (oldMouseArtMatrixPosition == null)
+                if (oldMouseArtMatrixPosition == null || newMouseArtMatrixPosition == null)
+                {
+                    HighlightRectangle = Rectangle.Empty;
                     return;
+                }
 
-                if (newMouseArtMatrixPosition == null)
+                //Is On Canvas?
+                if (newMouseArtMatrixPosition.Value.X >= MainProgram.CurrentArt?.Width || newMouseArtMatrixPosition.Value.Y >= MainProgram.CurrentArt?.Height || newMouseArtMatrixPosition.Value.X < 0 || newMouseArtMatrixPosition.Value.Y < 0)
+                {
+                    HighlightRectangle = Rectangle.Empty;
                     return;
-
-                if (newMouseArtMatrixPosition.Value.X >= MainProgram.CurrentArt?.Width)
-                    return;
-
-                if (newMouseArtMatrixPosition.Value.Y >= MainProgram.CurrentArt?.Height)
-                    return;
+                }
 
                 if (oldMouseArtMatrixPosition.Value == newMouseArtMatrixPosition.Value)
                     return;
@@ -133,6 +134,8 @@ namespace AAP
 
                 HighlightRectangle = newCanvasCharacterRectangle.Value;
             };
+
+            Canvas.MouseLeave += (sender, args) => HighlightRectangle = Rectangle.Empty;
         }
 
         #region Tool Functions
@@ -226,8 +229,8 @@ namespace AAP
 
             int startX = startRectangle.Value.X < endRectangle.Value.X ? startRectangle.Value.X : endRectangle.Value.X;
             int startY = startRectangle.Value.Y < endRectangle.Value.Y ? startRectangle.Value.Y : endRectangle.Value.Y;
-            int sizeX = startRectangle.Value.X < endRectangle.Value.X ? endRectangle.Value.X - startRectangle.Value.X + endRectangle.Value.Width : startRectangle.Value.X - endRectangle.Value.X;
-            int sizeY = startRectangle.Value.Y < endRectangle.Value.Y ? endRectangle.Value.Y - startRectangle.Value.Y + endRectangle.Value.Height : startRectangle.Value.Y - endRectangle.Value.Y;
+            int sizeX = startRectangle.Value.X < endRectangle.Value.X ? endRectangle.Value.X - startRectangle.Value.X + endRectangle.Value.Width / 2 : startRectangle.Value.X - endRectangle.Value.X;
+            int sizeY = startRectangle.Value.Y < endRectangle.Value.Y ? endRectangle.Value.Y - startRectangle.Value.Y : startRectangle.Value.Y - endRectangle.Value.Y;
 
             SelectionRectangle = new(new(startX, startY), new(sizeX, sizeY));
         }
@@ -542,6 +545,25 @@ namespace AAP
         private void resetThicknessToolStripMenuItem_Click(object sender, EventArgs e)
             => HighlightRectangleThickness = DefaultHighlightRectangleThickness;
 
+        private void cropArtToSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MainProgram.CurrentArt == null)
+                return;
+
+            if (MainProgram.Selected == Rectangle.Empty)
+                return;
+
+            MainProgram.CropArtFileToSelected();
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MainProgram.CurrentArt == null)
+                return;
+
+            MainProgram.Selected = new(0, 0, MainProgram.CurrentArt.Width, MainProgram.CurrentArt.Height);
+        }
+
         #endregion
         #region Tool Buttons
         private void drawToolButton_Click(object sender, EventArgs e)
@@ -560,16 +582,5 @@ namespace AAP
             => MainProgram.CurrentToolType = ToolType.Text;
 
         #endregion
-
-        private void cropArtToSelectionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (MainProgram.CurrentArt == null)
-                return;
-
-            if (MainProgram.Selected == Rectangle.Empty)
-                return;
-
-            MainProgram.CropArtFileToSelected();
-        }
     }
 }

@@ -239,6 +239,7 @@
             selectAllToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.A;
             selectAllToolStripMenuItem.Size = new Size(262, 26);
             selectAllToolStripMenuItem.Text = "Select All";
+            selectAllToolStripMenuItem.Click += selectAllToolStripMenuItem_Click;
             // 
             // toolStripSeparator5
             // 
