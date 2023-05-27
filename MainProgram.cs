@@ -235,5 +235,18 @@ namespace AAP
             Clipboard.SetText(artString);
             Console.WriteLine("Copy Art To Clipboard: Copied art file to clipboard!");
         }
+
+        public static void CropArtFileToSelected()
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (Selected == Rectangle.Empty)
+                return;
+
+            CurrentArt = CurrentArt.Crop(Selected);
+
+            Selected = Rectangle.Empty;
+        }
     }
 }

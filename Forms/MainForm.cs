@@ -187,6 +187,7 @@ namespace AAP
         private void OnCurrentArtChanged(ASCIIArt? art)
         {
             Canvas.Refresh();
+            UpdateTitle();
 
             if (art != null)
                 art.OnArtChanged += OnArtChanged;
@@ -559,5 +560,16 @@ namespace AAP
             => MainProgram.CurrentToolType = ToolType.Text;
 
         #endregion
+
+        private void cropArtToSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (MainProgram.CurrentArt == null)
+                return;
+
+            if (MainProgram.Selected == Rectangle.Empty)
+                return;
+
+            MainProgram.CropArtFileToSelected();
+        }
     }
 }
