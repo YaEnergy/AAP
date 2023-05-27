@@ -223,11 +223,12 @@ namespace AAP
             if (endRectangle == null)
                 return;
 
-            SelectionRectangle = new
-            (
-                new(startRectangle.Value.Location.X > endRectangle.Value.Location.X ? endRectangle.Value.Location.X + endRectangle.Value.Size.Width : startRectangle.Value.Location.X, startRectangle.Value.Location.Y > endRectangle.Value.Location.Y ? endRectangle.Value.Location.Y + endRectangle.Value.Size.Height : startRectangle.Value.Location.Y),
-                new(Math.Abs(endRectangle.Value.Location.X + endRectangle.Value.Size.Width - startRectangle.Value.Location.X), Math.Abs(endRectangle.Value.Location.Y + endRectangle.Value.Size.Height - startRectangle.Value.Location.Y))
-            );
+            int startX = startRectangle.Value.X < endRectangle.Value.X ? startRectangle.Value.X : endRectangle.Value.X;
+            int startY = startRectangle.Value.Y < endRectangle.Value.Y ? startRectangle.Value.Y : endRectangle.Value.Y;
+            int sizeX = startRectangle.Value.X < endRectangle.Value.X ? endRectangle.Value.X - startRectangle.Value.X + endRectangle.Value.Width : startRectangle.Value.X - endRectangle.Value.X;
+            int sizeY = startRectangle.Value.Y < endRectangle.Value.Y ? endRectangle.Value.Y - startRectangle.Value.Y + endRectangle.Value.Height : startRectangle.Value.Y - endRectangle.Value.Y;
+
+            SelectionRectangle = new(new(startX, startY), new(sizeX, sizeY));
         }
         #endregion
 
