@@ -112,6 +112,8 @@ namespace AAP
                 if (File.Exists(args[0]))
                     OpenFile(new(args[0]));
 
+            GC.Collect();
+
             Application.Run(mainForm);
 
             mutex.Close();
