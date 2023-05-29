@@ -19,27 +19,46 @@ namespace AAP
 
         private int canvasTextSize = 12;
         private int highlightRectangleThickness = 4;
-        public int CanvasTextSize { get => canvasTextSize; private set { canvasTextSize = Math.Clamp(value, 4, 128); Canvas.Refresh(); Console.WriteLine("Canvas Text Size: " + canvasTextSize); zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%"; } }
+        public int CanvasTextSize 
+        { 
+            get => canvasTextSize; 
+            private set 
+            { 
+                canvasTextSize = Math.Clamp(value, 4, 128);
+
+                Canvas.Refresh(); 
+
+                if (MainProgram.CurrentArt != null)
+                    OnSelectionChanged(MainProgram.Selected);
+
+                Console.WriteLine("Canvas Text Size: " + canvasTextSize); 
+
+                zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%"; 
+            } 
+        }
         public int HighlightRectangleThickness
         {
             get => highlightRectangleThickness;
             private set
             {
-                int val = value;
-
-                if (val < highlightRectangleThickness)
+                void InvalidateRectangles()
                 {
                     Canvas.Invalidate(new Rectangle(highlightRectangle.Location.X - highlightRectangleThickness / 2, highlightRectangle.Location.Y - highlightRectangleThickness / 2, highlightRectangle.Size.Width + highlightRectangleThickness, highlightRectangle.Size.Height + highlightRectangleThickness));
                     Canvas.Invalidate(new Rectangle(oldHighlightRectangle.Location.X - highlightRectangleThickness / 2, oldHighlightRectangle.Location.Y - highlightRectangleThickness / 2, oldHighlightRectangle.Size.Width + highlightRectangleThickness, oldHighlightRectangle.Size.Height + highlightRectangleThickness));
+
+                    Canvas.Invalidate(new Rectangle(selectionRectangle.Location.X - highlightRectangleThickness / 2, selectionRectangle.Location.Y - highlightRectangleThickness / 2, selectionRectangle.Size.Width + highlightRectangleThickness, selectionRectangle.Size.Height + highlightRectangleThickness));
+                    Canvas.Invalidate(new Rectangle(oldSelectionRectangle.Location.X - highlightRectangleThickness / 2, oldSelectionRectangle.Location.Y - highlightRectangleThickness / 2, oldSelectionRectangle.Size.Width + highlightRectangleThickness, oldSelectionRectangle.Size.Height + highlightRectangleThickness));
                 }
+
+                int oldVal = highlightRectangleThickness;
+
+                if (value < highlightRectangleThickness)
+                    InvalidateRectangles();
 
                 highlightRectangleThickness = Math.Clamp(value, 1, 12);
 
-                if (val > highlightRectangleThickness)
-                {
-                    Canvas.Invalidate(new Rectangle(highlightRectangle.Location.X - highlightRectangleThickness / 2, highlightRectangle.Location.Y - highlightRectangleThickness / 2, highlightRectangle.Size.Width + highlightRectangleThickness, highlightRectangle.Size.Height + highlightRectangleThickness));
-                    Canvas.Invalidate(new Rectangle(oldHighlightRectangle.Location.X - highlightRectangleThickness / 2, oldHighlightRectangle.Location.Y - highlightRectangleThickness / 2, oldHighlightRectangle.Size.Width + highlightRectangleThickness, oldHighlightRectangle.Size.Height + highlightRectangleThickness));
-                }
+                if (value > oldVal)
+                    InvalidateRectangles();
 
                 Canvas.Update();
 

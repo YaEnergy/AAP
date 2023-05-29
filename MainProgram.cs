@@ -98,6 +98,8 @@ namespace AAP
 
             CurrentToolType = ToolType.Draw;
 
+            OnCurrentArtChanged += (art) => Selected = Rectangle.Empty; //Set selection to nothing if art file changes
+
             Console.WriteLine("Set up complete!");
 
             loadingForm.Hide();
