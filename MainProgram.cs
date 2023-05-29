@@ -71,6 +71,10 @@ namespace AAP
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
 
+            Mutex mutex = new(false, ProgramTitle);
+            if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
+                return;
+
             Console.Title = ProgramTitle + " Console";
 
             AAPLoadingForm loadingForm = new();
@@ -109,6 +113,8 @@ namespace AAP
                     OpenFile(new(args[0]));
 
             Application.Run(mainForm);
+
+            mutex.Close();
         }
 
         public static void NewFile(ASCIIArt artFile)
