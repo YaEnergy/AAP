@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -19,22 +20,22 @@ namespace AAP
 
         private int canvasTextSize = 12;
         private int highlightRectangleThickness = 4;
-        public int CanvasTextSize 
-        { 
-            get => canvasTextSize; 
-            private set 
-            { 
+        public int CanvasTextSize
+        {
+            get => canvasTextSize;
+            private set
+            {
                 canvasTextSize = Math.Clamp(value, 4, 128);
 
-                Canvas.Refresh(); 
+                Canvas.Refresh();
 
                 if (MainProgram.CurrentArt != null)
                     OnSelectionChanged(MainProgram.Selected);
 
-                Console.WriteLine("Canvas Text Size: " + canvasTextSize); 
+                Console.WriteLine("Canvas Text Size: " + canvasTextSize);
 
-                zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%"; 
-            } 
+                zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%";
+            }
         }
         public int HighlightRectangleThickness
         {
@@ -317,15 +318,34 @@ namespace AAP
             trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X * 2, size.Height + CanvasArtOffset.Y * 2 + canvasArtFont.Height * 2);
             canvas.Size = trueCanvasSize.ToSize();
 
+#if DEBUG
+            int startedAtLine = int.MaxValue;
+            int endedAtLine = int.MinValue;
+#endif
+
+            Graphics mainFormGraphics = CreateGraphics();
+
             for (int y = 0; y < lines.Length; y++)
             {
                 PointF position = new(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + CanvasArtOffset.Y);
 
-                if (!args.Graphics.IsVisible(position))
+                if (!mainFormGraphics.IsVisible(canvas.PointToScreen(Point.Truncate(position))))
                     continue;
+
+#if DEBUG
+                if (y < startedAtLine)
+                    startedAtLine = y;
+
+                if (y > endedAtLine)
+                    endedAtLine = y;
+#endif
 
                 args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, position);
             }
+
+#if DEBUG
+            Console.WriteLine("Started drawing at line " + startedAtLine + " and ended at line " + endedAtLine);
+#endif
         }
 
         private void OnArtChanged(int layerIndex, Point artMatrixPosition, char character)
