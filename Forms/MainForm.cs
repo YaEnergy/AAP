@@ -318,33 +318,21 @@ namespace AAP
             trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X * 2, size.Height + CanvasArtOffset.Y * 2 + canvasArtFont.Height * 2);
             canvas.Size = trueCanvasSize.ToSize();
 
-#if DEBUG
-            int startedAtLine = int.MaxValue;
-            int endedAtLine = int.MinValue;
-#endif
+            int startArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, 30))) ?? Point.Empty).Y, 0, lines.Length);
+            int endArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, 30 + fillDock.Size.Height))) ?? Point.Empty).Y, 0, lines.Length);
 
             Graphics mainFormGraphics = CreateGraphics();
 
-            for (int y = 0; y < lines.Length; y++)
+
+            for (int y = startArtMatrixYPosition; y < endArtMatrixYPosition + 1; y++)
             {
-                PointF position = new(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + CanvasArtOffset.Y);
-
-                if (!mainFormGraphics.IsVisible(canvas.PointToScreen(Point.Truncate(position))))
-                    continue;
-
-#if DEBUG
-                if (y < startedAtLine)
-                    startedAtLine = y;
-
-                if (y > endedAtLine)
-                    endedAtLine = y;
-#endif
+                PointF position = new(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + 1 + CanvasArtOffset.Y);
 
                 args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, position);
             }
 
 #if DEBUG
-            Console.WriteLine("Started drawing at line " + startedAtLine + " and ended at line " + endedAtLine);
+            Console.WriteLine("Started drawing at line " + startArtMatrixYPosition + " and ended at line " + endArtMatrixYPosition);
 #endif
         }
 
