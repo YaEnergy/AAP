@@ -66,27 +66,29 @@
             filtersToolStripMenuItem = new ToolStripMenuItem();
             leftDock = new Panel();
             toolOptionsPanel = new Panel();
+            characterSelectionPanel = new TableLayoutPanel();
+            toolPanel = new TableLayoutPanel();
             textToolButton = new PictureBox();
-            moveToolButton = new PictureBox();
-            selectToolButton = new PictureBox();
-            eraserToolButton = new PictureBox();
             drawToolButton = new PictureBox();
+            moveToolButton = new PictureBox();
+            eraserToolButton = new PictureBox();
+            selectToolButton = new PictureBox();
             rightDock = new Panel();
             fillDock = new Panel();
             Canvas = new Panel();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
-            this.toolPanel = new TableLayoutPanel();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
+            toolOptionsPanel.SuspendLayout();
+            toolPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)textToolButton).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)moveToolButton).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)selectToolButton).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)moveToolButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)selectToolButton).BeginInit();
             fillDock.SuspendLayout();
             bottomDock.SuspendLayout();
-            this.toolPanel.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip
@@ -339,8 +341,8 @@
             // 
             leftDock.AutoScroll = true;
             leftDock.BackColor = SystemColors.ActiveBorder;
-            leftDock.Controls.Add(this.toolPanel);
             leftDock.Controls.Add(toolOptionsPanel);
+            leftDock.Controls.Add(toolPanel);
             leftDock.Dock = DockStyle.Left;
             leftDock.Location = new Point(0, 28);
             leftDock.Name = "leftDock";
@@ -352,12 +354,63 @@
             toolOptionsPanel.AutoSize = true;
             toolOptionsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             toolOptionsPanel.BackColor = SystemColors.Info;
-            toolOptionsPanel.Dock = DockStyle.Fill;
-            toolOptionsPanel.Location = new Point(0, 0);
-            toolOptionsPanel.MinimumSize = new Size(0, 200);
+            toolOptionsPanel.Controls.Add(characterSelectionPanel);
+            toolOptionsPanel.Dock = DockStyle.Top;
+            toolOptionsPanel.Location = new Point(0, 144);
+            toolOptionsPanel.MinimumSize = new Size(0, 300);
             toolOptionsPanel.Name = "toolOptionsPanel";
-            toolOptionsPanel.Size = new Size(250, 605);
+            toolOptionsPanel.Size = new Size(250, 300);
             toolOptionsPanel.TabIndex = 5;
+            // 
+            // characterSelectionPanel
+            // 
+            characterSelectionPanel.AutoSize = true;
+            characterSelectionPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            characterSelectionPanel.BackColor = Color.FromArgb(192, 255, 192);
+            characterSelectionPanel.ColumnCount = 4;
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle());
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle());
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle());
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+            characterSelectionPanel.Dock = DockStyle.Top;
+            characterSelectionPanel.Location = new Point(0, 0);
+            characterSelectionPanel.MaximumSize = new Size(0, 1000);
+            characterSelectionPanel.MinimumSize = new Size(0, 100);
+            characterSelectionPanel.Name = "characterSelectionPanel";
+            characterSelectionPanel.RowCount = 2;
+            characterSelectionPanel.RowStyles.Add(new RowStyle());
+            characterSelectionPanel.RowStyles.Add(new RowStyle());
+            characterSelectionPanel.Size = new Size(250, 100);
+            characterSelectionPanel.TabIndex = 7;
+            // 
+            // toolPanel
+            // 
+            toolPanel.AutoSize = true;
+            toolPanel.BackColor = Color.FromArgb(255, 192, 255);
+            toolPanel.ColumnCount = 3;
+            toolPanel.ColumnStyles.Add(new ColumnStyle());
+            toolPanel.ColumnStyles.Add(new ColumnStyle());
+            toolPanel.ColumnStyles.Add(new ColumnStyle());
+            toolPanel.Controls.Add(textToolButton, 1, 1);
+            toolPanel.Controls.Add(drawToolButton, 0, 0);
+            toolPanel.Controls.Add(moveToolButton, 0, 1);
+            toolPanel.Controls.Add(eraserToolButton, 1, 0);
+            toolPanel.Controls.Add(selectToolButton, 2, 0);
+            toolPanel.Dock = DockStyle.Top;
+            toolPanel.GrowStyle = TableLayoutPanelGrowStyle.AddColumns;
+            toolPanel.Location = new Point(0, 0);
+            toolPanel.Name = "toolPanel";
+            toolPanel.RowCount = 2;
+            toolPanel.RowStyles.Add(new RowStyle());
+            toolPanel.RowStyles.Add(new RowStyle());
+            toolPanel.Size = new Size(250, 144);
+            toolPanel.TabIndex = 6;
             // 
             // textToolButton
             // 
@@ -373,6 +426,21 @@
             textToolButton.TabStop = false;
             textToolButton.Click += textToolButton_Click;
             // 
+            // drawToolButton
+            // 
+            drawToolButton.BackColor = SystemColors.Control;
+            drawToolButton.Dock = DockStyle.Fill;
+            drawToolButton.Image = Properties.Resources.DrawToolIcon;
+            drawToolButton.Location = new Point(4, 4);
+            drawToolButton.Margin = new Padding(4);
+            drawToolButton.Name = "drawToolButton";
+            drawToolButton.Padding = new Padding(4);
+            drawToolButton.Size = new Size(64, 64);
+            drawToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            drawToolButton.TabIndex = 0;
+            drawToolButton.TabStop = false;
+            drawToolButton.Click += drawToolButton_Click;
+            // 
             // moveToolButton
             // 
             moveToolButton.BackColor = SystemColors.Control;
@@ -385,19 +453,6 @@
             moveToolButton.TabIndex = 3;
             moveToolButton.TabStop = false;
             moveToolButton.Click += moveToolButton_Click;
-            // 
-            // selectToolButton
-            // 
-            selectToolButton.BackColor = SystemColors.Control;
-            selectToolButton.Location = new Point(148, 4);
-            selectToolButton.Margin = new Padding(4);
-            selectToolButton.Name = "selectToolButton";
-            selectToolButton.Padding = new Padding(4);
-            selectToolButton.Size = new Size(64, 64);
-            selectToolButton.SizeMode = PictureBoxSizeMode.Zoom;
-            selectToolButton.TabIndex = 2;
-            selectToolButton.TabStop = false;
-            selectToolButton.Click += selectToolButton_Click;
             // 
             // eraserToolButton
             // 
@@ -413,20 +468,18 @@
             eraserToolButton.TabStop = false;
             eraserToolButton.Click += eraserToolButton_Click;
             // 
-            // drawToolButton
+            // selectToolButton
             // 
-            drawToolButton.BackColor = SystemColors.Control;
-            drawToolButton.Dock = DockStyle.Fill;
-            drawToolButton.Image = Properties.Resources.DrawToolIcon;
-            drawToolButton.Location = new Point(4, 4);
-            drawToolButton.Margin = new Padding(4);
-            drawToolButton.Name = "drawToolButton";
-            drawToolButton.Padding = new Padding(4);
-            drawToolButton.Size = new Size(64, 64);
-            drawToolButton.SizeMode = PictureBoxSizeMode.Zoom;
-            drawToolButton.TabIndex = 0;
-            drawToolButton.TabStop = false;
-            drawToolButton.Click += drawToolButton_Click;
+            selectToolButton.BackColor = SystemColors.Control;
+            selectToolButton.Location = new Point(148, 4);
+            selectToolButton.Margin = new Padding(4);
+            selectToolButton.Name = "selectToolButton";
+            selectToolButton.Padding = new Padding(4);
+            selectToolButton.Size = new Size(64, 64);
+            selectToolButton.SizeMode = PictureBoxSizeMode.Zoom;
+            selectToolButton.TabIndex = 2;
+            selectToolButton.TabStop = false;
+            selectToolButton.Click += selectToolButton_Click;
             // 
             // rightDock
             // 
@@ -480,28 +533,6 @@
             TaskInfoLabel.Size = new Size(1262, 40);
             TaskInfoLabel.TabIndex = 0;
             // 
-            // toolPanel
-            // 
-            this.toolPanel.AutoSize = true;
-            this.toolPanel.BackColor = Color.FromArgb(255, 192, 255);
-            this.toolPanel.ColumnCount = 3;
-            this.toolPanel.ColumnStyles.Add(new ColumnStyle());
-            this.toolPanel.ColumnStyles.Add(new ColumnStyle());
-            this.toolPanel.ColumnStyles.Add(new ColumnStyle());
-            this.toolPanel.Controls.Add(textToolButton, 1, 1);
-            this.toolPanel.Controls.Add(drawToolButton, 0, 0);
-            this.toolPanel.Controls.Add(moveToolButton, 0, 1);
-            this.toolPanel.Controls.Add(eraserToolButton, 1, 0);
-            this.toolPanel.Controls.Add(selectToolButton, 2, 0);
-            this.toolPanel.Dock = DockStyle.Top;
-            this.toolPanel.Location = new Point(0, 0);
-            this.toolPanel.Name = "toolPanel";
-            this.toolPanel.RowCount = 2;
-            this.toolPanel.RowStyles.Add(new RowStyle());
-            this.toolPanel.RowStyles.Add(new RowStyle());
-            this.toolPanel.Size = new Size(250, 144);
-            this.toolPanel.TabIndex = 6;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -522,14 +553,16 @@
             menuStrip.PerformLayout();
             leftDock.ResumeLayout(false);
             leftDock.PerformLayout();
+            toolOptionsPanel.ResumeLayout(false);
+            toolOptionsPanel.PerformLayout();
+            toolPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)textToolButton).EndInit();
-            ((System.ComponentModel.ISupportInitialize)moveToolButton).EndInit();
-            ((System.ComponentModel.ISupportInitialize)selectToolButton).EndInit();
-            ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)moveToolButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)selectToolButton).EndInit();
             fillDock.ResumeLayout(false);
             bottomDock.ResumeLayout(false);
-            this.toolPanel.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -583,5 +616,6 @@
         private ToolStripSeparator toolStripSeparator5;
         private ToolStripMenuItem cropArtToSelectionToolStripMenuItem;
         private TableLayoutPanel toolPanel;
+        private TableLayoutPanel characterSelectionPanel;
     }
 }

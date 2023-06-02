@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 
 namespace AAP
@@ -156,7 +157,48 @@ namespace AAP
             };
 
             Canvas.MouseLeave += (sender, args) => HighlightRectangle = Rectangle.Empty;
+
+            DisplaySelectableCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ|/\\-_^[](){}!?.,;:<>&ι@#§θηΰ°*%+=~".ToCharArray());
         }
+
+        #region Tool Options Display
+        void DisplaySelectableCharacters(char[] selectableCharacters)
+        {
+            foreach (Control control in characterSelectionPanel.Controls)
+                control.Dispose();
+
+            characterSelectionPanel.Controls.Clear();
+
+            Font font = new("Consolas", 16, FontStyle.Regular);
+
+            for (int i = 0; i < selectableCharacters.Length; i++) //Test chars
+            {
+                Label charLabelButton = new()
+                {
+                    Name = "CharLabelButton_" + selectableCharacters[i],
+
+                    Margin = new(4),
+                    Padding = new(4),
+                    Size = new(40, 40),
+                    BackColor = Color.AliceBlue,
+
+                    Font = font,
+                    Text = selectableCharacters[i].ToString(),
+                    TextAlign = ContentAlignment.MiddleCenter
+                };
+
+                characterSelectionPanel.Controls.Add(charLabelButton);
+                characterSelectionPanel.SetColumn(charLabelButton, i);
+            }
+
+            foreach (ColumnStyle columnStyle in characterSelectionPanel.ColumnStyles)
+                columnStyle.SizeType = SizeType.AutoSize;
+
+            foreach (RowStyle rowStyle in characterSelectionPanel.RowStyles)
+                rowStyle.SizeType = SizeType.AutoSize;
+
+        }
+        #endregion
 
         #region Tool Functions
         private void ToolActivateStart(object? sender, MouseEventArgs e)
@@ -234,6 +276,8 @@ namespace AAP
             selectToolButton.BackColor = type == ToolType.Select ? selectedToolColor : unselectedToolColor;
             moveToolButton.BackColor = type == ToolType.Move ? selectedToolColor : unselectedToolColor;
             textToolButton.BackColor = type == ToolType.Text ? selectedToolColor : unselectedToolColor;
+
+            characterSelectionPanel.Visible = type == ToolType.Draw;
         }
 
         private void OnSelectionChanged(Rectangle selection)
