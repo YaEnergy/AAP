@@ -263,9 +263,10 @@ namespace AAP
             if (MainProgram.CurrentArt == null)
                 return null;
 
-            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
+            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X, CanvasArtOffset.Y);
 
-            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) - 1f, (canvasPosition.Y + CanvasArtOffset.Y + (canvasArtFont.Height / 2)) / canvasArtFont.Height - 1f);
+            //(nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) may not be entirely accurate
+            PointF artMatrixFloatPos = new((canvasPosition.X + CanvasArtOffset.X) / (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) - 1f, (canvasPosition.Y - CanvasArtOffset.Y) / canvasArtFont.Height);
 
             Point artMatrixPos = Point.Truncate(artMatrixFloatPos);
 
@@ -277,7 +278,7 @@ namespace AAP
             if (MainProgram.CurrentArt == null)
                 return null;
 
-            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X * 2, CanvasArtOffset.Y * 2);
+            SizeF nonOffsetCanvasSize = trueCanvasSize - new SizeF(CanvasArtOffset.X, CanvasArtOffset.Y);
 
             PointF canvasFloatPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / MainProgram.CurrentArt.Width) + 1, artMatrixPosition.Y * canvasArtFont.Height + CanvasArtOffset.Y);
 
@@ -315,21 +316,14 @@ namespace AAP
 
             SizeF size = args.Graphics.MeasureString(artString, canvasArtFont);
 
-            trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X * 2, size.Height + CanvasArtOffset.Y * 2 + canvasArtFont.Height * 2);
+            trueCanvasSize = new SizeF(size.Width + CanvasArtOffset.X, canvasArtFont.Height * MainProgram.CurrentArt.Height + CanvasArtOffset.Y + canvasArtFont.Height * 2);
             canvas.Size = trueCanvasSize.ToSize();
 
-            int startArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, 30))) ?? Point.Empty).Y, 0, lines.Length);
-            int endArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, 30 + fillDock.Size.Height))) ?? Point.Empty).Y, 0, lines.Length);
+            int startArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, fillDock.Location.Y))) ?? Point.Empty).Y, 0, lines.Length - 1);
+            int endArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, fillDock.Location.Y + fillDock.Size.Height))) ?? Point.Empty).Y, 0, lines.Length - 1);
 
-            Graphics mainFormGraphics = CreateGraphics();
-
-
-            for (int y = startArtMatrixYPosition; y < endArtMatrixYPosition + 1; y++)
-            {
-                PointF position = new(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + 1 + CanvasArtOffset.Y);
-
-                args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, position);
-            }
+            for (int y = startArtMatrixYPosition; y < Math.Clamp(endArtMatrixYPosition + 1, 0, lines.Length); y++)
+                args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, new PointF(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + CanvasArtOffset.Y / 2f)); //1 is added so it fits within selection and highlight rectangles better
 
 #if DEBUG
             Console.WriteLine("Started drawing at line " + startArtMatrixYPosition + " and ended at line " + endArtMatrixYPosition);
