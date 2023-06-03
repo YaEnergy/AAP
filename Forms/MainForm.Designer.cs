@@ -368,6 +368,7 @@
             // characterPalettePanel
             // 
             characterPalettePanel.AutoSize = true;
+            characterPalettePanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             characterPalettePanel.BackColor = Color.Cyan;
             characterPalettePanel.Controls.Add(characterPaletteComboBox);
             characterPalettePanel.Controls.Add(characterSelectionPanel);

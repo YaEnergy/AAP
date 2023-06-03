@@ -180,6 +180,8 @@ namespace AAP
 
             characterSelectionPanel.Controls.Clear();
 
+            characterSelectionPanel.RowCount = 0;
+
             if (characterPalette == null)
                 return;
 
@@ -647,7 +649,14 @@ namespace AAP
         }
 
         private void characterPaletteComboBox_SelectionChangeCommitted(object sender, EventArgs e)
-            => MainProgram.CurrentCharacterPalette = MainProgram.CharacterPalettes[characterPaletteComboBox.SelectedIndex];
+        {
+            if(characterPaletteComboBox.SelectedIndex == MainProgram.CharacterPalettes.Count) //Import Character Palette
+            {
+                //Import Character Palette
+            }
+            else
+                MainProgram.CurrentCharacterPalette = MainProgram.CharacterPalettes[characterPaletteComboBox.SelectedIndex];
+        }
 
         #endregion
         #region Tool Buttons
