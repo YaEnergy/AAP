@@ -113,6 +113,8 @@ namespace AAP
         {
             InitializeComponent();
 
+            Canvas.SuspendLayout();
+
             UpdateTitle();
             OnCurrentArtChanged(MainProgram.CurrentArt);
             OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
