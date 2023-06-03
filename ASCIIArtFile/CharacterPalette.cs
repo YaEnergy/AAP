@@ -10,14 +10,10 @@ namespace AAP
 {
     public class CharacterPalette
     {
+        private static readonly string EXTENSION = ".aappal";
+
         public readonly string Name;
         public readonly char[] Characters;
-
-        public CharacterPalette(string name, char[] characters)
-        {
-            Name = name;
-            Characters = characters;
-        }
 
         public CharacterPalette(string name, List<char> characters)
         {
@@ -74,16 +70,26 @@ namespace AAP
             switch (fileInfo.Extension)
             {
                 case ".txt":
-                    throw new NotImplementedException();
-                /*string charString
+                    string charString = "";
 
-                StreamWriter sw = File.CreateText(path);
-                sw.Write(charString);
+                    foreach (char character in Characters)
+                        charString += character;
 
-                sw.Close();
-                break;*/
+                    StreamWriter swText = File.CreateText(path);
+                    swText.Write(charString);
+
+                    swText.Close();
+
+                    break;
                 case ".aappal":
-                    throw new NotImplementedException();
+                    JsonSerializer js = JsonSerializer.CreateDefault();
+                    StreamWriter swAAPPAL = File.CreateText(path);
+
+                    js.Serialize(swAAPPAL, this);
+
+                    swAAPPAL.Close();
+
+                    break;
                 default:
                     throw new Exception($"CharacterPalette.ExportTo(path: {path}): no case for extension {fileInfo.Extension} exists!");
             }

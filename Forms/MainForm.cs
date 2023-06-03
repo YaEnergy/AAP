@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
@@ -115,11 +116,14 @@ namespace AAP
             UpdateTitle();
             OnCurrentArtChanged(MainProgram.CurrentArt);
             OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
+            DisplayCharacterPalette(MainProgram.CurrentCharacterPalette);
 
             MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
             MainProgram.OnCurrentArtChanged += OnCurrentArtChanged;
             MainProgram.OnCurrentToolTypeChanged += OnCurrentToolTypeChanged;
             MainProgram.OnSelectionChanged += OnSelectionChanged;
+            MainProgram.OnCurrentCharacterPaletteChanged += DisplayCharacterPalette;
+            MainProgram.OnAvailableCharacterPalettesChanged += DisplayAvailableCharacterPalettes;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
@@ -157,25 +161,38 @@ namespace AAP
             };
 
             Canvas.MouseLeave += (sender, args) => HighlightRectangle = Rectangle.Empty;
-
-            DisplaySelectableCharacters("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ|/\\-_^[](){}!?.,;:<>&ι@#§θηΰ°*%+=~".ToCharArray());
         }
 
         #region Tool Options Display
-        void DisplaySelectableCharacters(char[] selectableCharacters)
+        void DisplayAvailableCharacterPalettes(List<CharacterPalette> characterPalettes)
+        {
+            characterPaletteComboBox.Items.Clear();
+
+            for (int i = 0; i < characterPalettes.Count; i++)
+                characterPaletteComboBox.Items.Add(characterPalettes[i].Name);
+
+            characterPaletteComboBox.Items.Add("Import Character Palette");
+        }
+        void DisplayCharacterPalette(CharacterPalette? characterPalette)
         {
             foreach (Control control in characterSelectionPanel.Controls)
                 control.Dispose();
 
             characterSelectionPanel.Controls.Clear();
 
+            if (characterPalette == null)
+                return;
+
+            if (MainProgram.CharacterPalettes.Contains(characterPalette))
+                characterPaletteComboBox.SelectedIndex = MainProgram.CharacterPalettes.IndexOf(characterPalette);
+
             Font font = new("Consolas", 16, FontStyle.Regular);
 
-            for (int i = 0; i < selectableCharacters.Length; i++) //Test chars
+            for (int i = 0; i < characterPalette.Characters.Length; i++)
             {
                 Label charLabelButton = new()
                 {
-                    Name = "CharLabelButton_" + selectableCharacters[i],
+                    Name = "CharLabelButton_" + characterPalette.Characters[i],
 
                     Margin = new(4),
                     Padding = new(4),
@@ -183,7 +200,7 @@ namespace AAP
                     BackColor = Color.AliceBlue,
 
                     Font = font,
-                    Text = selectableCharacters[i].ToString(),
+                    Text = characterPalette.Characters[i].ToString(),
                     TextAlign = ContentAlignment.MiddleCenter
                 };
 
@@ -628,6 +645,9 @@ namespace AAP
 
             MainProgram.Selected = new(0, 0, MainProgram.CurrentArt.Width, MainProgram.CurrentArt.Height);
         }
+
+        private void characterPaletteComboBox_SelectionChangeCommitted(object sender, EventArgs e)
+            => MainProgram.CurrentCharacterPalette = MainProgram.CharacterPalettes[characterPaletteComboBox.SelectedIndex];
 
         #endregion
         #region Tool Buttons

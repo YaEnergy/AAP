@@ -66,6 +66,8 @@
             filtersToolStripMenuItem = new ToolStripMenuItem();
             leftDock = new Panel();
             toolOptionsPanel = new Panel();
+            characterPalettePanel = new Panel();
+            characterPaletteComboBox = new ComboBox();
             characterSelectionPanel = new TableLayoutPanel();
             toolPanel = new TableLayoutPanel();
             textToolButton = new PictureBox();
@@ -81,6 +83,7 @@
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             toolOptionsPanel.SuspendLayout();
+            characterPalettePanel.SuspendLayout();
             toolPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)textToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).BeginInit();
@@ -354,7 +357,7 @@
             toolOptionsPanel.AutoSize = true;
             toolOptionsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             toolOptionsPanel.BackColor = SystemColors.Info;
-            toolOptionsPanel.Controls.Add(characterSelectionPanel);
+            toolOptionsPanel.Controls.Add(characterPalettePanel);
             toolOptionsPanel.Dock = DockStyle.Top;
             toolOptionsPanel.Location = new Point(0, 144);
             toolOptionsPanel.MinimumSize = new Size(0, 300);
@@ -362,8 +365,32 @@
             toolOptionsPanel.Size = new Size(250, 300);
             toolOptionsPanel.TabIndex = 5;
             // 
+            // characterPalettePanel
+            // 
+            characterPalettePanel.AutoSize = true;
+            characterPalettePanel.BackColor = Color.Cyan;
+            characterPalettePanel.Controls.Add(characterPaletteComboBox);
+            characterPalettePanel.Controls.Add(characterSelectionPanel);
+            characterPalettePanel.Dock = DockStyle.Top;
+            characterPalettePanel.Location = new Point(0, 0);
+            characterPalettePanel.MinimumSize = new Size(0, 125);
+            characterPalettePanel.Name = "characterPalettePanel";
+            characterPalettePanel.Size = new Size(250, 133);
+            characterPalettePanel.TabIndex = 8;
+            // 
+            // characterPaletteComboBox
+            // 
+            characterPaletteComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            characterPaletteComboBox.FormattingEnabled = true;
+            characterPaletteComboBox.Location = new Point(0, 0);
+            characterPaletteComboBox.Name = "characterPaletteComboBox";
+            characterPaletteComboBox.Size = new Size(250, 28);
+            characterPaletteComboBox.TabIndex = 8;
+            characterPaletteComboBox.SelectionChangeCommitted += characterPaletteComboBox_SelectionChangeCommitted;
+            // 
             // characterSelectionPanel
             // 
+            characterSelectionPanel.AutoScroll = true;
             characterSelectionPanel.AutoSize = true;
             characterSelectionPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             characterSelectionPanel.BackColor = Color.FromArgb(192, 255, 192);
@@ -378,10 +405,9 @@
             characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
             characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
             characterSelectionPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
-            characterSelectionPanel.Dock = DockStyle.Top;
-            characterSelectionPanel.Location = new Point(0, 0);
-            characterSelectionPanel.MaximumSize = new Size(0, 1000);
-            characterSelectionPanel.MinimumSize = new Size(0, 100);
+            characterSelectionPanel.Location = new Point(0, 30);
+            characterSelectionPanel.MaximumSize = new Size(250, 700);
+            characterSelectionPanel.MinimumSize = new Size(250, 100);
             characterSelectionPanel.Name = "characterSelectionPanel";
             characterSelectionPanel.RowCount = 2;
             characterSelectionPanel.RowStyles.Add(new RowStyle());
@@ -555,6 +581,8 @@
             leftDock.PerformLayout();
             toolOptionsPanel.ResumeLayout(false);
             toolOptionsPanel.PerformLayout();
+            characterPalettePanel.ResumeLayout(false);
+            characterPalettePanel.PerformLayout();
             toolPanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)textToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)drawToolButton).EndInit();
@@ -617,5 +645,7 @@
         private ToolStripMenuItem cropArtToSelectionToolStripMenuItem;
         private TableLayoutPanel toolPanel;
         private TableLayoutPanel characterSelectionPanel;
+        private Panel characterPalettePanel;
+        private ComboBox characterPaletteComboBox;
     }
 }

@@ -91,12 +91,39 @@ namespace AAP.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to abcdefghijklmnopqrstuvwxyz.
+        /// </summary>
+        internal static string Lowercase_Letters {
+            get {
+                return ResourceManager.GetString("Lowercase Letters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        internal static string Main_ASCII_Characters {
+            get {
+                return ResourceManager.GetString("Main ASCII Characters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap TextToolIcon {
             get {
                 object obj = ResourceManager.GetObject("TextToolIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ABCDEFGHIJKLMNOPQRSTUVWXYZ.
+        /// </summary>
+        internal static string Uppercase_Letters {
+            get {
+                return ResourceManager.GetString("Uppercase Letters", resourceCulture);
             }
         }
     }

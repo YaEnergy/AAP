@@ -14,8 +14,11 @@ namespace AAP
 
         private static MainForm mainForm = new();
 
-        public static readonly string DefaultArtFilesDirectoryPath = $@"{Application.UserAppDataPath}\Saves";
-        public static readonly string AutoSaveDirectoryPath = $@"{Application.UserAppDataPath}\Autosaves";
+        private static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\{Application.CompanyName}\{Application.ProductName}";
+
+        public static readonly string DefaultArtFilesDirectoryPath = $@"{ApplicationDataFolderPath}\Saves";
+        public static readonly string CharacterPaletteDirectoryPath = $@"{ApplicationDataFolderPath}\CharacterPalettes";
+        public static readonly string AutoSaveDirectoryPath = $@"{ApplicationDataFolderPath}\Autosaves";
 
         private static ASCIIArt? currentArt;
         public static ASCIIArt? CurrentArt { get => currentArt; set { currentArt = value; OnCurrentArtChanged?.Invoke(value); } }
@@ -61,6 +64,16 @@ namespace AAP
         public delegate void CurrentToolTypeChangedEvent(ToolType type);
         public static event CurrentToolTypeChangedEvent? OnCurrentToolTypeChanged;
 
+        private static CharacterPalette currentCharacterPalette = CharacterPalette.ImportFilePath(@"PresetCharacterPalettes\Main ASCII Characters.txt") ?? new("Unknown", new List<char>());
+        public static CharacterPalette CurrentCharacterPalette { get => currentCharacterPalette; set { currentCharacterPalette = value; OnCurrentCharacterPaletteChanged?.Invoke(value); } }
+        public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette palette);
+        public static event OnCurrentCharacterPaletteChangedEvent? OnCurrentCharacterPaletteChanged;
+
+        private static List<CharacterPalette> characterPalettes = new();
+        public static List<CharacterPalette> CharacterPalettes { get => characterPalettes; set => characterPalettes = value; }
+        public delegate void OnAvailableCharacterPalettesChangedEvent(List<CharacterPalette> palette);
+        public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
+
         /// <summary>
         ///  The main entry point for the application.
         /// </summary>
@@ -82,10 +95,17 @@ namespace AAP
 
             loadingForm.UpdateInfo(0, "Setting up...");
 
+            //Folders
             if (!Directory.Exists(DefaultArtFilesDirectoryPath))
             {
                 DirectoryInfo defaultArtFilesDirInfo = Directory.CreateDirectory(DefaultArtFilesDirectoryPath);
                 Console.WriteLine($"Created directory {defaultArtFilesDirInfo.FullName}");
+            }
+
+            if (!Directory.Exists(CharacterPaletteDirectoryPath))
+            {
+                DirectoryInfo characterPaletteDirInfo = Directory.CreateDirectory(CharacterPaletteDirectoryPath);
+                Console.WriteLine($"Created directory {characterPaletteDirInfo.FullName}");
             }
 
             if (!Directory.Exists(AutoSaveDirectoryPath))
@@ -94,6 +114,7 @@ namespace AAP
                 Console.WriteLine($"Created directory {autoSaveDirInfo.FullName}");
             }
 
+            //Tools
             Tools.Add(ToolType.Draw, new DrawTool('|', 1));
             Tools.Add(ToolType.Eraser, new DrawTool(ASCIIArt.EMPTYCHARACTER, 1));
             Tools.Add(ToolType.Select, new SelectTool());
@@ -101,6 +122,39 @@ namespace AAP
             Tools.Add(ToolType.Text, new TextTool(8));
 
             CurrentToolType = ToolType.Draw;
+
+            //Preset Character Palettes
+            foreach (FileInfo presetFileInfo in new DirectoryInfo(@"PresetCharacterPalettes").GetFiles())
+            {
+                string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
+
+                CharacterPalette? characterPalette = CharacterPalette.ImportFilePath(presetFileInfo.FullName);
+
+                if (characterPalette == null)
+                    continue;
+
+                FileInfo fileInfo = characterPalette.ExportTo(presetCharacterPaletteFilePath);
+
+                Console.WriteLine($"Created Preset Character Palette File: {fileInfo.FullName}");
+            }
+
+            //Character Palettes
+            foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
+            {
+                CharacterPalette? characterPalette = CharacterPalette.ImportFilePath(fileInfo.FullName);
+
+                if (characterPalette == null)
+                    continue;
+
+                characterPalettes.Add(characterPalette);
+
+                Console.WriteLine($"Loaded Character Palette File: {fileInfo.FullName}");
+            }
+
+
+            OnAvailableCharacterPalettesChanged?.Invoke(CharacterPalettes);
+
+            CurrentCharacterPalette = CharacterPalettes[0];
 
             OnCurrentArtChanged += (art) => Selected = Rectangle.Empty; //Set selection to nothing if art file changes
 

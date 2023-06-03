@@ -9,6 +9,7 @@
     <IncludeSymbols>False</IncludeSymbols>
     <StartupObject>AAP.MainProgram</StartupObject>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+    <Company>$(Kygira5)</Company>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,6 +44,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="PresetCharacterPalettes\Lowercase Letters.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="PresetCharacterPalettes\Main ASCII Characters.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="PresetCharacterPalettes\Uppercase Letters.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
