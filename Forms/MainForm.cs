@@ -175,10 +175,14 @@ namespace AAP
         }
         void DisplayCharacterPalette(CharacterPalette? characterPalette)
         {
+            characterSelectionPanel.SuspendLayout();
+
             foreach (Control control in characterSelectionPanel.Controls)
                 control.Dispose();
 
             characterSelectionPanel.Controls.Clear();
+
+            characterSelectionPanel.ResumeLayout(true);
 
             characterSelectionPanel.RowCount = 0;
 
@@ -190,24 +194,56 @@ namespace AAP
 
             Font font = new("Consolas", 16, FontStyle.Regular);
 
+            Padding buttonMargin = new(4);
+            Size buttonSize = new(40, 40);
+
+            Color selectedColor = Color.DarkGray;
+            Color unselectedColor = Color.White;
+
+            void SelectCharacter(char character)
+            {
+                if (MainProgram.CurrentToolType != ToolType.Draw || MainProgram.CurrentTool is not DrawTool)
+                    return;
+
+                DrawTool drawTool = (DrawTool)MainProgram.CurrentTool;
+
+                drawTool.Character = character;
+
+                foreach (Control control in characterSelectionPanel.Controls)
+                {
+                    if (control is not Label)
+                        continue;
+
+                    Label label = (Label)control;
+
+                    label.BackColor = label.Text == character.ToString() ? selectedColor : unselectedColor;
+                }
+            }
+
             for (int i = 0; i < characterPalette.Characters.Length; i++)
             {
+                int charIndex = i; //Events are usually invoked after i has changed, causing i to be incorrect
+
                 Label charLabelButton = new()
                 {
-                    Name = "CharLabelButton_" + characterPalette.Characters[i],
+                    Name = "CharLabelButton_" + characterPalette.Characters[charIndex],
 
-                    Margin = new(4),
-                    Padding = new(4),
-                    Size = new(40, 40),
-                    BackColor = Color.AliceBlue,
+                    Margin = buttonMargin,
+                    Size = buttonSize,
+                    BackColor = unselectedColor,
 
                     Font = font,
-                    Text = characterPalette.Characters[i].ToString(),
+                    Text = characterPalette.Characters[charIndex].ToString(),
                     TextAlign = ContentAlignment.MiddleCenter
                 };
 
+                if (MainProgram.CurrentToolType == ToolType.Draw && MainProgram.CurrentTool is DrawTool tool)
+                    charLabelButton.BackColor = tool.Character == characterPalette.Characters[charIndex] ? selectedColor : unselectedColor;
+
+                charLabelButton.Click += (sender, args) => SelectCharacter(characterPalette.Characters[charIndex]);
+
                 characterSelectionPanel.Controls.Add(charLabelButton);
-                characterSelectionPanel.SetColumn(charLabelButton, i);
+                characterSelectionPanel.SetColumn(charLabelButton, charIndex);
             }
 
             foreach (ColumnStyle columnStyle in characterSelectionPanel.ColumnStyles)
@@ -215,6 +251,8 @@ namespace AAP
 
             foreach (RowStyle rowStyle in characterSelectionPanel.RowStyles)
                 rowStyle.SizeType = SizeType.AutoSize;
+
+            font.Dispose();
 
         }
         #endregion
@@ -296,7 +334,7 @@ namespace AAP
             moveToolButton.BackColor = type == ToolType.Move ? selectedToolColor : unselectedToolColor;
             textToolButton.BackColor = type == ToolType.Text ? selectedToolColor : unselectedToolColor;
 
-            characterSelectionPanel.Visible = type == ToolType.Draw;
+            characterPalettePanel.Visible = type == ToolType.Draw;
         }
 
         private void OnSelectionChanged(Rectangle selection)

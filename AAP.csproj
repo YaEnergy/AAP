@@ -44,13 +44,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="PresetCharacterPalettes\Lowercase Letters.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="PresetCharacterPalettes\Main ASCII Characters.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="PresetCharacterPalettes\Uppercase Letters.txt">
+    <None Update="PresetCharacterPalettes\Alphabet.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Properties\Settings.settings">
