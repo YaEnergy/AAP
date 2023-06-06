@@ -471,6 +471,7 @@
             // moveToolButton
             // 
             moveToolButton.BackColor = SystemColors.Control;
+            moveToolButton.Image = Properties.Resources.MoveToolIcon;
             moveToolButton.Location = new Point(4, 76);
             moveToolButton.Margin = new Padding(4);
             moveToolButton.Name = "moveToolButton";
@@ -498,6 +499,7 @@
             // selectToolButton
             // 
             selectToolButton.BackColor = SystemColors.Control;
+            selectToolButton.Image = Properties.Resources.SelectToolIcon;
             selectToolButton.Location = new Point(148, 4);
             selectToolButton.Margin = new Padding(4);
             selectToolButton.Name = "selectToolButton";

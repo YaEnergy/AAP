@@ -83,9 +83,19 @@ namespace AAP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap highlightbox {
+        internal static System.Drawing.Bitmap MoveToolIcon {
             get {
-                object obj = ResourceManager.GetObject("highlightbox", resourceCulture);
+                object obj = ResourceManager.GetObject("MoveToolIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap SelectToolIcon {
+            get {
+                object obj = ResourceManager.GetObject("SelectToolIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

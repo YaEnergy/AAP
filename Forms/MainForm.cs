@@ -12,6 +12,7 @@ namespace AAP
 {
     public partial class MainForm : System.Windows.Forms.Form
     {
+        private readonly static int MaxCharacterPaletteCharacters = 200;
         private readonly static int DefaultCanvasTextSize = 12;
         private readonly static int DefaultHighlightRectangleThickness = 4;
         private readonly static SolidBrush CanvasArtBrush = new(Color.Black);
@@ -225,6 +226,12 @@ namespace AAP
             for (int i = 0; i < characterPalette.Characters.Length; i++)
             {
                 int charIndex = i; //Events are usually invoked after i has changed, causing i to be incorrect
+
+                if (charIndex == MaxCharacterPaletteCharacters)
+                {
+                    MessageBox.Show($"Character palettes cannot contain more than {MaxCharacterPaletteCharacters} characters! ({characterPalette.Characters.Length} characters)\nThe last {characterPalette.Characters.Length-charIndex} characters will not be displayed.", "Display Character Palette", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    break;
+                }
 
                 Label charLabelButton = new()
                 {
@@ -690,7 +697,7 @@ namespace AAP
 
         private void characterPaletteComboBox_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            if(characterPaletteComboBox.SelectedIndex == MainProgram.CharacterPalettes.Count) //Import Character Palette
+            if (characterPaletteComboBox.SelectedIndex == MainProgram.CharacterPalettes.Count) //Import Character Palette
             {
                 //Import Character Palette
             }

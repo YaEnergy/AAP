@@ -127,7 +127,10 @@
   <data name="DrawToolIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\DrawToolIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="highlightbox" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\highlightbox.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="MoveToolIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\MoveToolIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SelectToolIcon" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SelectToolIcon.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
