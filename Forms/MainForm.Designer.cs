@@ -64,6 +64,8 @@
             decreaseThicknessToolStripMenuItem = new ToolStripMenuItem();
             resetThicknessToolStripMenuItem = new ToolStripMenuItem();
             filtersToolStripMenuItem = new ToolStripMenuItem();
+            drawToolToolStripMenuItem = new ToolStripMenuItem();
+            fillSelectionToolStripMenuItem1 = new ToolStripMenuItem();
             leftDock = new Panel();
             toolOptionsPanel = new Panel();
             characterPalettePanel = new Panel();
@@ -97,7 +99,7 @@
             // menuStrip
             // 
             menuStrip.ImageScalingSize = new Size(20, 20);
-            menuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, viewToolStripMenuItem, filtersToolStripMenuItem });
+            menuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, viewToolStripMenuItem, filtersToolStripMenuItem, drawToolToolStripMenuItem });
             menuStrip.Location = new Point(0, 0);
             menuStrip.Name = "menuStrip";
             menuStrip.Size = new Size(1262, 28);
@@ -232,6 +234,7 @@
             deleteSelectionToolStripMenuItem.ShortcutKeys = Keys.Delete;
             deleteSelectionToolStripMenuItem.Size = new Size(262, 26);
             deleteSelectionToolStripMenuItem.Text = "Delete Selection";
+            deleteSelectionToolStripMenuItem.Click += deleteSelectionToolStripMenuItem_Click;
             // 
             // toolStripSeparator4
             // 
@@ -269,7 +272,7 @@
             // 
             canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
             canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
-            canvasToolStripMenuItem.Size = new Size(138, 26);
+            canvasToolStripMenuItem.Size = new Size(224, 26);
             canvasToolStripMenuItem.Text = "Canvas";
             // 
             // zoomToolStripMenuItem
@@ -339,6 +342,20 @@
             filtersToolStripMenuItem.Name = "filtersToolStripMenuItem";
             filtersToolStripMenuItem.Size = new Size(62, 24);
             filtersToolStripMenuItem.Text = "Filters";
+            // 
+            // drawToolToolStripMenuItem
+            // 
+            drawToolToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { fillSelectionToolStripMenuItem1 });
+            drawToolToolStripMenuItem.Name = "drawToolToolStripMenuItem";
+            drawToolToolStripMenuItem.Size = new Size(58, 24);
+            drawToolToolStripMenuItem.Text = "Draw";
+            // 
+            // fillSelectionToolStripMenuItem1
+            // 
+            fillSelectionToolStripMenuItem1.Name = "fillSelectionToolStripMenuItem1";
+            fillSelectionToolStripMenuItem1.Size = new Size(224, 26);
+            fillSelectionToolStripMenuItem1.Text = "Fill Selection";
+            fillSelectionToolStripMenuItem1.Click += fillSelectionToolStripMenuItem1_Click;
             // 
             // leftDock
             // 
@@ -650,5 +667,7 @@
         private TableLayoutPanel characterSelectionPanel;
         private Panel characterPalettePanel;
         private ComboBox characterPaletteComboBox;
+        private ToolStripMenuItem drawToolToolStripMenuItem;
+        private ToolStripMenuItem fillSelectionToolStripMenuItem1;
     }
 }

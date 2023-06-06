@@ -312,5 +312,18 @@ namespace AAP
 
             Selected = Rectangle.Empty;
         }
+
+        public static void FillSelectedArtWith(char character)
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (Selected == Rectangle.Empty)
+                return;
+
+            for (int x = Selected.X; x < Selected.X + Selected.Width; x++)
+                for (int y = Selected.Y; y < Selected.Y + Selected.Height; y++)
+                    CurrentArt.Draw(CurrentLayerID, new(x, y), character);
+        }
     }
 }

@@ -229,7 +229,7 @@ namespace AAP
 
                 if (charIndex == MaxCharacterPaletteCharacters)
                 {
-                    MessageBox.Show($"Character palettes cannot contain more than {MaxCharacterPaletteCharacters} characters! ({characterPalette.Characters.Length} characters)\nThe last {characterPalette.Characters.Length-charIndex} characters will not be displayed.", "Display Character Palette", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Character palettes cannot contain more than {MaxCharacterPaletteCharacters} characters! ({characterPalette.Characters.Length} characters)\nThe last {characterPalette.Characters.Length - charIndex} characters will not be displayed.", "Display Character Palette", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
                 }
 
@@ -344,10 +344,19 @@ namespace AAP
             textToolButton.BackColor = type == ToolType.Text ? selectedToolColor : unselectedToolColor;
 
             characterPalettePanel.Visible = type == ToolType.Draw;
+
+            drawToolToolStripMenuItem.Visible = type == ToolType.Draw;
         }
 
         private void OnSelectionChanged(Rectangle selection)
         {
+            drawToolToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+            cutSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+            copySelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+            pasteToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+            deleteSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+            cropArtToSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+
             Rectangle? startRectangle = GetCanvasCharacterRectangle(selection.Location);
             Rectangle? endRectangle = GetCanvasCharacterRectangle(selection.Location + selection.Size);
 
@@ -705,6 +714,16 @@ namespace AAP
                 MainProgram.CurrentCharacterPalette = MainProgram.CharacterPalettes[characterPaletteComboBox.SelectedIndex];
         }
 
+        private void deleteSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+            => MainProgram.FillSelectedArtWith(ASCIIArt.EMPTYCHARACTER);
+
+        private void fillSelectionToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (MainProgram.CurrentToolType != ToolType.Draw || MainProgram.CurrentTool is not DrawTool drawTool)
+                return;
+
+            MainProgram.FillSelectedArtWith(drawTool.Character);
+        }
         #endregion
         #region Tool Buttons
         private void drawToolButton_Click(object sender, EventArgs e)
