@@ -70,7 +70,7 @@ namespace AAP
             }
         }
 
-        private Point canvasMousePos = new(0, 0);
+        private Point? oldMouseArtMatrixPosition;
 
         private Rectangle oldHighlightRectangle = new();
         private Rectangle highlightRectangle = new();
@@ -137,9 +137,8 @@ namespace AAP
             Canvas.MouseMove += (sender, args) =>
             {
                 Point? newMouseArtMatrixPosition = GetArtMatrixPoint(args.Location);
-                Point? oldMouseArtMatrixPosition = GetArtMatrixPoint(canvasMousePos);
 
-                if (oldMouseArtMatrixPosition == null || newMouseArtMatrixPosition == null)
+                if (newMouseArtMatrixPosition == null)
                 {
                     HighlightRectangle = Rectangle.Empty;
                     return;
@@ -152,8 +151,10 @@ namespace AAP
                     return;
                 }
 
-                if (oldMouseArtMatrixPosition.Value == newMouseArtMatrixPosition.Value)
+                if (oldMouseArtMatrixPosition == newMouseArtMatrixPosition.Value)
                     return;
+
+                oldMouseArtMatrixPosition = newMouseArtMatrixPosition;
 
                 Rectangle? newCanvasCharacterRectangle = GetCanvasCharacterRectangle(newMouseArtMatrixPosition.Value);
 
@@ -163,7 +164,7 @@ namespace AAP
                 HighlightRectangle = newCanvasCharacterRectangle.Value;
             };
 
-            Canvas.MouseLeave += (sender, args) => HighlightRectangle = Rectangle.Empty;
+            Canvas.MouseLeave += (sender, args) => { HighlightRectangle = Rectangle.Empty; oldMouseArtMatrixPosition = null; };
         }
 
         #region Tool Options Display
@@ -350,28 +351,20 @@ namespace AAP
 
         private void OnSelectionChanged(Rectangle selection)
         {
-            drawToolToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             cutSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             copySelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             pasteToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             deleteSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             cropArtToSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
 
-            Rectangle? startRectangle = GetCanvasCharacterRectangle(selection.Location);
-            Rectangle? endRectangle = GetCanvasCharacterRectangle(selection.Location + selection.Size);
+            fillSelectionToolStripMenuItem1.Enabled = selection != Rectangle.Empty;
 
-            if (startRectangle == null)
+            Rectangle? selectionRectangle = GetCanvasArtRectangle(selection.Location, selection.Size);
+
+            if (selectionRectangle == null)
                 return;
 
-            if (endRectangle == null)
-                return;
-
-            int startX = startRectangle.Value.X < endRectangle.Value.X ? startRectangle.Value.X : endRectangle.Value.X;
-            int startY = startRectangle.Value.Y < endRectangle.Value.Y ? startRectangle.Value.Y : endRectangle.Value.Y;
-            int sizeX = startRectangle.Value.X < endRectangle.Value.X ? endRectangle.Value.X - startRectangle.Value.X + endRectangle.Value.Width / 2 : startRectangle.Value.X - endRectangle.Value.X;
-            int sizeY = startRectangle.Value.Y < endRectangle.Value.Y ? endRectangle.Value.Y - startRectangle.Value.Y : startRectangle.Value.Y - endRectangle.Value.Y;
-
-            SelectionRectangle = new(new(startX, startY), new(sizeX, sizeY));
+            SelectionRectangle = selectionRectangle.Value;
         }
         #endregion
 
@@ -404,6 +397,28 @@ namespace AAP
             Point canvasPos = Point.Truncate(canvasFloatPos);
 
             return new(canvasPos, TextRenderer.MeasureText(ASCIIArt.EMPTYCHARACTER.ToString(), canvasArtFont));
+        }
+
+        public Rectangle? GetCanvasArtRectangle(Point artPosition, Size size)
+        {
+            if (MainProgram.CurrentArt == null)
+                return null;
+
+            Rectangle? startRectangle = GetCanvasCharacterRectangle(artPosition);
+            Rectangle? endRectangle = GetCanvasCharacterRectangle(artPosition + size);
+
+            if (startRectangle == null)
+                return null;
+
+            if (endRectangle == null)
+                return null;
+
+            int startX = startRectangle.Value.X < endRectangle.Value.X ? startRectangle.Value.X : endRectangle.Value.X;
+            int startY = startRectangle.Value.Y < endRectangle.Value.Y ? startRectangle.Value.Y : endRectangle.Value.Y;
+            int sizeX = startRectangle.Value.X < endRectangle.Value.X ? endRectangle.Value.X - startRectangle.Value.X + endRectangle.Value.Width / 2 : startRectangle.Value.X - endRectangle.Value.X;
+            int sizeY = startRectangle.Value.Y < endRectangle.Value.Y ? endRectangle.Value.Y - startRectangle.Value.Y : startRectangle.Value.Y - endRectangle.Value.Y;
+
+            return new(new(startX, startY), new(sizeX, sizeY));
         }
 
         private void Canvas_Paint(object sender, PaintEventArgs args)
@@ -441,7 +456,7 @@ namespace AAP
             int startArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, fillDock.Location.Y))) ?? Point.Empty).Y, 0, lines.Length - 1);
             int endArtMatrixYPosition = Math.Clamp((GetArtMatrixPoint(canvas.PointToClient(new(0, fillDock.Location.Y + fillDock.Size.Height))) ?? Point.Empty).Y, 0, lines.Length - 1);
 
-            for (int y = startArtMatrixYPosition; y < Math.Clamp(endArtMatrixYPosition + 1, 0, lines.Length); y++)
+            for (int y = startArtMatrixYPosition; y < Math.Clamp(endArtMatrixYPosition + 2, 0, lines.Length); y++)
                 args.Graphics.DrawString(lines[y], canvasArtFont, CanvasArtBrush, new PointF(CanvasArtOffset.X / 2f, canvasArtFont.Height * y + CanvasArtOffset.Y / 2f)); //1 is added so it fits within selection and highlight rectangles better
 
 #if DEBUG

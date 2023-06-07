@@ -272,7 +272,7 @@
             // 
             canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
             canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
-            canvasToolStripMenuItem.Size = new Size(224, 26);
+            canvasToolStripMenuItem.Size = new Size(138, 26);
             canvasToolStripMenuItem.Text = "Canvas";
             // 
             // zoomToolStripMenuItem
@@ -353,7 +353,7 @@
             // fillSelectionToolStripMenuItem1
             // 
             fillSelectionToolStripMenuItem1.Name = "fillSelectionToolStripMenuItem1";
-            fillSelectionToolStripMenuItem1.Size = new Size(224, 26);
+            fillSelectionToolStripMenuItem1.Size = new Size(176, 26);
             fillSelectionToolStripMenuItem1.Text = "Fill Selection";
             fillSelectionToolStripMenuItem1.Click += fillSelectionToolStripMenuItem1_Click;
             // 
@@ -412,7 +412,7 @@
             characterSelectionPanel.AutoSize = true;
             characterSelectionPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             characterSelectionPanel.BackColor = Color.FromArgb(192, 255, 192);
-            characterSelectionPanel.ColumnCount = 4;
+            characterSelectionPanel.ColumnCount = 5;
             characterSelectionPanel.ColumnStyles.Add(new ColumnStyle());
             characterSelectionPanel.ColumnStyles.Add(new ColumnStyle());
             characterSelectionPanel.ColumnStyles.Add(new ColumnStyle());
