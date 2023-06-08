@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace AAP
 {
@@ -180,21 +181,32 @@ namespace AAP
                 if (File.Exists(args[0]))
                 {
                     FileInfo fileInfo = new(args[0]);
-                    switch(fileInfo.Extension)
+                    try
                     {
-                        case ".aaf":
-                            OpenFile(fileInfo);
-                            break;
-                        case ".aappal":
-                            ImportCharacterPalette(fileInfo);
-                            break;
-                        case ".txt":
-                            OpenFile(fileInfo);
-                            break;
-                        default:
-                            MessageBox.Show($"{fileInfo.Extension} can not be opened with AAP.", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            Console.WriteLine($"Open File On Start Up: Unknown extension: {fileInfo.Extension}!");
-                            break;
+                        Exception? exception;
+
+                        switch (fileInfo.Extension)
+                        {
+                            case ".aaf":
+                                exception = OpenFile(fileInfo);
+                                break;
+                            case ".aappal":
+                                exception = ImportCharacterPalette(fileInfo);
+                                break;
+                            case ".txt":
+                                exception = OpenFile(fileInfo);
+                                break;
+                            default:
+                                Console.WriteLine($"Open File On Start Up: Unknown extension: {fileInfo.Extension}!");
+                                throw new Exception($"Unknown extension: {fileInfo.Extension}");
+                        }
+
+                        if (exception != null)
+                            throw exception;
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
                 }
 
@@ -212,14 +224,16 @@ namespace AAP
         #region Application Events
         private static void OnApplicationExit(object? sender, EventArgs args)
         {
+
             //Ask to save
 
             Console.WriteLine("\n--APPLICATION EXIT--\n");
+            Console.Out.Close();
         }
 
         private static void OnThreadException(object? sender, ThreadExceptionEventArgs args)
         {
-            Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{args.Exception}\n--END EXCEPTION--\n");
+            Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{args.Exception}\n\n--END EXCEPTION--\n");
 
             DialogResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {args.Exception.Message}\nOpen full log?", MainProgram.ProgramTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Error);
 
