@@ -92,12 +92,22 @@ namespace AAP
                 return;
             }
 
-            Console.Title = ProgramTitle + " Console";
-
             AAPLoadingForm loadingForm = new();
             loadingForm.Show();
 
             loadingForm.UpdateInfo(0, "Setting up...");
+
+            Application.ApplicationExit += OnApplicationExit;
+            Application.ThreadException += OnThreadException;
+
+            TextWriter oldOut = Console.Out;
+            StreamWriter logSR = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
+            logSR.AutoFlush = true;
+
+            logSR.WriteLine("--CONSOLE LOG--\n");
+
+            Console.SetOut(logSR);
+            Console.SetError(logSR);
 
             //Folders
             if (!Directory.Exists(DefaultArtFilesDirectoryPath))
@@ -192,9 +202,33 @@ namespace AAP
 
             Application.Run(mainForm);
 
+            Console.SetOut(oldOut);
+            Console.SetError(oldOut);
+
+            logSR.Close();
             mutex.Close();
         }
 
+        #region Application Events
+        private static void OnApplicationExit(object? sender, EventArgs args)
+        {
+            //Ask to save
+
+            Console.WriteLine("\n--APPLICATION EXIT--\n");
+        }
+
+        private static void OnThreadException(object? sender, ThreadExceptionEventArgs args)
+        {
+            Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{args.Exception}\n--END EXCEPTION--\n");
+
+            DialogResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {args.Exception.Message}\nOpen full log?", MainProgram.ProgramTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+
+            if (result == DialogResult.Yes)
+                Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
+
+            Application.Exit();
+        }
+        #endregion
         #region Files
         public static void NewFile(ASCIIArt artFile)
         {
