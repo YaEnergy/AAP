@@ -12,7 +12,6 @@ namespace AAP
 {
     public partial class MainForm : System.Windows.Forms.Form
     {
-        private readonly static int MaxCharacterPaletteCharacters = 200;
         private readonly static int DefaultCanvasTextSize = 12;
         private readonly static int DefaultHighlightRectangleThickness = 4;
         private readonly static SolidBrush CanvasArtBrush = new(Color.Black);
@@ -20,9 +19,9 @@ namespace AAP
 
         private SizeF trueCanvasSize = new(0f, 0f);
         private Font canvasArtFont;
+        private int previousCharacterPaletteIndex = 0;
 
         private int canvasTextSize = 12;
-        private int highlightRectangleThickness = 4;
         public int CanvasTextSize
         {
             get => canvasTextSize;
@@ -40,6 +39,8 @@ namespace AAP
                 zoomToolStripMenuItem.Text = $"Zoom: {Math.Truncate((float)canvasTextSize / DefaultCanvasTextSize * 100)}%";
             }
         }
+
+        private int highlightRectangleThickness = 4;
         public int HighlightRectangleThickness
         {
             get => highlightRectangleThickness;
@@ -118,6 +119,7 @@ namespace AAP
 
             UpdateTitle();
             OnCurrentArtChanged(MainProgram.CurrentArt);
+            OnSelectionChanged(Rectangle.Empty);
             OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
             DisplayCharacterPalette(MainProgram.CurrentCharacterPalette);
 
@@ -175,7 +177,10 @@ namespace AAP
             for (int i = 0; i < characterPalettes.Count; i++)
                 characterPaletteComboBox.Items.Add(characterPalettes[i].Name);
 
+            characterPaletteComboBox.SelectedIndex = previousCharacterPaletteIndex;
+
             characterPaletteComboBox.Items.Add("Import Character Palette");
+            characterPaletteComboBox.Items.Add("Open Character Palette Folder");
         }
         void DisplayCharacterPalette(CharacterPalette? characterPalette)
         {
@@ -228,9 +233,9 @@ namespace AAP
             {
                 int charIndex = i; //Events are usually invoked after i has changed, causing i to be incorrect
 
-                if (charIndex == MaxCharacterPaletteCharacters)
+                if (charIndex == MainProgram.MaxCharacterPaletteCharacters)
                 {
-                    MessageBox.Show($"Character palettes cannot contain more than {MaxCharacterPaletteCharacters} characters! ({characterPalette.Characters.Length} characters)\nThe last {characterPalette.Characters.Length - charIndex} characters will not be displayed.", "Display Character Palette", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show($"Character palettes cannot contain more than {MainProgram.MaxCharacterPaletteCharacters} characters! ({characterPalette.Characters.Length} characters)\nThe last {characterPalette.Characters.Length - charIndex} characters will not be displayed.", "Display Character Palette", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     break;
                 }
 
@@ -356,6 +361,7 @@ namespace AAP
             pasteToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             deleteSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
             cropArtToSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
+            cancelSelectionToolStripMenuItem.Enabled = selection != Rectangle.Empty;
 
             fillSelectionToolStripMenuItem1.Enabled = selection != Rectangle.Empty;
 
@@ -723,10 +729,40 @@ namespace AAP
         {
             if (characterPaletteComboBox.SelectedIndex == MainProgram.CharacterPalettes.Count) //Import Character Palette
             {
-                //Import Character Palette
+                characterPaletteComboBox.SelectedIndex = previousCharacterPaletteIndex;
+
+                OpenFileDialog openFileDialog = new()
+                {
+                    Title = "Open AAP Character Palette",
+                    Filter = "AAP Character Palette Files (*.aappal)|*.aappal|Text Files (*.txt)|*.txt",
+                    Multiselect = false,
+                    CheckFileExists = true,
+                    CheckPathExists = true,
+                    InitialDirectory = "",
+                    ValidateNames = true
+                };
+                openFileDialog.FileOk += OnFileOk;
+
+                void OnFileOk(object? sender, CancelEventArgs args)
+                {
+                    Exception? ex = MainProgram.ImportCharacterPalette(new(openFileDialog.FileName));
+
+                    if (ex != null)
+                        MessageBox.Show($"An error has occurred while importing Character Palette ({openFileDialog.FileName})! Exception: {ex.Message}", "Import Character Palette", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                openFileDialog.ShowDialog();
+            }
+            else if (characterPaletteComboBox.SelectedIndex == MainProgram.CharacterPalettes.Count + 1) //Open Character Palette Folder
+            {
+                characterPaletteComboBox.SelectedIndex = previousCharacterPaletteIndex;
+
+                Process.Start("explorer.exe", MainProgram.CharacterPaletteDirectoryPath);
             }
             else
                 MainProgram.CurrentCharacterPalette = MainProgram.CharacterPalettes[characterPaletteComboBox.SelectedIndex];
+
+            previousCharacterPaletteIndex = characterPaletteComboBox.SelectedIndex;
         }
 
         private void deleteSelectionToolStripMenuItem_Click(object sender, EventArgs e)
@@ -739,6 +775,10 @@ namespace AAP
 
             MainProgram.FillSelectedArtWith(drawTool.Character);
         }
+
+        private void cancelSelectionToolStripMenuItem_Click(object sender, EventArgs e)
+            => MainProgram.Selected = Rectangle.Empty;
+
         #endregion
         #region Tool Buttons
         private void drawToolButton_Click(object sender, EventArgs e)

@@ -82,6 +82,7 @@
             Canvas = new Panel();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
+            cancelSelectionToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             toolOptionsPanel.SuspendLayout();
@@ -183,7 +184,7 @@
             // 
             // editToolStripMenuItem
             // 
-            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoToolStripMenuItem, redoToolStripMenuItem, toolStripSeparator3, cutSelectionToolStripMenuItem, copySelectionToolStripMenuItem, pasteToolStripMenuItem, deleteSelectionToolStripMenuItem, toolStripSeparator4, selectAllToolStripMenuItem, toolStripSeparator5, cropArtToSelectionToolStripMenuItem });
+            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoToolStripMenuItem, redoToolStripMenuItem, toolStripSeparator3, cutSelectionToolStripMenuItem, copySelectionToolStripMenuItem, pasteToolStripMenuItem, deleteSelectionToolStripMenuItem, toolStripSeparator4, selectAllToolStripMenuItem, cancelSelectionToolStripMenuItem, toolStripSeparator5, cropArtToSelectionToolStripMenuItem });
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(49, 24);
             editToolStripMenuItem.Text = "Edit";
@@ -272,7 +273,7 @@
             // 
             canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
             canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
-            canvasToolStripMenuItem.Size = new Size(138, 26);
+            canvasToolStripMenuItem.Size = new Size(224, 26);
             canvasToolStripMenuItem.Text = "Canvas";
             // 
             // zoomToolStripMenuItem
@@ -579,6 +580,13 @@
             TaskInfoLabel.Size = new Size(1262, 40);
             TaskInfoLabel.TabIndex = 0;
             // 
+            // cancelSelectionToolStripMenuItem
+            // 
+            cancelSelectionToolStripMenuItem.Name = "cancelSelectionToolStripMenuItem";
+            cancelSelectionToolStripMenuItem.Size = new Size(262, 26);
+            cancelSelectionToolStripMenuItem.Text = "Cancel Selection";
+            cancelSelectionToolStripMenuItem.Click += cancelSelectionToolStripMenuItem_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -669,5 +677,6 @@
         private ComboBox characterPaletteComboBox;
         private ToolStripMenuItem drawToolToolStripMenuItem;
         private ToolStripMenuItem fillSelectionToolStripMenuItem1;
+        private ToolStripMenuItem cancelSelectionToolStripMenuItem;
     }
 }
