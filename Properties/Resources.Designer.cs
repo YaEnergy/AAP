@@ -63,9 +63,29 @@ namespace AAP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap DestroyLayerIcon {
+            get {
+                object obj = ResourceManager.GetObject("DestroyLayerIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap DrawToolIcon {
             get {
                 object obj = ResourceManager.GetObject("DrawToolIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap DuplicateLayerIcon {
+            get {
+                object obj = ResourceManager.GetObject("DuplicateLayerIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -83,9 +103,39 @@ namespace AAP.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap MoveLayerDownIcon {
+            get {
+                object obj = ResourceManager.GetObject("MoveLayerDownIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap MoveLayerUpIcon {
+            get {
+                object obj = ResourceManager.GetObject("MoveLayerUpIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap MoveToolIcon {
             get {
                 object obj = ResourceManager.GetObject("MoveToolIcon", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap NewLayerIcon {
+            get {
+                object obj = ResourceManager.GetObject("NewLayerIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

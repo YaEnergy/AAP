@@ -50,6 +50,7 @@
             deleteSelectionToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator4 = new ToolStripSeparator();
             selectAllToolStripMenuItem = new ToolStripMenuItem();
+            cancelSelectionToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator5 = new ToolStripSeparator();
             cropArtToSelectionToolStripMenuItem = new ToolStripMenuItem();
             viewToolStripMenuItem = new ToolStripMenuItem();
@@ -78,11 +79,22 @@
             eraserToolButton = new PictureBox();
             selectToolButton = new PictureBox();
             rightDock = new Panel();
+            layerManagementPanel = new TableLayoutPanel();
+            deleteLayerButton = new PictureBox();
+            duplicateLayerButton = new PictureBox();
+            moveLayerDownButton = new PictureBox();
+            moveLayerUpButton = new PictureBox();
+            addLayerButton = new PictureBox();
+            layerListbox = new ListBox();
+            layerSettingsPanel = new Panel();
+            checkBox1 = new CheckBox();
+            layerNameLabel = new Label();
+            layerOptionsLabel = new Label();
+            textBox1 = new TextBox();
             fillDock = new Panel();
             Canvas = new Panel();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
-            cancelSelectionToolStripMenuItem = new ToolStripMenuItem();
             menuStrip.SuspendLayout();
             leftDock.SuspendLayout();
             toolOptionsPanel.SuspendLayout();
@@ -93,6 +105,14 @@
             ((System.ComponentModel.ISupportInitialize)moveToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)eraserToolButton).BeginInit();
             ((System.ComponentModel.ISupportInitialize)selectToolButton).BeginInit();
+            rightDock.SuspendLayout();
+            layerManagementPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)deleteLayerButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)duplicateLayerButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)moveLayerDownButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)moveLayerUpButton).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)addLayerButton).BeginInit();
+            layerSettingsPanel.SuspendLayout();
             fillDock.SuspendLayout();
             bottomDock.SuspendLayout();
             SuspendLayout();
@@ -250,6 +270,13 @@
             selectAllToolStripMenuItem.Text = "Select All";
             selectAllToolStripMenuItem.Click += selectAllToolStripMenuItem_Click;
             // 
+            // cancelSelectionToolStripMenuItem
+            // 
+            cancelSelectionToolStripMenuItem.Name = "cancelSelectionToolStripMenuItem";
+            cancelSelectionToolStripMenuItem.Size = new Size(262, 26);
+            cancelSelectionToolStripMenuItem.Text = "Cancel Selection";
+            cancelSelectionToolStripMenuItem.Click += cancelSelectionToolStripMenuItem_Click;
+            // 
             // toolStripSeparator5
             // 
             toolStripSeparator5.Name = "toolStripSeparator5";
@@ -273,7 +300,7 @@
             // 
             canvasToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { zoomToolStripMenuItem, zoomInToolStripMenuItem, zoomOutToolStripMenuItem, resetZoomToolStripMenuItem, toolStripSeparator2, highlightThicknessNumToolStripMenuItem, increaseThicknessToolStripMenuItem, decreaseThicknessToolStripMenuItem, resetThicknessToolStripMenuItem });
             canvasToolStripMenuItem.Name = "canvasToolStripMenuItem";
-            canvasToolStripMenuItem.Size = new Size(224, 26);
+            canvasToolStripMenuItem.Size = new Size(138, 26);
             canvasToolStripMenuItem.Text = "Canvas";
             // 
             // zoomToolStripMenuItem
@@ -530,12 +557,190 @@
             // 
             // rightDock
             // 
+            rightDock.AutoScroll = true;
             rightDock.BackColor = SystemColors.ActiveBorder;
+            rightDock.Controls.Add(layerManagementPanel);
+            rightDock.Controls.Add(layerListbox);
+            rightDock.Controls.Add(layerSettingsPanel);
             rightDock.Dock = DockStyle.Right;
             rightDock.Location = new Point(1012, 28);
             rightDock.Name = "rightDock";
             rightDock.Size = new Size(250, 605);
             rightDock.TabIndex = 4;
+            // 
+            // layerManagementPanel
+            // 
+            layerManagementPanel.AutoSize = true;
+            layerManagementPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            layerManagementPanel.BackColor = Color.FromArgb(255, 192, 255);
+            layerManagementPanel.ColumnCount = 5;
+            layerManagementPanel.ColumnStyles.Add(new ColumnStyle());
+            layerManagementPanel.ColumnStyles.Add(new ColumnStyle());
+            layerManagementPanel.ColumnStyles.Add(new ColumnStyle());
+            layerManagementPanel.ColumnStyles.Add(new ColumnStyle());
+            layerManagementPanel.ColumnStyles.Add(new ColumnStyle());
+            layerManagementPanel.Controls.Add(deleteLayerButton, 4, 0);
+            layerManagementPanel.Controls.Add(duplicateLayerButton, 3, 0);
+            layerManagementPanel.Controls.Add(moveLayerDownButton, 2, 0);
+            layerManagementPanel.Controls.Add(moveLayerUpButton, 1, 0);
+            layerManagementPanel.Controls.Add(addLayerButton, 0, 0);
+            layerManagementPanel.Dock = DockStyle.Bottom;
+            layerManagementPanel.GrowStyle = TableLayoutPanelGrowStyle.AddColumns;
+            layerManagementPanel.Location = new Point(0, 557);
+            layerManagementPanel.Name = "layerManagementPanel";
+            layerManagementPanel.RowCount = 1;
+            layerManagementPanel.RowStyles.Add(new RowStyle());
+            layerManagementPanel.Size = new Size(250, 48);
+            layerManagementPanel.TabIndex = 10;
+            // 
+            // deleteLayerButton
+            // 
+            deleteLayerButton.BackColor = SystemColors.Control;
+            deleteLayerButton.Dock = DockStyle.Fill;
+            deleteLayerButton.Image = Properties.Resources.DestroyLayerIcon;
+            deleteLayerButton.Location = new Point(196, 4);
+            deleteLayerButton.Margin = new Padding(4);
+            deleteLayerButton.MaximumSize = new Size(40, 40);
+            deleteLayerButton.MinimumSize = new Size(40, 40);
+            deleteLayerButton.Name = "deleteLayerButton";
+            deleteLayerButton.Padding = new Padding(4);
+            deleteLayerButton.Size = new Size(40, 40);
+            deleteLayerButton.SizeMode = PictureBoxSizeMode.Zoom;
+            deleteLayerButton.TabIndex = 4;
+            deleteLayerButton.TabStop = false;
+            // 
+            // duplicateLayerButton
+            // 
+            duplicateLayerButton.BackColor = SystemColors.Control;
+            duplicateLayerButton.Dock = DockStyle.Fill;
+            duplicateLayerButton.Image = Properties.Resources.DuplicateLayerIcon;
+            duplicateLayerButton.Location = new Point(148, 4);
+            duplicateLayerButton.Margin = new Padding(4);
+            duplicateLayerButton.MaximumSize = new Size(40, 40);
+            duplicateLayerButton.MinimumSize = new Size(40, 40);
+            duplicateLayerButton.Name = "duplicateLayerButton";
+            duplicateLayerButton.Padding = new Padding(4);
+            duplicateLayerButton.Size = new Size(40, 40);
+            duplicateLayerButton.SizeMode = PictureBoxSizeMode.Zoom;
+            duplicateLayerButton.TabIndex = 3;
+            duplicateLayerButton.TabStop = false;
+            // 
+            // moveLayerDownButton
+            // 
+            moveLayerDownButton.BackColor = SystemColors.Control;
+            moveLayerDownButton.Dock = DockStyle.Fill;
+            moveLayerDownButton.Image = Properties.Resources.MoveLayerDownIcon;
+            moveLayerDownButton.Location = new Point(100, 4);
+            moveLayerDownButton.Margin = new Padding(4);
+            moveLayerDownButton.MaximumSize = new Size(40, 40);
+            moveLayerDownButton.MinimumSize = new Size(40, 40);
+            moveLayerDownButton.Name = "moveLayerDownButton";
+            moveLayerDownButton.Padding = new Padding(4);
+            moveLayerDownButton.Size = new Size(40, 40);
+            moveLayerDownButton.SizeMode = PictureBoxSizeMode.Zoom;
+            moveLayerDownButton.TabIndex = 2;
+            moveLayerDownButton.TabStop = false;
+            // 
+            // moveLayerUpButton
+            // 
+            moveLayerUpButton.BackColor = SystemColors.Control;
+            moveLayerUpButton.Dock = DockStyle.Fill;
+            moveLayerUpButton.Image = Properties.Resources.MoveLayerUpIcon;
+            moveLayerUpButton.Location = new Point(52, 4);
+            moveLayerUpButton.Margin = new Padding(4);
+            moveLayerUpButton.MaximumSize = new Size(40, 40);
+            moveLayerUpButton.MinimumSize = new Size(40, 40);
+            moveLayerUpButton.Name = "moveLayerUpButton";
+            moveLayerUpButton.Padding = new Padding(4);
+            moveLayerUpButton.Size = new Size(40, 40);
+            moveLayerUpButton.SizeMode = PictureBoxSizeMode.Zoom;
+            moveLayerUpButton.TabIndex = 1;
+            moveLayerUpButton.TabStop = false;
+            // 
+            // addLayerButton
+            // 
+            addLayerButton.BackColor = SystemColors.Control;
+            addLayerButton.Dock = DockStyle.Fill;
+            addLayerButton.Image = Properties.Resources.NewLayerIcon;
+            addLayerButton.Location = new Point(4, 4);
+            addLayerButton.Margin = new Padding(4);
+            addLayerButton.MaximumSize = new Size(40, 40);
+            addLayerButton.MinimumSize = new Size(40, 40);
+            addLayerButton.Name = "addLayerButton";
+            addLayerButton.Padding = new Padding(4);
+            addLayerButton.Size = new Size(40, 40);
+            addLayerButton.SizeMode = PictureBoxSizeMode.Zoom;
+            addLayerButton.TabIndex = 0;
+            addLayerButton.TabStop = false;
+            // 
+            // layerListbox
+            // 
+            layerListbox.AllowDrop = true;
+            layerListbox.Dock = DockStyle.Fill;
+            layerListbox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            layerListbox.ItemHeight = 28;
+            layerListbox.Items.AddRange(new object[] { "- Layer1Test", "- Layer2Test" });
+            layerListbox.Location = new Point(0, 96);
+            layerListbox.MinimumSize = new Size(0, 100);
+            layerListbox.Name = "layerListbox";
+            layerListbox.Size = new Size(250, 509);
+            layerListbox.TabIndex = 9;
+            // 
+            // layerSettingsPanel
+            // 
+            layerSettingsPanel.AutoSize = true;
+            layerSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            layerSettingsPanel.BackColor = SystemColors.Info;
+            layerSettingsPanel.Controls.Add(checkBox1);
+            layerSettingsPanel.Controls.Add(layerNameLabel);
+            layerSettingsPanel.Controls.Add(layerOptionsLabel);
+            layerSettingsPanel.Controls.Add(textBox1);
+            layerSettingsPanel.Dock = DockStyle.Top;
+            layerSettingsPanel.Location = new Point(0, 0);
+            layerSettingsPanel.MinimumSize = new Size(0, 50);
+            layerSettingsPanel.Name = "layerSettingsPanel";
+            layerSettingsPanel.Size = new Size(250, 96);
+            layerSettingsPanel.TabIndex = 6;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.CheckAlign = ContentAlignment.MiddleRight;
+            checkBox1.Checked = true;
+            checkBox1.CheckState = CheckState.Checked;
+            checkBox1.Location = new Point(6, 69);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(75, 24);
+            checkBox1.TabIndex = 3;
+            checkBox1.Text = "Visible";
+            checkBox1.UseVisualStyleBackColor = true;
+            // 
+            // layerNameLabel
+            // 
+            layerNameLabel.AutoSize = true;
+            layerNameLabel.Location = new Point(6, 39);
+            layerNameLabel.Name = "layerNameLabel";
+            layerNameLabel.Size = new Size(49, 20);
+            layerNameLabel.TabIndex = 2;
+            layerNameLabel.Text = "Name";
+            // 
+            // layerOptionsLabel
+            // 
+            layerOptionsLabel.AutoSize = true;
+            layerOptionsLabel.Font = new Font("Segoe UI", 11F, FontStyle.Regular, GraphicsUnit.Point);
+            layerOptionsLabel.Location = new Point(6, 4);
+            layerOptionsLabel.Name = "layerOptionsLabel";
+            layerOptionsLabel.Size = new Size(57, 25);
+            layerOptionsLabel.TabIndex = 1;
+            layerOptionsLabel.Text = "Layer";
+            // 
+            // textBox1
+            // 
+            textBox1.Location = new Point(61, 36);
+            textBox1.Name = "textBox1";
+            textBox1.PlaceholderText = "Name";
+            textBox1.Size = new Size(185, 27);
+            textBox1.TabIndex = 0;
             // 
             // fillDock
             // 
@@ -580,13 +785,6 @@
             TaskInfoLabel.Size = new Size(1262, 40);
             TaskInfoLabel.TabIndex = 0;
             // 
-            // cancelSelectionToolStripMenuItem
-            // 
-            cancelSelectionToolStripMenuItem.Name = "cancelSelectionToolStripMenuItem";
-            cancelSelectionToolStripMenuItem.Size = new Size(262, 26);
-            cancelSelectionToolStripMenuItem.Text = "Cancel Selection";
-            cancelSelectionToolStripMenuItem.Click += cancelSelectionToolStripMenuItem_Click;
-            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -600,6 +798,7 @@
             Controls.Add(bottomDock);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = menuStrip;
+            MinimumSize = new Size(500, 300);
             Name = "MainForm";
             Text = "ASCII Art Program";
             WindowState = FormWindowState.Maximized;
@@ -617,6 +816,16 @@
             ((System.ComponentModel.ISupportInitialize)moveToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)eraserToolButton).EndInit();
             ((System.ComponentModel.ISupportInitialize)selectToolButton).EndInit();
+            rightDock.ResumeLayout(false);
+            rightDock.PerformLayout();
+            layerManagementPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)deleteLayerButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)duplicateLayerButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)moveLayerDownButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)moveLayerUpButton).EndInit();
+            ((System.ComponentModel.ISupportInitialize)addLayerButton).EndInit();
+            layerSettingsPanel.ResumeLayout(false);
+            layerSettingsPanel.PerformLayout();
             fillDock.ResumeLayout(false);
             bottomDock.ResumeLayout(false);
             ResumeLayout(false);
@@ -678,5 +887,17 @@
         private ToolStripMenuItem drawToolToolStripMenuItem;
         private ToolStripMenuItem fillSelectionToolStripMenuItem1;
         private ToolStripMenuItem cancelSelectionToolStripMenuItem;
+        private Panel layerSettingsPanel;
+        private TableLayoutPanel layerManagementPanel;
+        private PictureBox deleteLayerButton;
+        private PictureBox duplicateLayerButton;
+        private PictureBox moveLayerDownButton;
+        private PictureBox moveLayerUpButton;
+        private PictureBox addLayerButton;
+        private ListBox layerListbox;
+        private Label layerOptionsLabel;
+        private TextBox textBox1;
+        private CheckBox checkBox1;
+        private Label layerNameLabel;
     }
 }
