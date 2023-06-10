@@ -24,6 +24,9 @@ namespace AAP
         public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char character);
         public event ArtChangedEvent? OnArtChanged;
 
+        public delegate void ArtLayerListChangedEvent(List<ArtLayer> artLayers);
+        public event ArtLayerListChangedEvent? OnArtLayerListChanged;
+
         public ASCIIArt(int width, int height, int updatedinVersion, int createdinVersion) 
         {
             CreatedInVersion = createdinVersion;
@@ -32,17 +35,28 @@ namespace AAP
             Height = height;
         }
 
-        public ArtLayer AddBackgroundLayer()
+        #region Layers
+        public void InsertLayer(int index, ArtLayer artLayer)
         {
-            ArtLayer backgroundLayer = new("Background", Width, Height);
-            for (int x = 0; x < Width; x++)
-                for (int y = 0; y < Height; y++)
-                    backgroundLayer.Data[x][y] = EMPTYCHARACTER; //Figure Space
-
-            ArtLayers.Add(backgroundLayer);
-
-            return backgroundLayer;
+            ArtLayers.Insert(index, artLayer);
+            OnArtLayerListChanged?.Invoke(ArtLayers);
         }
+
+        public void AddLayer(ArtLayer artLayer)
+        {
+            ArtLayers.Add(artLayer);
+            OnArtLayerListChanged?.Invoke(ArtLayers);
+        }
+
+        public void RemoveLayer(int index)
+        {
+            if (ArtLayers.Count == 0) 
+                return;
+
+            ArtLayers.RemoveAt(index);
+            OnArtLayerListChanged?.Invoke(ArtLayers);
+        }
+        #endregion
 
         public string GetArtString(BackgroundWorker? bgWorker = null)
         {
@@ -202,6 +216,9 @@ namespace AAP
         #region Tool Functions
         public void Draw(int layerIndex, Point artMatrixPosition, char character)
         {
+            if (ArtLayers.Count == 0)
+                return;
+
             if (artMatrixPosition.X < 0 || artMatrixPosition.Y < 0 || artMatrixPosition.X >= Width || artMatrixPosition.Y >= Height)
                 return;
 
@@ -216,7 +233,10 @@ namespace AAP
 
             Console.WriteLine(cropRect.ToString());
 
-            for(int i = 0; i < ArtLayers.Count; i++)
+            if (ArtLayers.Count == 0)
+                return cropArt;
+
+            for (int i = 0; i < ArtLayers.Count; i++)
             {
                 ArtLayer newArtLayer = new(ArtLayers[i].Name, cropArt.Width, cropArt.Height);
 

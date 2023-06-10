@@ -87,10 +87,10 @@
             addLayerButton = new PictureBox();
             layerListbox = new ListBox();
             layerSettingsPanel = new Panel();
-            checkBox1 = new CheckBox();
+            layerVisibleCheckBox = new CheckBox();
             layerNameLabel = new Label();
             layerOptionsLabel = new Label();
-            textBox1 = new TextBox();
+            layerNameTextBox = new TextBox();
             fillDock = new Panel();
             Canvas = new Panel();
             bottomDock = new Panel();
@@ -608,6 +608,7 @@
             deleteLayerButton.SizeMode = PictureBoxSizeMode.Zoom;
             deleteLayerButton.TabIndex = 4;
             deleteLayerButton.TabStop = false;
+            deleteLayerButton.Click += deleteLayerButton_Click;
             // 
             // duplicateLayerButton
             // 
@@ -672,6 +673,7 @@
             addLayerButton.SizeMode = PictureBoxSizeMode.Zoom;
             addLayerButton.TabIndex = 0;
             addLayerButton.TabStop = false;
+            addLayerButton.Click += addLayerButton_Click;
             // 
             // layerListbox
             // 
@@ -685,16 +687,17 @@
             layerListbox.Name = "layerListbox";
             layerListbox.Size = new Size(250, 509);
             layerListbox.TabIndex = 9;
+            layerListbox.SelectedIndexChanged += layerListbox_SelectedIndexChanged;
             // 
             // layerSettingsPanel
             // 
             layerSettingsPanel.AutoSize = true;
             layerSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             layerSettingsPanel.BackColor = SystemColors.Info;
-            layerSettingsPanel.Controls.Add(checkBox1);
+            layerSettingsPanel.Controls.Add(layerVisibleCheckBox);
             layerSettingsPanel.Controls.Add(layerNameLabel);
             layerSettingsPanel.Controls.Add(layerOptionsLabel);
-            layerSettingsPanel.Controls.Add(textBox1);
+            layerSettingsPanel.Controls.Add(layerNameTextBox);
             layerSettingsPanel.Dock = DockStyle.Top;
             layerSettingsPanel.Location = new Point(0, 0);
             layerSettingsPanel.MinimumSize = new Size(0, 50);
@@ -702,18 +705,18 @@
             layerSettingsPanel.Size = new Size(250, 96);
             layerSettingsPanel.TabIndex = 6;
             // 
-            // checkBox1
+            // layerVisibleCheckBox
             // 
-            checkBox1.AutoSize = true;
-            checkBox1.CheckAlign = ContentAlignment.MiddleRight;
-            checkBox1.Checked = true;
-            checkBox1.CheckState = CheckState.Checked;
-            checkBox1.Location = new Point(6, 69);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(75, 24);
-            checkBox1.TabIndex = 3;
-            checkBox1.Text = "Visible";
-            checkBox1.UseVisualStyleBackColor = true;
+            layerVisibleCheckBox.AutoSize = true;
+            layerVisibleCheckBox.CheckAlign = ContentAlignment.MiddleRight;
+            layerVisibleCheckBox.Checked = true;
+            layerVisibleCheckBox.CheckState = CheckState.Checked;
+            layerVisibleCheckBox.Location = new Point(6, 69);
+            layerVisibleCheckBox.Name = "layerVisibleCheckBox";
+            layerVisibleCheckBox.Size = new Size(75, 24);
+            layerVisibleCheckBox.TabIndex = 3;
+            layerVisibleCheckBox.Text = "Visible";
+            layerVisibleCheckBox.UseVisualStyleBackColor = true;
             // 
             // layerNameLabel
             // 
@@ -734,13 +737,14 @@
             layerOptionsLabel.TabIndex = 1;
             layerOptionsLabel.Text = "Layer";
             // 
-            // textBox1
+            // layerNameTextBox
             // 
-            textBox1.Location = new Point(61, 36);
-            textBox1.Name = "textBox1";
-            textBox1.PlaceholderText = "Name";
-            textBox1.Size = new Size(185, 27);
-            textBox1.TabIndex = 0;
+            layerNameTextBox.ImeMode = ImeMode.Off;
+            layerNameTextBox.Location = new Point(61, 36);
+            layerNameTextBox.Name = "layerNameTextBox";
+            layerNameTextBox.PlaceholderText = "Name";
+            layerNameTextBox.Size = new Size(185, 27);
+            layerNameTextBox.TabIndex = 0;
             // 
             // fillDock
             // 
@@ -896,8 +900,8 @@
         private PictureBox addLayerButton;
         private ListBox layerListbox;
         private Label layerOptionsLabel;
-        private TextBox textBox1;
-        private CheckBox checkBox1;
+        private TextBox layerNameTextBox;
+        private CheckBox layerVisibleCheckBox;
         private Label layerNameLabel;
     }
 }

@@ -38,7 +38,9 @@ namespace AAP
         public static event OnSelectionChangedEvent? OnSelectionChanged;
 
         private static int currentLayerID = 0;
-        public static int CurrentLayerID { get => currentLayerID; set => currentLayerID = value; }
+        public static int CurrentLayerID { get => currentLayerID; set { currentLayerID = value; OnCurrentLayerIDChanged?.Invoke(value); } }
+        public delegate void CurrentLayerIDChangedEvent(int currentLayerID);
+        public static event CurrentLayerIDChangedEvent? OnCurrentLayerIDChanged;
 
         private static Dictionary<ToolType, Tool> tools = new();
         public static Dictionary<ToolType, Tool> Tools { get => tools; set => tools = value; }
@@ -276,6 +278,7 @@ namespace AAP
                 Console.WriteLine($"Open File Path: Imported file!");
                 Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nArea: {art.Width*art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
+                CurrentLayerID = 0;
                 CurrentArt = art;
                 CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
                 Console.WriteLine($"Open File Path: opened file!");
@@ -447,6 +450,30 @@ namespace AAP
 
             return null;
         }
+        #endregion
+        #region Layers
+        
+        public static void AddArtLayer()
+        {
+            if (CurrentArt == null)
+                return;
+
+            CurrentArt.InsertLayer(CurrentLayerID + 1, new("Layer", CurrentArt.Width, CurrentArt.Height));
+            CurrentLayerID += 1;
+        }
+
+        public static void RemoveCurrentArtLayer()
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (CurrentArt.ArtLayers.Count == 0)
+                return;
+
+            CurrentLayerID -= 1;
+            CurrentArt.RemoveLayer(CurrentLayerID + 1);
+        }
+
         #endregion
     }
 }

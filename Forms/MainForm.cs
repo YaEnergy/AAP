@@ -122,6 +122,8 @@ namespace AAP
             OnSelectionChanged(Rectangle.Empty);
             OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
             DisplayCharacterPalette(MainProgram.CurrentCharacterPalette);
+            OnArtLayerListChanged(null);
+            OnCurrentLayerIDChanged(MainProgram.CurrentLayerID);
 
             MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
             MainProgram.OnCurrentArtChanged += OnCurrentArtChanged;
@@ -129,6 +131,7 @@ namespace AAP
             MainProgram.OnSelectionChanged += OnSelectionChanged;
             MainProgram.OnCurrentCharacterPaletteChanged += DisplayCharacterPalette;
             MainProgram.OnAvailableCharacterPalettesChanged += DisplayAvailableCharacterPalettes;
+            MainProgram.OnCurrentLayerIDChanged += OnCurrentLayerIDChanged;
 
             canvasArtFont = new("Consolas", CanvasTextSize, GraphicsUnit.Point);
 
@@ -325,9 +328,14 @@ namespace AAP
         {
             Canvas.Refresh();
             UpdateTitle();
+            OnArtLayerListChanged(null);
 
             if (art != null)
+            {
                 art.OnArtChanged += OnArtChanged;
+                art.OnArtLayerListChanged += OnArtLayerListChanged;
+                OnArtLayerListChanged(art.ArtLayers);
+            }
 
             bool artFileExists = art != null;
 
@@ -372,6 +380,62 @@ namespace AAP
 
             SelectionRectangle = selectionRectangle.Value;
         }
+        #endregion
+
+        #region Layers
+
+        private void OnArtLayerListChanged(List<ArtLayer>? artLayers)
+        {
+            layerListbox.Items.Clear();
+            Canvas.Refresh();
+
+            if (artLayers == null)
+                return;
+
+            if (artLayers.Count == 0)
+                return;
+
+            for (int i = 0; i < artLayers.Count; i++)
+                layerListbox.Items.Add(artLayers[i].Name);
+
+            layerListbox.SelectedIndex = MainProgram.CurrentLayerID;
+
+        }
+
+        private void OnCurrentLayerIDChanged(int currentLayerID)
+        {
+            if (MainProgram.CurrentArt == null)
+                return;
+
+            layerListbox.SelectedIndex = currentLayerID;
+
+            layerSettingsPanel.Visible = currentLayerID >= 0;
+
+            duplicateLayerButton.Enabled = currentLayerID >= 0;
+            deleteLayerButton.Enabled = currentLayerID >= 0;
+            moveLayerUpButton.Enabled = currentLayerID >= 0;
+            moveLayerDownButton.Enabled = currentLayerID >= 0;
+
+            if (currentLayerID >= 0)
+            {
+                layerNameTextBox.Text = MainProgram.CurrentArt.ArtLayers[currentLayerID].Name;
+                layerVisibleCheckBox.Checked = MainProgram.CurrentArt.ArtLayers[currentLayerID].Visible;
+            }
+        }
+
+        private void layerListbox_SelectedIndexChanged(object sender, EventArgs e)
+            => MainProgram.CurrentLayerID = layerListbox.SelectedIndex;
+
+
+        #endregion
+
+        #region Layer Management Buttons
+        private void addLayerButton_Click(object sender, EventArgs e)
+            => MainProgram.AddArtLayer();
+
+        private void deleteLayerButton_Click(object sender, EventArgs e)
+            => MainProgram.RemoveCurrentArtLayer();
+
         #endregion
 
         #region Canvas

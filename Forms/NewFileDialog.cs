@@ -20,16 +20,14 @@ namespace AAP
 
         private void CreateButton_Click(object sender, EventArgs e)
         {
-            int sizeWidth;
-            int sizeHeight;
 
-            if (!int.TryParse(WidthTextBox.Text, out sizeWidth))
+            if (!int.TryParse(WidthTextBox.Text, out int sizeWidth))
             {
                 MessageBox.Show("Art size width is invalid! Please type a positive integer.", InvalidFileMessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            if (!int.TryParse(HeightTextBox.Text, out sizeHeight))
+            if (!int.TryParse(HeightTextBox.Text, out int sizeHeight))
             {
                 MessageBox.Show("Art size height is invalid! Please type a positive integer.", InvalidFileMessageBoxTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -55,8 +53,7 @@ namespace AAP
 
             ASCIIArt artFile = new(sizeWidth, sizeHeight, ASCIIArtFile.Version, ASCIIArtFile.Version);
 
-            if (AddBackgroundLayerCheckBox.Checked)
-                artFile.AddBackgroundLayer();
+            artFile.AddLayer(new("Background", artFile.Width, artFile.Height));
 
             MainProgram.NewFile(artFile);
 

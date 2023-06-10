@@ -36,7 +36,6 @@
             HeightTextBox = new TextBox();
             WidthTextBox = new TextBox();
             sizeLabel = new Label();
-            AddBackgroundLayerCheckBox = new CheckBox();
             optionLabel = new Label();
             OptionsPanel.SuspendLayout();
             SizePanel.SuspendLayout();
@@ -56,7 +55,6 @@
             // 
             OptionsPanel.AutoScroll = true;
             OptionsPanel.Controls.Add(SizePanel);
-            OptionsPanel.Controls.Add(AddBackgroundLayerCheckBox);
             OptionsPanel.Location = new Point(12, 34);
             OptionsPanel.Name = "OptionsPanel";
             OptionsPanel.Size = new Size(258, 72);
@@ -110,19 +108,6 @@
             sizeLabel.TabIndex = 0;
             sizeLabel.Text = "Size:";
             // 
-            // AddBackgroundLayerCheckBox
-            // 
-            AddBackgroundLayerCheckBox.AutoSize = true;
-            AddBackgroundLayerCheckBox.CheckAlign = ContentAlignment.MiddleRight;
-            AddBackgroundLayerCheckBox.Checked = true;
-            AddBackgroundLayerCheckBox.CheckState = CheckState.Checked;
-            AddBackgroundLayerCheckBox.Location = new Point(3, 36);
-            AddBackgroundLayerCheckBox.Name = "AddBackgroundLayerCheckBox";
-            AddBackgroundLayerCheckBox.Size = new Size(178, 24);
-            AddBackgroundLayerCheckBox.TabIndex = 1;
-            AddBackgroundLayerCheckBox.Text = "Add background layer";
-            AddBackgroundLayerCheckBox.UseVisualStyleBackColor = true;
-            // 
             // optionLabel
             // 
             optionLabel.AutoSize = true;
@@ -147,7 +132,6 @@
             Name = "NewFileDialog";
             Text = "New ASCII Art File";
             OptionsPanel.ResumeLayout(false);
-            OptionsPanel.PerformLayout();
             SizePanel.ResumeLayout(false);
             SizePanel.PerformLayout();
             ResumeLayout(false);
@@ -160,7 +144,6 @@
         private Panel SizePanel;
         private Label xLabel;
         private Label sizeLabel;
-        private CheckBox AddBackgroundLayerCheckBox;
         private Button CreateButton;
         private TextBox HeightTextBox;
         private TextBox WidthTextBox;
