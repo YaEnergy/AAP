@@ -8,10 +8,10 @@ namespace AAP
 {
     public class DrawTool: Tool
     {
-        public char Character = '/';
+        public char? Character = '/';
         public int Size = 1;
 
-        public DrawTool(char character, int size)
+        public DrawTool(char? character, int size)
         {
             Character = character;
             Size = size;

@@ -21,7 +21,7 @@ namespace AAP
         public readonly int Width = 1;
         public readonly int Height = 1;
 
-        public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char character);
+        public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char? character);
         public event ArtChangedEvent? OnArtChanged;
 
         public delegate void ArtLayerListChangedEvent(List<ArtLayer> artLayers);
@@ -149,7 +149,7 @@ namespace AAP
                     {
                         char[] chars = txtLines[y].ToCharArray();
                         for (int x = 0; x < txtWidth; x++)
-                            txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x];
+                            txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == EMPTYCHARACTER ? null : chars[x];
                     }
 
                     art.ArtLayers.Add(txtArtLayer);
@@ -176,7 +176,7 @@ namespace AAP
                         {
                             char[] chars = aafLines[y].ToCharArray();
                             for (int x = 0; x < art.Width; x++)
-                                aafArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x];
+                                aafArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == EMPTYCHARACTER ? null : chars[x];
                         }
 
                         art.ArtLayers.Insert(i, aafArtLayer);
@@ -214,7 +214,7 @@ namespace AAP
         #endregion
 
         #region Tool Functions
-        public void Draw(int layerIndex, Point artMatrixPosition, char character)
+        public void Draw(int layerIndex, Point artMatrixPosition, char? character)
         {
             if (ArtLayers.Count == 0)
                 return;

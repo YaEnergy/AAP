@@ -11,6 +11,7 @@ namespace AAP
     public class CharacterPalette
     {
         private static readonly string EXTENSION = ".aappal";
+        private static readonly char[] INVALIDCHARACTERS = new char[] { ASCIIArt.EMPTYCHARACTER };
 
         public readonly string Name;
         public readonly char[] Characters;
@@ -42,7 +43,10 @@ namespace AAP
 
                     foreach (string line in txtLines)
                         foreach (char character in line.ToCharArray())
-                            characters.Add(character);
+                            if (!INVALIDCHARACTERS.Contains(character))
+                                characters.Add(character);
+                            else
+                                throw new Exception($"CharacterPalette.ImportFilePath(path: {path}): .txt file contains invalid character {character}!");
 
                     characterPalette = new(fileInfo.Name.Replace(fileInfo.Extension, ""), characters);
 
@@ -53,6 +57,13 @@ namespace AAP
                     JsonTextReader jr = new(sr);
 
                     characterPalette = js.Deserialize<CharacterPalette>(jr);
+
+                    if (characterPalette == null)
+                        throw new Exception($"CharacterPalette.ImportFilePath(path: {path}): character palette is null!");
+
+                    foreach (char invalidCharacter in INVALIDCHARACTERS)
+                        if (characterPalette.Characters.Contains(invalidCharacter))
+                            throw new Exception($"CharacterPalette.ImportFilePath(path: {path}): .txt file contains invalid character {invalidCharacter}!");
 
                     jr.CloseInput = true;
                     jr.Close();

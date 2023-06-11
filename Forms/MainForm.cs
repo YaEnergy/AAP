@@ -404,12 +404,12 @@ namespace AAP
 
         private void OnCurrentLayerIDChanged(int currentLayerID)
         {
+            layerSettingsPanel.Visible = currentLayerID >= 0 && MainProgram.CurrentArt != null;
+
             if (MainProgram.CurrentArt == null)
                 return;
 
             layerListbox.SelectedIndex = currentLayerID;
-
-            layerSettingsPanel.Visible = currentLayerID >= 0;
 
             duplicateLayerButton.Enabled = currentLayerID >= 0;
             deleteLayerButton.Enabled = currentLayerID >= 0;
@@ -534,7 +534,7 @@ namespace AAP
 #endif
         }
 
-        private void OnArtChanged(int layerIndex, Point artMatrixPosition, char character)
+        private void OnArtChanged(int layerIndex, Point artMatrixPosition, char? character)
         {
             Rectangle? canvasCharacterRect = GetCanvasCharacterRectangle(artMatrixPosition);
 

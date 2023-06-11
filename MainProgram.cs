@@ -133,7 +133,7 @@ namespace AAP
 
             //Tools
             Tools.Add(ToolType.Draw, new DrawTool('|', 1));
-            Tools.Add(ToolType.Eraser, new DrawTool(ASCIIArt.EMPTYCHARACTER, 1));
+            Tools.Add(ToolType.Eraser, new DrawTool(null, 1));
             Tools.Add(ToolType.Select, new SelectTool());
             Tools.Add(ToolType.Move, new MoveTool(MoveToolMode.Select));
             Tools.Add(ToolType.Text, new TextTool(8));
@@ -248,6 +248,7 @@ namespace AAP
         #region Files
         public static void NewFile(ASCIIArt artFile)
         {
+            CurrentLayerID = 0;
             CurrentArt = artFile;
             CurrentFilePath = "";
         }
@@ -388,7 +389,7 @@ namespace AAP
             Selected = Rectangle.Empty;
         }
 
-        public static void FillSelectedArtWith(char character)
+        public static void FillSelectedArtWith(char? character)
         {
             if (CurrentArt == null)
                 return;
