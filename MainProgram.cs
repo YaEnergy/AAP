@@ -136,7 +136,7 @@ namespace AAP
             Tools.Add(ToolType.Eraser, new DrawTool(null, 1));
             Tools.Add(ToolType.Select, new SelectTool());
             Tools.Add(ToolType.Move, new MoveTool(MoveToolMode.Select));
-            Tools.Add(ToolType.Text, new TextTool(8));
+            Tools.Add(ToolType.Text, new TextTool());
 
             CurrentToolType = ToolType.Draw;
 
@@ -248,7 +248,7 @@ namespace AAP
         #region Files
         public static void NewFile(ASCIIArt artFile)
         {
-            CurrentLayerID = 0;
+            CurrentLayerID = -1;
             CurrentArt = artFile;
             CurrentFilePath = "";
         }
@@ -279,7 +279,7 @@ namespace AAP
                 Console.WriteLine($"Open File Path: Imported file!");
                 Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nArea: {art.Width*art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
-                CurrentLayerID = 0;
+                CurrentLayerID = -1;
                 CurrentArt = art;
                 CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
                 Console.WriteLine($"Open File Path: opened file!");

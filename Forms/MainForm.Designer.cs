@@ -800,7 +800,9 @@
             Controls.Add(leftDock);
             Controls.Add(menuStrip);
             Controls.Add(bottomDock);
+            DoubleBuffered = true;
             Icon = (Icon)resources.GetObject("$this.Icon");
+            KeyPreview = true;
             MainMenuStrip = menuStrip;
             MinimumSize = new Size(500, 300);
             Name = "MainForm";

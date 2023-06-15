@@ -216,6 +216,9 @@ namespace AAP
         #region Tool Functions
         public void Draw(int layerIndex, Point artMatrixPosition, char? character)
         {
+            if (layerIndex < 0)
+                return;
+
             if (ArtLayers.Count == 0)
                 return;
 

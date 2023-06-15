@@ -170,6 +170,9 @@ namespace AAP
             };
 
             Canvas.MouseLeave += (sender, args) => { HighlightRectangle = Rectangle.Empty; oldMouseArtMatrixPosition = null; };
+
+            KeyDown += OnKeyDown;
+            KeyPress += OnKeyPress;
         }
 
         #region Tool Options Display
@@ -278,6 +281,12 @@ namespace AAP
         #region Tool Functions
         private void ToolActivateStart(object? sender, MouseEventArgs e)
         {
+            if (MainProgram.CurrentLayerID < 0)
+            {
+                MessageBox.Show("Please select a layer!", "No Layer Selected!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             Canvas.MouseMove += ToolActivateUpdate;
             Canvas.MouseUp += ToolActivateEnd;
 
@@ -360,6 +369,35 @@ namespace AAP
             characterPalettePanel.Visible = type == ToolType.Draw;
 
             drawToolToolStripMenuItem.Visible = type == ToolType.Draw;
+        }
+
+        private void OnKeyDown(object? sender, KeyEventArgs e)
+        {
+            switch (MainProgram.CurrentToolType)
+            {
+                case ToolType.Text:
+                    if (MainProgram.CurrentTool is not TextTool textTool)
+                        return;
+
+                    Canvas.Focus();
+
+                    textTool.OnPressKeyCode(e.KeyCode);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void OnKeyPress(object? sender, KeyPressEventArgs e)
+        {
+            switch (MainProgram.CurrentToolType)
+            {
+                case ToolType.Text:
+                    TextTool.TypeKeyCharacter(e.KeyChar);
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void OnSelectionChanged(Rectangle selection)
@@ -830,7 +868,7 @@ namespace AAP
         }
 
         private void deleteSelectionToolStripMenuItem_Click(object sender, EventArgs e)
-            => MainProgram.FillSelectedArtWith(ASCIIArt.EMPTYCHARACTER);
+            => MainProgram.FillSelectedArtWith(null);
 
         private void fillSelectionToolStripMenuItem1_Click(object sender, EventArgs e)
         {
