@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -17,7 +18,7 @@ namespace AAP
         private int updatedInVersion = 0;
         public int UpdatedInVersion { get => updatedInVersion; }
 
-        public List<ArtLayer> ArtLayers = new();
+        public List<ArtLayer> ArtLayers { get; private set; } = new();
         public readonly int Width = 1;
         public readonly int Height = 1;
 
@@ -26,6 +27,15 @@ namespace AAP
 
         public delegate void ArtLayerListChangedEvent(List<ArtLayer> artLayers);
         public event ArtLayerListChangedEvent? OnArtLayerListChanged;
+
+        public delegate void ArtLayerAddedEvent(int index, ArtLayer artLayer);
+        public event ArtLayerAddedEvent? OnArtLayerAdded;
+
+        public delegate void ArtLayerRemovedEvent(int index);
+        public event ArtLayerRemovedEvent? OnArtLayerRemoved;
+
+        public delegate void ArtLayerPropertiesChangedEvent(int index, ArtLayer artLayer, bool updateCanvas = false);
+        public event ArtLayerPropertiesChangedEvent? OnArtLayerPropertiesChanged;
 
         public ASCIIArt(int width, int height, int updatedinVersion, int createdinVersion) 
         {
@@ -39,22 +49,40 @@ namespace AAP
         public void InsertLayer(int index, ArtLayer artLayer)
         {
             ArtLayers.Insert(index, artLayer);
-            OnArtLayerListChanged?.Invoke(ArtLayers);
+            OnArtLayerAdded?.Invoke(index, ArtLayers[index]);
         }
 
         public void AddLayer(ArtLayer artLayer)
         {
             ArtLayers.Add(artLayer);
-            OnArtLayerListChanged?.Invoke(ArtLayers);
+            OnArtLayerAdded?.Invoke(ArtLayers.Count - 1, artLayer);
         }
 
         public void RemoveLayer(int index)
         {
-            if (ArtLayers.Count == 0) 
+            if (ArtLayers.Count <= index) 
                 return;
 
             ArtLayers.RemoveAt(index);
-            OnArtLayerListChanged?.Invoke(ArtLayers);
+            OnArtLayerRemoved?.Invoke(index);
+        }
+
+        public void SetLayerIndexName(int index, string layerName)
+        {
+            if (ArtLayers.Count <= index)
+                return;
+
+            ArtLayers[index].Name = layerName;
+            OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], false);
+        }
+
+        public void SetLayerIndexVisibility(int index, bool visible)
+        {
+            if (ArtLayers.Count <= index)
+                return;
+
+            ArtLayers[index].Visible = visible;
+            OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], true);
         }
         #endregion
 

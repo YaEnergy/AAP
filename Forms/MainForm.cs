@@ -116,13 +116,13 @@ namespace AAP
             InitializeComponent();
 
             Canvas.SuspendLayout();
+            layerListbox.Items.Clear();
 
             UpdateTitle();
             OnCurrentArtChanged(MainProgram.CurrentArt);
             OnSelectionChanged(Rectangle.Empty);
             OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
             DisplayCharacterPalette(MainProgram.CurrentCharacterPalette);
-            OnArtLayerListChanged(null);
             OnCurrentLayerIDChanged(MainProgram.CurrentLayerID);
 
             MainProgram.OnCurrentFilePathChanged += (file) => UpdateTitle();
@@ -335,15 +335,24 @@ namespace AAP
         }
         private void OnCurrentArtChanged(ASCIIArt? art)
         {
-            Canvas.Refresh();
             UpdateTitle();
-            OnArtLayerListChanged(null);
+
+            layerListbox.Items.Clear();
 
             if (art != null)
             {
                 art.OnArtChanged += OnArtChanged;
-                art.OnArtLayerListChanged += OnArtLayerListChanged;
-                OnArtLayerListChanged(art.ArtLayers);
+                art.OnArtLayerAdded += OnArtLayerAdded;
+                art.OnArtLayerRemoved += OnArtLayerRemoved;
+                art.OnArtLayerPropertiesChanged += OnArtLayerPropertiesChanged;
+
+                if (art.ArtLayers.Count != 0)
+                {
+                    for (int i = 0; i < art.ArtLayers.Count; i++)
+                        layerListbox.Items.Add("- " + art.ArtLayers[i].Name + (art.ArtLayers[i].Visible ? "" : " (Hidden)"));
+
+                    layerListbox.SelectedIndex = MainProgram.CurrentLayerID;
+                }
             }
 
             bool artFileExists = art != null;
@@ -353,6 +362,8 @@ namespace AAP
             exportToolStripMenuItem.Enabled = artFileExists;
             asFileToolStripMenuItem.Enabled = artFileExists;
             copyArtToClipboardToolStripMenuItem.Enabled = artFileExists;
+
+            Canvas.Refresh();
         }
 
         private void OnCurrentToolTypeChanged(ToolType type)
@@ -422,22 +433,27 @@ namespace AAP
 
         #region Layers
 
-        private void OnArtLayerListChanged(List<ArtLayer>? artLayers)
+        private void OnArtLayerAdded(int index, ArtLayer artLayer)
         {
-            layerListbox.Items.Clear();
+            layerListbox.Items.Insert(index, "- " + artLayer.Name + (artLayer.Visible ? "" : " (Hidden)"));
+            layerListbox.Update();
             Canvas.Refresh();
+        }
 
-            if (artLayers == null)
-                return;
+        private void OnArtLayerPropertiesChanged(int index, ArtLayer artLayer, bool updateCanvas)
+        {
+            layerListbox.Items[index] = "- " + artLayer.Name + (artLayer.Visible ? "" : " (Hidden)");
+            layerListbox.Update();
 
-            if (artLayers.Count == 0)
-                return;
+            if (updateCanvas)
+                Canvas.Refresh();
+        }
 
-            for (int i = 0; i < artLayers.Count; i++)
-                layerListbox.Items.Add(artLayers[i].Name);
-
-            layerListbox.SelectedIndex = MainProgram.CurrentLayerID;
-
+        private void OnArtLayerRemoved(int index)
+        {
+            layerListbox.Items.RemoveAt(index);
+            layerListbox.Update();
+            Canvas.Refresh();
         }
 
         private void OnCurrentLayerIDChanged(int currentLayerID)
@@ -464,6 +480,11 @@ namespace AAP
         private void layerListbox_SelectedIndexChanged(object sender, EventArgs e)
             => MainProgram.CurrentLayerID = layerListbox.SelectedIndex;
 
+        private void layerNameTextBox_TextChanged(object sender, EventArgs e)
+            => MainProgram.CurrentArt?.SetLayerIndexName(MainProgram.CurrentLayerID, layerNameTextBox.Text);
+
+        private void layerVisibleCheckBox_CheckedChanged(object sender, EventArgs e)
+            => MainProgram.CurrentArt?.SetLayerIndexVisibility(MainProgram.CurrentLayerID, layerVisibleCheckBox.Checked);
 
         #endregion
 

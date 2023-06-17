@@ -475,6 +475,16 @@ namespace AAP
             CurrentArt.RemoveLayer(CurrentLayerID + 1);
         }
 
+        public static void SetCurrentArtLayerName(string name)
+        { 
+            if (CurrentArt == null) return;
+
+            if (CurrentArt.ArtLayers.Count == 0)
+                return;
+
+            CurrentArt.ArtLayers[CurrentLayerID].Name = name;
+        }
+
         #endregion
     }
 }

@@ -79,13 +79,13 @@
             eraserToolButton = new PictureBox();
             selectToolButton = new PictureBox();
             rightDock = new Panel();
+            layerListbox = new ListBox();
             layerManagementPanel = new TableLayoutPanel();
             deleteLayerButton = new PictureBox();
             duplicateLayerButton = new PictureBox();
             moveLayerDownButton = new PictureBox();
             moveLayerUpButton = new PictureBox();
             addLayerButton = new PictureBox();
-            layerListbox = new ListBox();
             layerSettingsPanel = new Panel();
             layerVisibleCheckBox = new CheckBox();
             layerNameLabel = new Label();
@@ -559,14 +559,28 @@
             // 
             rightDock.AutoScroll = true;
             rightDock.BackColor = SystemColors.ActiveBorder;
-            rightDock.Controls.Add(layerManagementPanel);
             rightDock.Controls.Add(layerListbox);
+            rightDock.Controls.Add(layerManagementPanel);
             rightDock.Controls.Add(layerSettingsPanel);
             rightDock.Dock = DockStyle.Right;
             rightDock.Location = new Point(1012, 28);
             rightDock.Name = "rightDock";
             rightDock.Size = new Size(250, 605);
             rightDock.TabIndex = 4;
+            // 
+            // layerListbox
+            // 
+            layerListbox.AllowDrop = true;
+            layerListbox.Dock = DockStyle.Fill;
+            layerListbox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            layerListbox.ItemHeight = 28;
+            layerListbox.Items.AddRange(new object[] { "- Layer1Test", "- Layer2Test" });
+            layerListbox.Location = new Point(0, 96);
+            layerListbox.MinimumSize = new Size(0, 100);
+            layerListbox.Name = "layerListbox";
+            layerListbox.Size = new Size(250, 461);
+            layerListbox.TabIndex = 9;
+            layerListbox.SelectedIndexChanged += layerListbox_SelectedIndexChanged;
             // 
             // layerManagementPanel
             // 
@@ -675,20 +689,6 @@
             addLayerButton.TabStop = false;
             addLayerButton.Click += addLayerButton_Click;
             // 
-            // layerListbox
-            // 
-            layerListbox.AllowDrop = true;
-            layerListbox.Dock = DockStyle.Fill;
-            layerListbox.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            layerListbox.ItemHeight = 28;
-            layerListbox.Items.AddRange(new object[] { "- Layer1Test", "- Layer2Test" });
-            layerListbox.Location = new Point(0, 96);
-            layerListbox.MinimumSize = new Size(0, 100);
-            layerListbox.Name = "layerListbox";
-            layerListbox.Size = new Size(250, 509);
-            layerListbox.TabIndex = 9;
-            layerListbox.SelectedIndexChanged += layerListbox_SelectedIndexChanged;
-            // 
             // layerSettingsPanel
             // 
             layerSettingsPanel.AutoSize = true;
@@ -717,6 +717,7 @@
             layerVisibleCheckBox.TabIndex = 3;
             layerVisibleCheckBox.Text = "Visible";
             layerVisibleCheckBox.UseVisualStyleBackColor = true;
+            layerVisibleCheckBox.CheckedChanged += layerVisibleCheckBox_CheckedChanged;
             // 
             // layerNameLabel
             // 
@@ -745,6 +746,7 @@
             layerNameTextBox.PlaceholderText = "Name";
             layerNameTextBox.Size = new Size(185, 27);
             layerNameTextBox.TabIndex = 0;
+            layerNameTextBox.TextChanged += layerNameTextBox_TextChanged;
             // 
             // fillDock
             // 
