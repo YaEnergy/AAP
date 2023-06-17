@@ -576,6 +576,7 @@
             layerListbox.ItemHeight = 28;
             layerListbox.Items.AddRange(new object[] { "- Layer1Test", "- Layer2Test" });
             layerListbox.Location = new Point(0, 96);
+            layerListbox.Margin = new Padding(0);
             layerListbox.MinimumSize = new Size(0, 100);
             layerListbox.Name = "layerListbox";
             layerListbox.Size = new Size(250, 461);
@@ -601,6 +602,7 @@
             layerManagementPanel.Dock = DockStyle.Bottom;
             layerManagementPanel.GrowStyle = TableLayoutPanelGrowStyle.AddColumns;
             layerManagementPanel.Location = new Point(0, 557);
+            layerManagementPanel.Margin = new Padding(0);
             layerManagementPanel.Name = "layerManagementPanel";
             layerManagementPanel.RowCount = 1;
             layerManagementPanel.RowStyles.Add(new RowStyle());
@@ -639,6 +641,7 @@
             duplicateLayerButton.SizeMode = PictureBoxSizeMode.Zoom;
             duplicateLayerButton.TabIndex = 3;
             duplicateLayerButton.TabStop = false;
+            duplicateLayerButton.Click += duplicateLayerButton_Click;
             // 
             // moveLayerDownButton
             // 

@@ -463,6 +463,28 @@ namespace AAP
             CurrentLayerID += 1;
         }
 
+        public static void DuplicateCurrentArtLayer()
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (CurrentArt.ArtLayers.Count == 0)
+                return;
+
+            ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
+            ArtLayer duplicateArtLayer = new(currentArtLayer.Name + " copy", CurrentArt.Width, CurrentArt.Height)
+            {
+                Visible = currentArtLayer.Visible
+            };
+
+            for(int x = 0; x < CurrentArt.Width; x++)
+                for (int y = 0; y < CurrentArt.Height; y++)
+                    duplicateArtLayer.Data[x][y] = currentArtLayer.Data[x][y];
+
+            CurrentArt.InsertLayer(CurrentLayerID + 1, duplicateArtLayer);
+            CurrentLayerID += 1;
+        }
+
         public static void RemoveCurrentArtLayer()
         {
             if (CurrentArt == null)

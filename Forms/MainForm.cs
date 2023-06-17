@@ -495,6 +495,9 @@ namespace AAP
         private void deleteLayerButton_Click(object sender, EventArgs e)
             => MainProgram.RemoveCurrentArtLayer();
 
+        private void duplicateLayerButton_Click(object sender, EventArgs e)
+            => MainProgram.DuplicateCurrentArtLayer();
+
         #endregion
 
         #region Canvas
