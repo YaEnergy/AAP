@@ -262,13 +262,22 @@ namespace AAP
             {
                 Console.WriteLine($"Open File Path: importing file from path... {file.FullName}");
 
-                ASCIIArt? art = ASCIIArt.ImportFilePath(file.FullName);
+                IAAPFile<ASCIIArt> AAPFile;
+                ASCIIArt art = new();
 
-                if (art == null)
+                switch(file.Extension)
                 {
-                    Console.WriteLine("Open File Path: current art file is null!");
-                    throw new NullReferenceException("Current art file is null!");
+                    case ".txt":
+                        AAPFile = new TextASCIIArt(file.FullName);
+                        break;
+                    case ".aaf":
+                        AAPFile = new AAFASCIIArt(file.FullName);
+                        break;
+                    default:
+                        throw new Exception("Unknown file extension!");
                 }
+
+                AAPFile.Import(art);
 
                 if (art.Width * art.Height > MaxArtArea)
                 {
@@ -319,11 +328,12 @@ namespace AAP
 
                 Console.WriteLine("Save File: Saving art file to " + path);
 
-                FileInfo fileInfo = CurrentArt.WriteTo(path);
+                AAFASCIIArt aafASCIIArt = new(path);
+                aafASCIIArt.Export(CurrentArt);
 
                 Console.WriteLine("Save File: Art file saved to " + path + "!");
 
-                args.Result = fileInfo;
+                args.Result = new FileInfo(path);
             }
 
             return bgWorker;
@@ -353,7 +363,22 @@ namespace AAP
 
                 Console.WriteLine("Export File: Exporting art file to " + path);
 
-                FileInfo fileInfo = CurrentArt.ExportTo(path, bgWorker);
+                FileInfo fileInfo = new(path);
+                IAAPFile<ASCIIArt> AAPFile;
+
+                switch (fileInfo.Extension)
+                {
+                    case ".txt":
+                        AAPFile = new TextASCIIArt(fileInfo.FullName);
+                        break;
+                    case ".aaf":
+                        AAPFile = new AAFASCIIArt(fileInfo.FullName);
+                        break;
+                    default:
+                        throw new Exception("Unknown file extension!");
+                }
+
+                AAPFile.Export(CurrentArt);
 
                 Console.WriteLine("Export File: Art file exported to " + path + "!");
 
@@ -384,7 +409,7 @@ namespace AAP
             if (Selected == Rectangle.Empty)
                 return;
 
-            CurrentArt = CurrentArt.Crop(Selected);
+            CurrentArt.Crop(Selected);
 
             Selected = Rectangle.Empty;
         }
