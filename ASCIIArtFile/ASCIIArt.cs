@@ -177,29 +177,6 @@ namespace AAP
             OnArtLayerListChanged?.Invoke(layers);
 
             return;
-            //Remake to actually edit this file
-
-            /*ASCIIArt cropArt = new(cropRect.Width, cropRect.Height, UpdatedInVersion, CreatedInVersion);
-
-            Console.WriteLine(cropRect.ToString());
-
-            if (ArtLayers.Count == 0)
-                return cropArt;
-
-            for (int i = 0; i < ArtLayers.Count; i++)
-            {
-                ArtLayer newArtLayer = new(ArtLayers[i].Name, cropArt.Width, cropArt.Height);
-
-                newArtLayer.Visible = ArtLayers[i].Visible;
-
-                for (int x = 0; x < cropArt.Width; x++)
-                    for (int y = 0; y < cropArt.Height; y++)
-                        newArtLayer.Data[x][y] = ArtLayers[i].Data[cropRect.X + x][cropRect.Y + y];
-
-                cropArt.ArtLayers.Add(newArtLayer);
-            }
-
-            return cropArt*/
         }
         #endregion
     }
