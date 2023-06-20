@@ -51,7 +51,8 @@ namespace AAP
                 return;
             }
 
-            ASCIIArt artFile = new(sizeWidth, sizeHeight, ASCIIArtFile.Version, ASCIIArtFile.Version);
+            ASCIIArt artFile = new();
+            artFile.SetSize(sizeWidth, sizeHeight);
 
             artFile.AddLayer(new("Background", artFile.Width, artFile.Height));
 

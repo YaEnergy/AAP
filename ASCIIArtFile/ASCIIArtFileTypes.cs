@@ -30,6 +30,7 @@ namespace AAP
                     txtWidth = line.Length;
 
             art.SetSize(txtWidth, txtHeight); //= new(txtWidth, txtHeight, ASCIIArtFile.Version, ASCIIArtFile.Version);
+            art.CreatedInVersion = ASCIIArtFile.Version;
             ArtLayer txtArtLayer = new("Imported Art", art.Width, art.Height);
 
             for (int y = 0; y < txtHeight; y++)
@@ -66,8 +67,8 @@ namespace AAP
             JsonTextReader jr = new(sr);
 
             ASCIIArtFile artFile = js.Deserialize<ASCIIArtFile>(jr);
+            art.CreatedInVersion = artFile.CreatedInVersion;
             art.SetSize(artFile.Width, artFile.Height);
-            //art = new(artFile.Width, artFile.Height, artFile.UpdatedInVersion, artFile.CreatedInVersion);
 
             for (int i = 0; i < artFile.ArtLayers.Count; i++)
             {

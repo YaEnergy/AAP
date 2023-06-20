@@ -14,7 +14,7 @@ namespace AAP
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space
         private static readonly string EXTENSION = ".aaf";
 
-        public readonly int CreatedInVersion = 0;
+        public int CreatedInVersion = 0;
         private int updatedInVersion = 0;
         public int UpdatedInVersion { get => updatedInVersion; }
 
@@ -37,17 +37,10 @@ namespace AAP
         public delegate void ArtLayerPropertiesChangedEvent(int index, ArtLayer artLayer, bool updateCanvas = false);
         public event ArtLayerPropertiesChangedEvent? OnArtLayerPropertiesChanged;
 
-        public ASCIIArt(int width, int height, int updatedinVersion, int createdinVersion) 
-        {
-            CreatedInVersion = createdinVersion;
-            updatedInVersion = updatedinVersion;
-            Width = width;
-            Height = height;
-        }
-
         public ASCIIArt()
         {
-
+            CreatedInVersion = ASCIIArtFile.Version;
+            updatedInVersion = ASCIIArtFile.Version;
         }
 
         public void SetSize(int width, int height)
