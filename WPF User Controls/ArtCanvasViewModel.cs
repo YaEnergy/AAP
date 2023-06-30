@@ -11,26 +11,51 @@ using System.Windows.Input;
 
 namespace AAP
 {
+    /// <summary>
+    ///     Implements the ICommand interface.
+    /// </summary>
+    public class ActionCommand : ICommand
+    {
+        private Action<object?> _action;
+        public event EventHandler? CanExecuteChanged;
+
+        public ActionCommand(Action<object?> executeAction)
+        {
+            _action = executeAction;
+        }
+
+        public bool CanExecute(object? parameter = null)
+        {
+            return true;
+        }
+
+        public void Execute(object? parameter = null)
+        {
+            _action(parameter);
+            Console.WriteLine("Executed ActionCommand!");
+        }
+    }
+
     public class ArtCanvasViewModel : INotifyPropertyChanged
     {
-        private int textSize = 12;
+        private int textSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
         public int TextSize
         {
             get => textSize;
             set
             {
-                textSize = value;
+                textSize = Math.Clamp(value, 4, 128);
                 PropertyChanged?.Invoke(this, new(nameof(TextSize)));
             }
         }
 
-        private int highlightThickness = 4;
+        private int highlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
         public int HighlightThickness
         {
             get => highlightThickness;
             set
             {
-                highlightThickness = value;
+                highlightThickness = Math.Clamp(value, 1, 12);
                 PropertyChanged?.Invoke(this, new(nameof(HighlightThickness)));
             }
         }
@@ -78,30 +103,42 @@ namespace AAP
                 PropertyChanged?.Invoke(this, new(nameof(Selected)));
             }
         }
-        
+
+        public ICommand EnlargeTextSizeCommand { get; private set; }
+        public ICommand ShrinkTextSizeCommand { get; private set; }
+        public ICommand ResetTextSizeCommand { get; private set; }
+        public ICommand IncreaseHighlightThicknessCommand { get; private set; }
+        public ICommand DecreaseHighlightThicknessCommand { get; private set; }
+        public ICommand ResetHighlightThicknessCommand { get; private set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ArtCanvasViewModel()
         {
-            
+            EnlargeTextSizeCommand = new ActionCommand(EnlargeTextSize);
+            ShrinkTextSizeCommand = new ActionCommand(ShrinkTextSize);
+            ResetTextSizeCommand = new ActionCommand(ResetTextSize);
+            IncreaseHighlightThicknessCommand = new ActionCommand(IncreaseHighlightThickness);
+            DecreaseHighlightThicknessCommand = new ActionCommand(DecreaseHighlightThickness);
+            ResetHighlightThicknessCommand = new ActionCommand(ResetHighlightThickness);
         }
 
-        public void EnlargeTextSize()
+        public void EnlargeTextSize(object? parameter = null)
             => TextSize += 2;
 
-        public void ShrinkTextSize()
+        public void ShrinkTextSize(object? parameter = null)
             => TextSize -= 2;
 
-        public void ResetTextSize()
-            => TextSize = 12;
+        public void ResetTextSize(object? parameter)
+            => TextSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
 
-        public void IncreaseHighlightThickness()
+        public void IncreaseHighlightThickness(object? parameter = null)
             => HighlightThickness += 1;
 
-        public void DecreaseHighlightThickness()
+        public void DecreaseHighlightThickness(object? parameter = null)
             => HighlightThickness -= 1;
 
-        public void ResetHighlightThickness()
-            => HighlightThickness = 4;
+        public void ResetHighlightThickness(object? parameter = null)
+            => HighlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
     }
 }

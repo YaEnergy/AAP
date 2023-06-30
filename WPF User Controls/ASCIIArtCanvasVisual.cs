@@ -15,6 +15,9 @@ namespace AAP
 {
     public class ASCIIArtCanvasVisual : FrameworkElement
     {
+        public readonly static int DefaultCanvasTextSize = 16;
+        public readonly static int DefaultHighlightRectThickness = 4;
+
         private readonly VisualCollection _children;
 
         private readonly DrawingVisual backgroundVisual = new();
@@ -30,9 +33,6 @@ namespace AAP
 
             return _children[index];
         }
-
-        private readonly static int DefaultCanvasTextSize = 12;
-        private readonly static int DefaultHighlightRectThickness = 4;
 
         private readonly static string EmptyDisplayArtText = "No art to display!";
 
@@ -58,9 +58,9 @@ namespace AAP
         public int TextSize
         {
             get => textSize;
-            private set
+            set
             {
-                textSize = Math.Clamp(value, 4, 128);
+                textSize = value;
 
                 UpdateCanvasSize();
                 DrawDisplayArt();
@@ -78,7 +78,7 @@ namespace AAP
             get => highlightRectThickness;
             private set
             {
-                highlightRectThickness = Math.Clamp(value, 1, 12);
+                highlightRectThickness = value;
 
                 DrawHighlights();
             }
@@ -177,7 +177,7 @@ namespace AAP
 
         private readonly List<int> changedLines = new();
 
-        private readonly ArtCanvasViewModel? ArtCanvasViewModel;
+        private ArtCanvasViewModel? viewModel;
 
         public bool CanDraw { get; set; } = true;
 
@@ -343,11 +343,6 @@ namespace AAP
 
         protected void DrawHighlights()
         {
-#if WPF_DEBUG || DEBUG
-            Stopwatch stopwatch = new();
-            stopwatch.Start();
-#endif
-
             using DrawingContext dc = highlightVisual.RenderOpen();
 
             //Selection Highlight
@@ -357,11 +352,6 @@ namespace AAP
             //Mouse Highlight
             if (mouseHighlightRect != Rect.Empty)
                 dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Blue, HighlightRectThickness), mouseHighlightRect);
-
-#if WPF_DEBUG || DEBUG
-            stopwatch.Stop();
-            Console.WriteLine("Updated highlights! (" + stopwatch.ElapsedMilliseconds + " ms)");
-#endif
         }
 
         #region Tool Functions
@@ -427,7 +417,10 @@ namespace AAP
                     HighlightRectThickness = viewModel.HighlightThickness;
                     break;
                 case "TextSize":
-                    HighlightRectThickness = viewModel.TextSize;
+                    TextSize = viewModel.TextSize;
+                    break;
+                case "Selected":
+                    SelectArtMatrixRect(viewModel.Selected);
                     break;
                 default:
                     break;
@@ -440,6 +433,21 @@ namespace AAP
                 return;
 
             HighlightArtMatrixPosition(GetArtMatrixPoint(e.GetPosition(this)));
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            viewModel = (ArtCanvasViewModel)DataContext;
+            if (viewModel != null)
+            {
+                viewModel.PropertyChanged += OnViewModelPropertyChanged;
+                DisplayArt = viewModel.CurrentArt;
+                DisplayArtDraw = viewModel.CurrentArtDraw;
+                Tool = viewModel.CurrentTool;
+                HighlightRectThickness = viewModel.HighlightThickness;
+                TextSize = viewModel.TextSize;
+                SelectArtMatrixRect(viewModel.Selected);
+            }
         }
 
         public ASCIIArtCanvasVisual()
@@ -460,9 +468,10 @@ namespace AAP
             DrawDisplayArt();
             DrawHighlights();
 
-            ArtCanvasViewModel = (ArtCanvasViewModel?)DataContext;
-            if (ArtCanvasViewModel != null)
-                ArtCanvasViewModel.PropertyChanged += OnViewModelPropertyChanged;
+            DataContextChanged += OnDataContextChanged;
+            viewModel = (ArtCanvasViewModel)DataContext;
+            if (viewModel != null)
+                viewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
     }
 }

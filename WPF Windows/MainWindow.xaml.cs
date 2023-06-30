@@ -23,9 +23,14 @@ namespace AAP
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ArtCanvasViewModel artCanvasViewModel { get; set; }
+
+
         public MainWindow()
         {
             InitializeComponent();
+
+            artCanvasViewModel = (ArtCanvasViewModel)FindResource("artCanvasViewModel");
 
             App.OnCurrentArtChanged += OnCurrentArtChanged;
             App.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
@@ -35,6 +40,18 @@ namespace AAP
             artCanvas.Tool = App.CurrentTool;
 
             UpdateTitle();
+
+            #region Shortcut Commands
+
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, new((sender, e) => OpenFileAction())));
+
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => System.Windows.Application.Current.Shutdown())));
+
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EnlargeTextSizeShortcut, new((sender, e) => artCanvasViewModel.EnlargeTextSize())));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ShrinkTextSizeShortcut, new((sender, e) => artCanvasViewModel.ShrinkTextSize())));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ResetTextSizeShortcut, new((sender, e) => artCanvasViewModel.ResetTextSize())));
+
+            #endregion
         }
 
         private void UpdateTitle()
@@ -44,8 +61,8 @@ namespace AAP
 
         private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw)
         {
-            artCanvas.DisplayArt = art; 
-            artCanvas.DisplayArtDraw = artDraw;
+            artCanvasViewModel.CurrentArt = art; 
+            artCanvasViewModel.CurrentArtDraw = artDraw;
 
             UpdateTitle();
         }
@@ -57,17 +74,15 @@ namespace AAP
 
         private void OnCurrentToolChanged(Tool tool)
         {
-            artCanvas.Tool = tool;
+            artCanvasViewModel.CurrentTool = tool;
         }
 
         private void OnSelectionChanged(Rect selected)
         {
-            artCanvas.SelectArtMatrixRect(selected);
+            artCanvasViewModel.Selected = selected;
         }
 
-        #endregion
-
-        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
+        private void OpenFileAction()
         {
             Microsoft.Win32.OpenFileDialog openFileDialog = new()
             {
@@ -90,5 +105,10 @@ namespace AAP
                     System.Windows.MessageBox.Show($"An error has occurred while opening art file ({openFileDialog.FileName})! Exception: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        #endregion
+
+        private void OpenFileButton_Click(object sender, RoutedEventArgs e)
+            => OpenFileAction();
     }
 }

@@ -6,51 +6,49 @@
         xmlns:local="clr-namespace:AAP"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime">
+    xmlns:System="clr-namespace:System;assembly=System.Runtime" d:DataContext="{d:DesignInstance Type=local:ArtCanvasViewModel}">
     <Window.Resources>
-        <System:Double x:Key="TranslateTransformX1">0</System:Double>
+        <local:ArtCanvasViewModel x:Name="artCanvasViewModel" x:Key="artCanvasViewModel"/>
     </Window.Resources>
     <Grid>
-        <Grid.DataContext>
-            <local:ArtCanvasViewModel x:Name="artCanvasView"/>
-        </Grid.DataContext>
         <ToolBarTray VerticalAlignment="Top" >
             <ToolBar ClipToBounds="True" >
                 <Menu>
                     <MenuItem Header="File">
-                        <MenuItem Header="New"></MenuItem>
-                        <MenuItem Header="Open" Click="OpenFileButton_Click"></MenuItem>
-                        <MenuItem Header="Save"></MenuItem>
-                        <MenuItem Header="Save As"></MenuItem>
-                        <MenuItem Header="Export"></MenuItem>
+                        <MenuItem Header="New" InputGestureText="Ctrl+N"></MenuItem>
+                        <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
+                        <MenuItem Header="Save" InputGestureText="Ctrl+S"></MenuItem>
+                        <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S"></MenuItem>
+                        <MenuItem Header="Export" InputGestureText="Ctrl+E"></MenuItem>
+                        <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Exit"></MenuItem>
+                        <MenuItem Header="Exit" InputGestureText="Alt+F4"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="Edit">
-                        <MenuItem Header="Undo"></MenuItem>
-                        <MenuItem Header="Redo"></MenuItem>
+                        <MenuItem Header="Undo" InputGestureText="Ctrl+Z"></MenuItem>
+                        <MenuItem Header="Redo" InputGestureText="Ctrl+Y"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Cut Selection"></MenuItem>
-                        <MenuItem Header="Copy Selection"></MenuItem>
-                        <MenuItem Header="Paste as new layer"></MenuItem>
-                        <MenuItem Header="Delete Selection"></MenuItem>
+                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X"></MenuItem>
+                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C"></MenuItem>
+                        <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V"></MenuItem>
+                        <MenuItem Header="Delete Selection" InputGestureText="Del"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Select All"></MenuItem>
+                        <MenuItem Header="Select All" InputGestureText="Ctrl+A"></MenuItem>
                         <MenuItem Header="Cancel Selection"></MenuItem>
                         <Separator></Separator>
                         <MenuItem Header="Crop art to selection"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="View">
-                        <MenuItem Header="Canvas">
-                            <MenuItem Header="{Binding TextSize, ElementName=artCanvas}" HeaderStringFormat="Canvas Text Size: {0}"></MenuItem>
-                            <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand}"/>
-                            <MenuItem Header="Shrink text size"></MenuItem>
-                            <MenuItem Header="Reset text zize"></MenuItem>
+                        <MenuItem x:Name="menuItem" Header="Canvas">
+                            <MenuItem Header="{Binding TextSize, Source={StaticResource artCanvasViewModel}}" HeaderStringFormat="Canvas Text Size: {0}"></MenuItem>
+                            <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+I"/>
+                            <MenuItem Header="Shrink text size" Command="{Binding ShrinkTextSizeCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+O"></MenuItem>
+                            <MenuItem Header="Reset text zize" Command="{Binding ResetTextSizeCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+P"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="{Binding HighlightRectThickness, ElementName=artCanvas}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
-                            <MenuItem Header="Increase thickness"></MenuItem>
-                            <MenuItem Header="Decrease thickness"></MenuItem>
-                            <MenuItem Header="Reset thickness"></MenuItem>
+                            <MenuItem Header="{Binding HighlightThickness, Source={StaticResource artCanvasViewModel}}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
+                            <MenuItem Header="Increase thickness" Command="{Binding IncreaseHighlightThicknessCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                            <MenuItem Header="Decrease thickness" Command="{Binding DecreaseHighlightThicknessCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                            <MenuItem Header="Reset thickness" Command="{Binding ResetHighlightThicknessCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem Header="Filters">
@@ -65,7 +63,7 @@
         <DockPanel LastChildFill="False" Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="150" ClipToBounds="True"/>
         <DockPanel LastChildFill="False" Background="#FFCDFF59" HorizontalAlignment="Right" Margin="0,28,0,0" Width="150" ClipToBounds="True"/>
         <ScrollViewer Background="#FFFFBF59" Margin="150,28,150,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" PanningMode="Both">
-            <local:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" Tool="{Binding CurrentTool}"/>
+            <local:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DataContext="{Binding Mode=OneWay, Source={StaticResource artCanvasViewModel}}" />
             <!--<local:ASCIIArtCanvas x:Name="artCanvas" Margin="8,8,8,8" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>!-->
         </ScrollViewer>
     </Grid>
