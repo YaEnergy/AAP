@@ -25,6 +25,9 @@ namespace AAP
         public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char? character);
         public event ArtChangedEvent? OnArtChanged;
 
+        public delegate void SizeChangedEvent(int width, int height);
+        public event SizeChangedEvent? OnSizeChanged;
+
         public delegate void ArtLayerListChangedEvent(List<ArtLayer> artLayers);
         public event ArtLayerListChangedEvent? OnArtLayerListChanged;
 
@@ -47,6 +50,8 @@ namespace AAP
         {
             Width = width;
             Height = height;
+
+            OnSizeChanged?.Invoke(width, height);
         }
 
         #region Layers
@@ -90,6 +95,11 @@ namespace AAP
         }
         #endregion
 
+        /// <summary>
+        /// This method is very expensive, please use GetLineString(y) when you can instead.
+        /// </summary>
+        /// <param name="bgWorker"></param>
+        /// <returns>Full ASCII art string, each line separated by \n</returns>
         public string GetArtString(BackgroundWorker? bgWorker = null)
         {
             Dictionary<Point, char> visibleArtMatrix = new();
@@ -122,6 +132,30 @@ namespace AAP
             }
 
             return art;
+        }
+
+        public string GetLineString(int y, BackgroundWorker? bgWorker = null)
+        {
+            char?[] visibleArtMatrix = new char?[Width];
+
+            for (int i = 0; i < ArtLayers.Count; i++)
+                if (ArtLayers[i].Visible)
+                    for (int x = 0; x < Width; x++)
+                    {
+                        char? character = ArtLayers[i].Data[x][y];
+
+                        if (character == null)
+                            continue;
+
+                        visibleArtMatrix[x] = character.Value;
+                    }
+
+            string line = "";
+
+            for (int x = 0; x < Width; x++)
+                line += visibleArtMatrix[x] == null ? ASCIIArt.EMPTYCHARACTER : visibleArtMatrix[x].ToString();
+
+            return line;
         }
 
         #region Tool Functions

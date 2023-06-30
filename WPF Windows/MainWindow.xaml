@@ -1,0 +1,72 @@
+﻿<Window x:Class="AAP.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AAP"
+        mc:Ignorable="d"
+        Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
+    xmlns:System="clr-namespace:System;assembly=System.Runtime">
+    <Window.Resources>
+        <System:Double x:Key="TranslateTransformX1">0</System:Double>
+    </Window.Resources>
+    <Grid>
+        <Grid.DataContext>
+            <local:ArtCanvasViewModel x:Name="artCanvasView"/>
+        </Grid.DataContext>
+        <ToolBarTray VerticalAlignment="Top" >
+            <ToolBar ClipToBounds="True" >
+                <Menu>
+                    <MenuItem Header="File">
+                        <MenuItem Header="New"></MenuItem>
+                        <MenuItem Header="Open" Click="OpenFileButton_Click"></MenuItem>
+                        <MenuItem Header="Save"></MenuItem>
+                        <MenuItem Header="Save As"></MenuItem>
+                        <MenuItem Header="Export"></MenuItem>
+                        <Separator></Separator>
+                        <MenuItem Header="Exit"></MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="Edit">
+                        <MenuItem Header="Undo"></MenuItem>
+                        <MenuItem Header="Redo"></MenuItem>
+                        <Separator></Separator>
+                        <MenuItem Header="Cut Selection"></MenuItem>
+                        <MenuItem Header="Copy Selection"></MenuItem>
+                        <MenuItem Header="Paste as new layer"></MenuItem>
+                        <MenuItem Header="Delete Selection"></MenuItem>
+                        <Separator></Separator>
+                        <MenuItem Header="Select All"></MenuItem>
+                        <MenuItem Header="Cancel Selection"></MenuItem>
+                        <Separator></Separator>
+                        <MenuItem Header="Crop art to selection"></MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="View">
+                        <MenuItem Header="Canvas">
+                            <MenuItem Header="{Binding TextSize, ElementName=artCanvas}" HeaderStringFormat="Canvas Text Size: {0}"></MenuItem>
+                            <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand}"/>
+                            <MenuItem Header="Shrink text size"></MenuItem>
+                            <MenuItem Header="Reset text zize"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="{Binding HighlightRectThickness, ElementName=artCanvas}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
+                            <MenuItem Header="Increase thickness"></MenuItem>
+                            <MenuItem Header="Decrease thickness"></MenuItem>
+                            <MenuItem Header="Reset thickness"></MenuItem>
+                        </MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="Filters">
+                        <MenuItem Header="No filters!"></MenuItem>
+                    </MenuItem>
+                    <MenuItem Header="Draw">
+                        <MenuItem Header="Fill Selection"></MenuItem>
+                    </MenuItem>
+                </Menu>
+            </ToolBar>
+        </ToolBarTray>
+        <DockPanel LastChildFill="False" Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="150" ClipToBounds="True"/>
+        <DockPanel LastChildFill="False" Background="#FFCDFF59" HorizontalAlignment="Right" Margin="0,28,0,0" Width="150" ClipToBounds="True"/>
+        <ScrollViewer Background="#FFFFBF59" Margin="150,28,150,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" PanningMode="Both">
+            <local:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" Tool="{Binding CurrentTool}"/>
+            <!--<local:ASCIIArtCanvas x:Name="artCanvas" Margin="8,8,8,8" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>!-->
+        </ScrollViewer>
+    </Grid>
+</Window>

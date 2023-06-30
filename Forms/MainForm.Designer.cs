@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            ASCIIArt asciiArt1 = new ASCIIArt();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             menuStrip = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
@@ -92,6 +93,7 @@
             layerOptionsLabel = new Label();
             layerNameTextBox = new TextBox();
             fillDock = new Panel();
+            canvas1 = new Canvas();
             Canvas = new Panel();
             bottomDock = new Panel();
             TaskInfoLabel = new Label();
@@ -756,12 +758,26 @@
             fillDock.AutoScroll = true;
             fillDock.AutoScrollMargin = new Size(20, 20);
             fillDock.BackColor = SystemColors.ControlLight;
+            fillDock.Controls.Add(canvas1);
             fillDock.Controls.Add(Canvas);
             fillDock.Dock = DockStyle.Fill;
             fillDock.Location = new Point(250, 28);
             fillDock.Name = "fillDock";
             fillDock.Size = new Size(762, 605);
             fillDock.TabIndex = 5;
+            // 
+            // canvas1
+            // 
+            canvas1.BackColor = SystemColors.InactiveBorder;
+            canvas1.BorderStyle = BorderStyle.FixedSingle;
+            canvas1.DisplayArt = asciiArt1;
+            canvas1.HighlightRectangle = new Rectangle(0, 0, 0, 0);
+            canvas1.Location = new Point(388, 94);
+            canvas1.Name = "canvas1";
+            canvas1.SelectionRectangle = new Rectangle(0, 0, 0, 0);
+            canvas1.Size = new Size(8, 32);
+            canvas1.TabIndex = 2;
+            canvas1.Visible = false;
             // 
             // Canvas
             // 
@@ -910,5 +926,6 @@
         private TextBox layerNameTextBox;
         private CheckBox layerVisibleCheckBox;
         private Label layerNameLabel;
+        private Canvas canvas1;
     }
 }

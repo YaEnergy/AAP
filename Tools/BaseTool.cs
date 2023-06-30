@@ -8,6 +8,7 @@ namespace AAP
 {
     public abstract class Tool
     {
+        public ToolType Type { get; set; } = ToolType.None;
         protected Point StartPoint = new(0, 0);
         protected Point CurrentPoint = new(0, 0);
         protected Point EndPoint = new(0, 0);

@@ -1,12 +1,22 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace AAP
 {
-    public static class MainProgram
+    /// <summary>
+    /// Interaction logic for App.xaml
+    /// </summary>
+    public partial class App : System.Windows.Application
     {
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
@@ -14,9 +24,7 @@ namespace AAP
         public static readonly int MaxArtArea = 90000;
         public readonly static int MaxCharacterPaletteCharacters = 200;
 
-        private static MainForm mainForm = new();
-
-        private static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\{Application.CompanyName}\{Application.ProductName}";
+        private static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
 
         public static readonly string DefaultArtFilesDirectoryPath = $@"{ApplicationDataFolderPath}\Saves";
         public static readonly string CharacterPaletteDirectoryPath = $@"{ApplicationDataFolderPath}\CharacterPalettes";
@@ -26,15 +34,15 @@ namespace AAP
         public static ASCIIArtDraw? CurrentArtDraw { get => currentArtDraw; }
 
         private static ASCIIArt? currentArt;
-        public static ASCIIArt? CurrentArt 
-        { 
-            get => currentArt; 
-            set 
-            { 
-                currentArt = value; 
-                currentArtDraw = value == null ? null : new(value); 
-                OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw); 
-            } 
+        public static ASCIIArt? CurrentArt
+        {
+            get => currentArt;
+            set
+            {
+                currentArt = value;
+                currentArtDraw = value == null ? null : new(currentArt);
+                OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw);
+            }
         }
         public delegate void CurrentArtChangedEvent(ASCIIArt? art, ASCIIArtDraw? artDraw);
         public static event CurrentArtChangedEvent? OnCurrentArtChanged;
@@ -44,9 +52,9 @@ namespace AAP
         public delegate void CurrentFilePathChangedEvent(string? filePath);
         public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
 
-        private static Rectangle selected = Rectangle.Empty;
-        public static Rectangle Selected { get => selected; set { selected = value; OnSelectionChanged?.Invoke(value); } }
-        public delegate void OnSelectionChangedEvent(Rectangle selection);
+        private static Rect selected = Rect.Empty;
+        public static Rect Selected { get => selected; set { selected = value; OnSelectionChanged?.Invoke(value); } }
+        public delegate void OnSelectionChangedEvent(Rect selection);
         public static event OnSelectionChangedEvent? OnSelectionChanged;
 
         private static int currentLayerID = 0;
@@ -54,31 +62,33 @@ namespace AAP
         public delegate void CurrentLayerIDChangedEvent(int currentLayerID);
         public static event CurrentLayerIDChangedEvent? OnCurrentLayerIDChanged;
 
-        private static Dictionary<ToolType, Tool> tools = new();
-        public static Dictionary<ToolType, Tool> Tools { get => tools; set => tools = value; }
+        private static List<Tool> tools = new();
+        public static List<Tool> Tools { get => tools; set => tools = value; }
 
         private static Tool currentTool = new DrawTool(ToolType.Draw, '|', 1);
         public static Tool CurrentTool { get => currentTool; }
 
         private static ToolType currentToolType = ToolType.Draw;
-        public static ToolType CurrentToolType { 
-            get => currentToolType; 
-            set 
+        public static ToolType CurrentToolType
+        {
+            get => currentToolType;
+            set
             {
-                Tools[currentToolType] = currentTool;
-
                 currentToolType = value;
 
-                currentTool = Tools[value];
+                foreach (Tool tool in Tools)
+                    if (tool.Type == currentToolType)
+                        currentTool = tool;
+                
+                OnCurrentToolChanged?.Invoke(currentTool);
 
                 Console.WriteLine("Selected ToolType: " + value.ToString());
                 Console.WriteLine("Selected Tool: " + currentTool.ToString());
 
-                OnCurrentToolTypeChanged?.Invoke(value);
-            } 
+            }
         }
-        public delegate void CurrentToolTypeChangedEvent(ToolType type);
-        public static event CurrentToolTypeChangedEvent? OnCurrentToolTypeChanged;
+        public delegate void CurrentToolChangedEvent(Tool tool);
+        public static event CurrentToolChangedEvent? OnCurrentToolChanged;
 
         private static CharacterPalette currentCharacterPalette = CharacterPalette.ImportFilePath(@"PresetCharacterPalettes\Main ASCII Characters.txt") ?? new("Unknown", new List<char>());
         public static CharacterPalette CurrentCharacterPalette { get => currentCharacterPalette; set { currentCharacterPalette = value; OnCurrentCharacterPaletteChanged?.Invoke(value); } }
@@ -90,36 +100,33 @@ namespace AAP
         public delegate void OnAvailableCharacterPalettesChangedEvent(List<CharacterPalette> palette);
         public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
 
+        public App()
+        {
+            
+        }
+
         /// <summary>
-        ///  The main entry point for the application.
+        /// Application Entry Point.
         /// </summary>
-        [STAThread]
+        [STAThread()]
+        [System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "7.0.3.0")]
         public static void Main(string[] args)
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
-            ApplicationConfiguration.Initialize();
-
             Mutex mutex = new(false, ProgramTitle);
             if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
             {
-                MessageBox.Show("There is already an instance of AAP running!", "AAP", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Windows.MessageBox.Show("There is already an instance of AAP running!", "AAP", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-#if WPF_DEBUG
-            Console.WriteLine("LOADING WINDOW SHOWN");
-#else
-            AAPLoadingForm loadingForm = new();
-            loadingForm.Show();
+            App app = new();
+            app.InitializeComponent();
 
-            loadingForm.UpdateInfo(0, "Setting up...");
-#endif
+            app.Exit += OnApplicationExit;
+            app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
 
-
-            Application.ApplicationExit += OnApplicationExit;
-            Application.ThreadException += OnThreadException;
-
+#if RELEASE || WPF_RELEASE
             TextWriter oldOut = Console.Out;
             StreamWriter logSR = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
             logSR.AutoFlush = true;
@@ -128,6 +135,7 @@ namespace AAP
 
             Console.SetOut(logSR);
             Console.SetError(logSR);
+#endif
 
             //Folders
             if (!Directory.Exists(DefaultArtFilesDirectoryPath))
@@ -149,11 +157,11 @@ namespace AAP
             }
 
             //Tools
-            Tools.Add(ToolType.Draw, new DrawTool(ToolType.Draw, '|', 1));
-            Tools.Add(ToolType.Eraser, new DrawTool(ToolType.Eraser, null, 1));
-            Tools.Add(ToolType.Select, new SelectTool());
-            Tools.Add(ToolType.Move, new MoveTool(MoveToolMode.Select));
-            Tools.Add(ToolType.Text, new TextTool());
+            Tools.Add(new DrawTool(ToolType.Draw, '|', 1));
+            Tools.Add(new DrawTool(ToolType.Eraser, null, 1));
+            Tools.Add(new SelectTool());
+            Tools.Add(new MoveTool(MoveToolMode.Select));
+            Tools.Add(new TextTool());
 
             CurrentToolType = ToolType.Draw;
 
@@ -190,15 +198,11 @@ namespace AAP
 
             CurrentCharacterPalette = CharacterPalettes[0];
 
-            OnCurrentArtChanged += (art, artDraw) => Selected = Rectangle.Empty; //Set selection to nothing if art file changes
+            OnCurrentArtChanged += (art, artDraw) => Selected = Rect.Empty; //Set selection to nothing if art file changes
 
             Console.WriteLine("Set up complete!");
 
-#if WPF_DEBUG 
             Console.WriteLine("LOADING WINDOW HIDDEN");
-#else
-            loadingForm.Hide();
-#endif
 
             if (args.Length == 1)
                 if (File.Exists(args[0]))
@@ -229,50 +233,45 @@ namespace AAP
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        System.Windows.MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
 
             GC.Collect();
 
-
-#if WPF_DEBUG
-            App app = new();
-            app.InitializeComponent();
             app.Run();
-#else
-            Application.Run(mainForm);
-#endif
 
+#if RELEASE || WPF_RELEASE
             Console.SetOut(oldOut);
             Console.SetError(oldOut);
 
             logSR.Close();
+#endif
             mutex.Close();
         }
 
         #region Application Events
-        private static void OnApplicationExit(object? sender, EventArgs args)
+        private static void OnApplicationExit(object? sender, ExitEventArgs args)
         {
-
             //Ask to save
 
             Console.WriteLine("\n--APPLICATION EXIT--\n");
             Console.Out.Close();
         }
 
-        private static void OnThreadException(object? sender, ThreadExceptionEventArgs args)
+        private static void OnThreadException(object? sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{args.Exception}\n\n--END EXCEPTION--\n");
+            Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{e.Exception}\n\n--END EXCEPTION--\n");
 
-            DialogResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {args.Exception.Message}\nOpen full log?", MainProgram.ProgramTitle, MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+            MessageBoxResult result = System.Windows.MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {e.Exception.Message}\nOpen full log?", MainProgram.ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
-            if (result == DialogResult.Yes)
+            if (result == MessageBoxResult.Yes)
                 Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
 
-            Application.Exit();
+            Current.Shutdown(-1);
         }
         #endregion
+
         #region Files
         public static void NewFile(ASCIIArt artFile)
         {
@@ -293,7 +292,7 @@ namespace AAP
                 IAAPFile<ASCIIArt> AAPFile;
                 ASCIIArt art = new();
 
-                switch(file.Extension)
+                switch (file.Extension)
                 {
                     case ".txt":
                         AAPFile = new TextASCIIArt(file.FullName);
@@ -314,14 +313,15 @@ namespace AAP
                 }
 
                 Console.WriteLine($"Open File Path: Imported file!");
-                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nArea: {art.Width*art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nArea: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
-                CurrentLayerID = -1;
+                Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
+                CurrentLayerID = 0; //-1; For testing
                 CurrentArt = art;
                 CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
                 Console.WriteLine($"Open File Path: opened file!");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Open File Path: An error has occurred while importing art file ({file.FullName})! Exception: {ex}");
                 return ex;
@@ -332,7 +332,7 @@ namespace AAP
 
         public static BackgroundWorker? SaveArtFileToPathAsync(string path)
         {
-            if (CurrentArt == null) 
+            if (CurrentArt == null)
                 return null;
 
             if (path == null)
@@ -424,7 +424,7 @@ namespace AAP
             Console.WriteLine("Copy Art To Clipboard: Copying art file to clipboard...");
             string artString = CurrentArt.GetArtString();
 
-            Clipboard.SetText(artString);
+            System.Windows.Clipboard.SetText(artString);
             Console.WriteLine("Copy Art To Clipboard: Copied art file to clipboard!");
         }
         #endregion
@@ -434,12 +434,13 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            if (Selected == Rectangle.Empty)
+            if (Selected == Rect.Empty)
                 return;
 
-            CurrentArt.Crop(Selected);
+            Console.WriteLine("CropArtFileToSelected converts Rect to Rectangle! Update needed");
+            CurrentArt.Crop(new((int)Selected.X, (int)Selected.Y, (int)Selected.Width, (int)Selected.Height));
 
-            Selected = Rectangle.Empty;
+            Selected = Rect.Empty;
         }
 
         public static void FillSelectedArtWith(char? character)
@@ -447,10 +448,11 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            if (Selected == Rectangle.Empty)
+            if (Selected == Rect.Empty)
                 return;
 
-            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, Selected);
+            Console.WriteLine("FillSelectedArtWith converts Rect to Rectangle! Update needed");
+            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, new((int)Selected.X, (int)Selected.Y, (int)Selected.Width, (int)Selected.Height));
 
             /*for (int x = Selected.X; x < Selected.X + Selected.Width; x++)
                 for (int y = Selected.Y; y < Selected.Y + Selected.Height; y++)
@@ -508,7 +510,7 @@ namespace AAP
         }
         #endregion
         #region Layers
-        
+
         public static void AddArtLayer()
         {
             if (CurrentArt == null)
@@ -532,7 +534,7 @@ namespace AAP
                 Visible = currentArtLayer.Visible
             };
 
-            for(int x = 0; x < CurrentArt.Width; x++)
+            for (int x = 0; x < CurrentArt.Width; x++)
                 for (int y = 0; y < CurrentArt.Height; y++)
                     duplicateArtLayer.Data[x][y] = currentArtLayer.Data[x][y];
 
@@ -553,7 +555,7 @@ namespace AAP
         }
 
         public static void SetCurrentArtLayerName(string name)
-        { 
+        {
             if (CurrentArt == null) return;
 
             if (CurrentArt.ArtLayers.Count == 0)

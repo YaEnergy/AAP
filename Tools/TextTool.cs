@@ -8,6 +8,11 @@ namespace AAP
 {
     public class TextTool: Tool
     {
+        public TextTool()
+        {
+            Type = ToolType.Text;
+        }
+
         public override void ActivateStart(Point location)
         {
             if (MainProgram.CurrentArt == null)

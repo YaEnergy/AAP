@@ -119,7 +119,7 @@ namespace AAP
             layerListbox.Items.Clear();
 
             UpdateTitle();
-            OnCurrentArtChanged(MainProgram.CurrentArt);
+            OnCurrentArtChanged(MainProgram.CurrentArt, null);
             OnSelectionChanged(Rectangle.Empty);
             OnCurrentToolTypeChanged(MainProgram.CurrentToolType);
             DisplayCharacterPalette(MainProgram.CurrentCharacterPalette);
@@ -333,7 +333,7 @@ namespace AAP
             Text += " - DEBUG BUILD";
 #endif
         }
-        private void OnCurrentArtChanged(ASCIIArt? art)
+        private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw)
         {
             UpdateTitle();
 

@@ -12,8 +12,9 @@ namespace AAP
         public char? Character = '/';
         public int Size = 1;
 
-        public DrawTool(char? character, int size)
+        public DrawTool(ToolType type, char? character, int size)
         {
+            Type = type;
             Character = character;
             Size = size;
         }
@@ -31,6 +32,6 @@ namespace AAP
         }
 
         public void Draw(Point artMatrixPosition)
-            => MainProgram.CurrentArt?.Draw(MainProgram.CurrentLayerID, artMatrixPosition, Character);
+            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artMatrixPosition);//MainProgram.CurrentArt?.Draw(MainProgram.CurrentLayerID, artMatrixPosition, Character);
     }
 }

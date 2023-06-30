@@ -11,12 +11,14 @@ namespace AAP
         Layer,
         Select
     }
+
     public class MoveTool: Tool
     {
         public MoveToolMode Mode = MoveToolMode.Layer;
 
         public MoveTool(MoveToolMode mode)
         {
+            Type = ToolType.Move;
             Mode = mode;
         }
 
