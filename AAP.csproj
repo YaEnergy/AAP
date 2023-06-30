@@ -65,8 +65,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ShortcutCommands\" />
-  </ItemGroup>
-
 </Project>
