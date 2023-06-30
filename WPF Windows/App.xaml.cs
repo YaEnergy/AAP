@@ -40,7 +40,7 @@ namespace AAP
             set
             {
                 currentArt = value;
-                currentArtDraw = value == null ? null : new(currentArt);
+                currentArtDraw = value == null ? null : new(value);
                 OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw);
             }
         }

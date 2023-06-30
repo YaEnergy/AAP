@@ -83,7 +83,7 @@ namespace AAP
 
         public ArtCanvasViewModel()
         {
-            //PropertyChanged +=  (a, e) => EnlargeTextSize();
+            
         }
 
         public void EnlargeTextSize()

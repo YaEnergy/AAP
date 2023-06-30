@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
+	<UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <IncludeSymbols>False</IncludeSymbols>
     <StartupObject>AAP.App</StartupObject>
@@ -12,6 +12,10 @@
     <Company>$(Kygira5)</Company>
     <UseWPF>True</UseWPF>
     <Configurations>Debug;Release;WPF Debug;WPF Release</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WPF Release|AnyCPU'">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>

@@ -177,6 +177,8 @@ namespace AAP
 
         private readonly List<int> changedLines = new();
 
+        private readonly ArtCanvasViewModel? ArtCanvasViewModel;
+
         public bool CanDraw { get; set; } = true;
 
         public System.Windows.Point GetArtMatrixPoint(System.Windows.Point canvasPosition)
@@ -405,19 +407,39 @@ namespace AAP
             UpdateDisplayArt();
         }
 
+        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not ArtCanvasViewModel viewModel)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case "CurrentArt":
+                    DisplayArt = viewModel.CurrentArt;
+                    break;
+                case "CurrentArtDraw":
+                    DisplayArtDraw = viewModel.CurrentArtDraw;
+                    break;
+                case "CurrentTool":
+                    Tool = viewModel.CurrentTool;
+                    break;
+                case "HighlightThickness":
+                    HighlightRectThickness = viewModel.HighlightThickness;
+                    break;
+                case "TextSize":
+                    HighlightRectThickness = viewModel.TextSize;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void OnMouseMove(object? sender, System.Windows.Input.MouseEventArgs e)
         {
             if (DisplayArt == null)
                 return;
 
             HighlightArtMatrixPosition(GetArtMatrixPoint(e.GetPosition(this)));
-            //mouseHighlightRect = GetArtCanvasRectangle(new(GetArtMatrixPoint(e.GetPosition(this)), new System.Windows.Size(1, 1)));
-            //Mouse Highlight Rect stuff here
-        }
-
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            Console.WriteLine("Rendered whole canvas");
         }
 
         public ASCIIArtCanvasVisual()
@@ -437,6 +459,10 @@ namespace AAP
             UpdateCanvasSize();
             DrawDisplayArt();
             DrawHighlights();
+
+            ArtCanvasViewModel = (ArtCanvasViewModel?)DataContext;
+            if (ArtCanvasViewModel != null)
+                ArtCanvasViewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
     }
 }
