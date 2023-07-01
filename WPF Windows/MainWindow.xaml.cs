@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -43,7 +44,10 @@ namespace AAP
 
             #region Shortcut Commands
 
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.New, new((sender, e) => NewFileAction())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, new((sender, e) => OpenFileAction())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new((sender, e) => SaveFileAction())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.SaveAs, new((sender, e) => SaveAsFileAction())));
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => System.Windows.Application.Current.Shutdown())));
 
@@ -81,6 +85,65 @@ namespace AAP
         {
             artCanvasViewModel.Selected = selected;
         }
+        #endregion
+
+        #region Background Run Worker Complete Functions
+        void BackgroundSaveComplete(object? sender, RunWorkerCompletedEventArgs args)
+        {
+            if (args.Cancelled)
+            {
+                Console.WriteLine("Save File: Art file save cancelled!");
+                System.Windows.MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else if (args.Error != null)
+            {
+                Console.WriteLine("Save File: An error has occurred while saving art file! Exception: " + args.Error.Message);
+                System.Windows.MessageBox.Show("An error has occurred while saving art file!\nException: " + args.Error.Message, "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                if (args.Result is not FileInfo fileInfo)
+                    throw new Exception("Background Worker Save Art File did not return file info!");
+
+                System.Windows.MessageBox.Show("Saved art file to " + fileInfo.FullName + "!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        void BackgroundExportComplete(object? sender, RunWorkerCompletedEventArgs args)
+        {
+            if (args.Cancelled)
+            {
+                Console.WriteLine("Export File: Art file export cancelled!");
+                System.Windows.MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else if (args.Error != null)
+            {
+                Console.WriteLine("Export File: An error has occurred while exporting art file! Exception: " + args.Error.Message);
+                System.Windows.MessageBox.Show("An error has occurred while exporting art file!\nException: " + args.Error.Message, "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else
+            {
+                if (args.Result is not FileInfo fileInfo)
+                    throw new Exception("Background Worker Export Art File did not return file info!");
+
+                System.Windows.MessageBox.Show("Exported art file to " + fileInfo.FullName + "!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
+                Process.Start("explorer.exe", fileInfo.DirectoryName ?? MainProgram.DefaultArtFilesDirectoryPath);
+            }
+        }
+        #endregion
+
+        #region Menu Item Actions
+
+        private void NewFileAction()
+        {
+            NewASCIIArtDialogWindow newASCIIArtDialogWindow = new();
+            newASCIIArtDialogWindow.ShowDialog();
+
+            if (newASCIIArtDialogWindow.CreatedArt == null)
+                return;
+
+            App.NewFile(newASCIIArtDialogWindow.CreatedArt);
+        }
 
         private void OpenFileAction()
         {
@@ -91,7 +154,7 @@ namespace AAP
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
-                InitialDirectory = MainProgram.DefaultArtFilesDirectoryPath,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
                 ValidateNames = true
             };
 
@@ -106,9 +169,99 @@ namespace AAP
             }
         }
 
+        private void SaveFileAction()
+        {
+            if (App.CurrentArt == null)
+                return;
+
+            string? savePath = App.CurrentFilePath;
+
+            if (savePath == null)
+            {
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new()
+                {
+                    Title = "Save ASCII Art File",
+                    Filter = "ASCII Art File (*.aaf)|*.aaf",
+                    CheckFileExists = false,
+                    CheckPathExists = true,
+                    CreatePrompt = false,
+                    OverwritePrompt = true,
+                    InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                    ValidateNames = true
+                };
+
+                bool? result = saveFileDialog.ShowDialog();
+
+                if (result == true)
+                {
+                    savePath = saveFileDialog.FileName;
+                }
+                else
+                    return;
+            }
+
+            BackgroundWorker? bgWorker = App.SaveArtFileToPathAsync(savePath);
+
+            if (bgWorker == null)
+                return;
+
+            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+        }
+
+        private void SaveAsFileAction()
+        {
+            if (App.CurrentArt == null)
+                return;
+
+
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Save ASCII Art File",
+                Filter = "ASCII Art File (*.aaf)|*.aaf",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                CreatePrompt = false,
+                OverwritePrompt = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = saveFileDialog.ShowDialog();
+
+            string savePath;
+            if (result == true)
+            {
+                savePath = saveFileDialog.FileName;
+            }
+            else
+                return;
+
+            BackgroundWorker? bgWorker = App.SaveArtFileToPathAsync(savePath);
+
+            if (bgWorker == null)
+                return;
+
+            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+        }
         #endregion
+
+        #region Click Events
+
+        private void NewFileButton_Click(object sender, RoutedEventArgs e)
+            => NewFileAction();
 
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
             => OpenFileAction();
+
+        private void SaveFileButton_Click(object sender, RoutedEventArgs e)
+            => SaveFileAction();
+
+        private void SaveAsFileButton_Click(object sender, RoutedEventArgs e)
+            => SaveAsFileAction();
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+            => System.Windows.Application.Current.Shutdown();
+
+        #endregion
     }
 }

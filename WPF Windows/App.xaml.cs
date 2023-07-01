@@ -22,7 +22,7 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        public static readonly int MaxArtArea = 90000;
+        public static readonly int MaxArtArea = 1000000;
         public readonly static int MaxCharacterPaletteCharacters = 200;
 
         private static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";

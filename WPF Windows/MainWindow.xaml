@@ -15,14 +15,14 @@
             <ToolBar ClipToBounds="True" >
                 <Menu>
                     <MenuItem Header="File">
-                        <MenuItem Header="New" InputGestureText="Ctrl+N"></MenuItem>
+                        <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
                         <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
-                        <MenuItem Header="Save" InputGestureText="Ctrl+S"></MenuItem>
-                        <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S"></MenuItem>
+                        <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S"></MenuItem>
+                        <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S"></MenuItem>
                         <MenuItem Header="Export" InputGestureText="Ctrl+E"></MenuItem>
                         <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Exit" InputGestureText="Alt+F4"></MenuItem>
+                        <MenuItem Header="Exit" Click="ExitButton_Click" InputGestureText="Alt+F4"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="Edit">
                         <MenuItem Header="Undo" InputGestureText="Ctrl+Z"></MenuItem>
