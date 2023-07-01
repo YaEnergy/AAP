@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,8 @@ namespace AAP
 
         public TextASCIIArt(string filePath)
             => this.FilePath = filePath;
-        public void Import(ASCIIArt art)
+
+        public void Import(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
             string[] txtLines = File.ReadAllLines(FilePath);
 
@@ -43,10 +45,12 @@ namespace AAP
             art.ArtLayers.Add(txtArtLayer);
         }
 
-        public void Export(ASCIIArt art)
+        public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
-            string artString = art.GetArtString();
+            bgWorker?.ReportProgress(0, "Getting art string...");
+            string artString = art.GetArtString(bgWorker);
 
+            bgWorker?.ReportProgress(50, "Writing to file...");
             StreamWriter sw = File.CreateText(FilePath);
             sw.Write(artString);
 
@@ -60,7 +64,8 @@ namespace AAP
 
         public AAFASCIIArt(string filePath)
             => this.FilePath = filePath;
-        public void Import(ASCIIArt art)
+
+        public void Import(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamReader sr = File.OpenText(FilePath);
@@ -93,13 +98,17 @@ namespace AAP
             jr.Close();
         }
 
-        public void Export(ASCIIArt art)
+        public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
             List<ArtLayerFile> artLayerFiles = new();
 
             for (int i = 0; i < art.ArtLayers.Count; i++)
+            {
+                bgWorker?.ReportProgress((int)((double)(i + 1) / art.ArtLayers.Count * 100), $"Getting art layer strings... ({i + 1}/{art.ArtLayers.Count})");
                 artLayerFiles.Add(new(art.ArtLayers[i].Name, art.ArtLayers[i].Visible, art.ArtLayers[i].GetArtString()));
+            }
 
+            bgWorker?.ReportProgress(100, "Writing to file...");
             ASCIIArtFile artFile = new(art.Width, art.Height, ASCIIArtFile.Version, art.CreatedInVersion, artLayerFiles);
 
             JsonSerializer js = JsonSerializer.CreateDefault();

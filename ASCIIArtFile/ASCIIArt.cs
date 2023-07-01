@@ -102,31 +102,11 @@ namespace AAP
         /// <returns>Full ASCII art string, each line separated by \n</returns>
         public string GetArtString(BackgroundWorker? bgWorker = null)
         {
-            Dictionary<Point, char> visibleArtMatrix = new();
-
-            for (int i = 0; i < ArtLayers.Count; i++)
-                if (ArtLayers[i].Visible)
-                    for (int x = 0; x < Width; x++)
-                        for (int y = 0; y < Height; y++)
-                        {
-                            char? character = ArtLayers[i].Data[x][y];
-
-                            if (character == null)
-                                continue;
-
-                            visibleArtMatrix[new(x, y)] = character.Value;
-                        }
-
             string art = "";
 
             for (int y = 0; y < Height; y++)
             {
-                for (int x = 0; x < Width; x++)
-                {
-                    Point coord = new(x, y);
-
-                    art += !visibleArtMatrix.ContainsKey(coord) ? ASCIIArt.EMPTYCHARACTER : visibleArtMatrix[coord].ToString();
-                }
+                art += GetLineString(y, bgWorker);
 
                 art += "\n";
             }
@@ -136,7 +116,7 @@ namespace AAP
 
         public string GetLineString(int y, BackgroundWorker? bgWorker = null)
         {
-            char?[] visibleArtMatrix = new char?[Width];
+            char?[] visibleArtLineArray = new char?[Width];
 
             for (int i = 0; i < ArtLayers.Count; i++)
                 if (ArtLayers[i].Visible)
@@ -147,13 +127,13 @@ namespace AAP
                         if (character == null)
                             continue;
 
-                        visibleArtMatrix[x] = character.Value;
+                        visibleArtLineArray[x] = character.Value;
                     }
 
             string line = "";
 
             for (int x = 0; x < Width; x++)
-                line += visibleArtMatrix[x] == null ? ASCIIArt.EMPTYCHARACTER : visibleArtMatrix[x].ToString();
+                line += visibleArtLineArray[x] == null ? EMPTYCHARACTER : visibleArtLineArray[x].ToString();
 
             return line;
         }

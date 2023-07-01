@@ -23,6 +23,8 @@ namespace AAP
         public static readonly string Version = "v0.0.1";
 
         public static readonly int MaxArtArea = 1000000;
+        public static readonly int WarningLargeArtArea = 100000;
+        public static readonly int WarningManyArtLayers = 100;
         public readonly static int MaxCharacterPaletteCharacters = 200;
 
         private static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
@@ -274,7 +276,7 @@ namespace AAP
         #endregion
 
         #region Files
-        public static void NewFile(ASCIIArt artFile)
+        public static void NewFile(ASCIIArt? artFile)
         {
             Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when creating new files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
             CurrentLayerID = 0; //-1; For testing
@@ -343,7 +345,7 @@ namespace AAP
             CurrentFilePath = path;
 
             BackgroundWorker bgWorker = new();
-            bgWorker.WorkerReportsProgress = false;
+            bgWorker.WorkerReportsProgress = true;
             bgWorker.DoWork += SaveWork;
 
             bgWorker.RunWorkerAsync();
@@ -359,7 +361,7 @@ namespace AAP
                 Console.WriteLine("Save File: Saving art file to " + path);
 
                 AAFASCIIArt aafASCIIArt = new(path);
-                aafASCIIArt.Export(CurrentArt);
+                aafASCIIArt.Export(CurrentArt, bgWorker);
 
                 Console.WriteLine("Save File: Art file saved to " + path + "!");
 
@@ -378,7 +380,7 @@ namespace AAP
                 return null;
 
             BackgroundWorker bgWorker = new();
-            bgWorker.WorkerReportsProgress = false;
+            bgWorker.WorkerReportsProgress = true;
             bgWorker.DoWork += ExportWork;
 
             bgWorker.RunWorkerAsync();
@@ -408,7 +410,7 @@ namespace AAP
                         throw new Exception("Unknown file extension!");
                 }
 
-                AAPFile.Export(CurrentArt);
+                AAPFile.Export(CurrentArt, bgWorker);
 
                 Console.WriteLine("Export File: Art file exported to " + path + "!");
 

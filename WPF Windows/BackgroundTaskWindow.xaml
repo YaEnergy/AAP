@@ -1,0 +1,17 @@
+﻿<Window x:Class="AAP.BackgroundTaskWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AAP"
+        mc:Ignorable="d"
+        Title="BackgroundTaskWindow" Height="138" ResizeMode="NoResize" SizeToContent="Width">
+    <Window.Resources>
+        <local:BackgroundTaskViewModel x:Name="ViewModel" x:Key="ViewModel"/>
+    </Window.Resources>
+    <Grid>
+        <Label Margin="10,10,10,10" VerticalAlignment="Top" FontSize="14" Content="{Binding TaskName, Source={StaticResource ViewModel}}"/>
+        <Label Margin="10,44,10,0" VerticalAlignment="Top" Content="{Binding TaskState, Source={StaticResource ViewModel}}"/>
+        <ProgressBar Margin="10,77,10,10" IsIndeterminate="{Binding IsDeterminate, Source={StaticResource ViewModel}}" Value="{Binding TaskProgress, Source={StaticResource ViewModel}}"/>
+    </Grid>
+</Window>

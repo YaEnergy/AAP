@@ -25,7 +25,7 @@ namespace AAP
     public partial class MainWindow : Window
     {
         private ArtCanvasViewModel artCanvasViewModel { get; set; }
-
+        private BackgroundWorker? currentBackgroundWorker { get; set; } = null;
 
         public MainWindow()
         {
@@ -65,6 +65,28 @@ namespace AAP
 
         private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw)
         {
+            if (art != null)
+                if (art.Width * art.Height >= App.WarningLargeArtArea)
+                {
+                    MessageBoxResult result = System.Windows.MessageBox.Show($"The ASCII Art you're trying to open has an art area of {art.Width * art.Height} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save.\nAre you sure you want to continue?", "ASCII Art Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    
+                    if (result == MessageBoxResult.No)
+                    {
+                        App.NewFile(null);
+                        return;
+                    }
+                }
+                else if (art.ArtLayers.Count >= App.WarningManyArtLayers)
+                {
+                    MessageBoxResult result = System.Windows.MessageBox.Show($"The ASCII Art you're trying to open has {art.ArtLayers.Count} art layers. This is above the recommended art layer limit of {App.WarningManyArtLayers} characters.\nThis might take a long time to load and save.\nAre you sure you want to continue?", "ASCII Art Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.No)
+                    {
+                        App.NewFile(null);
+                        return;
+                    }
+                }
+
             artCanvasViewModel.CurrentArt = art; 
             artCanvasViewModel.CurrentArtDraw = artDraw;
 
@@ -90,6 +112,8 @@ namespace AAP
         #region Background Run Worker Complete Functions
         void BackgroundSaveComplete(object? sender, RunWorkerCompletedEventArgs args)
         {
+            currentBackgroundWorker = null;
+
             if (args.Cancelled)
             {
                 Console.WriteLine("Save File: Art file save cancelled!");
@@ -111,6 +135,8 @@ namespace AAP
 
         void BackgroundExportComplete(object? sender, RunWorkerCompletedEventArgs args)
         {
+            currentBackgroundWorker = null;
+
             if (args.Cancelled)
             {
                 Console.WriteLine("Export File: Art file export cancelled!");
@@ -174,6 +200,9 @@ namespace AAP
             if (App.CurrentArt == null)
                 return;
 
+            if (currentBackgroundWorker != null)
+                return;
+
             string? savePath = App.CurrentFilePath;
 
             if (savePath == null)
@@ -193,19 +222,21 @@ namespace AAP
                 bool? result = saveFileDialog.ShowDialog();
 
                 if (result == true)
-                {
                     savePath = saveFileDialog.FileName;
-                }
                 else
                     return;
             }
 
-            BackgroundWorker? bgWorker = App.SaveArtFileToPathAsync(savePath);
+            currentBackgroundWorker = App.SaveArtFileToPathAsync(savePath);
 
-            if (bgWorker == null)
+            if (currentBackgroundWorker == null)
                 return;
 
-            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+            BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Saving to {new FileInfo(savePath).Name}");
+            backgroundTaskWindow.Show();
+            backgroundTaskWindow.Owner = this;
+
+            currentBackgroundWorker.RunWorkerCompleted += BackgroundSaveComplete;
         }
 
         private void SaveAsFileAction()
@@ -213,6 +244,8 @@ namespace AAP
             if (App.CurrentArt == null)
                 return;
 
+            if (currentBackgroundWorker != null)
+                return;
 
             Microsoft.Win32.SaveFileDialog saveFileDialog = new()
             {
@@ -230,18 +263,20 @@ namespace AAP
 
             string savePath;
             if (result == true)
-            {
                 savePath = saveFileDialog.FileName;
-            }
             else
                 return;
 
-            BackgroundWorker? bgWorker = App.SaveArtFileToPathAsync(savePath);
+            currentBackgroundWorker = App.SaveArtFileToPathAsync(savePath);
 
-            if (bgWorker == null)
+            if (currentBackgroundWorker == null)
                 return;
 
-            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+            BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Saving to {new FileInfo(savePath).Name}");
+            backgroundTaskWindow.Show();
+            backgroundTaskWindow.Owner = this;
+
+            currentBackgroundWorker.RunWorkerCompleted += BackgroundSaveComplete;
         }
         #endregion
 
