@@ -179,7 +179,7 @@ namespace AAP
 
         private ArtCanvasViewModel? viewModel;
 
-        public bool CanDraw { get; set; } = true;
+        public bool CanUseTool { get; set; } = true;
 
         public System.Windows.Point GetArtMatrixPoint(System.Windows.Point canvasPosition)
         {
@@ -357,6 +357,9 @@ namespace AAP
         #region Tool Functions
         private void ToolActivateStart(object? sender, System.Windows.Input.MouseEventArgs e)
         {
+            if (!CanUseTool)
+                return;
+
             if (App.CurrentLayerID < 0)
             {
                 System.Windows.MessageBox.Show("Please select a layer!", "No Layer Selected!", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -413,6 +416,9 @@ namespace AAP
                 case "CurrentTool":
                     Tool = viewModel.CurrentTool;
                     break;
+                case "CanUseTool":
+                    CanUseTool = viewModel.CanUseTool;
+                    break;
                 case "HighlightThickness":
                     HighlightRectThickness = viewModel.HighlightThickness;
                     break;
@@ -444,6 +450,7 @@ namespace AAP
                 DisplayArt = viewModel.CurrentArt;
                 DisplayArtDraw = viewModel.CurrentArtDraw;
                 Tool = viewModel.CurrentTool;
+                CanUseTool = viewModel.CanUseTool;
                 HighlightRectThickness = viewModel.HighlightThickness;
                 TextSize = viewModel.TextSize;
                 SelectArtMatrixRect(viewModel.Selected);

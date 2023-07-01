@@ -68,6 +68,17 @@ namespace AAP
             }
         }
 
+        private bool canUseTool = true;
+        public bool CanUseTool
+        {
+            get => canUseTool;
+            set
+            {
+                canUseTool = value;
+                PropertyChanged?.Invoke(this, new(nameof(CanUseTool)));
+            }
+        }
+
         private Rect selected = Rect.Empty;
         public Rect Selected
         {

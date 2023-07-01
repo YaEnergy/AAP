@@ -50,7 +50,8 @@ namespace AAP
         {
             viewModel.TaskProgress = e.ProgressPercentage;
 
-            viewModel.TaskState = e.UserState is string taskStateString ? $"{taskStateString} ({e.ProgressPercentage}%)" : $"{e.ProgressPercentage}%";
+            if (e.UserState is string taskStateString)
+                viewModel.TaskState = $"{taskStateString} ({e.ProgressPercentage}%)";
         }
 
         private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)

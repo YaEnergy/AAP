@@ -21,16 +21,23 @@ namespace AAP
                 Data[x] = new char?[height];
         }
 
-        public string GetArtString(BackgroundWorker? bgWorker = null)
+        public string GetArtString()
         {
-            if (Data.Length == 0)
-                return "";
-
             string art = "";
 
-            for (int y = 0; y < Data[0].Length; y++)
+            int width = Data.Length;
+
+            if (width == 0)
+                return art;
+
+            int height = Data[0].Length;
+
+            if (height == 0)
+                return art;
+
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x < Data.Length; x++)
+                for (int x = 0; x < width; x++)
                     art += Data[x][y] == null ? ASCIIArt.EMPTYCHARACTER : Data[x][y].ToString();
 
                 art += "\n";

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AAP"
         mc:Ignorable="d"
-        Title="BackgroundTaskWindow" Height="138" ResizeMode="NoResize" SizeToContent="Width">
+        Title="BackgroundTaskWindow" Height="138" ResizeMode="NoResize" SizeToContent="Width" ShowInTaskbar="False">
     <Window.Resources>
         <local:BackgroundTaskViewModel x:Name="ViewModel" x:Key="ViewModel"/>
     </Window.Resources>

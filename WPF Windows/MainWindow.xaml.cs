@@ -113,6 +113,7 @@ namespace AAP
         void BackgroundSaveComplete(object? sender, RunWorkerCompletedEventArgs args)
         {
             currentBackgroundWorker = null;
+            artCanvasViewModel.CanUseTool = true;
 
             if (args.Cancelled)
             {
@@ -136,6 +137,7 @@ namespace AAP
         void BackgroundExportComplete(object? sender, RunWorkerCompletedEventArgs args)
         {
             currentBackgroundWorker = null;
+            artCanvasViewModel.CanUseTool = true;
 
             if (args.Cancelled)
             {
@@ -232,6 +234,8 @@ namespace AAP
             if (currentBackgroundWorker == null)
                 return;
 
+            artCanvasViewModel.CanUseTool = false;
+
             BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Saving to {new FileInfo(savePath).Name}");
             backgroundTaskWindow.Show();
             backgroundTaskWindow.Owner = this;
@@ -271,6 +275,8 @@ namespace AAP
 
             if (currentBackgroundWorker == null)
                 return;
+
+            artCanvasViewModel.CanUseTool = false;
 
             BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Saving to {new FileInfo(savePath).Name}");
             backgroundTaskWindow.Show();
