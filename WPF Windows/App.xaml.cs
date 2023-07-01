@@ -276,9 +276,10 @@ namespace AAP
         #region Files
         public static void NewFile(ASCIIArt artFile)
         {
-            CurrentLayerID = -1;
+            Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when creating new files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
+            CurrentLayerID = 0; //-1; For testing
             CurrentArt = artFile;
-            CurrentFilePath = "";
+            CurrentFilePath = null;
         }
 
         public static Exception? OpenFile(FileInfo file)
@@ -319,7 +320,7 @@ namespace AAP
                 Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
                 CurrentLayerID = 0; //-1; For testing
                 CurrentArt = art;
-                CurrentFilePath = file.Extension == ".aaf" ? file.FullName : "";
+                CurrentFilePath = file.Extension == ".aaf" ? file.FullName : null;
                 Console.WriteLine($"Open File Path: opened file!");
             }
             catch (Exception ex)
