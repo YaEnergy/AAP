@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace AAP
 
         private BackgroundTaskViewModel viewModel { get; set; }
 
+        private Stopwatch stopwatch = new();
+
         public BackgroundTaskWindow(BackgroundWorker worker, string taskName = "Background task...", bool closeOnFinish = true)
         {
             InitializeComponent();
@@ -44,6 +47,8 @@ namespace AAP
                 worker.ProgressChanged += Worker_ProgressChanged;
 
             worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+
+            stopwatch.Start();
         }
 
         private void Worker_ProgressChanged(object? sender, ProgressChangedEventArgs e)
@@ -51,17 +56,19 @@ namespace AAP
             viewModel.TaskProgress = e.ProgressPercentage;
 
             if (e.UserState is string taskStateString)
-                viewModel.TaskState = $"{taskStateString} ({e.ProgressPercentage}%)";
+                viewModel.TaskState = $"{taskStateString} ({e.ProgressPercentage}%) ({stopwatch.Elapsed:hh\\:mm\\:ss})";
         }
 
         private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
         {
+            stopwatch.Stop();
+
             if (e.Cancelled)
-                viewModel.TaskState = "Cancelled";
+                viewModel.TaskState = $"Cancelled ({stopwatch.Elapsed:hh\\:mm\\:ss})";
             else if (e.Error != null)
-                viewModel.TaskState = "Error occurred!";
+                viewModel.TaskState = $"Error occurred! ({stopwatch.Elapsed:hh\\:mm\\:ss})";
             else
-                viewModel.TaskState = "Finished";
+                viewModel.TaskState = $"Finished ({stopwatch.Elapsed:hh\\:mm\\:ss})";
 
             if (CloseOnFinish)
                 Close();
