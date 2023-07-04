@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,9 +11,9 @@ namespace AAP
     public class BackgroundTaskViewModel : INotifyPropertyChanged
     {
         private string taskName = "Background Task";
-        public string TaskName 
-        { 
-            get => taskName; 
+        public string TaskName
+        {
+            get => taskName;
             set
             {
                 taskName = value;
@@ -21,8 +22,8 @@ namespace AAP
         }
 
         private string taskState = "";
-        public string TaskState 
-        { 
+        public string TaskState
+        {
             get => taskState;
             set
             {
@@ -32,8 +33,8 @@ namespace AAP
         }
 
         private int taskProgress = 0;
-        public int TaskProgress 
-        { 
+        public int TaskProgress
+        {
             get => taskProgress;
             set
             {
@@ -43,8 +44,8 @@ namespace AAP
         }
 
         private bool isDeterminate = false;
-        public bool IsDeterminate 
-        { 
+        public bool IsDeterminate
+        {
             get => isDeterminate;
             set
             {
@@ -53,12 +54,39 @@ namespace AAP
             }
         }
 
+        private readonly System.Windows.Threading.DispatcherTimer dispatcherTimer = new();
+
+        private readonly Stopwatch taskStopwatch = new();
+
+        private string taskElapsedTimeString = TimeSpan.Zero.ToString(@"hh\:mm\:ss");
+        public string TaskElapsedTimeString
+        {
+            get => taskElapsedTimeString;
+            set
+            {
+                taskElapsedTimeString = value;
+                PropertyChanged?.Invoke(this, new(nameof(TaskElapsedTimeString)));
+            }
+        }
+
+        public void StartStopwatch()
+        {
+            taskStopwatch.Start();
+            dispatcherTimer.Start();
+        }
+
+        public void StopStopwatch()
+        {
+            taskStopwatch.Stop();
+            dispatcherTimer.Stop();
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public BackgroundTaskViewModel() 
-        { 
-        
+        {
+            dispatcherTimer.Interval = new(0, 0, 1);
+            dispatcherTimer.Tick += (sender, e) => TaskElapsedTimeString = taskStopwatch.Elapsed.ToString(@"hh\:mm\:ss");
         }
 
     }

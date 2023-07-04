@@ -10,8 +10,8 @@
         <local:BackgroundTaskViewModel x:Name="ViewModel" x:Key="ViewModel"/>
     </Window.Resources>
     <Grid>
-        <Label Margin="10,10,10,10" VerticalAlignment="Top" FontSize="14" Content="{Binding TaskName, Source={StaticResource ViewModel}}"/>
-        <Label Margin="10,44,10,0" VerticalAlignment="Top" Content="{Binding TaskState, Source={StaticResource ViewModel}}"/>
+        <Label Margin="10,10,10,10" VerticalAlignment="Top" Content="{Binding TaskState, Source={StaticResource ViewModel}}"/>
+        <Label Margin="10,44,10,0" VerticalAlignment="Top" ContentStringFormat="({0})" Content="{Binding TaskElapsedTimeString, Mode=OneWay, Source={StaticResource ViewModel}}"/>
         <ProgressBar Margin="10,77,10,10" IsIndeterminate="{Binding IsDeterminate, Source={StaticResource ViewModel}}" Value="{Binding TaskProgress, Source={StaticResource ViewModel}}"/>
     </Grid>
 </Window>
