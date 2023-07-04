@@ -49,6 +49,9 @@ namespace AAP
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new((sender, e) => SaveFileAction())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.SaveAs, new((sender, e) => SaveAsFileAction())));
 
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new((sender, e) => ExportAction())));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.CopyToClipboardShortcut, new((sender, e) => CopyArtToClipboardAction())));
+
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => System.Windows.Application.Current.Shutdown())));
 
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EnlargeTextSizeShortcut, new((sender, e) => artCanvasViewModel.EnlargeTextSize())));
@@ -284,6 +287,56 @@ namespace AAP
 
             currentBackgroundWorker.RunWorkerCompleted += BackgroundSaveComplete;
         }
+
+        private void ExportAction()
+        {
+            if (App.CurrentArt == null)
+                return;
+
+            if (currentBackgroundWorker != null)
+                return;
+
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Export ASCII Art File",
+                Filter = "Text Files (*.txt)|*.txt",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                CreatePrompt = false,
+                OverwritePrompt = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = saveFileDialog.ShowDialog();
+
+            string savePath;
+            if (result == true)
+                savePath = saveFileDialog.FileName;
+            else
+                return;
+
+            currentBackgroundWorker = App.ExportArtFileToPathAsync(savePath);
+
+            if (currentBackgroundWorker == null)
+                return;
+
+            artCanvasViewModel.CanUseTool = false;
+
+            BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Exporting to {new FileInfo(savePath).Name}");
+            backgroundTaskWindow.Show();
+            backgroundTaskWindow.Owner = this;
+
+            currentBackgroundWorker.RunWorkerCompleted += BackgroundExportComplete;
+        }
+
+        private void CopyArtToClipboardAction()
+        {
+            if (App.CurrentArt == null)
+                return;
+
+            App.CopyArtFileToClipboard();
+        }
         #endregion
 
         #region Click Events
@@ -299,6 +352,12 @@ namespace AAP
 
         private void SaveAsFileButton_Click(object sender, RoutedEventArgs e)
             => SaveAsFileAction();
+
+        private void ExportButton_Click(object sender, RoutedEventArgs e)
+            => ExportAction();
+
+        private void CopyArtToClipboardButton_Click(object sender, RoutedEventArgs e)
+            => CopyArtToClipboardAction();
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
             => System.Windows.Application.Current.Shutdown();

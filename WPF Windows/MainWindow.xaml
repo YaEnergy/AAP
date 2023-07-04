@@ -17,26 +17,26 @@
                     <MenuItem Header="File">
                         <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
                         <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
-                        <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S"></MenuItem>
-                        <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S"></MenuItem>
-                        <MenuItem Header="Export" InputGestureText="Ctrl+E"></MenuItem>
-                        <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C"></MenuItem>
+                        <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Export" Click="ExportButton_Click" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Copy art to clipboard"  Click="CopyArtToClipboardButton_Click" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
                         <MenuItem Header="Exit" Click="ExitButton_Click" InputGestureText="Alt+F4"></MenuItem>
                     </MenuItem>
-                    <MenuItem Header="Edit">
+                    <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}">
                         <MenuItem Header="Undo" InputGestureText="Ctrl+Z"></MenuItem>
                         <MenuItem Header="Redo" InputGestureText="Ctrl+Y"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X"></MenuItem>
-                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C"></MenuItem>
+                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V"></MenuItem>
-                        <MenuItem Header="Delete Selection" InputGestureText="Del"></MenuItem>
+                        <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
                         <MenuItem Header="Select All" InputGestureText="Ctrl+A"></MenuItem>
-                        <MenuItem Header="Cancel Selection"></MenuItem>
+                        <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Crop art to selection"></MenuItem>
+                        <MenuItem Header="Crop art to selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="View">
                         <MenuItem x:Name="menuItem" Header="Canvas">
@@ -55,7 +55,7 @@
                         <MenuItem Header="No filters!"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="Draw">
-                        <MenuItem Header="Fill Selection"></MenuItem>
+                        <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                     </MenuItem>
                 </Menu>
             </ToolBar>

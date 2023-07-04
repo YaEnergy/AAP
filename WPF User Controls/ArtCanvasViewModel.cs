@@ -19,6 +19,9 @@ namespace AAP
             get => textSize;
             set
             {
+                if (textSize == Math.Clamp(value, 4, 128))
+                    return;
+
                 textSize = Math.Clamp(value, 4, 128);
                 PropertyChanged?.Invoke(this, new(nameof(TextSize)));
             }
@@ -30,6 +33,9 @@ namespace AAP
             get => highlightThickness;
             set
             {
+                if (highlightThickness == Math.Clamp(value, 1, 12))
+                    return;
+
                 highlightThickness = Math.Clamp(value, 1, 12);
                 PropertyChanged?.Invoke(this, new(nameof(HighlightThickness)));
             }
@@ -41,8 +47,26 @@ namespace AAP
             get => currentArt;
             set
             {
+                if (currentArt == value)
+                    return;
+
                 currentArt = value;
+                HasArtOpen = value != null;
                 PropertyChanged?.Invoke(this, new(nameof(CurrentArt)));
+            }
+        }
+
+        private bool hasArtOpen = false;
+        public bool HasArtOpen
+        {
+            get => hasArtOpen;
+            private set
+            {
+                if (hasArtOpen == value)
+                    return;
+
+                hasArtOpen = value;
+                PropertyChanged?.Invoke(this, new(nameof(HasArtOpen)));
             }
         }
 
@@ -52,6 +76,9 @@ namespace AAP
             get => currentArtDraw;
             set
             {
+                if (currentArtDraw == value)
+                    return;
+
                 currentArtDraw = value;
                 PropertyChanged?.Invoke(this, new(nameof(CurrentArtDraw)));
             }
@@ -63,6 +90,9 @@ namespace AAP
             get => currentTool;
             set
             {
+                if (currentTool == value)
+                    return;
+
                 currentTool = value;
                 PropertyChanged?.Invoke(this, new(nameof(CurrentTool)));
             }
@@ -74,8 +104,25 @@ namespace AAP
             get => canUseTool;
             set
             {
+                if (canUseTool == value)
+                    return;
+
                 canUseTool = value;
                 PropertyChanged?.Invoke(this, new(nameof(CanUseTool)));
+            }
+        }
+
+        private bool hasSelected = false;
+        public bool HasSelected
+        {
+            get => hasSelected;
+            private set
+            {
+                if (hasSelected == value)
+                    return;
+
+                hasSelected = value;
+                PropertyChanged?.Invoke(this, new(nameof(HasSelected)));
             }
         }
 
@@ -84,8 +131,13 @@ namespace AAP
         {
             get => selected;
             set 
-            { 
+            {
+                if (selected == value)
+                    return;
+
+
                 selected = value;
+                HasSelected = value != Rect.Empty;
                 PropertyChanged?.Invoke(this, new(nameof(Selected)));
             }
         }
