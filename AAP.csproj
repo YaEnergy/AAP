@@ -19,10 +19,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="WPF Windows\SplashScreen1.png" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="Icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -30,10 +26,6 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SplashScreen Include="WPF Windows\SplashScreen1.png" />
   </ItemGroup>
 
   <ItemGroup>

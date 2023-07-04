@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,6 +63,7 @@ namespace AAP
 
     public class AAFASCIIArt : IAAPFile<ASCIIArt>
     {
+        private static readonly string UncompressedExportPath = @$"{App.ApplicationDataFolderPath}\uncompressedExport";
         public readonly string FilePath;
 
         public AAFASCIIArt(string filePath)
@@ -68,11 +71,30 @@ namespace AAP
 
         public void Import(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
+            FileStream fs = File.Create(UncompressedExportPath);
+
+            using (GZipStream output = new(File.Open(FilePath, FileMode.Open), CompressionMode.Decompress))
+                output.CopyTo(fs);
+
+            fs.Close();
+
             JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamReader sr = File.OpenText(FilePath);
+            StreamReader sr = File.OpenText(UncompressedExportPath);
             JsonTextReader jr = new(sr);
 
-            ASCIIArtFile artFile = js.Deserialize<ASCIIArtFile>(jr);
+            ASCIIArt? importedArt = js.Deserialize<ASCIIArt>(jr);
+            if (importedArt != null)
+            {
+                art.CreatedInVersion = importedArt.CreatedInVersion;
+                art.SetSize(importedArt.Width, importedArt.Height);
+
+                for (int i = 0; i < importedArt.ArtLayers.Count; i++)
+                    art.ArtLayers.Insert(i, importedArt.ArtLayers[i]);
+            }
+            else
+                throw new Exception("No art could be imported!");
+
+            /*ASCIIArtFile artFile = js.Deserialize<ASCIIArtFile>(jr);
             art.CreatedInVersion = artFile.CreatedInVersion;
             art.SetSize(artFile.Width, artFile.Height);
 
@@ -93,31 +115,28 @@ namespace AAP
                 }
 
                 art.ArtLayers.Insert(i, aafArtLayer);
-            }
+            }*/
 
             jr.CloseInput = true;
             jr.Close();
+
+            File.Delete(UncompressedExportPath);
         }
 
         public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
-            List<ArtLayerFile> artLayerFiles = new();
-
-            for (int i = 0; i < art.ArtLayers.Count; i++)
-            {
-                bgWorker?.ReportProgress((int)((double)(i + 1) / art.ArtLayers.Count * 100), $"Getting art layer strings... ({i + 1}/{art.ArtLayers.Count})");
-                artLayerFiles.Add(new(art.ArtLayers[i].Name, art.ArtLayers[i].Visible, art.ArtLayers[i].GetArtString()));
-            }
-
-            bgWorker?.ReportProgress(100, "Writing to file...");
-            ASCIIArtFile artFile = new(art.Width, art.Height, ASCIIArtFile.Version, art.CreatedInVersion, artLayerFiles);
-
+            bgWorker?.ReportProgress(50, "Writing to uncompressed file...");
             JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamWriter sw = File.CreateText(FilePath);
-
-            js.Serialize(sw, artFile);
-
+            StreamWriter sw = File.CreateText(UncompressedExportPath);
+            js.Serialize(sw, art);
             sw.Close();
+
+            bgWorker?.ReportProgress(100, "Writing to file path as compressed file...");
+            using (FileStream fs = File.OpenRead(UncompressedExportPath))
+                using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
+                    fs.CopyTo(output);
+
+            File.Delete(UncompressedExportPath);
         }
     }
 }

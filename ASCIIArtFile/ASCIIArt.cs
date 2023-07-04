@@ -14,13 +14,46 @@ namespace AAP
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space
         private static readonly string EXTENSION = ".aaf";
 
-        public int CreatedInVersion = 0;
-        private int updatedInVersion = 0;
+        public int CreatedInVersion = 3;
+        private int updatedInVersion = 3;
         public int UpdatedInVersion { get => updatedInVersion; }
 
         public List<ArtLayer> ArtLayers { get; private set; } = new();
-        public int Width { get; private set; } = -1;
-        public int Height { get; private set; } = -1;
+
+        private int width = -1;
+        public int Width 
+        { 
+            get => width; 
+            set
+            {
+                if (width == value)
+                    return;
+
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(Width));
+
+                width = value;
+
+                OnSizeChanged?.Invoke(Width, Height);
+            }
+        }
+        private int height = -1;
+        public int Height 
+        { 
+            get => height; 
+            set
+            {
+                if (height == value)
+                    return;
+
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException(nameof(Height));
+
+                height = value;
+
+                OnSizeChanged?.Invoke(Width, Height);
+            }
+        }
 
         public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char? character);
         public event ArtChangedEvent? OnArtChanged;
@@ -42,16 +75,13 @@ namespace AAP
 
         public ASCIIArt()
         {
-            CreatedInVersion = ASCIIArtFile.Version;
-            updatedInVersion = ASCIIArtFile.Version;
+
         }
 
         public void SetSize(int width, int height)
         {
             Width = width;
             Height = height;
-
-            OnSizeChanged?.Invoke(width, height);
         }
 
         #region Layers
