@@ -57,7 +57,7 @@ namespace AAP
 
             if (width * height > App.MaxArtArea)
             {
-                System.Windows.MessageBox.Show($"Art Area is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"The art area of one layer is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
