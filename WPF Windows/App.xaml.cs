@@ -22,9 +22,9 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        public static readonly int MaxArtArea = 1000000;
-        public static readonly int WarningLargeArtArea = 100000;
-        public static readonly int WarningManyArtLayers = 100;
+        public static readonly int MaxArtArea = 100000000;
+        public static readonly int WarningIncrediblyLargeArtArea = 1000000;
+        public static readonly int WarningLargeArtArea = 500000;
         public readonly static int MaxCharacterPaletteCharacters = 200;
 
         public static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
@@ -317,7 +317,7 @@ namespace AAP
                 }
 
                 Console.WriteLine($"Open File Path: Imported file!");
-                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nArea: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
                 Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
                 CurrentLayerID = 0; //-1; For testing
