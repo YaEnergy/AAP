@@ -19,6 +19,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\DestroyLayerIcon.png" />
+    <None Remove="Resources\DrawToolIcon.png" />
+    <None Remove="Resources\DuplicateLayerIcon.png" />
+    <None Remove="Resources\EraserToolIcon.png" />
+    <None Remove="Resources\highlightbox.png" />
+    <None Remove="Resources\MoveLayerDownIcon.png" />
+    <None Remove="Resources\MoveLayerUpIcon.png" />
+    <None Remove="Resources\MoveToolIcon.png" />
+    <None Remove="Resources\NewLayerIcon.png" />
+    <None Remove="Resources\SelectToolIcon.png" />
+    <None Remove="Resources\TextToolIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -26,6 +40,42 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\DestroyLayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\DrawToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\DuplicateLayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\EraserToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\highlightbox.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\MoveLayerDownIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\MoveLayerUpIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\MoveToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\NewLayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\SelectToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\TextToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

@@ -60,7 +60,26 @@
                 </Menu>
             </ToolBar>
         </ToolBarTray>
-        <DockPanel LastChildFill="False" Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="200" ClipToBounds="True"/>
+        <DockPanel LastChildFill="False" Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="200" ClipToBounds="True">
+            <Grid x:Name="ToolBox" VerticalAlignment="Top" DockPanel.Dock="Top" Height="150" Background="#FFCECECE">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/DrawToolIcon.png" />
+                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/EraserToolIcon.png"/>
+                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/SelectToolIcon.png"/>
+                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/MoveToolIcon.png"/>
+                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/TextToolIcon.png"/>
+                <local:LabelStateBox BoxBrush="White" Grid.Column="2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Margin="2,2,2,2" Grid.Row="1" Text="C" TextSize="48"/>
+
+            </Grid>
+        </DockPanel>
         <DockPanel LastChildFill="False" Background="#FFCDFF59" HorizontalAlignment="Right" Margin="0,28,0,0" Width="200" ClipToBounds="True"/>
         <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" PanningMode="Both">
             <local:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DataContext="{Binding Mode=OneWay, Source={StaticResource artCanvasViewModel}}" />
