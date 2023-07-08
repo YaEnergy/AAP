@@ -62,6 +62,9 @@
         </ToolBarTray>
         <DockPanel LastChildFill="False" Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="200" ClipToBounds="True">
             <Grid x:Name="ToolBox" VerticalAlignment="Top" DockPanel.Dock="Top" Height="150" Background="#FFCECECE">
+                <Grid.DataContext>
+                    <local:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
+                </Grid.DataContext>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
@@ -71,11 +74,11 @@
                     <RowDefinition/>
                     <RowDefinition/>
                 </Grid.RowDefinitions>
-                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/DrawToolIcon.png" />
-                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/EraserToolIcon.png"/>
-                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/SelectToolIcon.png"/>
-                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/MoveToolIcon.png"/>
-                <local:ImageStateBox BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/TextToolIcon.png"/>
+                <local:ImageStateBox x:Name="DrawToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/DrawToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetDrawToolCommand}" />
+                <local:ImageStateBox x:Name="EraserToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/EraserToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetEraserToolCommand}"/>
+                <local:ImageStateBox x:Name="SelectToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/SelectToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}"/>
+                <local:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
+                <local:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
                 <local:LabelStateBox BoxBrush="White" Grid.Column="2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Margin="2,2,2,2" Grid.Row="1" Text="C" TextSize="48"/>
 
             </Grid>

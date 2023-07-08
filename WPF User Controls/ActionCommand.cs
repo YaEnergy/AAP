@@ -12,7 +12,7 @@ namespace AAP
     /// </summary>
     public class ActionCommand : ICommand
     {
-        private Action<object?> _action;
+        private readonly Action<object?> _action;
         public event EventHandler? CanExecuteChanged;
 
         public ActionCommand(Action<object?> executeAction)

@@ -14,7 +14,7 @@ namespace AAP
         protected Point EndPoint = new(0, 0);
 
         public virtual void ActivateStart(Point artMatrixPosition) //Location has the x and y of the character on the canvas clicked
-            => StartPoint = artMatrixPosition;
+        { Console.WriteLine("Tool.ActivateStart(character) (and ActivateUpdate) - Point from System.Drawing is used instead of from System.Windows!"); StartPoint = artMatrixPosition; }
 
         public virtual void ActivateUpdate(Point artMatrixPosition)
             => CurrentPoint = artMatrixPosition;

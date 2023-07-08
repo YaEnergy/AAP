@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,12 @@ namespace AAP
                     return;
 
                 state = value;
-                BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
+
+                if (Highlighted)
+                    BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
+                else
+                    BoxBrush = State ? EnabledStateBrush : DisabledStateBrush;
+
                 OnStateChanged?.Invoke(this, state);
             }
         }
@@ -74,6 +80,19 @@ namespace AAP
         public delegate void StateChangedEvent(StateBox sender, bool state);
         public event StateChangedEvent? OnStateChanged;
 
+        public static readonly DependencyProperty StateCommandProperty =
+        DependencyProperty.Register(
+            name: "StateCommand",
+            propertyType: typeof(EventArgsCommand<bool>),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null));
+
+        public EventArgsCommand<bool>? StateCommand 
+        { 
+            get => (EventArgsCommand<bool>?)GetValue(StateCommandProperty); 
+            set => SetValue(StateCommandProperty, value); 
+        }
+
         protected override Visual GetVisualChild(int index)
         {
             if (index < 0 || index >= _children.Count)
@@ -81,6 +100,9 @@ namespace AAP
 
             return _children[index];
         }
+
+        private void StateChanged(StateBox sender, bool state)
+            => StateCommand?.Execute(sender, state);
 
         private void DrawBackground()
         {
@@ -111,6 +133,8 @@ namespace AAP
             MouseLeave += OnMouseLeave;
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             SizeChanged += (sender, e) => DrawBackground();
+
+            OnStateChanged += StateChanged;
         }
 
         private void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)

@@ -42,6 +42,12 @@ namespace AAP
 
             UpdateTitle();
 
+            ToolSelectionViewModel.ToolStateBoxes.Add(DrawToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(EraserToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(SelectToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(MoveToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(TextToolStateBox);
+
             #region Shortcut Commands
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, new((sender, e) => NewFileAction())));
@@ -96,7 +102,7 @@ namespace AAP
             UpdateTitle();
         }
 
-        private void OnCurrentToolChanged(Tool tool)
+        private void OnCurrentToolChanged(Tool? tool)
         {
             artCanvasViewModel.CurrentTool = tool;
         }
@@ -358,5 +364,7 @@ namespace AAP
             => System.Windows.Application.Current.Shutdown();
 
         #endregion
+
+
     }
 }

@@ -68,10 +68,10 @@ namespace AAP
         private static List<Tool> tools = new();
         public static List<Tool> Tools { get => tools; set => tools = value; }
 
-        private static Tool currentTool = new DrawTool(ToolType.Draw, '|', 1);
-        public static Tool CurrentTool { get => currentTool; }
+        private static Tool? currentTool = null;
+        public static Tool? CurrentTool { get => currentTool; }
 
-        private static ToolType currentToolType = ToolType.Draw;
+        private static ToolType currentToolType = ToolType.None;
         public static ToolType CurrentToolType
         {
             get => currentToolType;
@@ -79,18 +79,24 @@ namespace AAP
             {
                 currentToolType = value;
 
-                foreach (Tool tool in Tools)
-                    if (tool.Type == currentToolType)
-                        currentTool = tool;
+                if (value != ToolType.None)
+                {
+                    foreach (Tool tool in Tools)
+                        if (tool.Type == currentToolType)
+                            currentTool = tool;
+                }
+                else
+                    currentTool = null;
+                
                 
                 OnCurrentToolChanged?.Invoke(currentTool);
 
                 Console.WriteLine("Selected ToolType: " + value.ToString());
-                Console.WriteLine("Selected Tool: " + currentTool.ToString());
+                Console.WriteLine("Selected Tool: " + currentTool?.ToString());
 
             }
         }
-        public delegate void CurrentToolChangedEvent(Tool tool);
+        public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
 
         private static CharacterPalette currentCharacterPalette = CharacterPalette.ImportFilePath(@"PresetCharacterPalettes\Main ASCII Characters.txt") ?? new("Unknown", new List<char>());
@@ -166,7 +172,7 @@ namespace AAP
             Tools.Add(new MoveTool(MoveToolMode.Select));
             Tools.Add(new TextTool());
 
-            CurrentToolType = ToolType.Draw;
+            CurrentToolType = ToolType.None;
 
             //Preset Character Palettes
             foreach (FileInfo presetFileInfo in new DirectoryInfo(@"PresetCharacterPalettes").GetFiles())
