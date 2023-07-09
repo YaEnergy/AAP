@@ -225,26 +225,22 @@ namespace AAP
         {
             if (DisplayArt == null)
             {
-                mouseHighlightRect = Rect.Empty;
+                MouseHighlightRect = Rect.Empty;
                 return;
             }
 
-            mouseHighlightRect = artMatrixPosition.X < DisplayArt.Width && artMatrixPosition.X >= 0 && artMatrixPosition.Y < DisplayArt.Height && artMatrixPosition.Y >= 0 ? new(artMatrixPosition, new System.Windows.Size(1, 1)) : Rect.Empty;
-
-            DrawHighlights();
+            MouseHighlightRect = artMatrixPosition.X < DisplayArt.Width && artMatrixPosition.X >= 0 && artMatrixPosition.Y < DisplayArt.Height && artMatrixPosition.Y >= 0 ? new(artMatrixPosition, new System.Windows.Size(1, 1)) : Rect.Empty;
         }
 
         public void SelectArtMatrixRect(Rect artMatrixRect)
         {
             if (DisplayArt == null)
             {
-                selectionRect = Rect.Empty;
+                SelectionRect = Rect.Empty;
                 return;
             }
 
-            selectionRect = artMatrixRect;
-
-            DrawHighlights();
+            SelectionRect = artMatrixRect;
         }
 
 
