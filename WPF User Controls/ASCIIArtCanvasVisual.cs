@@ -229,7 +229,7 @@ namespace AAP
                 return;
             }
 
-            mouseHighlightRect = artMatrixPosition.X < DisplayArt.Width && artMatrixPosition.X >= 0 && artMatrixPosition.Y < DisplayArt.Height && artMatrixPosition.Y >= 0 ? GetArtCanvasRectangle(new(artMatrixPosition, new System.Windows.Size(1, 1))) : Rect.Empty;
+            mouseHighlightRect = artMatrixPosition.X < DisplayArt.Width && artMatrixPosition.X >= 0 && artMatrixPosition.Y < DisplayArt.Height && artMatrixPosition.Y >= 0 ? new(artMatrixPosition, new System.Windows.Size(1, 1)) : Rect.Empty;
 
             DrawHighlights();
         }
@@ -242,7 +242,7 @@ namespace AAP
                 return;
             }
 
-            selectionRect = GetArtCanvasRectangle(artMatrixRect);
+            selectionRect = artMatrixRect;
 
             DrawHighlights();
         }
@@ -347,11 +347,11 @@ namespace AAP
 
             //Selection Highlight
             if (selectionRect != Rect.Empty)
-                dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Yellow, HighlightRectThickness), selectionRect);
+                dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Yellow, HighlightRectThickness), GetArtCanvasRectangle(selectionRect));
 
             //Mouse Highlight
             if (mouseHighlightRect != Rect.Empty)
-                dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Blue, HighlightRectThickness), mouseHighlightRect);
+                dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Blue, HighlightRectThickness), GetArtCanvasRectangle(mouseHighlightRect));
         }
 
         #region Tool Functions
