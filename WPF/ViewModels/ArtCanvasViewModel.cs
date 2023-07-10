@@ -8,8 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using AAP.UI.Controls;
 
-namespace AAP
+namespace AAP.UI.ViewModels
 {
     public class ArtCanvasViewModel : INotifyPropertyChanged
     {

@@ -14,8 +14,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using AAP.UI.ViewModels;
 
-namespace AAP
+namespace AAP.UI.Windows
 {
     /// <summary>
     /// Interaction logic for BackgroundTaskWindow.xaml

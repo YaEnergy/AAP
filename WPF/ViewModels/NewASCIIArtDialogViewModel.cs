@@ -4,8 +4,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AAP.UI.Controls;
 
-namespace AAP
+namespace AAP.UI.ViewModels
 {
     public class NewASCIIArtDialogViewModel : INotifyPropertyChanged
     {

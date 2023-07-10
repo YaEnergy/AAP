@@ -10,8 +10,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
+using AAP.UI.ViewModels;
 
-namespace AAP
+namespace AAP.UI.Controls
 {
     public class ASCIIArtCanvasVisual : FrameworkElement
     {

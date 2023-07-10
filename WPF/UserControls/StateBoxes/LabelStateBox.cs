@@ -7,7 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace AAP
+namespace AAP.UI.Controls
 {
     public class LabelStateBox : StateBox
     {

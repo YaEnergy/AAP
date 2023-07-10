@@ -5,8 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using AAP.UI.Controls;
 
-namespace AAP
+namespace AAP.UI.ViewModels
 {
     public class ToolSelectionViewModel
     {
