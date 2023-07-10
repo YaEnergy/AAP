@@ -99,7 +99,7 @@ namespace AAP
         public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
 
-        private static CharacterPalette currentCharacterPalette = CharacterPalette.ImportFilePath(@"PresetCharacterPalettes\Main ASCII Characters.txt") ?? new("Unknown", new List<char>());
+        private static CharacterPalette currentCharacterPalette = CharacterPalette.ImportFilePath(@"Resources\PresetCharacterPalettes\Main ASCII Characters.txt") ?? new("Unknown", new List<char>());
         public static CharacterPalette CurrentCharacterPalette { get => currentCharacterPalette; set { currentCharacterPalette = value; OnCurrentCharacterPaletteChanged?.Invoke(value); } }
         public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette palette);
         public static event OnCurrentCharacterPaletteChangedEvent? OnCurrentCharacterPaletteChanged;
@@ -175,7 +175,7 @@ namespace AAP
             CurrentToolType = ToolType.None;
 
             //Preset Character Palettes
-            foreach (FileInfo presetFileInfo in new DirectoryInfo(@"PresetCharacterPalettes").GetFiles())
+            foreach (FileInfo presetFileInfo in new DirectoryInfo(@"Resources\PresetCharacterPalettes").GetFiles())
             {
                 string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
 

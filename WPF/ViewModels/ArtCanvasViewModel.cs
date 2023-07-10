@@ -85,8 +85,8 @@ namespace AAP
         }
 
         private Tool? currentTool = null;
-        public Tool? CurrentTool 
-        { 
+        public Tool? CurrentTool
+        {
             get => currentTool;
             set
             {
@@ -130,7 +130,7 @@ namespace AAP
         public Rect Selected
         {
             get => selected;
-            set 
+            set
             {
                 if (selected == value)
                     return;
