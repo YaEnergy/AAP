@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace AAP
+namespace AAP.UI
 {
     /// <summary>
     ///     Implements the ICommand interface.
