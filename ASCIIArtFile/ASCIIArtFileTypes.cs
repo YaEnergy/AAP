@@ -35,7 +35,7 @@ namespace AAP
                     txtWidth = line.Length;
 
             art.SetSize(txtWidth, txtHeight); //= new(txtWidth, txtHeight, ASCIIArtFile.Version, ASCIIArtFile.Version);
-            art.CreatedInVersion = ASCIIArtFile.Version;
+            art.CreatedInVersion = ASCIIArt.VERSION;
             ArtLayer txtArtLayer = new("Imported Art", art.Width, art.Height);
 
             for (int y = 0; y < txtHeight; y++)
@@ -46,6 +46,8 @@ namespace AAP
             }
 
             art.ArtLayers.Add(txtArtLayer);
+
+            art.Changed = true;
         }
 
         public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
@@ -121,10 +123,14 @@ namespace AAP
             jr.Close();
 
             File.Delete(UncompressedExportPath);
+
+            art.Changed = false;
         }
 
         public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
+            art.Changed = false;
+
             bgWorker?.ReportProgress(50, "Writing to uncompressed file...");
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(UncompressedExportPath);

@@ -131,6 +131,7 @@ namespace AAP.UI.Controls
 
                 if (value != null)
                 {
+                    value.OnCropped += (art) => DrawDisplayArt();
                     value.OnSizeChanged += (width, height) => UpdateCanvasSize();
                     MouseLeftButtonDown += ToolActivateStart;
                 }
@@ -388,11 +389,11 @@ namespace AAP.UI.Controls
         #endregion
 
         //Still uses System.Drawing.Point instead of System.Windows.Point
-        private void OnArtDraw(int layerIndex, char? character, System.Drawing.Point[] positions)
+        private void OnArtDraw(int layerIndex, char? character, Point[] positions)
         {
-            foreach(System.Drawing.Point point in positions)
-                if (!changedLines.Contains(point.Y))
-                    changedLines.Add(point.Y);
+            foreach(Point point in positions)
+                if (!changedLines.Contains((int)point.Y))
+                    changedLines.Add((int)point.Y);
 
             UpdateDisplayArt();
         }

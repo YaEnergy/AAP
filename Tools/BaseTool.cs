@@ -8,13 +8,13 @@ namespace AAP
 {
     public abstract class Tool
     {
-        public ToolType Type { get; set; } = ToolType.None;
+        public ToolType Type { get; protected set; } = ToolType.None;
         protected Point StartPoint = new(0, 0);
         protected Point CurrentPoint = new(0, 0);
         protected Point EndPoint = new(0, 0);
 
         public virtual void ActivateStart(Point artMatrixPosition) //Location has the x and y of the character on the canvas clicked
-        { Console.WriteLine("Tool.ActivateStart(character) (and ActivateUpdate) - Point from System.Drawing is used instead of from System.Windows!"); StartPoint = artMatrixPosition; }
+            => StartPoint = artMatrixPosition;
 
         public virtual void ActivateUpdate(Point artMatrixPosition)
             => CurrentPoint = artMatrixPosition;

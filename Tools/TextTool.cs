@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 
 namespace AAP
 {
@@ -12,9 +13,10 @@ namespace AAP
         public TextTool()
         {
             Type = ToolType.Text;
+            //System.Windows.Input.Keyboard.PrimaryDevice.FocusedElement.PreviewTextInput returns strings!!
         }
 
-        public override void ActivateStart(System.Drawing.Point location)
+        public override void ActivateStart(Point location)
         {
             if (App.CurrentArt == null)
                 return;
@@ -26,9 +28,10 @@ namespace AAP
 
         public static void TypeKeyCharacter(char character)
         {
-            Console.WriteLine("TextTool.TypeKeyCharacter(character) - Point from System.Drawing is used instead of from System.Windows!");
-
             if (App.CurrentArt == null)
+                return;
+
+            if (App.CurrentArtDraw == null)
                 return;
 
             if (App.Selected == Rect.Empty)
@@ -40,7 +43,7 @@ namespace AAP
             if (char.IsWhiteSpace(character) && character != ' ') 
                 return;
 
-            App.CurrentArt.Draw(App.CurrentLayerID, new((int)App.Selected.X, (int)App.Selected.Y), character == ' ' ? null : character);
+            App.CurrentArtDraw.DrawCharacter(App.CurrentLayerID, character == ' ' ? null : character, App.Selected.Location);
             
             if(App.Selected.X < App.CurrentArt.Width)
                 App.Selected = new(App.Selected.X + 1, App.Selected.Y, App.Selected.Width, App.Selected.Height);
@@ -48,7 +51,7 @@ namespace AAP
             Console.WriteLine("Type Key! Character: " + character);
         }
 
-        public void OnPressKeyCode(Keys keys)
+        public void OnPressKeyCode(Key key)
         {
             Console.WriteLine("TextTool.OnPressKeyCode() - Point from System.Drawing is used instead of from System.Windows!");
             if (App.CurrentArt == null)
@@ -57,28 +60,28 @@ namespace AAP
             if (App.Selected == Rect.Empty)
                 return;
 
-            switch(keys)
+            switch(key)
             {
-                case Keys.Down:
-                    App.Selected = new(MainProgram.Selected.Location.X, Math.Clamp(App.Selected.Location.Y + 1, 0, App.CurrentArt.Height - 1), 1, 1);
+                case Key.Down:
+                    App.Selected = new(App.Selected.Location.X, Math.Clamp(App.Selected.Location.Y + 1, 0, App.CurrentArt.Height - 1), 1, 1);
                     break;
-                case Keys.Up:
-                    App.Selected = new(MainProgram.Selected.Location.X, Math.Clamp(App.Selected.Location.Y - 1, 0, App.CurrentArt.Height - 1), 1, 1);
+                case Key.Up:
+                    App.Selected = new(App.Selected.Location.X, Math.Clamp(App.Selected.Location.Y - 1, 0, App.CurrentArt.Height - 1), 1, 1);
                     break;
-                case Keys.Right:
-                    App.Selected = new(Math.Clamp(MainProgram.Selected.Location.X + 1, 0, App.CurrentArt.Width - 1), MainProgram.Selected.Location.Y, 1, 1);
+                case Key.Right:
+                    App.Selected = new(Math.Clamp(App.Selected.Location.X + 1, 0, App.CurrentArt.Width - 1), App.Selected.Location.Y, 1, 1);
                     break;
-                case Keys.Left:
-                    App.Selected = new(Math.Clamp(MainProgram.Selected.Location.X - 1, 0, App.CurrentArt.Width - 1), MainProgram.Selected.Location.Y, 1, 1);
+                case Key.Left:
+                    App.Selected = new(Math.Clamp(App.Selected.Location.X - 1, 0, App.CurrentArt.Width - 1), App.Selected.Location.Y, 1, 1);
                     break;
-                case Keys.Return:
-                    App.Selected = new(StartPoint.X, Math.Clamp(MainProgram.Selected.Location.Y + 1, 0, App.CurrentArt.Height - 1), 1, 1);
+                case Key.Return:
+                    App.Selected = new(StartPoint.X, Math.Clamp(App.Selected.Location.Y + 1, 0, App.CurrentArt.Height - 1), 1, 1);
                     break;
-                case Keys.Back:
+                case Key.Back:
                     if (App.Selected.X > 0)
                         App.Selected = new(App.Selected.X - 1, App.Selected.Y, App.Selected.Width, App.Selected.Height);
 
-                    App.CurrentArt.Draw(App.CurrentLayerID, new((int)App.Selected.X, (int)App.Selected.Y), null);
+                    App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, null, App.Selected.Location);
                     break;
                 default:
                     break;

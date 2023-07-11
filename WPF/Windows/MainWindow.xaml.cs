@@ -65,6 +65,11 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ShrinkTextSizeShortcut, new((sender, e) => artCanvasViewModel.ShrinkTextSize())));
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ResetTextSizeShortcut, new((sender, e) => artCanvasViewModel.ResetTextSize())));
 
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, new((sender, e) => App.FillSelectedWith(null))));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.SelectAll, new((sender, e) => App.SelectAll())));
+            CommandBindings.Add(new CommandBinding(EditShortcutCommands.CancelSelectionShortcut, new((sender, e) => App.CancelSelection())));
+
+            CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropArtShortcut, new((sender, e) => App.CropArtFileToSelected())));
             #endregion
         }
 
@@ -147,20 +152,20 @@ namespace AAP.UI.Windows
             if (args.Cancelled)
             {
                 Console.WriteLine("Export File: Art file export cancelled!");
-                System.Windows.MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else if (args.Error != null)
             {
                 Console.WriteLine("Export File: An error has occurred while exporting art file! Exception: " + args.Error.Message);
-                System.Windows.MessageBox.Show("An error has occurred while exporting art file!\nException: " + args.Error.Message, "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("An error has occurred while exporting art file!\nException: " + args.Error.Message, "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
                 if (args.Result is not FileInfo fileInfo)
                     throw new Exception("Background Worker Export Art File did not return file info!");
 
-                System.Windows.MessageBox.Show("Exported art file to " + fileInfo.FullName + "!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
-                Process.Start("explorer.exe", fileInfo.DirectoryName ?? MainProgram.DefaultArtFilesDirectoryPath);
+                MessageBox.Show("Exported art file to " + fileInfo.FullName + "!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
+                Process.Start("explorer.exe", fileInfo.DirectoryName ?? App.DefaultArtFilesDirectoryPath);
             }
         }
         #endregion
@@ -198,7 +203,7 @@ namespace AAP.UI.Windows
                 Exception? ex = App.OpenFile(new(openFileDialog.FileName));
 
                 if (ex != null)
-                    System.Windows.MessageBox.Show($"An error has occurred while opening art file ({openFileDialog.FileName})! Exception: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show($"An error has occurred while opening art file ({openFileDialog.FileName})! Exception: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -362,7 +367,7 @@ namespace AAP.UI.Windows
             => CopyArtToClipboardAction();
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
-            => System.Windows.Application.Current.Shutdown();
+            => Application.Current.Shutdown();
 
         #endregion
 

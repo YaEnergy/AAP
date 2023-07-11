@@ -136,7 +136,6 @@ namespace AAP.UI.ViewModels
                 if (selected == value)
                     return;
 
-
                 selected = value;
                 HasSelected = value != Rect.Empty;
                 PropertyChanged?.Invoke(this, new(nameof(Selected)));
@@ -150,6 +149,14 @@ namespace AAP.UI.ViewModels
         public ICommand DecreaseHighlightThicknessCommand { get; private set; }
         public ICommand ResetHighlightThicknessCommand { get; private set; }
 
+        public ICommand DeleteSelectedCommand { get; private set; }
+        public ICommand SelectAllCommand { get; private set; }
+        public ICommand CancelSelectionCommand { get; private set; }
+
+        public ICommand CropArtCommand { get; private set; }
+
+        public ICommand FillSelectionCommand { get; private set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ArtCanvasViewModel()
@@ -160,6 +167,14 @@ namespace AAP.UI.ViewModels
             IncreaseHighlightThicknessCommand = new ActionCommand(IncreaseHighlightThickness);
             DecreaseHighlightThicknessCommand = new ActionCommand(DecreaseHighlightThickness);
             ResetHighlightThicknessCommand = new ActionCommand(ResetHighlightThickness);
+
+            DeleteSelectedCommand = new ActionCommand((parameter) => DeleteSelected());
+            SelectAllCommand = new ActionCommand((parameter) => SelectAll());
+            CancelSelectionCommand = new ActionCommand((parameter) => CancelSelection());
+
+            CropArtCommand = new ActionCommand((parameter) => CropArt());
+
+            FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
         }
 
         public void EnlargeTextSize(object? parameter = null)
@@ -179,5 +194,25 @@ namespace AAP.UI.ViewModels
 
         public void ResetHighlightThickness(object? parameter = null)
             => HighlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
+
+        public void DeleteSelected()
+            => App.FillSelectedWith(null);
+
+        public void SelectAll()
+            => App.SelectAll();
+
+        public void CancelSelection()
+            => App.CropArtFileToSelected();
+
+        public void CropArt()
+            => App.CropArtFileToSelected();
+
+        public void FillSelection()
+        {
+            if (CurrentTool is not DrawTool drawTool || CurrentTool.Type != ToolType.Draw)
+                return;
+
+            App.FillSelectedWith(drawTool.Character);
+        }
     }
 }

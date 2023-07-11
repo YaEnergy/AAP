@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Newtonsoft.Json;
 
 namespace AAP
@@ -12,7 +13,7 @@ namespace AAP
     public class ASCIIArt
     {
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space
-        private static readonly string EXTENSION = ".aaf";
+        public static readonly int VERSION = 3;
 
         public int CreatedInVersion = 3;
         private int updatedInVersion = 3;
@@ -55,14 +56,11 @@ namespace AAP
             }
         }
 
-        public delegate void ArtChangedEvent(int layerIndex, Point artMatrixPosition, char? character);
-        public event ArtChangedEvent? OnArtChanged;
+        public delegate void CroppedEvent(ASCIIArt art);
+        public event CroppedEvent? OnCropped;
 
         public delegate void SizeChangedEvent(int width, int height);
         public event SizeChangedEvent? OnSizeChanged;
-
-        public delegate void ArtLayerListChangedEvent(List<ArtLayer> artLayers);
-        public event ArtLayerListChangedEvent? OnArtLayerListChanged;
 
         public delegate void ArtLayerAddedEvent(int index, ArtLayer artLayer);
         public event ArtLayerAddedEvent? OnArtLayerAdded;
@@ -73,6 +71,8 @@ namespace AAP
         public delegate void ArtLayerPropertiesChangedEvent(int index, ArtLayer artLayer, bool updateCanvas = false);
         public event ArtLayerPropertiesChangedEvent? OnArtLayerPropertiesChanged;
 
+        public bool Changed { get; set; } = false;
+
         public ASCIIArt()
         {
 
@@ -82,6 +82,8 @@ namespace AAP
         {
             Width = width;
             Height = height;
+
+            Changed = true;
         }
 
         #region Layers
@@ -89,12 +91,16 @@ namespace AAP
         {
             ArtLayers.Insert(index, artLayer);
             OnArtLayerAdded?.Invoke(index, ArtLayers[index]);
+
+            Changed = true;
         }
 
         public void AddLayer(ArtLayer artLayer)
         {
             ArtLayers.Add(artLayer);
             OnArtLayerAdded?.Invoke(ArtLayers.Count - 1, artLayer);
+
+            Changed = true;
         }
 
         public void RemoveLayer(int index)
@@ -104,6 +110,8 @@ namespace AAP
 
             ArtLayers.RemoveAt(index);
             OnArtLayerRemoved?.Invoke(index);
+
+            Changed = true;
         }
 
         public void SetLayerIndexName(int index, string layerName)
@@ -113,6 +121,8 @@ namespace AAP
 
             ArtLayers[index].Name = layerName;
             OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], false);
+
+            Changed = true;
         }
 
         public void SetLayerIndexVisibility(int index, bool visible)
@@ -122,6 +132,8 @@ namespace AAP
 
             ArtLayers[index].Visible = visible;
             OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], true);
+
+            Changed = true;
         }
         #endregion
 
@@ -169,27 +181,11 @@ namespace AAP
         }
 
         #region Tool Functions
-        public void Draw(int layerIndex, Point artMatrixPosition, char? character)
-        {
-            if (layerIndex < 0)
-                return;
-
-            if (ArtLayers.Count == 0)
-                return;
-
-            if (artMatrixPosition.X < 0 || artMatrixPosition.Y < 0 || artMatrixPosition.X >= Width || artMatrixPosition.Y >= Height)
-                return;
-
-            ArtLayers[layerIndex].Data[artMatrixPosition.X][artMatrixPosition.Y] = character;
-
-            OnArtChanged?.Invoke(layerIndex, artMatrixPosition, character);
-        }
-
-        public void Crop(Rectangle cropRect)
+        public void Crop(Rect cropRect)
         {
             Console.WriteLine(cropRect.ToString());
 
-            SetSize(cropRect.Width, cropRect.Height);
+            SetSize((int)cropRect.Width, (int)cropRect.Height);
 
             if (ArtLayers.Count == 0)
                 return;
@@ -204,37 +200,19 @@ namespace AAP
 
                 for (int x = 0; x < Width; x++)
                     for (int y = 0; y < Height; y++)
-                        newArtLayer.Data[x][y] = ArtLayers[i].Data[cropRect.X + x][cropRect.Y + y];
+                        newArtLayer.Data[x][y] = ArtLayers[i].Data[(int)cropRect.X + x][(int)cropRect.Y + y];
 
                 layers.Add(newArtLayer);
             }
 
             ArtLayers = layers;
 
-            OnArtLayerListChanged?.Invoke(layers);
+            OnCropped?.Invoke(this);
+
+            Changed = true;
 
             return;
         }
         #endregion
-    }
-
-    public struct ASCIIArtFile
-    {
-        public static readonly int Version = 2;
-
-        public readonly int CreatedInVersion = 0;
-        public readonly int UpdatedInVersion = 0;
-
-        public readonly List<ArtLayerFile> ArtLayers = new();
-        public readonly int Width = 1;
-        public readonly int Height = 1;
-        public ASCIIArtFile(int width, int height, int updatedinVersion, int createdinVersion, List<ArtLayerFile> artLayers) 
-        {
-            Width = width;
-            Height = height;
-            UpdatedInVersion = updatedinVersion;
-            CreatedInVersion = createdinVersion;
-            ArtLayers = artLayers;
-        }  
     }
 }

@@ -272,7 +272,7 @@ namespace AAP
         {
             Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{e.Exception}\n\n--END EXCEPTION--\n");
 
-            MessageBoxResult result = System.Windows.MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {e.Exception.Message}\nOpen full log?", MainProgram.ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
+            MessageBoxResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {e.Exception.Message}\nOpen full log?", App.ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
             if (result == MessageBoxResult.Yes)
                 Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
@@ -434,7 +434,7 @@ namespace AAP
             Console.WriteLine("Copy Art To Clipboard: Copying art file to clipboard...");
             string artString = CurrentArt.GetArtString();
 
-            System.Windows.Clipboard.SetText(artString);
+            Clipboard.SetText(artString);
             Console.WriteLine("Copy Art To Clipboard: Copied art file to clipboard!");
         }
         #endregion
@@ -447,13 +447,12 @@ namespace AAP
             if (Selected == Rect.Empty)
                 return;
 
-            Console.WriteLine("CropArtFileToSelected converts Rect to Rectangle! Update needed");
-            CurrentArt.Crop(new((int)Selected.X, (int)Selected.Y, (int)Selected.Width, (int)Selected.Height));
+            CurrentArt.Crop(Selected);
 
-            Selected = Rect.Empty;
+            Selected = new(0, 0, Selected.Width, Selected.Height);
         }
 
-        public static void FillSelectedArtWith(char? character)
+        public static void FillSelectedWith(char? character)
         {
             if (CurrentArt == null)
                 return;
@@ -461,13 +460,22 @@ namespace AAP
             if (Selected == Rect.Empty)
                 return;
 
-            Console.WriteLine("FillSelectedArtWith converts Rect to Rectangle! Update needed");
-            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, new((int)Selected.X, (int)Selected.Y, (int)Selected.Width, (int)Selected.Height));
-
-            /*for (int x = Selected.X; x < Selected.X + Selected.Width; x++)
-                for (int y = Selected.Y; y < Selected.Y + Selected.Height; y++)
-                    CurrentArt.Draw(CurrentLayerID, new(x, y), character);*/
+            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, Selected);
         }
+
+        public static void SelectAll()
+        {
+            if (CurrentArt == null)
+            {
+                Selected = Rect.Empty;
+                return;
+            }
+
+            Selected = new(0, 0, CurrentArt.Width, CurrentArt.Height);
+        }
+
+        public static void CancelSelection()
+            => Selected = Rect.Empty;
         #endregion
         #region Character Palettes
         public static Exception? ImportCharacterPalette(FileInfo file)

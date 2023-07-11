@@ -20,6 +20,19 @@ namespace AAP.UI
         };
     }
 
+    public static class EditShortcutCommands
+    {
+        public static RoutedCommand CancelSelectionShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.A, ModifierKeys.Shift | ModifierKeys.Control) }
+        };
+
+        public static RoutedCommand CropArtShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control) }
+        };
+    }
+
     public static class CanvasShortcutCommands
     {
         public static RoutedCommand EnlargeTextSizeShortcut = new()

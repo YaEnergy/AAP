@@ -39,10 +39,11 @@ namespace AAP
             if (!CanDrawOn(layerIndex, position))
                 return;
 
-            if (Art.ArtLayers[layerIndex].Data[position.X][position.Y] == character)
+            if (Art.ArtLayers[layerIndex].Data[(int)position.X][(int)position.Y] == character)
                 return;
 
-            Art.ArtLayers[layerIndex].Data[position.X][position.Y] = character;
+            Art.ArtLayers[layerIndex].Data[(int)position.X][(int)position.Y] = character;
+            Art.Changed = true;
 
             OnDrawArt?.Invoke(layerIndex, character, new Point[] { position });
         }
@@ -64,17 +65,19 @@ namespace AAP
             OnArtChanged?.Invoke(layerIndex, artMatrixPosition, character);*/
         }
 
-        public void DrawRectangle(int layerIndex, char? character, Rectangle rectangle)
+        public void DrawRectangle(int layerIndex, char? character, Rect rectangle)
         {
             List<Point> updatedPositions = new();
 
-            for (int x = rectangle.Left; x < rectangle.Right; x++)
-                for (int y = rectangle.Top; y < rectangle.Bottom; y++)
+            for (int x = (int)rectangle.Left; x < (int)rectangle.Right; x++)
+                for (int y = (int)rectangle.Top; y < (int)rectangle.Bottom; y++)
                     if (CanDrawOn(layerIndex, new(x, y) ))
                     {
                         updatedPositions.Add(new(x, y));
                         Art.ArtLayers[layerIndex].Data[x][y] = character;
                     }
+
+            Art.Changed = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
         }
