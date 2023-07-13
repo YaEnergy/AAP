@@ -108,5 +108,8 @@ namespace AAP
 
             return fileInfo;
         }
+
+        public override string ToString()
+            => Name;
     }
 }

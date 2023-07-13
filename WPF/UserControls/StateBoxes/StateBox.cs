@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
@@ -99,6 +100,23 @@ namespace AAP.UI.Controls
                 throw new ArgumentOutOfRangeException();
 
             return _children[index];
+        }
+
+        /// <summary>
+        /// Sets the state of the StateBox without invoking the OnStateChanged event.
+        /// </summary>
+        /// <param name="state"></param>
+        public void ForceSetState(bool state)
+        {
+            if (this.state == state)
+                return;
+
+            this.state = state;
+
+            if (Highlighted)
+                BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
+            else
+                BoxBrush = State ? EnabledStateBrush : DisabledStateBrush;
         }
 
         private void StateChanged(StateBox sender, bool state)

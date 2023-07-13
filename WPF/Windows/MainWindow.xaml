@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AAP.UI.Windows"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtCanvasViewModel}">
+    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtCanvasViewModel}">
     <Window.Resources>
         <viewmodels:ArtCanvasViewModel x:Name="artCanvasViewModel" x:Key="artCanvasViewModel"/>
     </Window.Resources>
@@ -60,8 +60,8 @@
                 </Menu>
             </ToolBar>
         </ToolBarTray>
-        <DockPanel LastChildFill="False" Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="200" ClipToBounds="True">
-            <Grid x:Name="ToolBox" VerticalAlignment="Top" DockPanel.Dock="Top" Height="150" Background="#FFCECECE">
+        <StackPanel Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,27.98,0,0" Width="200" ClipToBounds="True">
+            <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="#FFCECECE">
                 <Grid.DataContext>
                     <viewmodels:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
                 </Grid.DataContext>
@@ -80,9 +80,18 @@
                 <controls:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
                 <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
             </Grid>
-        </DockPanel>
+            <StackPanel Panel.ZIndex="1" Visibility="{Binding Visibility}">
+                <StackPanel.DataContext>
+                    <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
+                </StackPanel.DataContext>
+                <Grid>
+                    <ComboBox VerticalAlignment="Top" Padding="0,0,0,0" Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}"/>
+                    <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="200" Margin="0,25,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
+                </Grid>
+            </StackPanel>
+        </StackPanel>
         <DockPanel LastChildFill="False" Background="#FFCDFF59" HorizontalAlignment="Right" Margin="0,28,0,0" Width="200" ClipToBounds="True"/>
-        <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" PanningMode="Both">
+        <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto">
             <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DataContext="{Binding Mode=OneWay, Source={StaticResource artCanvasViewModel}}" />
             <!--<local:ASCIIArtCanvas x:Name="artCanvas" Margin="8,8,8,8" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Left" VerticalAlignment="Top" ScrollViewer.CanContentScroll="True" ScrollViewer.VerticalScrollBarVisibility="Disabled"/>!-->
         </ScrollViewer>

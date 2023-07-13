@@ -526,6 +526,18 @@ namespace AAP
 
             return null;
         }
+
+        public static void SelectCharacterDrawTool(char? character)
+        {
+            if (CurrentTool == null)
+                return;
+
+            if (CurrentTool.Type != ToolType.Draw || CurrentTool is not DrawTool drawTool)
+                return;
+
+            drawTool.Character = character;
+            Console.WriteLine("Selected Character: " + character.ToString());
+        }
         #endregion
         #region Layers
 

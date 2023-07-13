@@ -38,8 +38,12 @@ namespace AAP.UI.Windows
             App.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
             App.OnCurrentToolChanged += OnCurrentToolChanged;
             App.OnSelectionChanged += OnSelectionChanged;
+            App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
+
+            CharacterPaletteSelectionViewModel.PropertyChanged += OnCharacterPaletteSelectionViewModelPropertyChanged;
 
             artCanvas.Tool = App.CurrentTool;
+            CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
             UpdateTitle();
 
@@ -59,7 +63,7 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new((sender, e) => ExportAction())));
             CommandBindings.Add(new CommandBinding(FileShortcutCommands.CopyToClipboardShortcut, new((sender, e) => CopyArtToClipboardAction())));
 
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => System.Windows.Application.Current.Shutdown())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => Application.Current.Shutdown())));
 
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EnlargeTextSizeShortcut, new((sender, e) => artCanvasViewModel.EnlargeTextSize())));
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ShrinkTextSizeShortcut, new((sender, e) => artCanvasViewModel.ShrinkTextSize())));
@@ -88,7 +92,7 @@ namespace AAP.UI.Windows
                     if (art.Width * art.Height * Math.Clamp(art.ArtLayers.Count, 1, int.MaxValue) >= App.WarningIncrediblyLargeArtArea)
                         message = $"The ASCII Art you're trying to open has an total art area of {art.Width * art.Height * art.ArtLayers.Count} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
 
-                    MessageBoxResult result = System.Windows.MessageBox.Show(message, "ASCII Art Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    MessageBoxResult result = MessageBox.Show(message, "ASCII Art Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     
                     if (result == MessageBoxResult.No)
                     {
@@ -111,6 +115,8 @@ namespace AAP.UI.Windows
         private void OnCurrentToolChanged(Tool? tool)
         {
             artCanvasViewModel.CurrentTool = tool;
+
+            CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw ? Visibility.Visible : Visibility.Hidden;
         }
 
         private void OnSelectionChanged(Rect selected)
@@ -128,19 +134,19 @@ namespace AAP.UI.Windows
             if (args.Cancelled)
             {
                 Console.WriteLine("Save File: Art file save cancelled!");
-                System.Windows.MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             else if (args.Error != null)
             {
                 Console.WriteLine("Save File: An error has occurred while saving art file! Exception: " + args.Error.Message);
-                System.Windows.MessageBox.Show("An error has occurred while saving art file!\nException: " + args.Error.Message, "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("An error has occurred while saving art file!\nException: " + args.Error.Message, "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             else
             {
                 if (args.Result is not FileInfo fileInfo)
                     throw new Exception("Background Worker Save Art File did not return file info!");
 
-                System.Windows.MessageBox.Show("Saved art file to " + fileInfo.FullName + "!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show("Saved art file to " + fileInfo.FullName + "!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -371,6 +377,25 @@ namespace AAP.UI.Windows
 
         #endregion
 
+        #region ViewModel Property Changed Events
+        private void OnCharacterPaletteSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
 
+            if (sender is not CharacterPaletteSelectionViewModel vm)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case "SelectedCharacter":
+                    App.SelectCharacterDrawTool(vm.SelectedCharacter);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        #endregion
     }
 }
