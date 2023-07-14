@@ -127,6 +127,11 @@ namespace AAP.UI.Controls
             get => (ASCIIArt?)GetValue(DisplayArtProperty);
             set
             {
+                if (DisplayArt != null)
+                {
+                    MouseLeftButtonDown -= ToolActivateStart;
+                }
+
                 SetValue(DisplayArtProperty, value);
 
                 if (value != null)
@@ -137,10 +142,9 @@ namespace AAP.UI.Controls
                     value.OnCopiedPropertiesOf += (copiedObj) => { UpdateCanvasSize(); DrawDisplayArt(); DrawHighlights(); };
                     value.OnCropped += (art) => DrawDisplayArt();
                     value.OnSizeChanged += (width, height) => UpdateCanvasSize();
+
                     MouseLeftButtonDown += ToolActivateStart;
                 }
-                else
-                    MouseLeftButtonDown -= ToolActivateStart;
 
                 UpdateCanvasSize();
                 DrawDisplayArt();
