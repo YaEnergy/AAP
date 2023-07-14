@@ -6,11 +6,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using AAP.Timelines;
 using Newtonsoft.Json;
 
 namespace AAP
 {
-    public class ASCIIArt
+    public class ASCIIArt : ITimelineObject
     {
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space
         public static readonly int VERSION = 3;
@@ -25,7 +26,7 @@ namespace AAP
         public int Width 
         { 
             get => width; 
-            set
+            protected set
             {
                 if (width == value)
                     return;
@@ -42,7 +43,7 @@ namespace AAP
         public int Height 
         { 
             get => height; 
-            set
+            protected set
             {
                 if (height == value)
                     return;
@@ -70,6 +71,8 @@ namespace AAP
 
         public delegate void ArtLayerPropertiesChangedEvent(int index, ArtLayer artLayer, bool updateCanvas = false);
         public event ArtLayerPropertiesChangedEvent? OnArtLayerPropertiesChanged;
+
+        public event ITimelineObject.CopiedPropertiesOfEvent? OnCopiedPropertiesOf;
 
         public bool Changed { get; set; } = false;
 
@@ -212,6 +215,40 @@ namespace AAP
             Changed = true;
 
             return;
+        }
+
+        #endregion
+
+        #region Interface implementation
+        public void CopyPropertiesOf(object obj)
+        {
+            if (obj is not ASCIIArt toCopy)
+                return;
+            
+            ArtLayers.Clear();
+
+            for (int i = 0; i < toCopy.ArtLayers.Count; i++)
+                ArtLayers.Add((ArtLayer)toCopy.ArtLayers[i].Clone());
+
+            width = toCopy.Width;
+            height = toCopy.Height;
+
+            Changed = true;
+
+            OnCopiedPropertiesOf?.Invoke(obj);
+        }
+
+        public object Clone()
+        {
+            ASCIIArt clone = new();
+
+            clone.Changed = Changed;
+            clone.SetSize(Width, Height);
+
+            for (int i = 0; i < ArtLayers.Count; i++)
+                clone.ArtLayers.Add((ArtLayer)ArtLayers[i].Clone());
+
+            return clone;
         }
         #endregion
     }

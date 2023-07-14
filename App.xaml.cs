@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AAP.Timelines;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
@@ -33,6 +34,9 @@ namespace AAP
         public static readonly string CharacterPaletteDirectoryPath = $@"{ApplicationDataFolderPath}\CharacterPalettes";
         public static readonly string AutoSaveDirectoryPath = $@"{ApplicationDataFolderPath}\Autosaves";
 
+        private static ObjectTimeline? currentArtTimeline;
+        public static ObjectTimeline? CurrentArtTimeline { get => currentArtTimeline; }
+
         private static ASCIIArtDraw? currentArtDraw;
         public static ASCIIArtDraw? CurrentArtDraw { get => currentArtDraw; }
 
@@ -44,10 +48,11 @@ namespace AAP
             {
                 currentArt = value;
                 currentArtDraw = value == null ? null : new(value);
-                OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw);
+                currentArtTimeline = value == null ? null : new(value, 25);
+                OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw, currentArtTimeline);
             }
         }
-        public delegate void CurrentArtChangedEvent(ASCIIArt? art, ASCIIArtDraw? artDraw);
+        public delegate void CurrentArtChangedEvent(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline);
         public static event CurrentArtChangedEvent? OnCurrentArtChanged;
 
         private static string? currentFilePath;
@@ -77,6 +82,11 @@ namespace AAP
             get => currentToolType;
             set
             {
+                if (currentTool != null)
+                {
+                    currentTool.OnActivateEnd -= OnToolActivateEnd;
+                }
+
                 currentToolType = value;
 
                 if (value != ToolType.None)
@@ -87,8 +97,12 @@ namespace AAP
                 }
                 else
                     currentTool = null;
-                
-                
+
+                if(currentTool != null)
+                {
+                    currentTool.OnActivateEnd += OnToolActivateEnd;
+                }
+
                 OnCurrentToolChanged?.Invoke(currentTool);
 
                 Console.WriteLine("Selected ToolType: " + value.ToString());
@@ -122,7 +136,7 @@ namespace AAP
         [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "7.0.3.0")]
         public static void Main(string[] args)
         {
-            Mutex mutex = new(false, ProgramTitle);
+            Mutex mutex = new(false, ProgramTitle + "_" + Environment.UserName);
             if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
             {
                 System.Windows.MessageBox.Show("There is already an instance of AAP running!", "AAP", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -207,7 +221,7 @@ namespace AAP
 
             CurrentCharacterPalette = CharacterPalettes[0];
 
-            OnCurrentArtChanged += (art, artDraw) => Selected = Rect.Empty; //Set selection to nothing if art file changes
+            OnCurrentArtChanged += OnCurrentArtFileChanged;
 
             Console.WriteLine("Set up complete!");
 
@@ -439,6 +453,25 @@ namespace AAP
         }
         #endregion
         #region Art
+        public static void OnCurrentArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
+        {
+            Selected = Rect.Empty;
+
+            if(art != null)
+            {
+                art.OnCropped += (art) => artTimeline?.NewTimePoint();
+                art.OnArtLayerAdded += (index, layer) => artTimeline?.NewTimePoint();
+                art.OnArtLayerRemoved += (index) => artTimeline?.NewTimePoint();
+                art.OnArtLayerPropertiesChanged += (index, layer, updateCanvas) => artTimeline?.NewTimePoint();
+            }
+        }
+
+        private static void OnToolActivateEnd(Tool tool, Point position)
+        { 
+            if(tool.Type == ToolType.Draw || tool.Type == ToolType.Eraser)
+                currentArtTimeline?.NewTimePoint();
+        }
+
         public static void CropArtFileToSelected()
         {
             if (CurrentArt == null)
@@ -476,6 +509,7 @@ namespace AAP
 
         public static void CancelSelection()
             => Selected = Rect.Empty;
+
         #endregion
         #region Character Palettes
         public static Exception? ImportCharacterPalette(FileInfo file)

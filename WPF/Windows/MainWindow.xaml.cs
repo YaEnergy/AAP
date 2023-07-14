@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using AAP.Timelines;
 using AAP.UI.ViewModels;
 
 namespace AAP.UI.Windows
@@ -69,6 +70,9 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ShrinkTextSizeShortcut, new((sender, e) => artCanvasViewModel.ShrinkTextSize())));
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ResetTextSizeShortcut, new((sender, e) => artCanvasViewModel.ResetTextSize())));
 
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Undo, new((sender, e) => App.CurrentArtTimeline?.Rollback())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Redo, new((sender, e) => App.CurrentArtTimeline?.Rollforward())));
+
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, new((sender, e) => App.FillSelectedWith(null))));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.SelectAll, new((sender, e) => App.SelectAll())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CancelSelectionShortcut, new((sender, e) => App.CancelSelection())));
@@ -82,7 +86,7 @@ namespace AAP.UI.Windows
 
         #region App Events
 
-        private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw)
+        private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
         {
             if (art != null)
                 if (art.Width * art.Height * Math.Clamp(art.ArtLayers.Count, 1, int.MaxValue) >= App.WarningLargeArtArea)
@@ -103,6 +107,7 @@ namespace AAP.UI.Windows
 
             artCanvasViewModel.CurrentArt = art; 
             artCanvasViewModel.CurrentArtDraw = artDraw;
+            artCanvasViewModel.CurrentArtTimeline = artTimeline;
 
             UpdateTitle();
         }

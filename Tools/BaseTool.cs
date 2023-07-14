@@ -8,18 +8,36 @@ namespace AAP
 {
     public abstract class Tool
     {
+        public delegate void ActivateStartEvent(Tool tool, Point startPosition);
+        public event ActivateStartEvent? OnActivateStart;
+
+        public delegate void ActivateUpdateEvent(Tool tool, Point updatePosition);
+        public event ActivateStartEvent? OnActivateUpdate;
+
+        public delegate void ActivateEndEvent(Tool tool, Point endPosition);
+        public event ActivateStartEvent? OnActivateEnd;
+
         public ToolType Type { get; protected set; } = ToolType.None;
         protected Point StartPoint = new(0, 0);
         protected Point CurrentPoint = new(0, 0);
         protected Point EndPoint = new(0, 0);
 
         public virtual void ActivateStart(Point artMatrixPosition) //Location has the x and y of the character on the canvas clicked
-            => StartPoint = artMatrixPosition;
+        {
+            StartPoint = artMatrixPosition;
+            OnActivateStart?.Invoke(this, StartPoint);
+        }
 
         public virtual void ActivateUpdate(Point artMatrixPosition)
-            => CurrentPoint = artMatrixPosition;
+        {
+            CurrentPoint = artMatrixPosition;
+            OnActivateUpdate?.Invoke(this, CurrentPoint);
+        }
 
         public virtual void ActivateEnd()
-            => EndPoint = CurrentPoint;
+        {
+            EndPoint = CurrentPoint;
+            OnActivateEnd?.Invoke(this, EndPoint);
+        }
     }
 }

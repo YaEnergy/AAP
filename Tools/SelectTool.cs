@@ -18,6 +18,8 @@ namespace AAP
             if (App.CurrentArt == null)
                 return;
 
+            base.ActivateUpdate(artMatrixPosition);
+
             artMatrixPosition = new(Math.Clamp(artMatrixPosition.X, 0, App.CurrentArt.Width), Math.Clamp(artMatrixPosition.Y, 0, App.CurrentArt.Height));
 
             int startX = (int)Math.Clamp(artMatrixPosition.X > StartPoint.X ? StartPoint.X : artMatrixPosition.X, 0, App.CurrentArt.Width);

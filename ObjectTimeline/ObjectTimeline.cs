@@ -48,25 +48,26 @@ namespace AAP.Timelines
         /// </summary>
         public void NewTimePoint()
         {
-            //Destroy now incorrect future
-            if(Size - 1 > timePoint)
-                for (int i = Size; i < SizeLimit; i++)
-                    timeline[i] = null;
-            
             if (timePoint == SizeLimit - 1)
             {
                 //Shift all elements in the timeline down by one, getting rid of element index 0 and having index SizeLimit - 1 as null
                 for (int i = 0; i < SizeLimit; i++)
-                    if(i != SizeLimit - 1)
+                    if (i != SizeLimit - 1)
                         timeline[i] = timeline[i + 1];
                     else
                         timeline[i] = null;
             }
             else
                 timePoint++;
-            
+
             object deepCopy = timelineObject.Clone();
             timeline[timePoint] = deepCopy;
+
+            //Destroy now incorrect future
+            for (int i = Math.Clamp(timePoint + 1, 0, SizeLimit - 1); i < SizeLimit; i++)
+                timeline[i] = null;
+
+            Console.WriteLine("Created new time point " +  timePoint);
         }
 
         /// <summary>
@@ -82,6 +83,8 @@ namespace AAP.Timelines
             object? timeObject = timeline[timePoint];
             if (timeObject != null)
                 timelineObject.CopyPropertiesOf(timeObject);
+
+            Console.WriteLine("Rolled back to time point " + timePoint);
         }
 
         /// <summary>
@@ -97,6 +100,8 @@ namespace AAP.Timelines
             object? timeObject = timeline[timePoint];
             if (timeObject != null)
                 timelineObject.CopyPropertiesOf(timeObject);
+
+            Console.WriteLine("Rolled forward to time point " + timePoint);
         }
     }
 }

@@ -131,6 +131,10 @@ namespace AAP.UI.Controls
 
                 if (value != null)
                 {
+                    value.OnArtLayerAdded += (index, artLayer) => DrawDisplayArt();
+                    value.OnArtLayerRemoved += (index) => DrawDisplayArt();
+                    value.OnArtLayerPropertiesChanged += (index, artLayer, updateCanvas) => { if (updateCanvas) DrawDisplayArt(); };
+                    value.OnCopiedPropertiesOf += (copiedObj) => { UpdateCanvasSize(); DrawDisplayArt(); DrawHighlights(); };
                     value.OnCropped += (art) => DrawDisplayArt();
                     value.OnSizeChanged += (width, height) => UpdateCanvasSize();
                     MouseLeftButtonDown += ToolActivateStart;
@@ -385,6 +389,8 @@ namespace AAP.UI.Controls
         {
             MouseMove -= ToolActivateUpdate;
             MouseUp -= ToolActivateEnd;
+
+            Tool?.ActivateEnd();
         }
         #endregion
 

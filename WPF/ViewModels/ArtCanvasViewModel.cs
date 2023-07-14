@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using AAP.Timelines;
 using AAP.UI.Controls;
 
 namespace AAP.UI.ViewModels
@@ -85,6 +86,20 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private ObjectTimeline? currentArtTimeline = null;
+        public ObjectTimeline? CurrentArtTimeline
+        {
+            get => currentArtTimeline;
+            set
+            {
+                if (currentArtTimeline == value)
+                    return;
+
+                currentArtTimeline = value;
+                PropertyChanged?.Invoke(this, new(nameof(CurrentArtTimeline)));
+            }
+        }
+
         private Tool? currentTool = null;
         public Tool? CurrentTool
         {
@@ -157,6 +172,9 @@ namespace AAP.UI.ViewModels
 
         public ICommand FillSelectionCommand { get; private set; }
 
+        public ICommand UndoCommand { get; private set; }
+        public ICommand RedoCommand { get; private set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ArtCanvasViewModel()
@@ -175,6 +193,9 @@ namespace AAP.UI.ViewModels
             CropArtCommand = new ActionCommand((parameter) => CropArt());
 
             FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
+
+            UndoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollback());
+            RedoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollforward());
         }
 
         public void EnlargeTextSize(object? parameter = null)
@@ -202,7 +223,7 @@ namespace AAP.UI.ViewModels
             => App.SelectAll();
 
         public void CancelSelection()
-            => App.CropArtFileToSelected();
+            => App.CancelSelection();
 
         public void CropArt()
             => App.CropArtFileToSelected();

@@ -27,6 +27,8 @@ namespace AAP
 
         public override void ActivateUpdate(Point artMatrixPosition)
         {
+            base.ActivateUpdate(artMatrixPosition);
+
             Draw(artMatrixPosition);
         }
 
