@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,9 +58,11 @@ namespace AAP.UI.Controls
 
         private void DrawLabel()
         {
-            FormattedText formattedText = new(Text, System.Globalization.CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, Typeface, TextSize, System.Windows.Media.Brushes.Black, 1);
-            using (DrawingContext dc = labelVisual.RenderOpen())
-                dc.DrawText(formattedText, new(ActualWidth / 2 - formattedText.Width / 2, ActualHeight/2-formattedText.Height/2));
+            FormattedText formattedText = new(Text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, TextSize, Brushes.Black, 1);
+           
+            using DrawingContext dc = labelVisual.RenderOpen();
+
+            dc.DrawText(formattedText, new(ActualWidth / 2 - formattedText.Width / 2, ActualHeight / 2 - formattedText.Height / 2));
         }
 
         public LabelStateBox() : base()

@@ -57,8 +57,8 @@ namespace AAP.UI.Controls
             }
         }
 
-        private System.Windows.Media.Brush boxBrush = System.Windows.Media.Brushes.White;
-        public System.Windows.Media.Brush BoxBrush
+        private Brush boxBrush = Brushes.White;
+        public Brush BoxBrush
         {
             get => boxBrush;
             set
@@ -73,10 +73,10 @@ namespace AAP.UI.Controls
 
         public bool AllowManualDisable { get; set; } = true;
 
-        public System.Windows.Media.Brush DisabledStateBrush { get; } = System.Windows.Media.Brushes.White;
-        public System.Windows.Media.Brush DisabledStateBrushHighlighted { get; } = System.Windows.Media.Brushes.LightGray;
-        public System.Windows.Media.Brush EnabledStateBrush { get; } = System.Windows.Media.Brushes.DarkGreen;
-        public System.Windows.Media.Brush EnabledStateBrushHighlighted { get; } = System.Windows.Media.Brushes.DarkOliveGreen;
+        public Brush DisabledStateBrush { get; } = Brushes.White;
+        public Brush DisabledStateBrushHighlighted { get; } = Brushes.LightGray;
+        public Brush EnabledStateBrush { get; } = Brushes.DarkGreen;
+        public Brush EnabledStateBrushHighlighted { get; } = Brushes.DarkOliveGreen;
 
         public delegate void StateChangedEvent(StateBox sender, bool state);
         public event StateChangedEvent? OnStateChanged;
@@ -124,8 +124,9 @@ namespace AAP.UI.Controls
 
         private void DrawBackground()
         {
-            using (DrawingContext dc = backgroundVisual.RenderOpen())
-                dc.DrawRectangle(boxBrush, null, new(0, 0, ActualWidth, ActualHeight));
+            using DrawingContext dc = backgroundVisual.RenderOpen();
+
+            dc.DrawRectangle(boxBrush, null, new(0, 0, ActualWidth, ActualHeight));
         }
 
         public StateBox()
@@ -155,10 +156,10 @@ namespace AAP.UI.Controls
             OnStateChanged += StateChanged;
         }
 
-        private void OnMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMouseEnter(object sender, MouseEventArgs e)
             => Highlighted = true;
 
-        private void OnMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
+        private void OnMouseLeave(object sender, MouseEventArgs e)
             => Highlighted = false;
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

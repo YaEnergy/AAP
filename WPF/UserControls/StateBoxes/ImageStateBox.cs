@@ -29,9 +29,10 @@ namespace AAP.UI.Controls
 
         private void DrawImage()
         {
-            using (DrawingContext dc = imageVisual.RenderOpen())
-                if (boxImageSource != null)
-                    dc.DrawImage(boxImageSource, new(0, 0, ActualWidth, ActualHeight));
+            using DrawingContext dc = imageVisual.RenderOpen();
+
+            if (boxImageSource != null)
+                dc.DrawImage(boxImageSource, new(0, 0, ActualWidth, ActualHeight));
         }
 
         public ImageStateBox() : base()
