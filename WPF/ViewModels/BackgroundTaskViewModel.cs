@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using AAP.UI.Controls;
 
 namespace AAP.UI.ViewModels
@@ -55,7 +56,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private readonly System.Windows.Threading.DispatcherTimer dispatcherTimer = new();
+        private readonly DispatcherTimer dispatcherTimer = new();
 
         private readonly Stopwatch taskStopwatch = new();
 

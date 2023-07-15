@@ -34,31 +34,31 @@ namespace AAP.UI.Windows
         {
             if (!int.TryParse(viewModel.WidthText, out int width))
             {
-                System.Windows.MessageBox.Show("Invalid art width! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Invalid art width! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (width <= 0)
             {
-                System.Windows.MessageBox.Show("Invalid art width! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Invalid art width! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (!int.TryParse(viewModel.HeightText, out int height))
             {
-                System.Windows.MessageBox.Show("Invalid art height! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Invalid art height! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (height <= 0)
             {
-                System.Windows.MessageBox.Show("Invalid art height! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Invalid art height! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (width * height > App.MaxArtArea)
             {
-                System.Windows.MessageBox.Show($"The art area of one layer is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"The art area of one layer is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
