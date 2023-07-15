@@ -11,6 +11,8 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using AAP.UI.ViewModels;
+using System.Windows.Input;
+using System.Windows.Controls;
 
 namespace AAP.UI.Controls
 {
@@ -18,6 +20,7 @@ namespace AAP.UI.Controls
     {
         public readonly static int DefaultCanvasTextSize = 16;
         public readonly static int DefaultHighlightRectThickness = 4;
+        private readonly static string EmptyDisplayArtText = "No art to display!";
 
         private readonly VisualCollection _children;
 
@@ -34,120 +37,27 @@ namespace AAP.UI.Controls
 
             return _children[index];
         }
-
-        private readonly static string EmptyDisplayArtText = "No art to display!";
-
-        private System.Windows.Size canvasSize = new(0, 0);
-        public System.Windows.Size CanvasSize
-        {
-            get => canvasSize;
-            private set
-            {
-                canvasSize = value;
-
-                Width = canvasSize.Width;
-                Height = canvasSize.Height;
-            }
-        }
-
-        public Typeface ArtFont = new("Consolas");
-        private SolidColorBrush ArtBrush = System.Windows.Media.Brushes.Black;
-        private System.Windows.Point ArtOffset = new(8, 8);
-        private readonly System.Windows.Media.Pen backgroundPen = new(System.Windows.Media.Brushes.Black, 1);
-
-        private int textSize = 16;
-        public int TextSize
-        {
-            get => textSize;
-            set
-            {
-                textSize = value;
-
-                UpdateCanvasSize();
-                DrawDisplayArt();
-                DrawHighlights();
-
-                Console.WriteLine("Canvas Text Size: " + textSize);
-            }
-        }
-
-        public double LineHeight { get => textSize * 1.5; }
-
-        private int highlightRectThickness = 2;
-        public int HighlightRectThickness
-        {
-            get => highlightRectThickness;
-            private set
-            {
-                highlightRectThickness = value;
-
-                DrawHighlights();
-            }
-        }
-
-        private Rect mouseHighlightRect = Rect.Empty;
-        public Rect MouseHighlightRect
-        {
-            get => mouseHighlightRect;
-            set
-            {
-                if (value == mouseHighlightRect)
-                    return;
-
-                mouseHighlightRect = value;
-
-                DrawHighlights();
-            }
-        }
-
-        private Rect selectionRect = Rect.Empty;
-        public Rect SelectionRect
-        {
-            get => selectionRect;
-            set
-            {
-                if (value == selectionRect)
-                    return;
-
-                selectionRect = value;
-
-                DrawHighlights();
-            }
-        }
+        
+        private SolidColorBrush ArtBrush = Brushes.Black;
+        private Point ArtOffset = new(8, 8);
+        private readonly Pen backgroundPen = new(Brushes.Black, 1);
 
         public static readonly DependencyProperty DisplayArtProperty =
         DependencyProperty.Register(
             name: "DisplayArt",
             propertyType: typeof(ASCIIArt),
             ownerType: typeof(ASCIIArtCanvasVisual),
-            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null));
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null, OnDisplayArtPropertyChangedCallBack));
 
         public ASCIIArt? DisplayArt
         {
             get => (ASCIIArt?)GetValue(DisplayArtProperty);
             set
             {
-                if (DisplayArt != null)
-                {
-                    MouseLeftButtonDown -= ToolActivateStart;
-                }
+                if (DisplayArt == value)
+                    return;
 
                 SetValue(DisplayArtProperty, value);
-
-                if (value != null)
-                {
-                    value.OnArtLayerAdded += (index, artLayer) => DrawDisplayArt();
-                    value.OnArtLayerRemoved += (index) => DrawDisplayArt();
-                    value.OnArtLayerPropertiesChanged += (index, artLayer, updateCanvas) => { if (updateCanvas) DrawDisplayArt(); };
-                    value.OnCopiedPropertiesOf += (copiedObj) => { UpdateCanvasSize(); DrawDisplayArt(); DrawHighlights(); };
-                    value.OnCropped += (art) => DrawDisplayArt();
-                    value.OnSizeChanged += (width, height) => UpdateCanvasSize();
-
-                    MouseLeftButtonDown += ToolActivateStart;
-                }
-
-                UpdateCanvasSize();
-                DrawDisplayArt();
             }
         }
 
@@ -156,19 +66,116 @@ namespace AAP.UI.Controls
             name: "DisplayArtDraw",
             propertyType: typeof(ASCIIArtDraw),
             ownerType: typeof(ASCIIArtCanvasVisual),
-            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null));
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null, OnDisplayArtDrawPropertyChangedCallBack));
 
         public ASCIIArtDraw? DisplayArtDraw
         {
             get => (ASCIIArtDraw?)GetValue(DisplayArtDrawProperty);
             set
             {
-                SetValue(DisplayArtDrawProperty, value);
+                if (DisplayArtDraw == value)
+                    return;
 
-                if (value != null)
-                {
-                    value.OnDrawArt += OnArtDraw;
-                }
+                SetValue(DisplayArtDrawProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty TextSizeProperty =
+       DependencyProperty.Register(
+           name: "TextSize",
+           propertyType: typeof(int),
+           ownerType: typeof(ASCIIArtCanvasVisual),
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: 16, OnTextSizePropertyChangedCallBack));
+
+        public int TextSize
+        {
+            get => (int)GetValue(TextSizeProperty);
+            set
+            {
+                if (TextSize == value)
+                    return;
+
+                SetValue(TextSizeProperty, value);
+/*
+                UpdateCanvasSize();
+                DrawDisplayArt();
+                DrawHighlights();
+
+                Console.WriteLine("Canvas Text Size: " + TextSize);*/
+            }
+        }
+
+        public double LineHeight { get => TextSize * 1.5; }
+
+        public static readonly DependencyProperty ArtFontProperty =
+       DependencyProperty.Register(
+           name: "ArtFont",
+           propertyType: typeof(Typeface),
+           ownerType: typeof(ASCIIArtCanvasVisual),
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: new Typeface("Consolas"), OnArtFontPropertyChangedCallBack));
+
+        public Typeface ArtFont
+        {
+            get => (Typeface)GetValue(ArtFontProperty);
+            set
+            {
+                if (ArtFont == value)
+                    return;
+
+                SetValue(ArtFontProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty SelectionHighlightRectProperty =
+       DependencyProperty.Register(
+           name: "SelectionHighlightRect",
+           propertyType: typeof(Rect),
+           ownerType: typeof(ASCIIArtCanvasVisual),
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: Rect.Empty, OnSelectionHighlightRectPropertyChangedCallBack));
+
+        public Rect SelectionHighlightRect
+        {
+            get => (Rect)GetValue(SelectionHighlightRectProperty);
+            set
+            {
+                if (SelectionHighlightRect == value)
+                    return;
+
+                SetValue(SelectionHighlightRectProperty, value);
+            }
+        }
+
+        private Rect mouseHighlightRect = Rect.Empty;
+        protected Rect MouseHighlightRect
+        {
+            get => mouseHighlightRect;
+            set
+            {
+                if (MouseHighlightRect == value)
+                    return;
+
+                mouseHighlightRect = value;
+
+                DrawHighlights();
+            }
+        }
+
+        public static readonly DependencyProperty HighlightRectThicknessProperty =
+       DependencyProperty.Register(
+           name: "HighlightRectThickness",
+           propertyType: typeof(int),
+           ownerType: typeof(ASCIIArtCanvasVisual),
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: 2, OnHighlightRectThicknessPropertyChangedCallBack));
+
+        public int HighlightRectThickness
+        {
+            get => (int)GetValue(HighlightRectThicknessProperty);
+            set
+            {
+                if (HighlightRectThickness == value)
+                    return;
+
+                SetValue(HighlightRectThicknessProperty, value);
             }
         }
 
@@ -182,35 +189,57 @@ namespace AAP.UI.Controls
         public Tool? Tool
         {
             get => (Tool?)GetValue(ToolProperty);
-            set => SetValue(ToolProperty, value);
+            set
+            {
+                if (Tool == value)
+                    return;
+
+                SetValue(ToolProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty CanUseToolProperty =
+        DependencyProperty.Register(
+            name: "CanUseTool",
+            propertyType: typeof(bool),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: true));
+
+        public bool CanUseTool
+        {
+            get => (bool)GetValue(CanUseToolProperty);
+            set
+            {
+                if (CanUseTool == value) 
+                    return;
+
+                SetValue(CanUseToolProperty, value);
+            }
         }
 
         private readonly List<int> changedLines = new();
 
-        private ArtCanvasViewModel? viewModel;
-
-        public bool CanUseTool { get; set; } = true;
-
-        public System.Windows.Point GetArtMatrixPoint(System.Windows.Point canvasPosition)
+        #region Converting between Art Matrix & Art Canvas
+        public Point GetArtMatrixPoint(Point canvasPosition)
         {
             if (DisplayArt == null)
                 throw new NullReferenceException(nameof(DisplayArt));
 
-            System.Windows.Size nonOffsetCanvasSize = new(CanvasSize.Width - ArtOffset.X * 2, CanvasSize.Height - ArtOffset.Y * 2);
+            Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-            System.Windows.Point artMatrixPos = new(Math.Floor((canvasPosition.X - ArtOffset.X) / (nonOffsetCanvasSize.Width / DisplayArt.Width)), Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height)));
+            Point artMatrixPos = new(Math.Floor((canvasPosition.X - ArtOffset.X) / (nonOffsetCanvasSize.Width / DisplayArt.Width)), Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height)));
 
             return artMatrixPos;
         }
 
-        public Rect GetCanvasCharacterRectangle(System.Windows.Point artMatrixPosition)
+        public Rect GetCanvasCharacterRectangle(Point artMatrixPosition)
         {
             if (DisplayArt == null)
                 throw new NullReferenceException(nameof(DisplayArt));
 
-            System.Windows.Size nonOffsetCanvasSize = new(CanvasSize.Width - ArtOffset.X * 2, CanvasSize.Height - ArtOffset.Y * 2);
+            Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-            System.Windows.Point canvasPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / DisplayArt.Width) + ArtOffset.X, artMatrixPosition.Y * (nonOffsetCanvasSize.Height / DisplayArt.Height) + ArtOffset.Y);
+            Point canvasPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / DisplayArt.Width) + ArtOffset.X, artMatrixPosition.Y * (nonOffsetCanvasSize.Height / DisplayArt.Height) + ArtOffset.Y);
 
             return new(canvasPos.X - (nonOffsetCanvasSize.Width / DisplayArt.Width / 4), canvasPos.Y, (nonOffsetCanvasSize.Width / DisplayArt.Width), (nonOffsetCanvasSize.Height / DisplayArt.Height));
         }
@@ -230,8 +259,10 @@ namespace AAP.UI.Controls
 
             return new(startX, startY, sizeX, sizeY);
         }
+        #endregion
 
-        public void HighlightArtMatrixPosition(System.Windows.Point artMatrixPosition)
+        #region Highlights
+        public void HighlightArtMatrixPosition(Point artMatrixPosition)
         {
             if (DisplayArt == null)
             {
@@ -239,38 +270,49 @@ namespace AAP.UI.Controls
                 return;
             }
 
-            MouseHighlightRect = artMatrixPosition.X < DisplayArt.Width && artMatrixPosition.X >= 0 && artMatrixPosition.Y < DisplayArt.Height && artMatrixPosition.Y >= 0 ? new(artMatrixPosition, new System.Windows.Size(1, 1)) : Rect.Empty;
+            MouseHighlightRect = artMatrixPosition.X < DisplayArt.Width && artMatrixPosition.X >= 0 && artMatrixPosition.Y < DisplayArt.Height && artMatrixPosition.Y >= 0 ? new(artMatrixPosition, new Size(1, 1)) : Rect.Empty;
         }
 
         public void SelectArtMatrixRect(Rect artMatrixRect)
         {
             if (DisplayArt == null)
             {
-                SelectionRect = Rect.Empty;
+                SelectionHighlightRect = Rect.Empty;
                 return;
             }
 
-            SelectionRect = artMatrixRect;
+            SelectionHighlightRect = artMatrixRect;
         }
+        #endregion
 
-
-        protected void UpdateCanvasSize()
+        #region Drawing
+        /// <summary>
+        /// Draws the background with an updated canvas size
+        /// </summary>
+        protected void UpdateBackground()
         {
             FormattedText artText = DisplayArt == null ? new(EmptyDisplayArtText, CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, ArtBrush, 1) : new(DisplayArt.GetArtString(), CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
-            
-            CanvasSize = new(artText.WidthIncludingTrailingWhitespace + ArtOffset.X * 2, (DisplayArt == null ? 1 : DisplayArt.Height) * LineHeight + ArtOffset.Y * 2);
+
+            Width = artText.WidthIncludingTrailingWhitespace + ArtOffset.X * 2;
+            Height = (DisplayArt == null ? 1 : DisplayArt.Height) * LineHeight + ArtOffset.Y * 2;
             
             DrawBackground();
         }
 
-        private void DrawBackground()
+        /// <summary>
+        /// Draws the background without updating the canvas size
+        /// </summary>
+        protected void DrawBackground()
         {
             using DrawingContext dc = backgroundVisual.RenderOpen();
 
-            dc.DrawRectangle(System.Windows.Media.Brushes.White, backgroundPen, new(CanvasSize));
+            dc.DrawRectangle(Brushes.White, backgroundPen, new(0, 0, Width, Height));
         }
-        
-        private void DrawDisplayArt()
+
+        /// <summary>
+        /// Draws all lines of the DisplayArt
+        /// </summary>
+        protected void DrawDisplayArt()
         {
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -299,9 +341,8 @@ namespace AAP.UI.Controls
                     lineVisual.Offset = new(ArtOffset.X, LineHeight * y + ArtOffset.Y);
 
                     using DrawingContext dc = lineVisual.RenderOpen();
-
-                    string lineString = DisplayArt.GetLineString(y);
-                    FormattedText lineText = new(lineString.ToString(), cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
+                    
+                    FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
                     dc.DrawText(lineText, new(0, 0));
 
                     displayArtVisuals.Insert(y, lineVisual);
@@ -312,6 +353,9 @@ namespace AAP.UI.Controls
             Console.WriteLine("Drew full canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
         }
 
+        /// <summary>
+        /// Only draws changed lines of the DisplayArt
+        /// </summary>
         protected void UpdateDisplayArt()
         {
 #if WPF_DEBUG || DEBUG
@@ -329,10 +373,7 @@ namespace AAP.UI.Controls
 
             foreach (int y in changedLines)
             {
-                Console.WriteLine(y.ToString());
-
-                string lineString = DisplayArt.GetLineString(y);
-                FormattedText lineText = new(lineString, cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
+                FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
 
                 DrawingVisual lineVisual = displayArtVisuals[y];
                 using DrawingContext dc = lineVisual.RenderOpen();
@@ -347,58 +388,56 @@ namespace AAP.UI.Controls
 #endif
         }
 
+        /// <summary>
+        /// Draws the highlights, such as the MouseHighlightRect & SelectionHighlightRect
+        /// </summary>
         protected void DrawHighlights()
         {
             using DrawingContext dc = highlightVisual.RenderOpen();
 
             //Selection Highlight
-            if (selectionRect != Rect.Empty)
-                dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Yellow, HighlightRectThickness), GetArtCanvasRectangle(selectionRect));
+            if (SelectionHighlightRect != Rect.Empty)
+                dc.DrawRectangle(null, new(Brushes.Orange, HighlightRectThickness), GetArtCanvasRectangle(SelectionHighlightRect));
 
             //Mouse Highlight
-            if (mouseHighlightRect != Rect.Empty)
-                dc.DrawRectangle(null, new(System.Windows.Media.Brushes.Blue, HighlightRectThickness), GetArtCanvasRectangle(mouseHighlightRect));
+            if (MouseHighlightRect != Rect.Empty)
+                dc.DrawRectangle(null, new(Brushes.Blue, HighlightRectThickness), GetArtCanvasRectangle(MouseHighlightRect));
         }
+        #endregion
 
         #region Tool Functions
-        private void ToolActivateStart(object? sender, System.Windows.Input.MouseEventArgs e)
+        private void ToolActivateStart(object? sender, MouseEventArgs e)
         {
             if (!CanUseTool)
                 return;
 
             if (App.CurrentLayerID < 0)
             {
-                System.Windows.MessageBox.Show("Please select a layer!", "No Layer Selected!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Please select a layer!", "No Layer Selected!", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
             MouseMove += ToolActivateUpdate;
             MouseUp += ToolActivateEnd;
-
-            System.Windows.Point artMatrixPosition = GetArtMatrixPoint(e.GetPosition(this));
-
-            //Still uses System.Drawing.Point instead of System.Windows.Point
-            Tool?.ActivateStart(new((int)artMatrixPosition.X, (int)artMatrixPosition.Y));
+            MouseLeave += ToolActivateEnd;
+            
+            Tool?.ActivateStart(GetArtMatrixPoint(e.GetPosition(this)));
         }
 
-        private void ToolActivateUpdate(object? sender, System.Windows.Input.MouseEventArgs e)
-        {
-            System.Windows.Point artMatrixPosition = GetArtMatrixPoint(e.GetPosition(this));
+        private void ToolActivateUpdate(object? sender, MouseEventArgs e)
+            => Tool?.ActivateUpdate(GetArtMatrixPoint(e.GetPosition(this)));
 
-            //Still uses System.Drawing.Point instead of System.Windows.Point
-            Tool?.ActivateUpdate(new((int)artMatrixPosition.X, (int)artMatrixPosition.Y));
-        }
-
-        private void ToolActivateEnd(object? sender, System.Windows.Input.MouseEventArgs e)
+        private void ToolActivateEnd(object? sender, MouseEventArgs e)
         {
             MouseMove -= ToolActivateUpdate;
             MouseUp -= ToolActivateEnd;
+            MouseLeave -= ToolActivateEnd;
 
             Tool?.ActivateEnd();
         }
         #endregion
 
-        //Still uses System.Drawing.Point instead of System.Windows.Point
+        #region Art Event Implementations
         private void OnArtDraw(int layerIndex, char? character, Point[] positions)
         {
             foreach(Point point in positions)
@@ -408,40 +447,127 @@ namespace AAP.UI.Controls
             UpdateDisplayArt();
         }
 
-        private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void DisplayArtArtLayerAdded(int index, ArtLayer artLayer)
+            => DrawDisplayArt();
+
+        private void DisplayArtArtLayerRemoved(int index)
+            => DrawDisplayArt();
+
+        private void DisplayArtArtLayerPropertiesChanged(int index, ArtLayer artLayer, bool updateCanvas)
         {
-            if (sender is not ArtCanvasViewModel viewModel)
+            if(updateCanvas)
+                DrawDisplayArt();
+        }
+
+        private void DisplayArtCopiedPropertiesOf(object obj)
+        {
+            UpdateBackground();
+            DrawDisplayArt();
+        }
+
+        private void DisplayArtCropped(ASCIIArt art)
+            => DrawDisplayArt();
+
+        private void DisplayArtSizeChanged(int width, int height)
+            => UpdateBackground();
+        #endregion
+
+        #region Dependancy Properties Changed Callbacks
+        private static void OnDisplayArtPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
 
-            switch (e.PropertyName)
+            canvas.UpdateBackground();
+            canvas.DrawDisplayArt();
+
+            ASCIIArt? oldDisplayArt = (ASCIIArt?)e.OldValue;
+            ASCIIArt? newDisplayArt = (ASCIIArt?)e.NewValue;
+
+            if (oldDisplayArt != null)
             {
-                case "CurrentArt":
-                    DisplayArt = viewModel.CurrentArt;
-                    break;
-                case "CurrentArtDraw":
-                    DisplayArtDraw = viewModel.CurrentArtDraw;
-                    break;
-                case "CurrentTool":
-                    Tool = viewModel.CurrentTool;
-                    break;
-                case "CanUseTool":
-                    CanUseTool = viewModel.CanUseTool;
-                    break;
-                case "HighlightThickness":
-                    HighlightRectThickness = viewModel.HighlightThickness;
-                    break;
-                case "TextSize":
-                    TextSize = viewModel.TextSize;
-                    break;
-                case "Selected":
-                    SelectArtMatrixRect(viewModel.Selected);
-                    break;
-                default:
-                    break;
+                oldDisplayArt.OnArtLayerAdded -= canvas.DisplayArtArtLayerAdded;
+                oldDisplayArt.OnArtLayerRemoved -= canvas.DisplayArtArtLayerRemoved;
+                oldDisplayArt.OnArtLayerPropertiesChanged -= canvas.DisplayArtArtLayerPropertiesChanged;
+                oldDisplayArt.OnCopiedPropertiesOf -= canvas.DisplayArtCopiedPropertiesOf;
+                oldDisplayArt.OnCropped -= canvas.DisplayArtCropped;
+                oldDisplayArt.OnSizeChanged -= canvas.DisplayArtSizeChanged;
+            }
+
+            if (newDisplayArt == null)
+                canvas.MouseLeftButtonDown -= canvas.ToolActivateStart;
+            else
+            {
+                newDisplayArt.OnArtLayerAdded += canvas.DisplayArtArtLayerAdded;
+                newDisplayArt.OnArtLayerRemoved += canvas.DisplayArtArtLayerRemoved;
+                newDisplayArt.OnArtLayerPropertiesChanged += canvas.DisplayArtArtLayerPropertiesChanged;
+                newDisplayArt.OnCopiedPropertiesOf += canvas.DisplayArtCopiedPropertiesOf;
+                newDisplayArt.OnCropped += canvas.DisplayArtCropped;
+                newDisplayArt.OnSizeChanged += canvas.DisplayArtSizeChanged;
+
+                if (oldDisplayArt == null)
+                    canvas.MouseLeftButtonDown += canvas.ToolActivateStart;
             }
         }
 
-        private void OnMouseMove(object? sender, System.Windows.Input.MouseEventArgs e)
+        private static void OnDisplayArtDrawPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            ASCIIArtDraw? oldDisplayArtDraw = (ASCIIArtDraw?)e.OldValue;
+            ASCIIArtDraw? newDisplayArtDraw = (ASCIIArtDraw?)e.NewValue;
+
+            if (oldDisplayArtDraw != null)
+            {
+                oldDisplayArtDraw.OnDrawArt -= canvas.OnArtDraw;
+            }
+
+            if (newDisplayArtDraw != null)
+            {
+                newDisplayArtDraw.OnDrawArt += canvas.OnArtDraw;
+            }
+        }
+
+        private static void OnTextSizePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.UpdateBackground();
+            canvas.DrawDisplayArt();
+            canvas.DrawHighlights();
+        }
+
+        private static void OnArtFontPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.UpdateBackground();
+            canvas.DrawDisplayArt();
+            canvas.DrawHighlights();
+        }
+
+        private static void OnSelectionHighlightRectPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+            
+            canvas.DrawHighlights();
+        }
+
+        private static void OnHighlightRectThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawHighlights();
+        }
+        #endregion
+
+        #region Mouse Events
+        private void OnMouseMove(object? sender, MouseEventArgs e)
         {
             if (DisplayArt == null)
                 return;
@@ -449,21 +575,9 @@ namespace AAP.UI.Controls
             HighlightArtMatrixPosition(GetArtMatrixPoint(e.GetPosition(this)));
         }
 
-        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            viewModel = (ArtCanvasViewModel)DataContext;
-            if (viewModel != null)
-            {
-                viewModel.PropertyChanged += OnViewModelPropertyChanged;
-                DisplayArt = viewModel.CurrentArt;
-                DisplayArtDraw = viewModel.CurrentArtDraw;
-                Tool = viewModel.CurrentTool;
-                CanUseTool = viewModel.CanUseTool;
-                HighlightRectThickness = viewModel.HighlightThickness;
-                TextSize = viewModel.TextSize;
-                SelectArtMatrixRect(viewModel.Selected);
-            }
-        }
+        private void OnMouseLeave(object? sender, MouseEventArgs e)
+            => MouseHighlightRect = Rect.Empty;
+        #endregion
 
         public ASCIIArtCanvasVisual()
         {
@@ -478,15 +592,11 @@ namespace AAP.UI.Controls
             };
             
             MouseMove += OnMouseMove;
+            MouseLeave += OnMouseLeave;
 
-            UpdateCanvasSize();
+            UpdateBackground();
             DrawDisplayArt();
             DrawHighlights();
-
-            DataContextChanged += OnDataContextChanged;
-            viewModel = (ArtCanvasViewModel)DataContext;
-            if (viewModel != null)
-                viewModel.PropertyChanged += OnViewModelPropertyChanged;
         }
     }
 }

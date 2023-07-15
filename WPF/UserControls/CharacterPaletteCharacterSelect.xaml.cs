@@ -1,4 +1,5 @@
 ﻿using AAP.UI.ViewModels;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +52,6 @@ namespace AAP.UI.Controls
                     return;
 
                 SetValue(PaletteProperty, value);
-                UpdateDisplay();
             }
         }
 
@@ -71,8 +71,6 @@ namespace AAP.UI.Controls
                     return;
 
                 SetValue(SelectedCharacterProperty, value);
-
-                SelectedCharacterChanged?.Invoke(value);
             }
         }
 
@@ -84,8 +82,6 @@ namespace AAP.UI.Controls
         public CharacterPaletteCharacterSelect()
         {
             InitializeComponent();
-
-            Palette = CharacterPalette.ImportFilePath(@"Resources\PresetCharacterPalettes\Alphabet.txt");
 
             Loaded += (sender, e) => UpdateDisplay();
         }
@@ -103,8 +99,12 @@ namespace AAP.UI.Controls
             CharacterPaletteCharacterSelect? characterPaletteCharacterSelect = sender as CharacterPaletteCharacterSelect;
 
             if (characterPaletteCharacterSelect != null)
+            {
                 foreach (char character in characterPaletteCharacterSelect.stateBoxes.Keys)
                     characterPaletteCharacterSelect.stateBoxes[character].ForceSetState(character == characterPaletteCharacterSelect.SelectedCharacter);
+
+                characterPaletteCharacterSelect.SelectedCharacterChanged?.Invoke((char?)e.NewValue);
+            }
         }
 
         public void UpdateDisplay()

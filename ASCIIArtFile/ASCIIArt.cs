@@ -26,7 +26,7 @@ namespace AAP
         public int Width 
         { 
             get => width; 
-            protected set
+            set
             {
                 if (width == value)
                     return;
@@ -43,7 +43,7 @@ namespace AAP
         public int Height 
         { 
             get => height; 
-            protected set
+            set
             {
                 if (height == value)
                     return;
@@ -81,12 +81,38 @@ namespace AAP
 
         }
 
+        /// <summary>
+        /// Sets the width and height of the ASCII Art, and invoking OnSizeChanged.
+        /// </summary>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         public void SetSize(int width, int height)
         {
-            Width = width;
-            Height = height;
+            if (width < 0)
+                throw new ArgumentOutOfRangeException(nameof(width));
 
-            Changed = true;
+            if (height < 0)
+                throw new ArgumentOutOfRangeException(nameof(height));
+
+            bool changedSize = false;
+
+            if (this.height != height)
+            {
+                this.height = height;
+                changedSize = true;
+            }
+
+            if (this.width != width)
+            {
+                this.width = width;
+                changedSize = true;
+            }
+
+            if (changedSize)
+            {
+                Changed = true;
+                OnSizeChanged?.Invoke(width, height);
+            }
         }
 
         #region Layers
@@ -141,7 +167,7 @@ namespace AAP
         #endregion
 
         /// <summary>
-        /// This method is very expensive, please use GetLineString(y) when you can instead.
+        /// Gets all line strings in the art and adds them together, each line is separated by a linebreak character.
         /// </summary>
         /// <param name="bgWorker"></param>
         /// <returns>Full ASCII art string, each line separated by \n</returns>
@@ -150,15 +176,17 @@ namespace AAP
             string art = "";
 
             for (int y = 0; y < Height; y++)
-            {
-                art += GetLineString(y, bgWorker);
-
-                art += "\n";
-            }
+                art += GetLineString(y, bgWorker) + "\n";
 
             return art;
         }
 
+        /// <summary>
+        /// Gets the visible ASCII text of a single line.
+        /// </summary>
+        /// <param name="y"></param>
+        /// <param name="bgWorker"></param>
+        /// <returns>String of line (y)</returns>
         public string GetLineString(int y, BackgroundWorker? bgWorker = null)
         {
             char?[] visibleArtLineArray = new char?[Width];
@@ -186,8 +214,6 @@ namespace AAP
         #region Tool Functions
         public void Crop(Rect cropRect)
         {
-            Console.WriteLine(cropRect.ToString());
-
             SetSize((int)cropRect.Width, (int)cropRect.Height);
 
             if (ArtLayers.Count == 0)
@@ -230,8 +256,7 @@ namespace AAP
             for (int i = 0; i < toCopy.ArtLayers.Count; i++)
                 ArtLayers.Add((ArtLayer)toCopy.ArtLayers[i].Clone());
 
-            width = toCopy.Width;
-            height = toCopy.Height;
+            SetSize(toCopy.Width, toCopy.Height);
 
             Changed = true;
 

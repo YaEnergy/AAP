@@ -468,7 +468,6 @@ namespace AAP
 
         private static void OnToolActivateEnd(Tool tool, Point position)
         {
-            Console.WriteLine("heya!");
             if(tool.Type == ToolType.Draw || tool.Type == ToolType.Eraser)
                 currentArtTimeline?.NewTimePoint();
         }
