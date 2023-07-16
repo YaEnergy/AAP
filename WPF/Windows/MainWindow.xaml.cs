@@ -125,11 +125,7 @@ namespace AAP.UI.Windows
 
             //Remove old listeners
             if (artCanvasViewModel.CurrentArt != null)
-            {
-                artCanvasViewModel.CurrentArt.OnChanged -= OnArtCanvasViewModelArtChanged;
-                artCanvasViewModel.CurrentArt.OnCropped -= OnArtCanvasViewModelArtCropped;
-                artCanvasViewModel.CurrentArt.OnCopiedPropertiesOf -= OnArtCanvasViewModelArtCopiedPropertiesOf;
-            }
+                artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged -= OnArtCanvasViewModelArtUnsavedChangesChanged;
 
             artCanvasViewModel.CurrentArt = art; 
             artCanvasViewModel.CurrentArtDraw = artDraw;
@@ -137,12 +133,7 @@ namespace AAP.UI.Windows
 
             //Add new listeners
             if (artCanvasViewModel.CurrentArt != null)
-            {
                 artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged += OnArtCanvasViewModelArtUnsavedChangesChanged;
-                artCanvasViewModel.CurrentArt.OnChanged += OnArtCanvasViewModelArtChanged;
-                artCanvasViewModel.CurrentArt.OnCropped += OnArtCanvasViewModelArtCropped;
-                artCanvasViewModel.CurrentArt.OnCopiedPropertiesOf += OnArtCanvasViewModelArtCopiedPropertiesOf;
-            }
 
             UpdateTitle();
         }
@@ -164,15 +155,6 @@ namespace AAP.UI.Windows
         #region Art Canvas View Model Art Events
 
         private void OnArtCanvasViewModelArtUnsavedChangesChanged(ASCIIArt art, bool unsavedChanges)
-            => UpdateTitle();
-
-        private void OnArtCanvasViewModelArtChanged(ASCIIArt art)
-            => UpdateTitle();
-
-        private void OnArtCanvasViewModelArtCropped(ASCIIArt art)
-            => UpdateTitle();
-
-        private void OnArtCanvasViewModelArtCopiedPropertiesOf(object obj)
             => UpdateTitle();
 
         #endregion
@@ -226,6 +208,17 @@ namespace AAP.UI.Windows
                 Process.Start("explorer.exe", fileInfo.DirectoryName ?? App.DefaultArtFilesDirectoryPath);
             }
         }
+
+        void BackgroundOpenComplete(object? sender, RunWorkerCompletedEventArgs args)
+        {
+            currentBackgroundWorker = null;
+            artCanvasViewModel.CanUseTool = true;
+
+            if (args.Cancelled)
+                MessageBox.Show("Cancelled opening art file!", "Open File", MessageBoxButton.OK, MessageBoxImage.Information);
+            else if (args.Error != null)
+                MessageBox.Show("An error has occurred while opening art file!\nException: " + args.Error.Message, "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
         #endregion
 
         #region Menu Item Actions
@@ -258,10 +251,18 @@ namespace AAP.UI.Windows
 
             if (result == true)
             {
-                Exception? ex = App.OpenFile(new(openFileDialog.FileName));
+                currentBackgroundWorker = App.OpenArtFileAsync(new(openFileDialog.FileName));
 
-                if (ex != null)
-                    MessageBox.Show($"An error has occurred while opening art file ({openFileDialog.FileName})! Exception: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (currentBackgroundWorker == null)
+                    return;
+
+                artCanvasViewModel.CanUseTool = false;
+
+                BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Opening {new FileInfo(openFileDialog.FileName).Name}");
+                backgroundTaskWindow.Show();
+                backgroundTaskWindow.Owner = this;
+
+                currentBackgroundWorker.RunWorkerCompleted += BackgroundOpenComplete;
             }
         }
 

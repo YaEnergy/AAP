@@ -56,6 +56,14 @@ namespace AAP.UI.Windows
 
             if (e.UserState is string taskStateString)
                 viewModel.TaskState = $"{taskStateString} ({e.ProgressPercentage}%)";
+            else if (e.UserState is BackgroundTaskState backgroundTaskState)
+            {
+                viewModel.IsDeterminate = backgroundTaskState.IsDeterminate;
+                viewModel.TaskState = $"{backgroundTaskState.CurrentObjective}";
+
+                if (!backgroundTaskState.IsDeterminate)
+                    viewModel.TaskState += $" ({e.ProgressPercentage}%)";
+            }
         }
 
         private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
