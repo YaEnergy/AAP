@@ -47,7 +47,7 @@ namespace AAP
 
             art.ArtLayers.Add(txtArtLayer);
 
-            art.Changed = true;
+            art.UnsavedChanges = true;
         }
 
         public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
@@ -124,13 +124,11 @@ namespace AAP
 
             File.Delete(UncompressedExportPath);
 
-            art.Changed = false;
+            art.UnsavedChanges = false;
         }
 
         public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
-            art.Changed = false;
-
             bgWorker?.ReportProgress(50, "Writing to uncompressed file...");
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(UncompressedExportPath);

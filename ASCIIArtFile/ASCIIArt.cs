@@ -37,6 +37,7 @@ namespace AAP
                 width = value;
 
                 OnSizeChanged?.Invoke(Width, Height);
+                UnsavedChanges = true;
             }
         }
         private int height = -1;
@@ -54,27 +55,68 @@ namespace AAP
                 height = value;
 
                 OnSizeChanged?.Invoke(Width, Height);
+                UnsavedChanges = true;
             }
         }
 
+
         public delegate void CroppedEvent(ASCIIArt art);
+        /// <summary>
+        /// Invoked when the art is cropped.
+        /// </summary>
         public event CroppedEvent? OnCropped;
 
         public delegate void SizeChangedEvent(int width, int height);
+        /// <summary>
+        /// Invoked when the art size changed.
+        /// </summary>
         public event SizeChangedEvent? OnSizeChanged;
 
         public delegate void ArtLayerAddedEvent(int index, ArtLayer artLayer);
+        /// <summary>
+        /// Invoked when a layer is added.
+        /// </summary>
         public event ArtLayerAddedEvent? OnArtLayerAdded;
 
         public delegate void ArtLayerRemovedEvent(int index);
+        /// <summary>
+        /// Invoked when a layer is removed.
+        /// </summary>
         public event ArtLayerRemovedEvent? OnArtLayerRemoved;
 
         public delegate void ArtLayerPropertiesChangedEvent(int index, ArtLayer artLayer, bool updateCanvas = false);
+        /// <summary>
+        /// Invoked when a layer has their properties changed.
+        /// </summary>
         public event ArtLayerPropertiesChangedEvent? OnArtLayerPropertiesChanged;
+
+        public delegate void UnsavedChangesChangedEvent(ASCIIArt art, bool unsavedChanges);
+        /// <summary>
+        /// Invoked when the UnsavedChanges bool changes.
+        /// </summary>
+        public event UnsavedChangesChangedEvent? OnUnsavedChangesChanged;
 
         public event ITimelineObject.CopiedPropertiesOfEvent? OnCopiedPropertiesOf;
 
-        public bool Changed { get; set; } = false;
+        private bool unsavedChanges = false;
+        [JsonIgnore]
+        public bool UnsavedChanges
+        {
+            get => unsavedChanges;
+            set 
+            { 
+                unsavedChanges = value;
+
+                OnUnsavedChangesChanged?.Invoke(this, unsavedChanges);
+                OnChanged?.Invoke(this);
+            }
+        }
+
+        public delegate void ChangedEvent(ASCIIArt art);
+        /// <summary>
+        /// Invoked every time the art changes.
+        /// </summary>
+        public event ChangedEvent? OnChanged;
 
         public ASCIIArt()
         {
@@ -110,7 +152,7 @@ namespace AAP
 
             if (changedSize)
             {
-                Changed = true;
+                UnsavedChanges = true;
                 OnSizeChanged?.Invoke(width, height);
             }
         }
@@ -121,7 +163,7 @@ namespace AAP
             ArtLayers.Insert(index, artLayer);
             OnArtLayerAdded?.Invoke(index, ArtLayers[index]);
 
-            Changed = true;
+            UnsavedChanges = true;
         }
 
         public void AddLayer(ArtLayer artLayer)
@@ -129,7 +171,7 @@ namespace AAP
             ArtLayers.Add(artLayer);
             OnArtLayerAdded?.Invoke(ArtLayers.Count - 1, artLayer);
 
-            Changed = true;
+            UnsavedChanges = true;
         }
 
         public void RemoveLayer(int index)
@@ -140,7 +182,7 @@ namespace AAP
             ArtLayers.RemoveAt(index);
             OnArtLayerRemoved?.Invoke(index);
 
-            Changed = true;
+            UnsavedChanges = true;
         }
 
         public void SetLayerIndexName(int index, string layerName)
@@ -151,7 +193,7 @@ namespace AAP
             ArtLayers[index].Name = layerName;
             OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], false);
 
-            Changed = true;
+            UnsavedChanges = true;
         }
 
         public void SetLayerIndexVisibility(int index, bool visible)
@@ -162,7 +204,7 @@ namespace AAP
             ArtLayers[index].Visible = visible;
             OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], true);
 
-            Changed = true;
+            UnsavedChanges = true;
         }
         #endregion
 
@@ -190,6 +232,10 @@ namespace AAP
         public string GetLineString(int y, BackgroundWorker? bgWorker = null)
         {
             char?[] visibleArtLineArray = new char?[Width];
+            string line = "";
+
+            if (Width == 0)
+                return line;
 
             for (int i = 0; i < ArtLayers.Count; i++)
                 if (ArtLayers[i].Visible)
@@ -203,7 +249,6 @@ namespace AAP
                         visibleArtLineArray[x] = character.Value;
                     }
 
-            string line = "";
 
             for (int x = 0; x < Width; x++)
                 line += visibleArtLineArray[x] == null ? EMPTYCHARACTER : visibleArtLineArray[x].ToString();
@@ -238,7 +283,7 @@ namespace AAP
 
             OnCropped?.Invoke(this);
 
-            Changed = true;
+            UnsavedChanges = true;
 
             return;
         }
@@ -258,7 +303,7 @@ namespace AAP
 
             SetSize(toCopy.Width, toCopy.Height);
 
-            Changed = true;
+            UnsavedChanges = true;
 
             OnCopiedPropertiesOf?.Invoke(obj);
         }
@@ -267,7 +312,7 @@ namespace AAP
         {
             ASCIIArt clone = new();
 
-            clone.Changed = Changed;
+            clone.UnsavedChanges = UnsavedChanges;
             clone.SetSize(Width, Height);
 
             for (int i = 0; i < ArtLayers.Count; i++)

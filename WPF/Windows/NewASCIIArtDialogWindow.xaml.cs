@@ -66,6 +66,8 @@ namespace AAP.UI.Windows
             CreatedArt.SetSize(width, height);
             CreatedArt.AddLayer(new("Background", width, height));
 
+            CreatedArt.UnsavedChanges = true;
+
             Close();
         }
     }

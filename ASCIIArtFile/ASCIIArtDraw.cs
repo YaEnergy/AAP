@@ -43,7 +43,7 @@ namespace AAP
                 return;
 
             Art.ArtLayers[layerIndex].Data[(int)position.X][(int)position.Y] = character;
-            Art.Changed = true;
+            Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, new Point[] { position });
         }
@@ -77,7 +77,7 @@ namespace AAP
                         Art.ArtLayers[layerIndex].Data[x][y] = character;
                     }
 
-            Art.Changed = true;
+            Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
         }

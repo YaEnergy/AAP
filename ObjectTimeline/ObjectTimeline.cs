@@ -41,6 +41,7 @@ namespace AAP.Timelines
             this.timeline = new object?[sizeLimit];
             
             timeline[timePoint] = timelineObject.Clone();
+            Console.WriteLine("Created timepoint 0");
         }
 
         /// <summary>
@@ -102,6 +103,21 @@ namespace AAP.Timelines
                 timelineObject.CopyPropertiesOf(timeObject);
 
             Console.WriteLine("Rolled forward to time point " + timePoint);
+        }
+
+        /// <summary>
+        /// Destroys the past of the timeline object, with the current time point set to index 0.
+        /// </summary>
+        public void DestroyPast()
+        {
+            int pastAmount = timePoint;
+            for (int i = 0; i < timePoint; i++)
+                timeline[i] = null;
+
+            for(int i = timePoint; i < SizeLimit; i++)
+                timeline[i - pastAmount] = timeline[i];
+
+            timePoint = 0;
         }
     }
 }

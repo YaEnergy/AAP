@@ -53,7 +53,6 @@ namespace AAP
 
         public void OnPressKeyCode(Key key)
         {
-            Console.WriteLine("TextTool.OnPressKeyCode() - Point from System.Drawing is used instead of from System.Windows!");
             if (App.CurrentArt == null)
                 return;
 

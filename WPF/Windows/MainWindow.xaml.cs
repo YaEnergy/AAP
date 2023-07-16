@@ -82,7 +82,25 @@ namespace AAP.UI.Windows
         }
 
         private void UpdateTitle()
-            => Title = $"{App.ProgramTitle} - {( App.CurrentFilePath == null ? "*.*" : new FileInfo(App.CurrentFilePath).Name)} - {(App.CurrentArt != null ? App.CurrentArt.Width.ToString() : "*")}x{(App.CurrentArt != null ? App.CurrentArt.Height.ToString() : "*")}";
+        {
+            string sizeText = $"{(App.CurrentArt != null ? App.CurrentArt.Width.ToString() : "*")}x{(App.CurrentArt != null ? App.CurrentArt.Height.ToString() : "*")}";
+            string changedText = "";
+
+            if (App.CurrentArt != null)
+            {
+                sizeText = $"{App.CurrentArt.Width}x{App.CurrentArt.Height}";
+
+                if (App.CurrentArt.UnsavedChanges)
+                    changedText = "*";
+            }
+
+            string fileName = App.CurrentFilePath == null ? "*.*" : new FileInfo(App.CurrentFilePath).Name;
+            
+            string fullTitle = $"{App.ProgramTitle} - {fileName}{changedText} - {sizeText}";
+
+            if (fullTitle != Title)
+                Title = fullTitle;
+        }
 
         #region App Events
 
@@ -105,17 +123,32 @@ namespace AAP.UI.Windows
                     }
                 }
 
+            //Remove old listeners
+            if (artCanvasViewModel.CurrentArt != null)
+            {
+                artCanvasViewModel.CurrentArt.OnChanged -= OnArtCanvasViewModelArtChanged;
+                artCanvasViewModel.CurrentArt.OnCropped -= OnArtCanvasViewModelArtCropped;
+                artCanvasViewModel.CurrentArt.OnCopiedPropertiesOf -= OnArtCanvasViewModelArtCopiedPropertiesOf;
+            }
+
             artCanvasViewModel.CurrentArt = art; 
             artCanvasViewModel.CurrentArtDraw = artDraw;
             artCanvasViewModel.CurrentArtTimeline = artTimeline;
+
+            //Add new listeners
+            if (artCanvasViewModel.CurrentArt != null)
+            {
+                artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged += OnArtCanvasViewModelArtUnsavedChangesChanged;
+                artCanvasViewModel.CurrentArt.OnChanged += OnArtCanvasViewModelArtChanged;
+                artCanvasViewModel.CurrentArt.OnCropped += OnArtCanvasViewModelArtCropped;
+                artCanvasViewModel.CurrentArt.OnCopiedPropertiesOf += OnArtCanvasViewModelArtCopiedPropertiesOf;
+            }
 
             UpdateTitle();
         }
 
         private void OnCurrentFilePathChanged(string? filePath)
-        {
-            UpdateTitle();
-        }
+            => UpdateTitle();
 
         private void OnCurrentToolChanged(Tool? tool)
         {
@@ -125,9 +158,23 @@ namespace AAP.UI.Windows
         }
 
         private void OnSelectionChanged(Rect selected)
-        {
-            artCanvasViewModel.Selected = selected;
-        }
+            => artCanvasViewModel.Selected = selected;
+        #endregion
+
+        #region Art Canvas View Model Art Events
+
+        private void OnArtCanvasViewModelArtUnsavedChangesChanged(ASCIIArt art, bool unsavedChanges)
+            => UpdateTitle();
+
+        private void OnArtCanvasViewModelArtChanged(ASCIIArt art)
+            => UpdateTitle();
+
+        private void OnArtCanvasViewModelArtCropped(ASCIIArt art)
+            => UpdateTitle();
+
+        private void OnArtCanvasViewModelArtCopiedPropertiesOf(object obj)
+            => UpdateTitle();
+
         #endregion
 
         #region Background Run Worker Complete Functions
