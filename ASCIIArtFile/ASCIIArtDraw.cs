@@ -28,7 +28,10 @@ namespace AAP
             if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
                 return false;
 
-            if (position.X < 0 || position.Y < 0 || position.X >= Art.Width || position.Y >= Art.Height) //Position out of bounds
+            /*if (position.X < 0 || position.Y < 0 || position.X >= Art.Width || position.Y >= Art.Height) //Point out of bounds of canvas
+                return false;*/
+
+            if (!Art.ArtLayers[layerIndex].IsPointVisible(position)) //Point out of bounds of layer
                 return false;
 
             return true; //No issues
@@ -69,13 +72,18 @@ namespace AAP
         {
             List<Point> updatedPositions = new();
 
+            ArtLayer artLayer = Art.ArtLayers[layerIndex];
+
             for (int x = (int)rectangle.Left; x < (int)rectangle.Right; x++)
                 for (int y = (int)rectangle.Top; y < (int)rectangle.Bottom; y++)
-                    if (CanDrawOn(layerIndex, new(x, y) ))
+                {
+                    Point canvasPoint = new(x, y);
+                    if (CanDrawOn(layerIndex, canvasPoint))
                     {
-                        updatedPositions.Add(new(x, y));
-                        Art.ArtLayers[layerIndex].Data[x][y] = character;
+                        updatedPositions.Add(canvasPoint);
+                        artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
                     }
+                }
 
             Art.UnsavedChanges = true;
 

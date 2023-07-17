@@ -184,7 +184,7 @@ namespace AAP
             Tools.Add(new DrawTool(ToolType.Draw, '|', 1));
             Tools.Add(new DrawTool(ToolType.Eraser, null, 1));
             Tools.Add(new SelectTool());
-            Tools.Add(new MoveTool(MoveToolMode.Select));
+            Tools.Add(new MoveTool());
             Tools.Add(new TextTool());
 
             CurrentToolType = ToolType.None;
@@ -518,7 +518,7 @@ namespace AAP
             {
                 art.OnCropped += (art) => artTimeline?.NewTimePoint();
                 art.OnArtLayerAdded += (index, layer) => artTimeline?.NewTimePoint();
-                art.OnArtLayerRemoved += (index) => artTimeline?.NewTimePoint();
+                art.OnArtLayerRemoved += (index, layer) => artTimeline?.NewTimePoint();
                 art.OnArtLayerPropertiesChanged += (index, layer, updateCanvas) => artTimeline?.NewTimePoint();
             }
         }

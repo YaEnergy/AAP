@@ -448,15 +448,85 @@ namespace AAP.UI.Controls
         }
 
         private void DisplayArtArtLayerAdded(int index, ArtLayer artLayer)
-            => DrawDisplayArt();
+        {
+            if (DisplayArt == null)
+                return;
 
-        private void DisplayArtArtLayerRemoved(int index)
-            => DrawDisplayArt();
+            artLayer.OffsetChanged += DisplayArtArtLayerOffsetChanged;
+
+            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                changedLines.Add(y);
+            }
+
+            UpdateDisplayArt();
+        }
+
+        private void DisplayArtArtLayerRemoved(int index, ArtLayer artLayer)
+        {
+            if (DisplayArt == null)
+                return;
+
+            artLayer.OffsetChanged -= DisplayArtArtLayerOffsetChanged;
+
+            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                changedLines.Add(y);
+            }
+
+            UpdateDisplayArt();
+        }
 
         private void DisplayArtArtLayerPropertiesChanged(int index, ArtLayer artLayer, bool updateCanvas)
         {
+            if (DisplayArt == null)
+                return;
+
             if(updateCanvas)
-                DrawDisplayArt();
+            {
+                for(int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+                {
+                    if (y < 0)
+                        continue;
+
+                    if (y >= DisplayArt.Height)
+                        break;
+
+                    changedLines.Add(y);
+                }
+                UpdateDisplayArt();
+            }
+        }
+
+        private void DisplayArtArtLayerOffsetChanged(ArtLayer artLayer, int offsetX, int offsetY)
+        {
+            if (DisplayArt == null)
+                return;
+
+            for (int y = offsetY; y < offsetY + artLayer.Height; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                changedLines.Add(y);
+            }
+
+            UpdateDisplayArt();
         }
 
         private void DisplayArtCopiedPropertiesOf(object obj)

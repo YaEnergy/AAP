@@ -78,7 +78,7 @@ namespace AAP
         /// </summary>
         public event ArtLayerAddedEvent? OnArtLayerAdded;
 
-        public delegate void ArtLayerRemovedEvent(int index);
+        public delegate void ArtLayerRemovedEvent(int index, ArtLayer artLayer);
         /// <summary>
         /// Invoked when a layer is removed.
         /// </summary>
@@ -163,6 +163,8 @@ namespace AAP
             ArtLayers.Insert(index, artLayer);
             OnArtLayerAdded?.Invoke(index, ArtLayers[index]);
 
+            artLayer.OffsetChanged += OnArtLayerOffsetChanged;//Listen to art layer offset changes
+
             UnsavedChanges = true;
         }
 
@@ -170,6 +172,9 @@ namespace AAP
         {
             ArtLayers.Add(artLayer);
             OnArtLayerAdded?.Invoke(ArtLayers.Count - 1, artLayer);
+
+            artLayer.OffsetChanged += OnArtLayerOffsetChanged;
+            //Listen to art layer offset changes
 
             UnsavedChanges = true;
         }
@@ -179,8 +184,11 @@ namespace AAP
             if (ArtLayers.Count <= index) 
                 return;
 
+            ArtLayer artLayer = ArtLayers[index];
             ArtLayers.RemoveAt(index);
-            OnArtLayerRemoved?.Invoke(index);
+            OnArtLayerRemoved?.Invoke(index, artLayer);
+
+            artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
 
             UnsavedChanges = true;
         }
@@ -238,17 +246,25 @@ namespace AAP
                 return line;
 
             for (int i = 0; i < ArtLayers.Count; i++)
-                if (ArtLayers[i].Visible)
+            {
+                ArtLayer artLayer = ArtLayers[i];
+                if (artLayer.Visible)
                     for (int x = 0; x < Width; x++)
                     {
-                        char? character = ArtLayers[i].Data[x][y];
+                        if (x > artLayer.OffsetX + artLayer.Width) //from here on x-positions will never be on the canvas
+                            break;
+
+                        if (!artLayer.IsPointVisible(x, y))
+                            continue;
+
+                        char? character = artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY];
 
                         if (character == null)
                             continue;
 
                         visibleArtLineArray[x] = character.Value;
                     }
-
+            }
 
             for (int x = 0; x < Width; x++)
                 line += visibleArtLineArray[x] == null ? EMPTYCHARACTER : visibleArtLineArray[x].ToString();
@@ -320,6 +336,11 @@ namespace AAP
 
             return clone;
         }
+        #endregion
+
+        #region Events
+        private void OnArtLayerOffsetChanged(ArtLayer artLayer, int x, int y)
+            => UnsavedChanges = true;
         #endregion
     }
 }

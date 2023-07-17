@@ -6,20 +6,11 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public enum MoveToolMode
-    {
-        Layer,
-        Select
-    }
-
     public class MoveTool: Tool
     {
-        public MoveToolMode Mode = MoveToolMode.Layer;
-
-        public MoveTool(MoveToolMode mode)
+        public MoveTool()
         {
             Type = ToolType.Move;
-            Mode = mode;
         }
 
         public override void ActivateStart(Point location)
