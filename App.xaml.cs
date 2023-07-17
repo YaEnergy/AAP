@@ -305,59 +305,6 @@ namespace AAP
             CurrentFilePath = null;
         }
 
-        public static Exception? OpenFileTest(FileInfo file)
-        {
-            if (!file.Exists)
-                return new FileNotFoundException("Failed to open non-existant file", file.FullName);
-
-            //Turn this into a background worker, only set current art, layer id, ... in the complete method and set the result to the art in the work method
-            try
-            {
-                Console.WriteLine($"Open File Path: importing file from path... {file.FullName}");
-
-                IAAPFile<ASCIIArt> AAPFile;
-                ASCIIArt art = new();
-
-                switch (file.Extension)
-                {
-                    case ".txt":
-                        AAPFile = new TextASCIIArt(file.FullName);
-                        art.UnsavedChanges = true;
-                        break;
-                    case ".aaf":
-                        AAPFile = new AAFASCIIArt(file.FullName);
-                        art.UnsavedChanges = false;
-                        break;
-                    default:
-                        throw new Exception("Unknown file extension!");
-                }
-
-                Console.WriteLine($"Open File Path: Imported file!");
-                AAPFile.Import(art);
-
-                if (art.Width * art.Height > MaxArtArea)
-                {
-                    Console.WriteLine($"Open File Path: File too large! (>{MaxArtArea} characters) ({art.Width * art.Height} characters)");
-                    throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
-                }
-
-                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
-
-                Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
-                CurrentLayerID = 0; //-1; For testing
-                CurrentArt = art;
-                CurrentFilePath = file.Extension == ".aaf" ? file.FullName : null;
-                Console.WriteLine($"Open File Path: opened file!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Open File Path: An error has occurred while importing art file ({file.FullName})! Exception: {ex}");
-                return ex;
-            }
-
-            return null;
-        }
-
         public static BackgroundWorker? OpenArtFileAsync(FileInfo file)
         {
             BackgroundWorker bgWorker = new();
