@@ -74,13 +74,15 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Redo, new((sender, e) => App.CurrentArtTimeline?.Rollforward())));
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, new((sender, e) => App.FillSelectedWith(null))));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.SelectAll, new((sender, e) => App.SelectAll())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.SelectAll, new((sender, e) => App.SelectArt())));
+            CommandBindings.Add(new CommandBinding(EditShortcutCommands.SelectLayerShortcut, new((sender, e) => App.SelectLayer())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CancelSelectionShortcut, new((sender, e) => App.CancelSelection())));
 
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropArtShortcut, new((sender, e) => App.CropArtFileToSelected())));
+            CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropLayerShortcut, new((sender, e) => App.CropCurrentArtLayerToSelected())));
             #endregion
         }
-
+        
         private void UpdateTitle()
         {
             string sizeText = $"{(App.CurrentArt != null ? App.CurrentArt.Width.ToString() : "*")}x{(App.CurrentArt != null ? App.CurrentArt.Height.ToString() : "*")}";
@@ -103,7 +105,6 @@ namespace AAP.UI.Windows
         }
 
         #region App Events
-
         private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
         {
             if (art != null)
@@ -166,15 +167,9 @@ namespace AAP.UI.Windows
             artCanvasViewModel.CanUseTool = true;
 
             if (args.Cancelled)
-            {
-                Console.WriteLine("Save File: Art file save cancelled!");
                 MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
             else if (args.Error != null)
-            {
-                Console.WriteLine("Save File: An error has occurred while saving art file! Exception: " + args.Error.Message);
                 MessageBox.Show("An error has occurred while saving art file!\nException: " + args.Error.Message, "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
             else
             {
                 if (args.Result is not FileInfo fileInfo)
@@ -190,15 +185,9 @@ namespace AAP.UI.Windows
             artCanvasViewModel.CanUseTool = true;
 
             if (args.Cancelled)
-            {
-                Console.WriteLine("Export File: Art file export cancelled!");
                 MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
             else if (args.Error != null)
-            {
-                Console.WriteLine("Export File: An error has occurred while exporting art file! Exception: " + args.Error.Message);
                 MessageBox.Show("An error has occurred while exporting art file!\nException: " + args.Error.Message, "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
             else
             {
                 if (args.Result is not FileInfo fileInfo)

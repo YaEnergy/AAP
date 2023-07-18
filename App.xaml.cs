@@ -516,16 +516,31 @@ namespace AAP
             //Old listeners do not get removed here!!!!
             if(art != null)
             {
-                art.OnCropped += (art) => artTimeline?.NewTimePoint();
-                art.OnArtLayerAdded += (index, layer) => artTimeline?.NewTimePoint();
-                art.OnArtLayerRemoved += (index, layer) => artTimeline?.NewTimePoint();
-                art.OnArtLayerPropertiesChanged += (index, layer, updateCanvas) => artTimeline?.NewTimePoint();
+                art.OnArtLayerAdded += OnCurrentArtArtLayerAdded;
+                art.OnArtLayerRemoved += OnCurrentArtArtLayerRemoved;
+                art.OnArtLayerPropertiesChanged += OnCurrentArtArtLayerPropertiesChanged;
             }
         }
 
+        private static void OnCurrentArtArtLayerAdded(int index, ArtLayer layer)
+        {
+            CurrentArtTimeline?.NewTimePoint();
+        }
+
+        private static void OnCurrentArtArtLayerRemoved(int index, ArtLayer layer)
+        {
+            CurrentArtTimeline?.NewTimePoint();
+        }
+
+        private static void OnCurrentArtArtLayerPropertiesChanged(int index, ArtLayer layer, bool updateCanvas)
+            => CurrentArtTimeline?.NewTimePoint();
+
+        private static void OnCurrentArtArtLayerCropped(ArtLayer layer, Rect oldRect, Rect newRect)
+            => CurrentArtTimeline?.NewTimePoint();
+
         private static void OnToolActivateEnd(Tool tool, Point position)
         {
-            if(tool.Type == ToolType.Draw || tool.Type == ToolType.Eraser)
+            if (tool.Type == ToolType.Draw || tool.Type == ToolType.Eraser || tool.Type == ToolType.Move)
                 currentArtTimeline?.NewTimePoint();
         }
 
@@ -540,6 +555,24 @@ namespace AAP
             CurrentArt.Crop(Selected);
 
             Selected = new(0, 0, Selected.Width, Selected.Height);
+
+            CurrentArtTimeline?.NewTimePoint();
+        }
+
+        public static void CropCurrentArtLayerToSelected()
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (Selected == Rect.Empty)
+                return;
+
+            if (CurrentLayerID == -1)
+                return;
+
+            CurrentArt.ArtLayers[CurrentLayerID].Crop(Selected);
+
+            CurrentArtTimeline?.NewTimePoint();
         }
 
         public static void FillSelectedWith(char? character)
@@ -551,9 +584,11 @@ namespace AAP
                 return;
 
             CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, Selected);
+
+            CurrentArtTimeline?.NewTimePoint();
         }
 
-        public static void SelectAll()
+        public static void SelectArt()
         {
             if (CurrentArt == null)
             {
@@ -562,6 +597,24 @@ namespace AAP
             }
 
             Selected = new(0, 0, CurrentArt.Width, CurrentArt.Height);
+        }
+
+        public static void SelectLayer()
+        {
+            if (CurrentArt == null)
+            {
+                Selected = Rect.Empty;
+                return;
+            }
+
+            if (CurrentLayerID == -1)
+            {
+                Selected = Rect.Empty;
+                return;
+            }
+
+            ArtLayer layer = CurrentArt.ArtLayers[CurrentLayerID];
+            Selected = new(layer.Offset, layer.Size);
         }
 
         public static void CancelSelection()

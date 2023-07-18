@@ -453,6 +453,7 @@ namespace AAP.UI.Controls
                 return;
 
             artLayer.OffsetChanged += DisplayArtArtLayerOffsetChanged;
+            artLayer.Cropped += DisplayArtArtLayerCropped;
 
             for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
             {
@@ -462,7 +463,8 @@ namespace AAP.UI.Controls
                 if (y >= DisplayArt.Height)
                     break;
 
-                changedLines.Add(y);
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
             }
 
             UpdateDisplayArt();
@@ -474,6 +476,7 @@ namespace AAP.UI.Controls
                 return;
 
             artLayer.OffsetChanged -= DisplayArtArtLayerOffsetChanged;
+            artLayer.Cropped -= DisplayArtArtLayerCropped;
 
             for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
             {
@@ -483,7 +486,8 @@ namespace AAP.UI.Controls
                 if (y >= DisplayArt.Height)
                     break;
 
-                changedLines.Add(y);
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
             }
 
             UpdateDisplayArt();
@@ -504,18 +508,22 @@ namespace AAP.UI.Controls
                     if (y >= DisplayArt.Height)
                         break;
 
-                    changedLines.Add(y);
+                    if (!changedLines.Contains(y))
+                        changedLines.Add(y);
                 }
+
                 UpdateDisplayArt();
             }
         }
 
-        private void DisplayArtArtLayerOffsetChanged(ArtLayer artLayer, int offsetX, int offsetY)
+        private void DisplayArtArtLayerOffsetChanged(ArtLayer artLayer, Point oldOffset, Point newOffset)
         {
             if (DisplayArt == null)
                 return;
 
-            for (int y = offsetY; y < offsetY + artLayer.Height; y++)
+            int oldOffsetY = (int)oldOffset.Y;
+
+            for (int y = oldOffsetY; y < oldOffsetY + artLayer.Height; y++)
             {
                 if (y < 0)
                     continue;
@@ -523,7 +531,60 @@ namespace AAP.UI.Controls
                 if (y >= DisplayArt.Height)
                     break;
 
-                changedLines.Add(y);
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
+            }
+
+            int newOffsetY = (int)oldOffset.Y;
+
+            for (int y = newOffsetY; y < newOffsetY + artLayer.Height; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
+            }
+
+            UpdateDisplayArt();
+        }
+
+        private void DisplayArtArtLayerCropped(ArtLayer artLayer, Rect oldRect, Rect newRect)
+        {
+            if (DisplayArt == null)
+                return;
+
+            int oldOffsetY = (int)oldRect.Y;
+            int oldHeight = (int)oldRect.Height;
+
+            for (int y = oldOffsetY; y < oldOffsetY + oldHeight; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
+            }
+
+            int newOffsetY = (int)newRect.Y;
+            int newHeight = (int)newRect.Height;
+
+            for (int y = newOffsetY; y < newOffsetY + newHeight; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
             }
 
             UpdateDisplayArt();
@@ -562,6 +623,9 @@ namespace AAP.UI.Controls
                 oldDisplayArt.OnCopiedPropertiesOf -= canvas.DisplayArtCopiedPropertiesOf;
                 oldDisplayArt.OnCropped -= canvas.DisplayArtCropped;
                 oldDisplayArt.OnSizeChanged -= canvas.DisplayArtSizeChanged;
+
+                foreach (ArtLayer layer in oldDisplayArt.ArtLayers)
+                    layer.OffsetChanged -= canvas.DisplayArtArtLayerOffsetChanged;
             }
 
             if (newDisplayArt == null)
@@ -574,6 +638,9 @@ namespace AAP.UI.Controls
                 newDisplayArt.OnCopiedPropertiesOf += canvas.DisplayArtCopiedPropertiesOf;
                 newDisplayArt.OnCropped += canvas.DisplayArtCropped;
                 newDisplayArt.OnSizeChanged += canvas.DisplayArtSizeChanged;
+
+                foreach (ArtLayer layer in newDisplayArt.ArtLayers)
+                    layer.OffsetChanged += canvas.DisplayArtArtLayerOffsetChanged;
 
                 if (oldDisplayArt == null)
                     canvas.MouseLeftButtonDown += canvas.ToolActivateStart;

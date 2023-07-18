@@ -280,11 +280,14 @@ namespace AAP
             if (ArtLayers.Count == 0)
                 return;
 
-            List<ArtLayer> layers = new();
+            //List<ArtLayer> layers = new();
 
             for (int i = 0; i < ArtLayers.Count; i++)
             {
-                ArtLayer newArtLayer = new(ArtLayers[i].Name, Width, Height);
+                ArtLayer artLayer = ArtLayers[i];
+
+                artLayer.Offset = new(artLayer.Offset.X - cropRect.Location.X, artLayer.Offset.Y - cropRect.Location.Y);
+                /*ArtLayer newArtLayer = new(ArtLayers[i].Name, Width, Height);
 
                 newArtLayer.Visible = ArtLayers[i].Visible;
 
@@ -292,10 +295,10 @@ namespace AAP
                     for (int y = 0; y < Height; y++)
                         newArtLayer.Data[x][y] = ArtLayers[i].Data[(int)cropRect.X + x][(int)cropRect.Y + y];
 
-                layers.Add(newArtLayer);
+                layers.Add(newArtLayer);*/
             }
 
-            ArtLayers = layers;
+            //ArtLayers = layers;
 
             OnCropped?.Invoke(this);
 
@@ -339,7 +342,7 @@ namespace AAP
         #endregion
 
         #region Events
-        private void OnArtLayerOffsetChanged(ArtLayer artLayer, int x, int y)
+        private void OnArtLayerOffsetChanged(ArtLayer artLayer, Point oldOffset, Point newOffset)
             => UnsavedChanges = true;
         #endregion
     }

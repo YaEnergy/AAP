@@ -22,6 +22,11 @@ namespace AAP.UI
 
     public static class EditShortcutCommands
     {
+        public static RoutedCommand SelectLayerShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control | ModifierKeys.Alt) }
+        };
+
         public static RoutedCommand CancelSelectionShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.A, ModifierKeys.Shift | ModifierKeys.Control) }
@@ -31,6 +36,12 @@ namespace AAP.UI
         {
             InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control) }
         };
+
+        public static RoutedCommand CropLayerShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
     }
 
     public static class CanvasShortcutCommands

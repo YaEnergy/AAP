@@ -33,10 +33,12 @@
                         <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V"></MenuItem>
                         <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding DeleteSelectedCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Select All" InputGestureText="Ctrl+A" Command="{Binding SelectAllCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
                         <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="View">
                         <MenuItem x:Name="menuItem" Header="Canvas">

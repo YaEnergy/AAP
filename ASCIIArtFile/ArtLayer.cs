@@ -25,8 +25,10 @@ namespace AAP
                 if (offsetX == value)
                     return;
 
+                Point oldOffset = new(OffsetX, OffsetY);
+
                 offsetX = value;
-                OffsetChanged?.Invoke(this, OffsetX, OffsetY);
+                OffsetChanged?.Invoke(this, oldOffset, Offset);
             }
         }
 
@@ -39,8 +41,10 @@ namespace AAP
                 if (offsetY == value)
                     return;
 
+                Point oldOffset = new(OffsetX, OffsetY);
+
                 offsetY = value;
-                OffsetChanged?.Invoke(this, OffsetX, OffsetY);
+                OffsetChanged?.Invoke(this, oldOffset, Offset);
             }
         }
 
@@ -50,6 +54,8 @@ namespace AAP
             get => new(OffsetX, OffsetY);
             set
             {
+                Point oldOffset = new(OffsetX, OffsetY);
+
                 bool changed = false;
                 
                 if (offsetX != value.X)
@@ -65,7 +71,7 @@ namespace AAP
                 }
 
                 if (changed)
-                    OffsetChanged?.Invoke(this,OffsetX, OffsetY);
+                    OffsetChanged?.Invoke(this, oldOffset, Offset);
             }
         }
 
@@ -94,8 +100,11 @@ namespace AAP
             get => new(Width, Height);
         }
 
-        public delegate void OffsetChangedEvent(ArtLayer layer, int offsetX, int offsetY);
+        public delegate void OffsetChangedEvent(ArtLayer layer, Point oldOffset, Point newOffset);
         public event OffsetChangedEvent? OffsetChanged;
+
+        public delegate void CroppedEvent(ArtLayer layer, Rect oldRect, Rect newRect);
+        public event CroppedEvent? Cropped;
         /// <summary>
         /// Constructor used by the JsonDeserializer
         /// </summary>
@@ -144,9 +153,48 @@ namespace AAP
             offsetY = (int)offset.Y;
         }
 
+        public void Crop(Rect cropRect)
+        {
+            if ((int)cropRect.Width <= 0)
+                throw new Exception("Art Layer Crop() - (int)cropRect.Width can not be smaller than or equal to 0!");
+
+            if ((int)cropRect.Height <= 0)
+                throw new Exception("Art Layer Crop() - (int)cropRect.Height can not be smaller than or equal to 0!");
+
+            Rect oldArtRect = new(offsetX, offsetY, Width, Height);
+
+            int difOffsetX = offsetX - (int)cropRect.X;
+            int difOffsetY = offsetY - (int)cropRect.Y;
+
+            char?[][] newData = new char?[(int)cropRect.Width][];
+            for (int x = 0; x < (int)cropRect.Width; x++)
+            {
+                newData[x] = new char?[(int)cropRect.Height];
+
+                if (x - difOffsetX >= Width || x - difOffsetX < 0)
+                    continue;
+
+                for (int y = 0; y < (int)cropRect.Height; y++)
+                {
+                    if (y - difOffsetY < 0)
+                        continue;
+
+                    if (y - difOffsetY >= Height)
+                        break;
+
+                    newData[x][y] = Data[x - difOffsetX][y - difOffsetY] ?? null;
+                }
+            }
+
+            Data = newData;
+            Offset = cropRect.Location;
+
+            Cropped?.Invoke(this, oldArtRect, cropRect);
+        }
+
         public object Clone()
         {
-            ArtLayer cloneLayer = new(Name, Width, Height, OffsetX);
+            ArtLayer cloneLayer = new(Name, Width, Height, OffsetX, OffsetY);
 
             if (Width == 0 || Height == 0)
                 return cloneLayer;
@@ -177,7 +225,7 @@ namespace AAP
 
         public bool IsPointVisible(int x, int y)
         {
-            if (x - OffsetX < 0 || y - OffsetY < 0 || x - OffsetX > Width || y - OffsetY > Height) //Is point outside layer
+            if (x - OffsetX < 0 || y - OffsetY < 0 || x - OffsetX >= Width || y - OffsetY >= Height) //Is point outside layer
                 return false;
 
             return true;
@@ -201,6 +249,14 @@ namespace AAP
             => new(x - OffsetX, y - OffsetY);
 
         /// <summary>
+        /// Converts points on canvas to points on layers.
+        /// </summary>
+        /// <param name="point">Position on canvas</param>
+        /// <returns>Point on layer</returns>
+        public Point GetLayerPoint(Point point)
+            => new((int)point.X - OffsetX, (int)point.Y - OffsetY);
+
+        /// <summary>
         /// Converts points on layers to points on canvas
         /// </summary>
         /// <param name="x">X-position on layer</param>
@@ -208,5 +264,13 @@ namespace AAP
         /// <returns>Point on canvas</returns>
         public Point GetCanvasPoint(int x, int y)
             => new(x + OffsetX, y + OffsetY);
+
+        /// <summary>
+        /// Converts points on layers to points on canvas.
+        /// </summary>
+        /// <param name="point">Position on layer</param>
+        /// <returns>Point on canvas</returns>
+        public Point GetCanvasPoint(Point point)
+            => new((int)point.X + OffsetX, (int)point.Y + OffsetY);
     }
 }

@@ -42,10 +42,12 @@ namespace AAP
             if (!CanDrawOn(layerIndex, position))
                 return;
 
-            if (Art.ArtLayers[layerIndex].Data[(int)position.X][(int)position.Y] == character)
+            ArtLayer layer = Art.ArtLayers[layerIndex];
+            Point layerPoint = layer.GetLayerPoint(position);
+            if (Art.ArtLayers[layerIndex].Data[(int)layerPoint.X][(int)layerPoint.Y] == character)
                 return;
 
-            Art.ArtLayers[layerIndex].Data[(int)position.X][(int)position.Y] = character;
+            Art.ArtLayers[layerIndex].Data[(int)layerPoint.X][(int)layerPoint.Y] = character;
             Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, new Point[] { position });

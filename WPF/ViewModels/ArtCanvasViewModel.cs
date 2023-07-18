@@ -165,10 +165,12 @@ namespace AAP.UI.ViewModels
         public ICommand ResetHighlightThicknessCommand { get; private set; }
 
         public ICommand DeleteSelectedCommand { get; private set; }
-        public ICommand SelectAllCommand { get; private set; }
+        public ICommand SelectArtCommand { get; private set; }
+        public ICommand SelectLayerCommand { get; private set; }
         public ICommand CancelSelectionCommand { get; private set; }
 
         public ICommand CropArtCommand { get; private set; }
+        public ICommand CropLayerCommand { get; private set; }
 
         public ICommand FillSelectionCommand { get; private set; }
 
@@ -187,10 +189,12 @@ namespace AAP.UI.ViewModels
             ResetHighlightThicknessCommand = new ActionCommand(ResetHighlightThickness);
 
             DeleteSelectedCommand = new ActionCommand((parameter) => DeleteSelected());
-            SelectAllCommand = new ActionCommand((parameter) => SelectAll());
+            SelectArtCommand = new ActionCommand((parameter) => App.SelectArt());
+            SelectLayerCommand = new ActionCommand((parameter) => App.SelectLayer());
             CancelSelectionCommand = new ActionCommand((parameter) => CancelSelection());
 
             CropArtCommand = new ActionCommand((parameter) => CropArt());
+            CropLayerCommand = new ActionCommand((parameter) => CropLayer());
 
             FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
 
@@ -219,14 +223,14 @@ namespace AAP.UI.ViewModels
         public void DeleteSelected()
             => App.FillSelectedWith(null);
 
-        public void SelectAll()
-            => App.SelectAll();
-
         public void CancelSelection()
             => App.CancelSelection();
 
         public void CropArt()
             => App.CropArtFileToSelected();
+
+        public void CropLayer()
+            => App.CropCurrentArtLayerToSelected();
 
         public void FillSelection()
         {
