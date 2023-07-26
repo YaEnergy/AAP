@@ -33,6 +33,6 @@ namespace AAP
         }
 
         public void Draw(Point artMatrixPosition)
-            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artMatrixPosition);//MainProgram.CurrentArt?.Draw(MainProgram.CurrentLayerID, artMatrixPosition, Character);
+            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artMatrixPosition);
     }
 }

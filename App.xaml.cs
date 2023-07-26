@@ -185,6 +185,7 @@ namespace AAP
             Tools.Add(new DrawTool(ToolType.Eraser, null, 1));
             Tools.Add(new SelectTool());
             Tools.Add(new MoveTool());
+            Tools.Add(new BucketTool('|'));
             Tools.Add(new TextTool());
 
             CurrentToolType = ToolType.None;
@@ -658,15 +659,32 @@ namespace AAP
             return null;
         }
 
-        public static void SelectCharacterDrawTool(char? character)
+        public static void SelectCharacterTool(char? character)
         {
             if (CurrentTool == null)
                 return;
 
-            if (CurrentTool.Type != ToolType.Draw || CurrentTool is not DrawTool drawTool)
-                return;
+            switch(CurrentTool.Type)
+            {
+                case ToolType.Draw:
+                    if (CurrentTool is not DrawTool drawTool)
+                        return;
 
-            drawTool.Character = character;
+                    drawTool.Character = character;
+
+                    break;
+                case ToolType.Bucket:
+                    if (CurrentTool is not BucketTool bucketTool)
+                        return;
+
+                    bucketTool.Character = character;
+
+                    break;
+                default:
+                    Console.WriteLine("Current Tool cannot select characters!");
+                    break;
+            }
+
             Console.WriteLine("Selected Character: " + character.ToString());
         }
         #endregion

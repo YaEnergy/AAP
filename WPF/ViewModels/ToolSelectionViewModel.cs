@@ -17,6 +17,7 @@ namespace AAP.UI.ViewModels
         public ICommand SetEraserToolCommand { get; set; }
         public ICommand SetSelectToolCommand { get; set; }
         public ICommand SetMoveToolCommand { get; set; }
+        public ICommand SetBucketToolCommand { get; set; }
         public ICommand SetTextToolCommand { get; set; }
 
         public ToolSelectionViewModel()
@@ -26,6 +27,7 @@ namespace AAP.UI.ViewModels
             SetSelectToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) SetToolType(sender, ToolType.Select); });
             SetMoveToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) SetToolType(sender, ToolType.Move); });
             SetTextToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) SetToolType(sender, ToolType.Text); });
+            SetBucketToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) SetToolType(sender, ToolType.Bucket); });
         }
 
         private void SetToolType(object? sender, ToolType toolType)

@@ -52,6 +52,7 @@ namespace AAP.UI.Windows
             ToolSelectionViewModel.ToolStateBoxes.Add(EraserToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(SelectToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(MoveToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(BucketToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(TextToolStateBox);
 
             #region Shortcut Commands
@@ -148,7 +149,26 @@ namespace AAP.UI.Windows
         {
             artCanvasViewModel.CurrentTool = tool;
 
-            CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw ? Visibility.Visible : Visibility.Hidden;
+            CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw || tool?.Type == ToolType.Bucket ? Visibility.Visible : Visibility.Hidden;
+
+            if (tool == null)
+                return;
+
+            switch(tool.Type)
+            {
+                case ToolType.Draw:
+                    if (tool is DrawTool drawTool)
+                        CharacterPaletteSelectionViewModel.SelectedCharacter = drawTool.Character;
+
+                    break;
+                case ToolType.Bucket:
+                    if (tool is BucketTool bucketTool)
+                        CharacterPaletteSelectionViewModel.SelectedCharacter = bucketTool.Character;
+
+                    break;
+                default:
+                    break;
+            }
         }
 
         private void OnSelectionChanged(Rect selected)
@@ -433,7 +453,7 @@ namespace AAP.UI.Windows
             switch (e.PropertyName)
             {
                 case "SelectedCharacter":
-                    App.SelectCharacterDrawTool(vm.SelectedCharacter);
+                    App.SelectCharacterTool(vm.SelectedCharacter);
                     break;
                 default:
                     break;

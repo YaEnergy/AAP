@@ -13,6 +13,7 @@ namespace AAP
         Eraser = 2,
         Select = 3,
         Move = 4,
-        Text = 5
+        Text = 5,
+        Bucket = 6
     }
 }
