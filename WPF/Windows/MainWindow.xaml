@@ -57,7 +57,7 @@
                         <MenuItem Header="No filters!"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="Draw">
-                        <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding FillSelectionCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding FillSelectionCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+F"></MenuItem>
                     </MenuItem>
                 </Menu>
             </ToolBar>

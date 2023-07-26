@@ -333,11 +333,6 @@ namespace AAP
             if (obj is not ASCIIArt toCopy)
                 return;
 
-            /*ClearLayers();
-
-            for (int i = 0; i < toCopy.ArtLayers.Count; i++)
-                AddLayer((ArtLayer)toCopy.ArtLayers[i].Clone());*/
-
             ArtLayer[] layers = ArtLayers.ToArray();
 
             for (int i = 0; i < layers.Length; i++)

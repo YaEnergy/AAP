@@ -448,8 +448,6 @@ namespace AAP.UI.Controls
             foreach(Point point in positions)
                 if (!changedLines.Contains((int)point.Y))
                     changedLines.Add((int)point.Y);
-
-            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerAdded(int index, ArtLayer artLayer)
@@ -471,8 +469,6 @@ namespace AAP.UI.Controls
                 if (!changedLines.Contains(y))
                     changedLines.Add(y);
             }
-
-            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerRemoved(int index, ArtLayer artLayer)
@@ -494,8 +490,6 @@ namespace AAP.UI.Controls
                 if (!changedLines.Contains(y))
                     changedLines.Add(y);
             }
-
-            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerPropertiesChanged(int index, ArtLayer artLayer, bool updateCanvas)
@@ -516,8 +510,6 @@ namespace AAP.UI.Controls
                     if (!changedLines.Contains(y))
                         changedLines.Add(y);
                 }
-
-                //UpdateDisplayArt();
             }
         }
 
@@ -553,8 +545,6 @@ namespace AAP.UI.Controls
                 if (!changedLines.Contains(y))
                     changedLines.Add(y);
             }
-
-            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerCropped(ArtLayer artLayer, Rect oldRect, Rect newRect)
@@ -591,8 +581,6 @@ namespace AAP.UI.Controls
                 if (!changedLines.Contains(y))
                     changedLines.Add(y);
             }
-
-            //UpdateDisplayArt();
         }
 
         private void DisplayArtCropped(ASCIIArt art)

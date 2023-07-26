@@ -24,7 +24,7 @@ namespace AAP.UI
     {
         public static RoutedCommand SelectLayerShortcut = new()
         {
-            InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control | ModifierKeys.Alt) }
+            InputGestures = { new KeyGesture(Key.A, ModifierKeys.Control | ModifierKeys.Alt) }
         };
 
         public static RoutedCommand CancelSelectionShortcut = new()
@@ -40,6 +40,16 @@ namespace AAP.UI
         public static RoutedCommand CropLayerShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+
+    }
+
+    public static class DrawShortcutCommands
+    {
+        public static RoutedCommand FillSelectionShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.F, ModifierKeys.Alt) }
         };
 
     }
