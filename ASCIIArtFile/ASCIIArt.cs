@@ -96,7 +96,11 @@ namespace AAP
         /// </summary>
         public event UnsavedChangesChangedEvent? OnUnsavedChangesChanged;
 
-        public event ITimelineObject.CopiedPropertiesOfEvent? OnCopiedPropertiesOf;
+        public delegate void OnArtUpdatedEvent(ASCIIArt art);
+        /// <summary>
+        /// Invoked when the visible art mostly likely changed.
+        /// </summary>
+        public event OnArtUpdatedEvent? OnArtUpdated;
 
         private bool unsavedChanges = false;
         [JsonIgnore]
@@ -166,6 +170,8 @@ namespace AAP
             artLayer.OffsetChanged += OnArtLayerOffsetChanged;//Listen to art layer offset changes
 
             UnsavedChanges = true;
+
+            OnArtUpdated?.Invoke(this);
         }
 
         public void AddLayer(ArtLayer artLayer)
@@ -177,6 +183,8 @@ namespace AAP
             //Listen to art layer offset changes
 
             UnsavedChanges = true;
+
+            OnArtUpdated?.Invoke(this);
         }
 
         public void RemoveLayer(int index)
@@ -191,6 +199,25 @@ namespace AAP
             artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
 
             UnsavedChanges = true;
+
+            OnArtUpdated?.Invoke(this);
+        }
+
+        public void ClearLayers()
+        {
+            ArtLayer[] layers = ArtLayers.ToArray();
+
+            for (int i = 0; i < layers.Length; i++)
+            {
+                ArtLayer artLayer = layers[i];
+                ArtLayers.Remove(artLayer);
+                OnArtLayerRemoved?.Invoke(i, artLayer);
+                artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
+            }
+
+            UnsavedChanges = true;
+
+            OnArtUpdated?.Invoke(this);
         }
 
         public void SetLayerIndexName(int index, string layerName)
@@ -213,6 +240,8 @@ namespace AAP
             OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], true);
 
             UnsavedChanges = true;
+
+            OnArtUpdated?.Invoke(this);
         }
         #endregion
 
@@ -280,29 +309,18 @@ namespace AAP
             if (ArtLayers.Count == 0)
                 return;
 
-            //List<ArtLayer> layers = new();
-
             for (int i = 0; i < ArtLayers.Count; i++)
             {
                 ArtLayer artLayer = ArtLayers[i];
 
                 artLayer.Offset = new(artLayer.Offset.X - cropRect.Location.X, artLayer.Offset.Y - cropRect.Location.Y);
-                /*ArtLayer newArtLayer = new(ArtLayers[i].Name, Width, Height);
-
-                newArtLayer.Visible = ArtLayers[i].Visible;
-
-                for (int x = 0; x < Width; x++)
-                    for (int y = 0; y < Height; y++)
-                        newArtLayer.Data[x][y] = ArtLayers[i].Data[(int)cropRect.X + x][(int)cropRect.Y + y];
-
-                layers.Add(newArtLayer);*/
             }
-
-            //ArtLayers = layers;
 
             OnCropped?.Invoke(this);
 
             UnsavedChanges = true;
+
+            OnArtUpdated?.Invoke(this);
 
             return;
         }
@@ -314,17 +332,35 @@ namespace AAP
         {
             if (obj is not ASCIIArt toCopy)
                 return;
-            
-            ArtLayers.Clear();
+
+            /*ClearLayers();
 
             for (int i = 0; i < toCopy.ArtLayers.Count; i++)
-                ArtLayers.Add((ArtLayer)toCopy.ArtLayers[i].Clone());
+                AddLayer((ArtLayer)toCopy.ArtLayers[i].Clone());*/
+
+            ArtLayer[] layers = ArtLayers.ToArray();
+
+            for (int i = 0; i < layers.Length; i++)
+            {
+                ArtLayer artLayer = layers[i];
+                ArtLayers.Remove(artLayer);
+                artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
+                OnArtLayerRemoved?.Invoke(i, artLayer);
+            }
+
+            for (int i = 0; i < toCopy.ArtLayers.Count; i++)
+            {
+                ArtLayer artLayer = (ArtLayer)toCopy.ArtLayers[i].Clone();
+                ArtLayers.Add(artLayer);
+                artLayer.OffsetChanged += OnArtLayerOffsetChanged;
+                OnArtLayerAdded?.Invoke(i, artLayer);
+            }
 
             SetSize(toCopy.Width, toCopy.Height);
 
             UnsavedChanges = true;
 
-            OnCopiedPropertiesOf?.Invoke(obj);
+            OnArtUpdated?.Invoke(this);
         }
 
         public object Clone()
@@ -344,6 +380,13 @@ namespace AAP
         #region Events
         private void OnArtLayerOffsetChanged(ArtLayer artLayer, Point oldOffset, Point newOffset)
             => UnsavedChanges = true;
+        
         #endregion
+
+        /// <summary>
+        /// Invokes the OnArtUpdated event
+        /// </summary>
+        public void Update()
+            => OnArtUpdated?.Invoke(this);
     }
 }

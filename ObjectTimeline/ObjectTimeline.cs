@@ -52,11 +52,10 @@ namespace AAP.Timelines
             if (timePoint == SizeLimit - 1)
             {
                 //Shift all elements in the timeline down by one, getting rid of element index 0 and having index SizeLimit - 1 as null
-                for (int i = 0; i < SizeLimit; i++)
-                    if (i != SizeLimit - 1)
-                        timeline[i] = timeline[i + 1];
-                    else
-                        timeline[i] = null;
+                for (int i = 0; i < SizeLimit - 1; i++)
+                    timeline[i] = timeline[i + 1];
+
+                timeline[SizeLimit - 1] = null;
             }
             else
                 timePoint++;
@@ -64,9 +63,10 @@ namespace AAP.Timelines
             object deepCopy = timelineObject.Clone();
             timeline[timePoint] = deepCopy;
 
-            //Destroy now incorrect future
-            for (int i = Math.Clamp(timePoint + 1, 0, SizeLimit - 1); i < SizeLimit; i++)
-                timeline[i] = null;
+            //Destroy now incorrect future, if there is one
+            if (timePoint != Size - 1)
+                for (int i = Math.Clamp(timePoint + 1, 0, SizeLimit - 1); i < SizeLimit; i++)
+                    timeline[i] = null;
 
             Console.WriteLine("Created new time point " +  timePoint);
         }

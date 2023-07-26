@@ -51,6 +51,8 @@ namespace AAP
             Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, new Point[] { position });
+
+            Art.Update();
         }
 
         public void DrawLine(int layerIndex, char? character, Point startPosition, Point endPosition)
@@ -90,6 +92,8 @@ namespace AAP
             Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
+
+            Art.Update();
         }
     }
 }

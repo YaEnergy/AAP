@@ -438,13 +438,18 @@ namespace AAP.UI.Controls
         #endregion
 
         #region Art Event Implementations
+        private void DisplayArtUpdated(ASCIIArt art)
+        {
+            UpdateDisplayArt();
+        }
+
         private void OnArtDraw(int layerIndex, char? character, Point[] positions)
         {
             foreach(Point point in positions)
                 if (!changedLines.Contains((int)point.Y))
                     changedLines.Add((int)point.Y);
 
-            UpdateDisplayArt();
+            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerAdded(int index, ArtLayer artLayer)
@@ -467,7 +472,7 @@ namespace AAP.UI.Controls
                     changedLines.Add(y);
             }
 
-            UpdateDisplayArt();
+            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerRemoved(int index, ArtLayer artLayer)
@@ -490,7 +495,7 @@ namespace AAP.UI.Controls
                     changedLines.Add(y);
             }
 
-            UpdateDisplayArt();
+            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerPropertiesChanged(int index, ArtLayer artLayer, bool updateCanvas)
@@ -512,7 +517,7 @@ namespace AAP.UI.Controls
                         changedLines.Add(y);
                 }
 
-                UpdateDisplayArt();
+                //UpdateDisplayArt();
             }
         }
 
@@ -549,7 +554,7 @@ namespace AAP.UI.Controls
                     changedLines.Add(y);
             }
 
-            UpdateDisplayArt();
+            //UpdateDisplayArt();
         }
 
         private void DisplayArtArtLayerCropped(ArtLayer artLayer, Rect oldRect, Rect newRect)
@@ -587,13 +592,7 @@ namespace AAP.UI.Controls
                     changedLines.Add(y);
             }
 
-            UpdateDisplayArt();
-        }
-
-        private void DisplayArtCopiedPropertiesOf(object obj)
-        {
-            UpdateBackground();
-            DrawDisplayArt();
+            //UpdateDisplayArt();
         }
 
         private void DisplayArtCropped(ASCIIArt art)
@@ -620,12 +619,15 @@ namespace AAP.UI.Controls
                 oldDisplayArt.OnArtLayerAdded -= canvas.DisplayArtArtLayerAdded;
                 oldDisplayArt.OnArtLayerRemoved -= canvas.DisplayArtArtLayerRemoved;
                 oldDisplayArt.OnArtLayerPropertiesChanged -= canvas.DisplayArtArtLayerPropertiesChanged;
-                oldDisplayArt.OnCopiedPropertiesOf -= canvas.DisplayArtCopiedPropertiesOf;
                 oldDisplayArt.OnCropped -= canvas.DisplayArtCropped;
                 oldDisplayArt.OnSizeChanged -= canvas.DisplayArtSizeChanged;
+                oldDisplayArt.OnArtUpdated -= canvas.DisplayArtUpdated;
 
                 foreach (ArtLayer layer in oldDisplayArt.ArtLayers)
+                {
                     layer.OffsetChanged -= canvas.DisplayArtArtLayerOffsetChanged;
+                    layer.Cropped -= canvas.DisplayArtArtLayerCropped;
+                }
             }
 
             if (newDisplayArt == null)
@@ -635,12 +637,15 @@ namespace AAP.UI.Controls
                 newDisplayArt.OnArtLayerAdded += canvas.DisplayArtArtLayerAdded;
                 newDisplayArt.OnArtLayerRemoved += canvas.DisplayArtArtLayerRemoved;
                 newDisplayArt.OnArtLayerPropertiesChanged += canvas.DisplayArtArtLayerPropertiesChanged;
-                newDisplayArt.OnCopiedPropertiesOf += canvas.DisplayArtCopiedPropertiesOf;
                 newDisplayArt.OnCropped += canvas.DisplayArtCropped;
                 newDisplayArt.OnSizeChanged += canvas.DisplayArtSizeChanged;
+                newDisplayArt.OnArtUpdated += canvas.DisplayArtUpdated;
 
                 foreach (ArtLayer layer in newDisplayArt.ArtLayers)
+                {
                     layer.OffsetChanged += canvas.DisplayArtArtLayerOffsetChanged;
+                    layer.Cropped += canvas.DisplayArtArtLayerCropped;
+                }
 
                 if (oldDisplayArt == null)
                     canvas.MouseLeftButtonDown += canvas.ToolActivateStart;

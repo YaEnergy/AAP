@@ -516,26 +516,11 @@ namespace AAP
             //Old listeners do not get removed here!!!!
             if(art != null)
             {
-                art.OnArtLayerAdded += OnCurrentArtArtLayerAdded;
-                art.OnArtLayerRemoved += OnCurrentArtArtLayerRemoved;
                 art.OnArtLayerPropertiesChanged += OnCurrentArtArtLayerPropertiesChanged;
             }
         }
 
-        private static void OnCurrentArtArtLayerAdded(int index, ArtLayer layer)
-        {
-            CurrentArtTimeline?.NewTimePoint();
-        }
-
-        private static void OnCurrentArtArtLayerRemoved(int index, ArtLayer layer)
-        {
-            CurrentArtTimeline?.NewTimePoint();
-        }
-
         private static void OnCurrentArtArtLayerPropertiesChanged(int index, ArtLayer layer, bool updateCanvas)
-            => CurrentArtTimeline?.NewTimePoint();
-
-        private static void OnCurrentArtArtLayerCropped(ArtLayer layer, Rect oldRect, Rect newRect)
             => CurrentArtTimeline?.NewTimePoint();
 
         private static void OnToolActivateEnd(Tool tool, Point position)
@@ -573,6 +558,8 @@ namespace AAP
             CurrentArt.ArtLayers[CurrentLayerID].Crop(Selected);
 
             CurrentArtTimeline?.NewTimePoint();
+
+            CurrentArt.Update();
         }
 
         public static void FillSelectedWith(char? character)
@@ -692,6 +679,8 @@ namespace AAP
 
             CurrentArt.InsertLayer(CurrentLayerID + 1, new("Layer", CurrentArt.Width, CurrentArt.Height));
             CurrentLayerID += 1;
+
+            CurrentArtTimeline?.NewTimePoint();
         }
 
         public static void DuplicateCurrentArtLayer()
@@ -714,6 +703,8 @@ namespace AAP
 
             CurrentArt.InsertLayer(CurrentLayerID + 1, duplicateArtLayer);
             CurrentLayerID += 1;
+
+            CurrentArtTimeline?.NewTimePoint();
         }
 
         public static void RemoveCurrentArtLayer()
@@ -726,6 +717,8 @@ namespace AAP
 
             CurrentLayerID -= 1;
             CurrentArt.RemoveLayer(CurrentLayerID + 1);
+
+            CurrentArtTimeline?.NewTimePoint();
         }
 
         public static void SetCurrentArtLayerName(string name)
@@ -736,6 +729,8 @@ namespace AAP
                 return;
 
             CurrentArt.ArtLayers[CurrentLayerID].Name = name;
+
+            CurrentArtTimeline?.NewTimePoint();
         }
 
         #endregion

@@ -8,9 +8,6 @@ namespace AAP.Timelines
 {
     public interface ITimelineObject : ICloneable
     {
-        public delegate void CopiedPropertiesOfEvent(object copiedObj);
-        public abstract event CopiedPropertiesOfEvent? OnCopiedPropertiesOf;
-
         public abstract void CopyPropertiesOf(object obj);
     }
 }
