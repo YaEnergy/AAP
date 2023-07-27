@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using AAP.Timelines;
 using AAP.UI.ViewModels;
+using Microsoft.Win32;
 
 namespace AAP.UI.Windows
 {
@@ -234,6 +235,17 @@ namespace AAP.UI.Windows
             else if (args.Error != null)
                 MessageBox.Show("An error has occurred while opening art file!\nException: " + args.Error.Message, "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
         }
+
+        void BackgroundCreateComplete(object? sender, RunWorkerCompletedEventArgs args)
+        {
+            currentBackgroundWorker = null;
+            artCanvasViewModel.CanUseTool = true;
+
+            if (args.Cancelled)
+                MessageBox.Show("Cancelled creating art file!", "Create Art", MessageBoxButton.OK, MessageBoxImage.Information);
+            else if (args.Error != null)
+                MessageBox.Show("An error has occurred while creating art file!\nException: " + args.Error.Message, "Create Art", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
         #endregion
 
         #region Menu Item Actions
@@ -243,15 +255,27 @@ namespace AAP.UI.Windows
             NewASCIIArtDialogWindow newASCIIArtDialogWindow = new();
             newASCIIArtDialogWindow.ShowDialog();
 
-            if (newASCIIArtDialogWindow.CreatedArt == null)
-                return;
+            if (newASCIIArtDialogWindow.DialogResult == true)
+            {
+                currentBackgroundWorker = App.CreateNewArtFileAsync(newASCIIArtDialogWindow.ArtWidth, newASCIIArtDialogWindow.ArtHeight);
 
-            App.NewFile(newASCIIArtDialogWindow.CreatedArt);
+                if (currentBackgroundWorker == null)
+                    return;
+
+                artCanvasViewModel.CanUseTool = false;
+
+                BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, $"Creating art...");
+                backgroundTaskWindow.Show();
+                backgroundTaskWindow.Owner = this;
+
+                currentBackgroundWorker.RunWorkerCompleted += BackgroundCreateComplete;
+            }
+
         }
 
         private void OpenFileAction()
         {
-            Microsoft.Win32.OpenFileDialog openFileDialog = new()
+            OpenFileDialog openFileDialog = new()
             {
                 Title = "Open ASCII Art File",
                 Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt",
@@ -293,7 +317,7 @@ namespace AAP.UI.Windows
 
             if (savePath == null)
             {
-                Microsoft.Win32.SaveFileDialog saveFileDialog = new()
+                SaveFileDialog saveFileDialog = new()
                 {
                     Title = "Save ASCII Art File",
                     Filter = "ASCII Art File (*.aaf)|*.aaf",
@@ -335,7 +359,7 @@ namespace AAP.UI.Windows
             if (currentBackgroundWorker != null)
                 return;
 
-            Microsoft.Win32.SaveFileDialog saveFileDialog = new()
+            SaveFileDialog saveFileDialog = new()
             {
                 Title = "Save ASCII Art File",
                 Filter = "ASCII Art File (*.aaf)|*.aaf",
@@ -377,7 +401,7 @@ namespace AAP.UI.Windows
             if (currentBackgroundWorker != null)
                 return;
 
-            Microsoft.Win32.SaveFileDialog saveFileDialog = new()
+            SaveFileDialog saveFileDialog = new()
             {
                 Title = "Export ASCII Art File",
                 Filter = "Text Files (*.txt)|*.txt",

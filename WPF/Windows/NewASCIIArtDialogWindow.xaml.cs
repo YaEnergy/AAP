@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,8 @@ namespace AAP.UI.Windows
     public partial class NewASCIIArtDialogWindow : Window
     {
         private NewASCIIArtDialogViewModel viewModel { get; set; }
-        public ASCIIArt? CreatedArt { get; set; }
+        public int ArtWidth { get; set; } = 0;
+        public int ArtHeight { get; set; } = 0;
 
         public NewASCIIArtDialogWindow()
         {
@@ -29,9 +31,12 @@ namespace AAP.UI.Windows
 
             viewModel = (NewASCIIArtDialogViewModel)FindResource("NewFileDialogViewModel");
         }
-
+        
         private void CreateButton_Click(object sender, RoutedEventArgs e)
         {
+            if (!viewModel.CanCreate)
+                return;
+
             if (!int.TryParse(viewModel.WidthText, out int width))
             {
                 MessageBox.Show("Invalid art width! (Must be greater than 0)", "New ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -62,12 +67,12 @@ namespace AAP.UI.Windows
                 return;
             }
 
-            CreatedArt = new();
-            CreatedArt.SetSize(width, height);
-            CreatedArt.AddLayer(new("Background", width, height));
+            viewModel.CanCreate = false;
 
-            CreatedArt.UnsavedChanges = true;
+            ArtWidth = width;
+            ArtHeight = height;
 
+            DialogResult = true;
             Close();
         }
     }

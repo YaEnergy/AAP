@@ -24,7 +24,7 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        public static readonly int MaxArtArea = 100000000;
+        public static readonly int MaxArtArea = 10000000;
         public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
         public readonly static int MaxCharacterPaletteCharacters = 200;
@@ -306,6 +306,58 @@ namespace AAP
             CurrentFilePath = null;
         }
 
+        public static BackgroundWorker? CreateNewArtFileAsync(int width, int height)
+        {
+            BackgroundWorker bgWorker = new();
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.DoWork += CreateWork;
+            bgWorker.RunWorkerCompleted += CreateWorkComplete;
+
+            Console.WriteLine("Create Art: Running BackgroundWorker");
+            bgWorker.RunWorkerAsync();
+
+            void CreateWork(object? sender, DoWorkEventArgs args)
+            {
+                if (sender is not BackgroundWorker bgWorker)
+                    return;
+
+                Console.WriteLine($"Create Art: creating art...");
+                bgWorker.ReportProgress(33, new BackgroundTaskState("Creating art...", true));
+
+                ASCIIArt art = new();
+                art.SetSize(width, height);
+
+                bgWorker.ReportProgress(66, new BackgroundTaskState("Creating background layer...", true));
+                art.AddLayer(new("Background", width, height, 0, 0));
+
+                bgWorker.ReportProgress(90, new BackgroundTaskState("Finishing up art...", true));
+                art.UnsavedChanges = true;
+
+                args.Result = art;
+            }
+
+            void CreateWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
+            {
+                if (e.Error != null)
+                    Console.WriteLine("Create Art: ERROR: " + e.Error.ToString());
+                else if (e.Cancelled)
+                    Console.WriteLine("Create Art: Art file creation was cancelled");
+                else
+                {
+                    if (e.Result is not ASCIIArt art)
+                        throw new Exception("Create Art: BackgroundWorker Result is not of type ASCIIArt!");
+
+                    Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
+                    CurrentLayerID = 0; //-1; For testing
+                    CurrentArt = art;
+                    Console.WriteLine($"Create Art: created new art!");
+                }
+            }
+
+            return bgWorker;
+        }
+
+
         public static BackgroundWorker? OpenArtFileAsync(FileInfo file)
         {
             BackgroundWorker bgWorker = new();
@@ -322,6 +374,8 @@ namespace AAP
                     return;
 
                 Console.WriteLine($"Open File: importing file from path... {file.FullName}");
+
+                bgWorker.ReportProgress(30, new BackgroundTaskState("Importing art...", true));
 
                 if (!file.Exists)
                     throw new FileNotFoundException("Tried to open non-existant file", file.FullName);
@@ -351,6 +405,7 @@ namespace AAP
 
                 Console.WriteLine($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
+                bgWorker.ReportProgress(90, new BackgroundTaskState("Finishing up art...", true));
                 args.Result = art;
             }
 
@@ -401,6 +456,7 @@ namespace AAP
                     return;
 
                 Console.WriteLine("Save File: Saving art file to " + path);
+                bgWorker.ReportProgress(90, new BackgroundTaskState("Exporting as .aaf file...", true));
 
                 AAFASCIIArt aafASCIIArt = new(path);
                 aafASCIIArt.Export(art, bgWorker);
@@ -460,6 +516,7 @@ namespace AAP
                 Console.WriteLine("Export File: Exporting art file to " + path);
 
                 FileInfo fileInfo = new(path);
+                bgWorker.ReportProgress(90, new BackgroundTaskState($"Exporting as {fileInfo.Extension} file...", true));
                 IAAPFile<ASCIIArt> AAPFile;
 
                 switch (fileInfo.Extension)

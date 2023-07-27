@@ -34,6 +34,18 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool canCreate = true;
+        public bool CanCreate
+        {
+            get => canCreate;
+            set
+            {
+                canCreate = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(CanCreate)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public NewASCIIArtDialogViewModel()

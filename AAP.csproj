@@ -11,11 +11,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
     <Company>$(Kygira5)</Company>
     <UseWPF>True</UseWPF>
-    <Configurations>Debug;Release;WPF Debug;WPF Release</Configurations>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WPF Release|AnyCPU'">
-    <Optimize>True</Optimize>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,18 +33,6 @@
     <None Remove="Resources\Images\ToolIcons\BucketToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\DrawToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\EraserToolIcon.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <COMReference Include="IWshRuntimeLibrary">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>0</VersionMinor>
-      <VersionMajor>1</VersionMajor>
-      <Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
-      <Lcid>0</Lcid>
-      <Isolated>false</Isolated>
-      <EmbedInteropTypes>true</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
 
   <ItemGroup>
