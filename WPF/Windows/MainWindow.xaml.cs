@@ -43,8 +43,12 @@ namespace AAP.UI.Windows
 
             CharacterPaletteSelectionViewModel.PropertyChanged += OnCharacterPaletteSelectionViewModelPropertyChanged;
 
-            artCanvas.Tool = App.CurrentTool;
+            artCanvasViewModel.CurrentTool = App.CurrentTool;
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
+
+            artCanvasViewModel.CurrentArt = App.CurrentArt;
+            artCanvasViewModel.CurrentArtDraw = App.CurrentArtDraw;
+            artCanvasViewModel.CurrentArtTimeline = App.CurrentArtTimeline;
 
             UpdateTitle();
 

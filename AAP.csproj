@@ -90,19 +90,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\PresetCharacterPalettes\Main ASCII Characters.txt">
+    <Using Include="System.Windows" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\PresetCharacterPalettes\Alphabet.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\PresetCharacterPalettes\Alphabet.txt">
+    <None Update="Resources\PresetCharacterPalettes\Main ASCII Characters.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Resources\PresetCharacterPalettes\Numbers.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Using Include="System.Windows" />
   </ItemGroup>
 
 </Project>
