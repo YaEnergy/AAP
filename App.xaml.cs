@@ -570,12 +570,6 @@ namespace AAP
         public static void OnCurrentArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
         {
             Selected = Rect.Empty;
-
-            //Old listeners do not get removed here!!!!
-            if(art != null)
-            {
-                art.OnArtLayerPropertiesChanged += OnCurrentArtArtLayerPropertiesChanged;
-            }
         }
 
         private static void OnCurrentArtArtLayerPropertiesChanged(int index, ArtLayer layer, bool updateCanvas)
@@ -796,14 +790,16 @@ namespace AAP
             CurrentArtTimeline?.NewTimePoint();
         }
 
-        public static void SetCurrentArtLayerName(string name)
+        public static void SetArtLayerName(ArtLayer layer, string name)
         {
-            if (CurrentArt == null) return;
+            layer.Name = name;
 
-            if (CurrentArt.ArtLayers.Count == 0)
-                return;
+            CurrentArtTimeline?.NewTimePoint();
+        }
 
-            CurrentArt.ArtLayers[CurrentLayerID].Name = name;
+        public static void SetArtLayerVisibility(ArtLayer layer, bool visible)
+        {
+            layer.Visible = visible;
 
             CurrentArtTimeline?.NewTimePoint();
         }

@@ -13,8 +13,35 @@ namespace AAP
     {
         public char?[][] Data;
 
-        public string Name = "";
-        public bool Visible = true;
+        private string name = "";
+        public string Name
+        {
+            get => name;
+            set
+            {
+                if (name == value) 
+                    return;
+
+                name = value;
+
+                NameChanged?.Invoke(this, value);
+            }
+        }
+
+        private bool visible = true;
+        public bool Visible
+        {
+            get => visible;
+            set
+            {
+                if (visible == value)
+                    return;
+
+                visible = value;
+
+                VisibilityChanged?.Invoke(this, value);
+            }
+        }
 
         private int offsetX = 0;
         public int OffsetX
@@ -99,6 +126,12 @@ namespace AAP
         {
             get => new(Width, Height);
         }
+
+        public delegate void NameChangedEvent(ArtLayer layer, string name);
+        public event NameChangedEvent? NameChanged;
+
+        public delegate void VisibilityChangedEvent(ArtLayer layer, bool visibility);
+        public event VisibilityChangedEvent? VisibilityChanged;
 
         public delegate void OffsetChangedEvent(ArtLayer layer, Point oldOffset, Point newOffset);
         public event OffsetChangedEvent? OffsetChanged;
@@ -272,5 +305,8 @@ namespace AAP
         /// <returns>Point on canvas</returns>
         public Point GetCanvasPoint(Point point)
             => new((int)point.X + OffsetX, (int)point.Y + OffsetY);
+
+        public override string ToString()
+            => Name;
     }
 }

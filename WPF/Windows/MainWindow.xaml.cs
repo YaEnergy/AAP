@@ -140,6 +140,8 @@ namespace AAP.UI.Windows
             artCanvasViewModel.CurrentArtDraw = artDraw;
             artCanvasViewModel.CurrentArtTimeline = artTimeline;
 
+            LayerSelectionViewModel.Art = art;
+
             //Add new listeners
             if (artCanvasViewModel.CurrentArt != null)
                 artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged += OnArtCanvasViewModelArtUnsavedChangesChanged;

@@ -455,6 +455,7 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
+            artLayer.VisibilityChanged += DisplayArtArtLayerVisibilityChanged;
             artLayer.OffsetChanged += DisplayArtArtLayerOffsetChanged;
             artLayer.Cropped += DisplayArtArtLayerCropped;
 
@@ -476,6 +477,7 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
+            artLayer.VisibilityChanged -= DisplayArtArtLayerVisibilityChanged;
             artLayer.OffsetChanged -= DisplayArtArtLayerOffsetChanged;
             artLayer.Cropped -= DisplayArtArtLayerCropped;
 
@@ -510,6 +512,24 @@ namespace AAP.UI.Controls
                     if (!changedLines.Contains(y))
                         changedLines.Add(y);
                 }
+            }
+        }
+
+        private void DisplayArtArtLayerVisibilityChanged(ArtLayer artLayer, bool visible)
+        {
+            if (DisplayArt == null)
+                return;
+            
+            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
             }
         }
 
@@ -606,13 +626,13 @@ namespace AAP.UI.Controls
             {
                 oldDisplayArt.OnArtLayerAdded -= canvas.DisplayArtArtLayerAdded;
                 oldDisplayArt.OnArtLayerRemoved -= canvas.DisplayArtArtLayerRemoved;
-                oldDisplayArt.OnArtLayerPropertiesChanged -= canvas.DisplayArtArtLayerPropertiesChanged;
                 oldDisplayArt.OnCropped -= canvas.DisplayArtCropped;
                 oldDisplayArt.OnSizeChanged -= canvas.DisplayArtSizeChanged;
                 oldDisplayArt.OnArtUpdated -= canvas.DisplayArtUpdated;
 
                 foreach (ArtLayer layer in oldDisplayArt.ArtLayers)
                 {
+                    layer.VisibilityChanged -= canvas.DisplayArtArtLayerVisibilityChanged;
                     layer.OffsetChanged -= canvas.DisplayArtArtLayerOffsetChanged;
                     layer.Cropped -= canvas.DisplayArtArtLayerCropped;
                 }
@@ -624,13 +644,13 @@ namespace AAP.UI.Controls
             {
                 newDisplayArt.OnArtLayerAdded += canvas.DisplayArtArtLayerAdded;
                 newDisplayArt.OnArtLayerRemoved += canvas.DisplayArtArtLayerRemoved;
-                newDisplayArt.OnArtLayerPropertiesChanged += canvas.DisplayArtArtLayerPropertiesChanged;
                 newDisplayArt.OnCropped += canvas.DisplayArtCropped;
                 newDisplayArt.OnSizeChanged += canvas.DisplayArtSizeChanged;
                 newDisplayArt.OnArtUpdated += canvas.DisplayArtUpdated;
 
                 foreach (ArtLayer layer in newDisplayArt.ArtLayers)
                 {
+                    layer.VisibilityChanged += canvas.DisplayArtArtLayerVisibilityChanged;
                     layer.OffsetChanged += canvas.DisplayArtArtLayerOffsetChanged;
                     layer.Cropped += canvas.DisplayArtArtLayerCropped;
                 }

@@ -84,12 +84,6 @@ namespace AAP
         /// </summary>
         public event ArtLayerRemovedEvent? OnArtLayerRemoved;
 
-        public delegate void ArtLayerPropertiesChangedEvent(int index, ArtLayer artLayer, bool updateCanvas = false);
-        /// <summary>
-        /// Invoked when a layer has their properties changed.
-        /// </summary>
-        public event ArtLayerPropertiesChangedEvent? OnArtLayerPropertiesChanged;
-
         public delegate void UnsavedChangesChangedEvent(ASCIIArt art, bool unsavedChanges);
         /// <summary>
         /// Invoked when the UnsavedChanges bool changes.
@@ -167,7 +161,8 @@ namespace AAP
             ArtLayers.Insert(index, artLayer);
             OnArtLayerAdded?.Invoke(index, ArtLayers[index]);
 
-            artLayer.OffsetChanged += OnArtLayerOffsetChanged;//Listen to art layer offset changes
+            artLayer.OffsetChanged += OnArtLayerOffsetChanged;
+            artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
 
             UnsavedChanges = true;
 
@@ -180,7 +175,7 @@ namespace AAP
             OnArtLayerAdded?.Invoke(ArtLayers.Count - 1, artLayer);
 
             artLayer.OffsetChanged += OnArtLayerOffsetChanged;
-            //Listen to art layer offset changes
+            artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
 
             UnsavedChanges = true;
 
@@ -196,7 +191,8 @@ namespace AAP
             ArtLayers.RemoveAt(index);
             OnArtLayerRemoved?.Invoke(index, artLayer);
 
-            artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
+            artLayer.OffsetChanged -= OnArtLayerOffsetChanged;
+            artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
 
             UnsavedChanges = true;
 
@@ -213,6 +209,7 @@ namespace AAP
                 ArtLayers.Remove(artLayer);
                 OnArtLayerRemoved?.Invoke(i, artLayer);
                 artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
+                artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
             }
 
             UnsavedChanges = true;
@@ -226,7 +223,6 @@ namespace AAP
                 return;
 
             ArtLayers[index].Name = layerName;
-            OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], false);
 
             UnsavedChanges = true;
         }
@@ -237,7 +233,6 @@ namespace AAP
                 return;
 
             ArtLayers[index].Visible = visible;
-            OnArtLayerPropertiesChanged?.Invoke(index, ArtLayers[index], true);
 
             UnsavedChanges = true;
 
@@ -339,7 +334,8 @@ namespace AAP
             {
                 ArtLayer artLayer = layers[i];
                 ArtLayers.Remove(artLayer);
-                artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
+                artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer events
+                artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
                 OnArtLayerRemoved?.Invoke(i, artLayer);
             }
 
@@ -348,6 +344,7 @@ namespace AAP
                 ArtLayer artLayer = (ArtLayer)toCopy.ArtLayers[i].Clone();
                 ArtLayers.Add(artLayer);
                 artLayer.OffsetChanged += OnArtLayerOffsetChanged;
+                artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
                 OnArtLayerAdded?.Invoke(i, artLayer);
             }
 
@@ -375,7 +372,9 @@ namespace AAP
         #region Events
         private void OnArtLayerOffsetChanged(ArtLayer artLayer, Point oldOffset, Point newOffset)
             => UnsavedChanges = true;
-        
+
+        private void OnArtLayerVisibilityChanged(ArtLayer artLayer, bool visible)
+            => UnsavedChanges = true;
         #endregion
 
         /// <summary>
