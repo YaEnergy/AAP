@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,7 @@ using System.Windows.Shapes;
 using AAP.Timelines;
 using AAP.UI.ViewModels;
 using Microsoft.Win32;
+using Newtonsoft.Json.Linq;
 
 namespace AAP.UI.Windows
 {
@@ -40,9 +42,11 @@ namespace AAP.UI.Windows
             App.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
             App.OnCurrentToolChanged += OnCurrentToolChanged;
             App.OnSelectionChanged += OnSelectionChanged;
+            App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
             App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
 
-            CharacterPaletteSelectionViewModel.PropertyChanged += OnCharacterPaletteSelectionViewModelPropertyChanged;
+            CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
+            LayerSelectionViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
             artCanvasViewModel.CurrentTool = App.CurrentTool;
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
@@ -180,6 +184,10 @@ namespace AAP.UI.Windows
 
         private void OnSelectionChanged(Rect selected)
             => artCanvasViewModel.Selected = selected;
+
+        private void CurrentLayerIDChanged(int layerID)
+            => LayerSelectionViewModel.SelectedLayerID = layerID;
+
         #endregion
 
         #region Art Canvas View Model Art Events
@@ -472,7 +480,7 @@ namespace AAP.UI.Windows
         #endregion
 
         #region ViewModel Property Changed Events
-        private void OnCharacterPaletteSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        private void CharacterPaletteSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender == null)
                 return;
@@ -490,6 +498,36 @@ namespace AAP.UI.Windows
             }
         }
 
+        private void LayerSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            if (sender is not LayerSelectionViewModel vm)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case "SelectedLayerID":
+                    App.CurrentLayerID = vm.SelectedLayerID;
+                    break;
+                case "SelectedLayerName":
+                    if (vm.SelectedLayer == null)
+                        return;
+
+                    App.SetArtLayerName(vm.SelectedLayer, vm.SelectedLayerName);
+                    break;
+                case "SelectedLayerVisibility":
+                    if (vm.SelectedLayer == null)
+                        return;
+
+                    App.SetArtLayerVisibility(vm.SelectedLayer, vm.SelectedLayerVisibility);
+                    vm.Art?.Update();
+                    break;
+                default:
+                    break;
+            }
+        }
         #endregion
     }
 }

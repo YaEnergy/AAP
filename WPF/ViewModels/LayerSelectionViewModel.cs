@@ -98,9 +98,6 @@ namespace AAP.UI.ViewModels
                     return;
 
                 selectedLayerName = value;
-                App.SetArtLayerName(SelectedLayer, value);
-
-                PropertyChanged?.Invoke(this, new(nameof(Layers)));
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerName)));
             }
         }
@@ -118,8 +115,6 @@ namespace AAP.UI.ViewModels
                     return;
 
                 selectedLayerVisibility = value;
-                App.SetArtLayerVisibility(SelectedLayer, value);
-                Art?.Update();
 
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerVisibility)));
             }

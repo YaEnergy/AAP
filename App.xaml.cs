@@ -300,9 +300,8 @@ namespace AAP
         #region Files
         public static void NewFile(ASCIIArt? artFile)
         {
-            Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when creating new files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
-            CurrentLayerID = 0; //-1; For testing
             CurrentArt = artFile;
+            CurrentLayerID = -1;
             CurrentFilePath = null;
         }
 
@@ -347,9 +346,8 @@ namespace AAP
                     if (e.Result is not ASCIIArt art)
                         throw new Exception("Create Art: BackgroundWorker Result is not of type ASCIIArt!");
 
-                    Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
-                    CurrentLayerID = 0; //-1; For testing
                     CurrentArt = art;
+                    CurrentLayerID = -1;
                     Console.WriteLine($"Create Art: created new art!");
                 }
             }
@@ -419,10 +417,9 @@ namespace AAP
                 {
                     if (e.Result is not ASCIIArt art)
                         throw new Exception("Open File: BackgroundWorker Result is not of type ASCIIArt!");
-
-                    Console.WriteLine("CurrentLayerID gets set to 0 instead of -1 when opening files (REMOVE WHEN LAYER SELECTION IS FINISHED)");
-                    CurrentLayerID = 0; //-1; For testing
+                    
                     CurrentArt = art;
+                    CurrentLayerID = -1;
                     CurrentFilePath = file.Extension == ".aaf" ? file.FullName : null;
                     Console.WriteLine($"Open File Path: opened file!");
                 }
