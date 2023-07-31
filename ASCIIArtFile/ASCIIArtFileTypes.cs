@@ -56,7 +56,7 @@ namespace AAP
         public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
         {
             bgWorker?.ReportProgress(0, new BackgroundTaskState("Getting art string...", true));
-            string artString = art.GetArtString(bgWorker);
+            string artString = art.GetArtString();
 
             bgWorker?.ReportProgress(50, new BackgroundTaskState("Writing to file...", true));
             StreamWriter sw = File.CreateText(FilePath);

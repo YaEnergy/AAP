@@ -150,7 +150,7 @@ namespace AAP
             app.Exit += OnApplicationExit;
             app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
 
-#if RELEASE || WPF_RELEASE
+#if RELEASE
             TextWriter oldOut = Console.Out;
             StreamWriter logSR = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
             logSR.AutoFlush = true;
@@ -266,7 +266,7 @@ namespace AAP
 
             app.Run();
 
-#if RELEASE || WPF_RELEASE
+#if RELEASE
             Console.SetOut(oldOut);
             Console.SetError(oldOut);
 

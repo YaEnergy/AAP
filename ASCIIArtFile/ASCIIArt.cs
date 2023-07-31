@@ -106,15 +106,8 @@ namespace AAP
                 unsavedChanges = value;
 
                 OnUnsavedChangesChanged?.Invoke(this, unsavedChanges);
-                OnChanged?.Invoke(this);
             }
         }
-
-        public delegate void ChangedEvent(ASCIIArt art);
-        /// <summary>
-        /// Invoked every time the art changes.
-        /// </summary>
-        public event ChangedEvent? OnChanged;
 
         public ASCIIArt()
         {
@@ -243,14 +236,13 @@ namespace AAP
         /// <summary>
         /// Gets all line strings in the art and adds them together, each line is separated by a linebreak character.
         /// </summary>
-        /// <param name="bgWorker"></param>
         /// <returns>Full ASCII art string, each line separated by \n</returns>
-        public string GetArtString(BackgroundWorker? bgWorker = null)
+        public string GetArtString()
         {
             string art = "";
 
             for (int y = 0; y < Height; y++)
-                art += GetLineString(y, bgWorker) + "\n";
+                art += GetLineString(y) + "\n";
 
             return art;
         }
@@ -261,7 +253,7 @@ namespace AAP
         /// <param name="y"></param>
         /// <param name="bgWorker"></param>
         /// <returns>String of line (y)</returns>
-        public string GetLineString(int y, BackgroundWorker? bgWorker = null)
+        public string GetLineString(int y)
         {
             char?[] visibleArtLineArray = new char?[Width];
             string line = "";
