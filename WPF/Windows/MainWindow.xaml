@@ -97,7 +97,8 @@
             <DockPanel.DataContext>
                 <viewmodels:LayerSelectionViewModel x:Name="LayerSelectionViewModel"/>
             </DockPanel.DataContext>
-            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}">
+            <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="#FFE2E2E2"></Grid>
+            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" Height="90" Visibility="{Binding LayerOptionsVisibility}">
                 <Label Content="Layer Options" FontSize="14" Height="30"/>
                 <Grid Margin="0,5,0,5">
                     <Label Content="Name" HorizontalAlignment="Left" VerticalAlignment="Top" Width="42"/>
@@ -111,8 +112,7 @@
                     </CheckBox.Resources>
                 </CheckBox>
             </StackPanel>
-            <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" MinHeight="30" ItemsSource="{Binding Layers}" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}"/>
-            <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Bottom" Background="#FFE2E2E2"></Grid>
+            <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top"/>
         </DockPanel>
         <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto">
             <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt, Source={StaticResource artCanvasViewModel}}" DisplayArtDraw="{Binding CurrentArtDraw, Source={StaticResource artCanvasViewModel}}" SelectionHighlightRect="{Binding Selected, Source={StaticResource artCanvasViewModel}}" TextSize="{Binding TextSize, Source={StaticResource artCanvasViewModel}}" Tool="{Binding CurrentTool, Source={StaticResource artCanvasViewModel}}" CanUseTool="{Binding CanUseTool, Source={StaticResource artCanvasViewModel}}" HighlightRectThickness="{Binding HighlightThickness, Source={StaticResource artCanvasViewModel}}"/>

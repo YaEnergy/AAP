@@ -569,9 +569,6 @@ namespace AAP
             Selected = Rect.Empty;
         }
 
-        private static void OnCurrentArtArtLayerPropertiesChanged(int index, ArtLayer layer, bool updateCanvas)
-            => CurrentArtTimeline?.NewTimePoint();
-
         private static void OnToolActivateEnd(Tool tool, Point position)
         {
             if (tool.Type == ToolType.Draw || tool.Type == ToolType.Eraser || tool.Type == ToolType.Move)
@@ -789,6 +786,9 @@ namespace AAP
 
         public static void SetArtLayerName(ArtLayer layer, string name)
         {
+            if (layer.Name == name)
+                return;
+
             layer.Name = name;
 
             CurrentArtTimeline?.NewTimePoint();
@@ -796,9 +796,14 @@ namespace AAP
 
         public static void SetArtLayerVisibility(ArtLayer layer, bool visible)
         {
+            if (layer.Visible == visible)
+                return;
+
             layer.Visible = visible;
 
             CurrentArtTimeline?.NewTimePoint();
+
+            CurrentArt?.Update();
         }
 
         #endregion

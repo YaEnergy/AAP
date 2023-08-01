@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -18,7 +19,20 @@ namespace AAP.UI.ViewModels
                 if (art == value)
                     return;
 
+                if (art != null)
+                {
+                    art.OnArtLayerAdded -= ArtLayerAdded;
+                    art.OnArtLayerRemoved -= ArtLayerRemoved;
+                }
+
                 art = value;
+
+                if (art != null)
+                {
+                    art.OnArtLayerAdded += ArtLayerAdded;
+                    art.OnArtLayerRemoved += ArtLayerRemoved;
+                }
+
                 Layers = art != null ? art.ArtLayers : new();
                 PropertyChanged?.Invoke(this, new(nameof(Art)));
             }
@@ -34,7 +48,7 @@ namespace AAP.UI.ViewModels
                     return;
 
                 layers = value;
-                selectedLayerID = -1;
+                SelectedLayerID = -1;
                 PropertyChanged?.Invoke(this, new(nameof(Layers)));
             }
         }
@@ -45,11 +59,12 @@ namespace AAP.UI.ViewModels
             get => selectedLayerID;
             set
             {
+                SelectedLayer = value != -1 ? Layers[value] : null;
+
                 if (selectedLayerID == value)
                     return;
 
                 selectedLayerID = value;
-                SelectedLayer = value != -1 ? Layers[value] : null;
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerID)));
             }
         }
@@ -120,7 +135,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private Visibility layerOptionsVisibility = Visibility.Hidden;
+        private Visibility layerOptionsVisibility = Visibility.Collapsed;
         public Visibility LayerOptionsVisibility
         {
             get => layerOptionsVisibility;
@@ -145,7 +160,7 @@ namespace AAP.UI.ViewModels
 
                 hasSelectedLayer = value;
 
-                LayerOptionsVisibility = value ? Visibility.Visible : Visibility.Hidden;
+                LayerOptionsVisibility = value ? Visibility.Visible : Visibility.Collapsed;
 
                 PropertyChanged?.Invoke(this, new(nameof(HasSelectedLayer)));
             }
@@ -154,9 +169,22 @@ namespace AAP.UI.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void LayerNameChanged(ArtLayer layer, string name)
-            => SelectedLayerName = name;
+        {
+            SelectedLayerName = name;
+            PropertyChanged?.Invoke(this, new(nameof(Layers)));
+        }
 
         private void LayerVisibilityChanged(ArtLayer layer, bool visible)
             => SelectedLayerVisibility = visible;
+
+        private void ArtLayerAdded(int index, ArtLayer layer)
+        {
+            SelectedLayer = SelectedLayerID != -1 ? Layers[SelectedLayerID] : null;
+        }
+
+        private void ArtLayerRemoved(int index, ArtLayer layer)
+        {
+            SelectedLayer = SelectedLayerID != -1 ? Layers[SelectedLayerID] : null;
+        }
     }
 }

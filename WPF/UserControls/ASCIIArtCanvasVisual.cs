@@ -13,6 +13,7 @@ using System.Windows.Media.Media3D;
 using AAP.UI.ViewModels;
 using System.Windows.Input;
 using System.Windows.Controls;
+using System.Reflection.Emit;
 
 namespace AAP.UI.Controls
 {
@@ -96,12 +97,6 @@ namespace AAP.UI.Controls
                     return;
 
                 SetValue(TextSizeProperty, value);
-/*
-                UpdateCanvasSize();
-                DrawDisplayArt();
-                DrawHighlights();
-
-                Console.WriteLine("Canvas Text Size: " + TextSize);*/
             }
         }
 
@@ -455,6 +450,7 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
+            artLayer.DataChanged += DisplayArtArtLayerDataChanged;
             artLayer.VisibilityChanged += DisplayArtArtLayerVisibilityChanged;
             artLayer.OffsetChanged += DisplayArtArtLayerOffsetChanged;
             artLayer.Cropped += DisplayArtArtLayerCropped;
@@ -477,6 +473,7 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
+            artLayer.DataChanged -= DisplayArtArtLayerDataChanged;
             artLayer.VisibilityChanged -= DisplayArtArtLayerVisibilityChanged;
             artLayer.OffsetChanged -= DisplayArtArtLayerOffsetChanged;
             artLayer.Cropped -= DisplayArtArtLayerCropped;
@@ -494,24 +491,21 @@ namespace AAP.UI.Controls
             }
         }
 
-        private void DisplayArtArtLayerPropertiesChanged(int index, ArtLayer artLayer, bool updateCanvas)
+        private void DisplayArtArtLayerDataChanged(ArtLayer artLayer, char?[][] data)
         {
             if (DisplayArt == null)
                 return;
 
-            if(updateCanvas)
+            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
             {
-                for(int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
-                {
-                    if (y < 0)
-                        continue;
+                if (y < 0)
+                    continue;
 
-                    if (y >= DisplayArt.Height)
-                        break;
+                if (y >= DisplayArt.Height)
+                    break;
 
-                    if (!changedLines.Contains(y))
-                        changedLines.Add(y);
-                }
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
             }
         }
 
@@ -632,6 +626,7 @@ namespace AAP.UI.Controls
 
                 foreach (ArtLayer layer in oldDisplayArt.ArtLayers)
                 {
+                    layer.DataChanged -= canvas.DisplayArtArtLayerDataChanged;
                     layer.VisibilityChanged -= canvas.DisplayArtArtLayerVisibilityChanged;
                     layer.OffsetChanged -= canvas.DisplayArtArtLayerOffsetChanged;
                     layer.Cropped -= canvas.DisplayArtArtLayerCropped;
@@ -650,6 +645,7 @@ namespace AAP.UI.Controls
 
                 foreach (ArtLayer layer in newDisplayArt.ArtLayers)
                 {
+                    layer.DataChanged += canvas.DisplayArtArtLayerDataChanged;
                     layer.VisibilityChanged += canvas.DisplayArtArtLayerVisibilityChanged;
                     layer.OffsetChanged += canvas.DisplayArtArtLayerOffsetChanged;
                     layer.Cropped += canvas.DisplayArtArtLayerCropped;

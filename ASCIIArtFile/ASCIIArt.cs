@@ -320,7 +320,7 @@ namespace AAP
             if (obj is not ASCIIArt toCopy)
                 return;
 
-            ArtLayer[] layers = ArtLayers.ToArray();
+            /*ArtLayer[] layers = ArtLayers.ToArray();
 
             for (int i = 0; i < layers.Length; i++)
             {
@@ -338,12 +338,36 @@ namespace AAP
                 artLayer.OffsetChanged += OnArtLayerOffsetChanged;
                 artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
                 OnArtLayerAdded?.Invoke(i, artLayer);
+            }*/
+
+            for (int i = 0; i < Math.Max(ArtLayers.Count, toCopy.ArtLayers.Count); i++)
+            {
+                if (i >= ArtLayers.Count) //Readd layer
+                {
+                    ArtLayer artLayer = (ArtLayer)toCopy.ArtLayers[i].Clone();
+                    ArtLayers.Add(artLayer);
+                    artLayer.OffsetChanged += OnArtLayerOffsetChanged;
+                    artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
+                    OnArtLayerAdded?.Invoke(i, artLayer);
+                }
+                else if (i >= toCopy.ArtLayers.Count) //Reremove layer
+                {
+                    ArtLayer artLayer = ArtLayers[i];
+                    ArtLayers.Remove(artLayer);
+                    artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer events
+                    artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
+                    OnArtLayerRemoved?.Invoke(i, artLayer);
+                }
+                else
+                    ArtLayers[i].CopyPropertiesOf(toCopy.ArtLayers[i]);
             }
 
             SetSize(toCopy.Width, toCopy.Height);
 
             UnsavedChanges = true;
 
+            //THERE IS SOMETHING THAT CALLS ASCIIART.UPDATE() WHEN CHANGING VISIBILITY!
+            Console.WriteLine("Called OnArtUpdated event normally!");
             OnArtUpdated?.Invoke(this);
         }
 
@@ -373,6 +397,10 @@ namespace AAP
         /// Invokes the OnArtUpdated event
         /// </summary>
         public void Update()
-            => OnArtUpdated?.Invoke(this);
+        {
+            Console.WriteLine("ASCIIArt.Update() was called to invoke OnArtUpdated!");
+            OnArtUpdated?.Invoke(this);
+        }
+            //=> OnArtUpdated?.Invoke(this);
     }
 }

@@ -513,16 +513,21 @@ namespace AAP.UI.Windows
                     break;
                 case "SelectedLayerName":
                     if (vm.SelectedLayer == null)
-                        return;
+                        break;
+
+                    if (vm.SelectedLayer.Name == vm.SelectedLayerName)
+                        break;
 
                     App.SetArtLayerName(vm.SelectedLayer, vm.SelectedLayerName);
                     break;
                 case "SelectedLayerVisibility":
                     if (vm.SelectedLayer == null)
-                        return;
+                        break;
+
+                    if (vm.SelectedLayer.Visible == vm.SelectedLayerVisibility)
+                        break;
 
                     App.SetArtLayerVisibility(vm.SelectedLayer, vm.SelectedLayerVisibility);
-                    vm.Art?.Update();
                     break;
                 default:
                     break;

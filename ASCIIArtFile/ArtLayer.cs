@@ -6,12 +6,25 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 
 namespace AAP
 {
-    public class ArtLayer : ICloneable
+    public class ArtLayer : ITimelineObject
     {
-        public char?[][] Data;
+        private char?[][] data = new char?[1][];
+        public char?[][] Data
+        {
+            get => data;
+            set
+            {
+                if (data == value)
+                    return;
+
+                data = value;
+                DataChanged?.Invoke(this, value);
+            }
+        }
 
         private string name = "";
         public string Name
@@ -126,6 +139,9 @@ namespace AAP
         {
             get => new(Width, Height);
         }
+
+        public delegate void DataChangedEvent(ArtLayer layer, char?[][] data);
+        public event DataChangedEvent? DataChanged;
 
         public delegate void NameChangedEvent(ArtLayer layer, string name);
         public event NameChangedEvent? NameChanged;
@@ -308,5 +324,16 @@ namespace AAP
 
         public override string ToString()
             => Name;
+
+        public void CopyPropertiesOf(object obj)
+        {
+            if (obj is not ArtLayer layer)
+                throw new ArgumentException("obj is not layer!");
+
+            Name = layer.Name;
+            Data = layer.Data;
+            Offset = layer.Offset;
+            Visible = layer.Visible;
+        }
     }
 }
