@@ -97,7 +97,20 @@
             <DockPanel.DataContext>
                 <viewmodels:LayerSelectionViewModel x:Name="LayerSelectionViewModel"/>
             </DockPanel.DataContext>
-            <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="#FFE2E2E2"></Grid>
+            <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="#FFE2E2E2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/NewLayerIcon.png"/>
+                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/MoveLayerUpIcon.png" Grid.Column="1"/>
+                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/MoveLayerDownIcon.png" Grid.Column="2"/>
+                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DuplicateLayerIcon.png" Grid.Column="3"/>
+                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DestroyLayerIcon.png" Grid.Column="4"/>
+            </Grid>
             <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" Height="90" Visibility="{Binding LayerOptionsVisibility}">
                 <Label Content="Layer Options" FontSize="14" Height="30"/>
                 <Grid Margin="0,5,0,5">
