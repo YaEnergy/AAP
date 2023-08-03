@@ -115,7 +115,7 @@
                 <Label Content="Layer Options" FontSize="14" Height="30"/>
                 <Grid Margin="0,5,0,5">
                     <Label Content="Name" HorizontalAlignment="Left" VerticalAlignment="Top" Width="42"/>
-                    <TextBox TextWrapping="Wrap" Margin="45,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}"/>
+                    <TextBox TextWrapping="Wrap" Margin="45,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0"/>
                 </Grid>
                 <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="0,0,0,5">
                     <CheckBox.Resources>
