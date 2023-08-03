@@ -106,8 +106,8 @@ namespace AAP
 
                 OnCurrentToolChanged?.Invoke(currentTool);
 
-                Console.WriteLine("Selected ToolType: " + value.ToString());
-                Console.WriteLine("Selected Tool: " + currentTool?.ToString());
+                ConsoleLogger.Log("Selected ToolType: " + value.ToString());
+                ConsoleLogger.Log("Selected Tool: " + currentTool?.ToString());
 
             }
         }
@@ -165,19 +165,19 @@ namespace AAP
             if (!Directory.Exists(DefaultArtFilesDirectoryPath))
             {
                 DirectoryInfo defaultArtFilesDirInfo = Directory.CreateDirectory(DefaultArtFilesDirectoryPath);
-                Console.WriteLine($"Created directory {defaultArtFilesDirInfo.FullName}");
+                ConsoleLogger.Log($"Created directory {defaultArtFilesDirInfo.FullName}");
             }
 
             if (!Directory.Exists(CharacterPaletteDirectoryPath))
             {
                 DirectoryInfo characterPaletteDirInfo = Directory.CreateDirectory(CharacterPaletteDirectoryPath);
-                Console.WriteLine($"Created directory {characterPaletteDirInfo.FullName}");
+                ConsoleLogger.Log($"Created directory {characterPaletteDirInfo.FullName}");
             }
 
             if (!Directory.Exists(AutoSaveDirectoryPath))
             {
                 DirectoryInfo autoSaveDirInfo = Directory.CreateDirectory(AutoSaveDirectoryPath);
-                Console.WriteLine($"Created directory {autoSaveDirInfo.FullName}");
+                ConsoleLogger.Log($"Created directory {autoSaveDirInfo.FullName}");
             }
 
             //Tools
@@ -202,7 +202,7 @@ namespace AAP
 
                 FileInfo fileInfo = characterPalette.ExportTo(presetCharacterPaletteFilePath);
 
-                Console.WriteLine($"Created Preset Character Palette File: {fileInfo.FullName}");
+                ConsoleLogger.Log($"Created Preset Character Palette File: {fileInfo.FullName}");
             }
 
             //Character Palettes
@@ -215,7 +215,7 @@ namespace AAP
 
                 characterPalettes.Add(characterPalette);
 
-                Console.WriteLine($"Loaded Character Palette File: {fileInfo.FullName}");
+                ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
             }
 
 
@@ -225,9 +225,9 @@ namespace AAP
 
             OnCurrentArtChanged += OnCurrentArtFileChanged;
 
-            Console.WriteLine("Set up complete!");
+            ConsoleLogger.Log("Set up complete!");
 
-            Console.WriteLine("LOADING WINDOW HIDDEN");
+            ConsoleLogger.Log("LOADING WINDOW HIDDEN");
 
             if (args.Length == 1)
                 if (File.Exists(args[0]))
@@ -249,7 +249,7 @@ namespace AAP
                                 OpenArtFileAsync(fileInfo);
                                 break;
                             default:
-                                Console.WriteLine($"Open File On Start Up: Unknown extension: {fileInfo.Extension}!");
+                                ConsoleLogger.Log($"Open File On Start Up: Unknown extension: {fileInfo.Extension}!");
                                 throw new Exception($"Unknown extension: {fileInfo.Extension}");
                         }
 
@@ -286,7 +286,9 @@ namespace AAP
 
         private static void OnThreadException(object? sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            Console.WriteLine($"\n--UNHANDLED EXCEPTION--\n\n{e.Exception}\n\n--END EXCEPTION--\n");
+            Console.WriteLine($"\n\n--UNHANDLED THREAD EXCEPTION--\n\n");
+            ConsoleLogger.Error(e.Exception);
+            Console.WriteLine("\n\n--END THREAD EXCEPTION--\n");
 
             MessageBoxResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {e.Exception.Message}\nOpen full log?", App.ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
@@ -312,7 +314,7 @@ namespace AAP
             bgWorker.DoWork += CreateWork;
             bgWorker.RunWorkerCompleted += CreateWorkComplete;
 
-            Console.WriteLine("Create Art: Running BackgroundWorker");
+            ConsoleLogger.Log("Create Art: Running BackgroundWorker");
             bgWorker.RunWorkerAsync();
 
             void CreateWork(object? sender, DoWorkEventArgs args)
@@ -320,7 +322,7 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     return;
 
-                Console.WriteLine($"Create Art: creating art...");
+                ConsoleLogger.Log($"Create Art: creating art...");
                 bgWorker.ReportProgress(33, new BackgroundTaskState("Creating art...", true));
 
                 ASCIIArt art = new();
@@ -338,9 +340,9 @@ namespace AAP
             void CreateWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
             {
                 if (e.Error != null)
-                    Console.WriteLine("Create Art: ERROR: " + e.Error.ToString());
+                    ConsoleLogger.Error("Create Art: ", e.Error);
                 else if (e.Cancelled)
-                    Console.WriteLine("Create Art: Art file creation was cancelled");
+                    ConsoleLogger.Inform("Create Art: Art file creation was cancelled");
                 else
                 {
                     if (e.Result is not ASCIIArt art)
@@ -348,7 +350,7 @@ namespace AAP
 
                     CurrentArt = art;
                     CurrentLayerID = -1;
-                    Console.WriteLine($"Create Art: created new art!");
+                    ConsoleLogger.Log($"Create Art: created new art!");
                 }
             }
 
@@ -363,7 +365,7 @@ namespace AAP
             bgWorker.DoWork += OpenWork;
             bgWorker.RunWorkerCompleted += OpenWorkComplete;
 
-            Console.WriteLine("Open File: Running BackgroundWorker");
+            ConsoleLogger.Log("Open File: Running BackgroundWorker");
             bgWorker.RunWorkerAsync();
 
             void OpenWork(object? sender, DoWorkEventArgs args)
@@ -371,7 +373,7 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     return;
 
-                Console.WriteLine($"Open File: importing file from path... {file.FullName}");
+                ConsoleLogger.Log($"Open File: importing file from path... {file.FullName}");
 
                 bgWorker.ReportProgress(30, new BackgroundTaskState("Importing art...", true));
 
@@ -395,13 +397,13 @@ namespace AAP
                         throw new Exception("Unknown file extension!");
                 }
 
-                Console.WriteLine($"Open File: Imported file!");
+                ConsoleLogger.Log($"Open File: Imported file!");
                 AAPFile.Import(art, bgWorker);
 
                 if (art.Width * art.Height > MaxArtArea)
                     throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
 
-                Console.WriteLine($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+                ConsoleLogger.Inform($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
                 bgWorker.ReportProgress(90, new BackgroundTaskState("Finishing up art...", true));
                 args.Result = art;
@@ -410,9 +412,9 @@ namespace AAP
             void OpenWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
             {
                 if (e.Error != null)
-                    Console.WriteLine("Open File: ERROR: " + e.Error.ToString());
+                    ConsoleLogger.Error("Open File: ", e.Error);
                 else if (e.Cancelled)
-                    Console.WriteLine("Open File: Art file open was cancelled");
+                    ConsoleLogger.Inform("Open File: Art file open was cancelled");
                 else
                 {
                     if (e.Result is not ASCIIArt art)
@@ -421,7 +423,7 @@ namespace AAP
                     CurrentArt = art;
                     CurrentLayerID = -1;
                     CurrentFilePath = file.Extension == ".aaf" ? file.FullName : null;
-                    Console.WriteLine($"Open File Path: opened file!");
+                    ConsoleLogger.Log($"Open File Path: opened file!");
                 }
             }
 
@@ -444,7 +446,7 @@ namespace AAP
             bgWorker.DoWork += SaveWork;
             bgWorker.RunWorkerCompleted += SaveWorkComplete;
 
-            Console.WriteLine("Save File: Running BackgroundWorker");
+            ConsoleLogger.Log("Save File: Running BackgroundWorker");
             bgWorker.RunWorkerAsync();
 
             void SaveWork(object? sender, DoWorkEventArgs args)
@@ -452,7 +454,7 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     return;
 
-                Console.WriteLine("Save File: Saving art file to " + path);
+                ConsoleLogger.Log("Save File: Saving art file to " + path);
                 bgWorker.ReportProgress(90, new BackgroundTaskState("Exporting as .aaf file...", true));
 
                 AAFASCIIArt aafASCIIArt = new(path);
@@ -465,20 +467,20 @@ namespace AAP
             {
                 if (e.Error != null)
                 {
-                    Console.WriteLine("Save File: ERROR: " + e.Error.ToString());
+                    ConsoleLogger.Error("Save File: ", e.Error);
                     art.UnsavedChanges = true;
                 }
                 else if (e.Cancelled)
                 {
-                    Console.WriteLine("Save File: Art file save cancelled");
+                    ConsoleLogger.Inform("Save File: Art file save cancelled");
                     art.UnsavedChanges = true;
                 }
                 else
                 {
                     if (e.Result is not FileInfo fileInfo)
-                        Console.WriteLine("Save File: Art file save was successful, but result is not file info");
+                        ConsoleLogger.Warn("Save File: Art file save was successful, but result is not file info");
                     else
-                        Console.WriteLine("Save File: Art file saved to " + fileInfo.FullName + "!");
+                        ConsoleLogger.Log("Save File: Art file saved to " + fileInfo.FullName + "!");
 
                     art.UnsavedChanges = false;
                 }
@@ -502,7 +504,7 @@ namespace AAP
             bgWorker.DoWork += ExportWork;
             bgWorker.RunWorkerCompleted += ExportWorkComplete;
 
-            Console.WriteLine("Export File: Running BackgroundWorker");
+            ConsoleLogger.Log("Export File: Running BackgroundWorker");
             bgWorker.RunWorkerAsync();
 
             void ExportWork(object? sender, DoWorkEventArgs args)
@@ -510,7 +512,7 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     throw new Exception("Sender is not a background worker!");
 
-                Console.WriteLine("Export File: Exporting art file to " + path);
+                ConsoleLogger.Log("Export File: Exporting art file to " + path);
 
                 FileInfo fileInfo = new(path);
                 bgWorker.ReportProgress(90, new BackgroundTaskState($"Exporting as {fileInfo.Extension} file...", true));
@@ -536,15 +538,15 @@ namespace AAP
             void ExportWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
             {
                 if (e.Error != null)
-                    Console.WriteLine("Export File: ERROR: " + e.Error.ToString());
+                    ConsoleLogger.Error("Export File: ", e.Error);
                 else if (e.Cancelled)
-                    Console.WriteLine("Export File: Art file export cancelled");
+                    ConsoleLogger.Inform("Export File: Art file export cancelled");
                 else
                 {
                     if (e.Result is not FileInfo fileInfo)
-                        Console.WriteLine("Export File: Art file export was successful, but result is not file info");
+                        ConsoleLogger.Warn("Export File: Art file export was successful, but result is not file info");
                     else
-                        Console.WriteLine("Export File: Art file exported to " + fileInfo.FullName + "!");
+                        ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
                 }
             }
 
@@ -556,11 +558,11 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            Console.WriteLine("Copy Art To Clipboard: Copying art file to clipboard...");
+            ConsoleLogger.Log("Copy Art To Clipboard: Copying art file to clipboard...");
             string artString = CurrentArt.GetArtString();
 
             Clipboard.SetText(artString);
-            Console.WriteLine("Copy Art To Clipboard: Copied art file to clipboard!");
+            ConsoleLogger.Log("Copy Art To Clipboard: Copied art file to clipboard!");
         }
         #endregion
         #region Art
@@ -655,6 +657,11 @@ namespace AAP
 
         #endregion
         #region Character Palettes
+        /// <summary>
+        /// should be updated
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
         public static Exception? ImportCharacterPalette(FileInfo file)
         {
             if (!file.Exists)
@@ -662,19 +669,19 @@ namespace AAP
 
             try
             {
-                Console.WriteLine($"Import Character Palette: importing character palette from path... {file.FullName}");
+                ConsoleLogger.Log($"Import Character Palette: importing character palette from path... {file.FullName}");
 
                 CharacterPalette? palette = CharacterPalette.ImportFilePath(file.FullName);
 
                 if (palette == null)
                 {
-                    Console.WriteLine("Import Character Palette: current character palette file is null!");
+                    ConsoleLogger.Log("Import Character Palette: current character palette file is null!");
                     throw new NullReferenceException("Current character palette file is null!");
                 }
 
                 if (palette.Characters.Length > MaxCharacterPaletteCharacters)
                 {
-                    Console.WriteLine($"Import Character Palette: More than or {MaxCharacterPaletteCharacters} characters!) ({palette.Characters.Length} characters)");
+                    ConsoleLogger.Log($"Import Character Palette: More than or {MaxCharacterPaletteCharacters} characters!) ({palette.Characters.Length} characters)");
                     throw new Exception($"Character Palette is too large! Max: {MaxCharacterPaletteCharacters} characters ({palette.Characters.Length} characters)");
                 }
 
@@ -690,12 +697,12 @@ namespace AAP
 
                 CharacterPalettes.Add(palette);
 
-                Console.WriteLine($"Import Character Palette: Imported character palette!");
-                Console.WriteLine($"\nFILE INFO\nFile Path: {file.FullName}\nTotal Characters: {palette.Characters.Length}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+                ConsoleLogger.Log($"Import Character Palette: Imported character palette!");
+                ConsoleLogger.Log($"\nFILE INFO\nFile Path: {file.FullName}\nTotal Characters: {palette.Characters.Length}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Import Character Palette: An error has occurred while importing character palette ({file.FullName})! Exception: {ex}");
+                ConsoleLogger.Error("Import Character Palette: error occurred while importing character palette {0}", ex, file.FullName);
                 return ex;
             }
 
@@ -726,11 +733,11 @@ namespace AAP
 
                     break;
                 default:
-                    Console.WriteLine("Current Tool cannot select characters!");
+                    ConsoleLogger.Warn("Current Tool cannot select characters!");
                     break;
             }
 
-            Console.WriteLine("Selected Character: " + character.ToString());
+            ConsoleLogger.Log("Selected Character: " + character.ToString());
         }
         #endregion
         #region Layers

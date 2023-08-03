@@ -345,7 +345,7 @@ namespace AAP.UI.Controls
                 }
 
             stopwatch.Stop();
-            Console.WriteLine("Drew full canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
+            ConsoleLogger.Inform("Drew full canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
         }
 
         /// <summary>
@@ -353,10 +353,8 @@ namespace AAP.UI.Controls
         /// </summary>
         protected void UpdateDisplayArt()
         {
-#if WPF_DEBUG || DEBUG
             Stopwatch stopwatch = new();
             stopwatch.Start();
-#endif
 
             CultureInfo cultureInfo = CultureInfo.InvariantCulture;
 
@@ -377,10 +375,8 @@ namespace AAP.UI.Controls
 
             changedLines.Clear();
 
-#if WPF_DEBUG || DEBUG
             stopwatch.Stop();
-            Console.WriteLine("Updated canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
-#endif
+            ConsoleLogger.Inform("Updated canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
         }
 
         /// <summary>

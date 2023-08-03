@@ -395,10 +395,6 @@ namespace AAP
         /// Invokes the OnArtUpdated event
         /// </summary>
         public void Update()
-        {
-            Console.WriteLine("ASCIIArt.Update() was called to invoke OnArtUpdated!");
-            OnArtUpdated?.Invoke(this);
-        }
-            //=> OnArtUpdated?.Invoke(this);
+            => OnArtUpdated?.Invoke(this);
     }
 }
