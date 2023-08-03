@@ -5,10 +5,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace AAP.UI.ViewModels
 {
-    public class LayerSelectionViewModel : INotifyPropertyChanged
+    public class LayerManagementViewModel : INotifyPropertyChanged
     {
         private ASCIIArt? art = null;
         public ASCIIArt? Art
@@ -166,7 +167,22 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        public ICommand CreateNewLayerCommand { get; private set; }
+        public ICommand MoveLayerUpCommand { get; private set; }
+        public ICommand MoveLayerDownCommand { get; private set; }
+        public ICommand DuplicateLayerCommand { get; private set; }
+        public ICommand RemoveLayerCommand { get; private set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public LayerManagementViewModel()
+        {
+            CreateNewLayerCommand = new ActionCommand((parameter) => App.AddArtLayer());
+            MoveLayerUpCommand = new ActionCommand((parameter) => throw new NotImplementedException());
+            MoveLayerDownCommand = new ActionCommand((parameter) => throw new NotImplementedException());
+            DuplicateLayerCommand = new ActionCommand((parameter) => App.DuplicateCurrentArtLayer());
+            RemoveLayerCommand = new ActionCommand((parameter) => App.RemoveCurrentArtLayer());
+        }
 
         private void LayerNameChanged(ArtLayer layer, string name)
         {

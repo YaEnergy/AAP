@@ -91,13 +91,13 @@ namespace AAP.UI.Controls
         public static readonly DependencyProperty CommandProperty =
         DependencyProperty.Register(
             name: "Command",
-            propertyType: typeof(EventArgsCommand<bool>),
+            propertyType: typeof(ICommand),
             ownerType: typeof(ImageButton),
             typeMetadata: new FrameworkPropertyMetadata(defaultValue: null));
 
-        public EventArgsCommand<bool>? Command 
+        public ICommand? Command 
         { 
-            get => (EventArgsCommand<bool>?)GetValue(CommandProperty); 
+            get => (ICommand?)GetValue(CommandProperty); 
             set => SetValue(CommandProperty, value); 
         }
 

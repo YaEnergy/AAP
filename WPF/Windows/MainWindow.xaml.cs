@@ -46,7 +46,7 @@ namespace AAP.UI.Windows
             App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
 
             CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
-            LayerSelectionViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
+            LayerManagementViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
             artCanvasViewModel.CurrentTool = App.CurrentTool;
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
@@ -144,7 +144,7 @@ namespace AAP.UI.Windows
             artCanvasViewModel.CurrentArtDraw = artDraw;
             artCanvasViewModel.CurrentArtTimeline = artTimeline;
 
-            LayerSelectionViewModel.Art = art;
+            LayerManagementViewModel.Art = art;
 
             //Add new listeners
             if (artCanvasViewModel.CurrentArt != null)
@@ -186,7 +186,7 @@ namespace AAP.UI.Windows
             => artCanvasViewModel.Selected = selected;
 
         private void CurrentLayerIDChanged(int layerID)
-            => LayerSelectionViewModel.SelectedLayerID = layerID;
+            => LayerManagementViewModel.SelectedLayerID = layerID;
 
         #endregion
 
@@ -503,7 +503,7 @@ namespace AAP.UI.Windows
             if (sender == null)
                 return;
 
-            if (sender is not LayerSelectionViewModel vm)
+            if (sender is not LayerManagementViewModel vm)
                 return;
 
             switch (e.PropertyName)

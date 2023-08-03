@@ -365,9 +365,7 @@ namespace AAP
             SetSize(toCopy.Width, toCopy.Height);
 
             UnsavedChanges = true;
-
-            //THERE IS SOMETHING THAT CALLS ASCIIART.UPDATE() WHEN CHANGING VISIBILITY!
-            Console.WriteLine("Called OnArtUpdated event normally!");
+            
             OnArtUpdated?.Invoke(this);
         }
 
