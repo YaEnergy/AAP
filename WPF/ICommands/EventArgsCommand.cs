@@ -28,13 +28,13 @@ namespace AAP.UI
         public void Execute(object? sender)
         {
             _action(sender, default);
-            Console.WriteLine("Executed EventArgsCommand!");
+            ConsoleLogger.Log("Executed EventArgsCommand!");
         }
 
         public void Execute(object? sender, T? args)
         {
             _action(sender, args);
-            Console.WriteLine("Executed EventArgsCommand!");
+            ConsoleLogger.Log("Executed EventArgsCommand!");
         }
     }
 }

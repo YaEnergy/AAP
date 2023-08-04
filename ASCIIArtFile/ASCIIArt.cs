@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace AAP
 {
-    public class ASCIIArt : ITimelineObject
+    public class ASCIIArt : ITimelineObject, INotifyPropertyChanged
     {
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space
         public static readonly int VERSION = 3;
@@ -20,7 +22,11 @@ namespace AAP
         private int updatedInVersion = 3;
         public int UpdatedInVersion { get => updatedInVersion; }
 
-        public List<ArtLayer> ArtLayers { get; private set; } = new();
+        private ObservableCollection<ArtLayer> artLayers = new();
+        public ObservableCollection<ArtLayer> ArtLayers
+        {
+            get => artLayers;
+        }
 
         private int width = -1;
         public int Width 
@@ -38,6 +44,8 @@ namespace AAP
 
                 OnSizeChanged?.Invoke(Width, Height);
                 UnsavedChanges = true;
+
+                PropertyChanged?.Invoke(this, new(nameof(Width)));
             }
         }
         private int height = -1;
@@ -56,6 +64,8 @@ namespace AAP
 
                 OnSizeChanged?.Invoke(Width, Height);
                 UnsavedChanges = true;
+
+                PropertyChanged?.Invoke(this, new(nameof(Height)));
             }
         }
 
@@ -96,22 +106,64 @@ namespace AAP
         /// </summary>
         public event OnArtUpdatedEvent? OnArtUpdated;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         private bool unsavedChanges = false;
         [JsonIgnore]
         public bool UnsavedChanges
         {
             get => unsavedChanges;
             set 
-            { 
+            {
+                if (unsavedChanges == value)
+                    return;
+
                 unsavedChanges = value;
 
                 OnUnsavedChangesChanged?.Invoke(this, unsavedChanges);
+                PropertyChanged?.Invoke(this, new(nameof(UnsavedChanges)));
             }
         }
 
         public ASCIIArt()
         {
+            ArtLayers.CollectionChanged += ArtLayerCollectionChanged;
+            OnArtLayerAdded += LayerAdded;
+            OnArtLayerRemoved += LayerRemoved;
+        }
 
+        private void ArtLayerCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            //Move & Replace do not need to invoke any events, they only need to set UnsavedChanges to true.
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    if(e.NewItems != null)
+                        foreach (ArtLayer layer in e.NewItems)
+                            OnArtLayerAdded?.Invoke(e.NewStartingIndex, layer);
+                    
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    if (e.OldItems != null)
+                        foreach (ArtLayer layer in e.OldItems)
+                            OnArtLayerRemoved?.Invoke(e.OldStartingIndex, layer);
+
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    if (e.NewItems != null)
+                        foreach (ArtLayer layer in e.NewItems)
+                            OnArtLayerAdded?.Invoke(e.NewStartingIndex, layer);
+
+                    if (e.OldItems != null)
+                        foreach (ArtLayer layer in e.OldItems)
+                            OnArtLayerRemoved?.Invoke(e.OldStartingIndex, layer);
+
+                    break;
+                default:
+                    break;
+            }
+
+            UnsavedChanges = true;
         }
 
         /// <summary>
@@ -133,12 +185,14 @@ namespace AAP
             {
                 this.height = height;
                 changedSize = true;
+                PropertyChanged?.Invoke(this, new(nameof(Height)));
             }
 
             if (this.width != width)
             {
                 this.width = width;
                 changedSize = true;
+                PropertyChanged?.Invoke(this, new(nameof(Width)));
             }
 
             if (changedSize)
@@ -149,67 +203,6 @@ namespace AAP
         }
 
         #region Layers
-        public void InsertLayer(int index, ArtLayer artLayer)
-        {
-            ArtLayers.Insert(index, artLayer);
-            OnArtLayerAdded?.Invoke(index, ArtLayers[index]);
-
-            artLayer.OffsetChanged += OnArtLayerOffsetChanged;
-            artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
-
-            UnsavedChanges = true;
-
-            OnArtUpdated?.Invoke(this);
-        }
-
-        public void AddLayer(ArtLayer artLayer)
-        {
-            ArtLayers.Add(artLayer);
-            OnArtLayerAdded?.Invoke(ArtLayers.Count - 1, artLayer);
-
-            artLayer.OffsetChanged += OnArtLayerOffsetChanged;
-            artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
-
-            UnsavedChanges = true;
-
-            OnArtUpdated?.Invoke(this);
-        }
-
-        public void RemoveLayer(int index)
-        {
-            if (ArtLayers.Count <= index) 
-                return;
-
-            ArtLayer artLayer = ArtLayers[index];
-            ArtLayers.RemoveAt(index);
-            OnArtLayerRemoved?.Invoke(index, artLayer);
-
-            artLayer.OffsetChanged -= OnArtLayerOffsetChanged;
-            artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
-
-            UnsavedChanges = true;
-
-            OnArtUpdated?.Invoke(this);
-        }
-
-        public void ClearLayers()
-        {
-            ArtLayer[] layers = ArtLayers.ToArray();
-
-            for (int i = 0; i < layers.Length; i++)
-            {
-                ArtLayer artLayer = layers[i];
-                ArtLayers.Remove(artLayer);
-                OnArtLayerRemoved?.Invoke(i, artLayer);
-                artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer offset changes
-                artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
-            }
-
-            UnsavedChanges = true;
-
-            OnArtUpdated?.Invoke(this);
-        }
-
         public void SetLayerIndexName(int index, string layerName)
         {
             if (ArtLayers.Count <= index)
@@ -230,6 +223,18 @@ namespace AAP
             UnsavedChanges = true;
 
             OnArtUpdated?.Invoke(this);
+        }
+
+        private void LayerAdded(int index, ArtLayer layer)
+        {
+            layer.OffsetChanged += OnArtLayerOffsetChanged;
+            layer.VisibilityChanged += OnArtLayerVisibilityChanged;
+        }
+
+        private void LayerRemoved(int index, ArtLayer layer)
+        {
+            layer.OffsetChanged -= OnArtLayerOffsetChanged;
+            layer.VisibilityChanged -= OnArtLayerVisibilityChanged;
         }
         #endregion
 

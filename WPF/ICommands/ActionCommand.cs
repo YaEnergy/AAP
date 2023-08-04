@@ -28,7 +28,7 @@ namespace AAP.UI
         public void Execute(object? parameter = null)
         {
             _action(parameter);
-            Console.WriteLine("Executed ActionCommand!");
+            ConsoleLogger.Log("Executed ActionCommand!");
         }
     }
 }

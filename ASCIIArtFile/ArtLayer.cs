@@ -10,7 +10,7 @@ using System.Windows.Markup;
 
 namespace AAP
 {
-    public class ArtLayer : ITimelineObject
+    public class ArtLayer : ITimelineObject, INotifyPropertyChanged
     {
         private char?[][] data = new char?[1][];
         public char?[][] Data
@@ -23,6 +23,7 @@ namespace AAP
 
                 data = value;
                 DataChanged?.Invoke(this, value);
+                PropertyChanged?.Invoke(this, new(nameof(Data)));
             }
         }
 
@@ -38,6 +39,7 @@ namespace AAP
                 name = value;
 
                 NameChanged?.Invoke(this, value);
+                PropertyChanged?.Invoke(this, new(nameof(Name)));
             }
         }
 
@@ -53,6 +55,7 @@ namespace AAP
                 visible = value;
 
                 VisibilityChanged?.Invoke(this, value);
+                PropertyChanged?.Invoke(this, new(nameof(Visible)));
             }
         }
 
@@ -69,6 +72,7 @@ namespace AAP
 
                 offsetX = value;
                 OffsetChanged?.Invoke(this, oldOffset, Offset);
+                PropertyChanged?.Invoke(this, new(nameof(OffsetX)));
             }
         }
 
@@ -85,6 +89,7 @@ namespace AAP
 
                 offsetY = value;
                 OffsetChanged?.Invoke(this, oldOffset, Offset);
+                PropertyChanged?.Invoke(this, new(nameof(OffsetY)));
             }
         }
 
@@ -102,12 +107,14 @@ namespace AAP
                 {
                     changed = true;
                     offsetX = (int)value.X;
+                    PropertyChanged?.Invoke(this, new(nameof(OffsetX)));
                 }
 
                 if (offsetY != value.Y)
                 {
                     changed = true;
                     offsetY = (int)value.Y;
+                    PropertyChanged?.Invoke(this, new(nameof(OffsetY)));
                 }
 
                 if (changed)
@@ -154,6 +161,9 @@ namespace AAP
 
         public delegate void CroppedEvent(ArtLayer layer, Rect oldRect, Rect newRect);
         public event CroppedEvent? Cropped;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         /// <summary>
         /// Constructor used by the JsonDeserializer
         /// </summary>

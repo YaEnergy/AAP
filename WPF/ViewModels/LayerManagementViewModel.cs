@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -39,8 +40,8 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private List<ArtLayer> layers = new();
-        public List<ArtLayer> Layers
+        private ObservableCollection<ArtLayer> layers = new();
+        public ObservableCollection<ArtLayer> Layers
         {
             get => layers;
             private set
@@ -196,11 +197,13 @@ namespace AAP.UI.ViewModels
         private void ArtLayerAdded(int index, ArtLayer layer)
         {
             SelectedLayer = SelectedLayerID != -1 ? Layers[SelectedLayerID] : null;
+            PropertyChanged?.Invoke(this, new(nameof(Layers)));
         }
 
         private void ArtLayerRemoved(int index, ArtLayer layer)
         {
             SelectedLayer = SelectedLayerID != -1 ? Layers[SelectedLayerID] : null;
+            PropertyChanged?.Invoke(this, new(nameof(Layers)));
         }
     }
 }

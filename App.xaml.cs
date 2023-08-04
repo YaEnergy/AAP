@@ -66,7 +66,7 @@ namespace AAP
         public delegate void OnSelectionChangedEvent(Rect selection);
         public static event OnSelectionChangedEvent? OnSelectionChanged;
 
-        private static int currentLayerID = 0;
+        private static int currentLayerID = -1;
         public static int CurrentLayerID { get => currentLayerID; set { currentLayerID = value; OnCurrentLayerIDChanged?.Invoke(value); } }
         public delegate void CurrentLayerIDChangedEvent(int currentLayerID);
         public static event CurrentLayerIDChangedEvent? OnCurrentLayerIDChanged;
@@ -149,6 +149,7 @@ namespace AAP
 
             app.Exit += OnApplicationExit;
             app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
+            app.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
 #if RELEASE
             TextWriter oldOut = Console.Out;
@@ -276,26 +277,34 @@ namespace AAP
         }
 
         #region Application Events
-        private static void OnApplicationExit(object? sender, ExitEventArgs args)
+        private static void OnApplicationExit(object? sender, ExitEventArgs e)
         {
+            Console.WriteLine("\n--APPLICATION EXIT--\n");
+
             //Ask to save
 
-            Console.WriteLine("\n--APPLICATION EXIT--\n");
+            ConsoleLogger.Log("Exited with code {0}", e.ApplicationExitCode);
+
             Console.Out.Close();
         }
 
         private static void OnThreadException(object? sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            Console.WriteLine($"\n\n--UNHANDLED THREAD EXCEPTION--\n\n");
+            Console.WriteLine($"\n--THREAD EXCEPTION--\n");
             ConsoleLogger.Error(e.Exception);
-            Console.WriteLine("\n\n--END THREAD EXCEPTION--\n");
+            Console.WriteLine("\n--END THREAD EXCEPTION--\n");
 
-            MessageBoxResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP! Exception: {e.Exception.Message}\nOpen full log?", App.ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
+            if (!e.Handled)
+            {
+                Console.WriteLine("\n--THREAD EXCEPTION UNHANDLED |  SHUTTING DOWN--\n");
 
-            if (result == MessageBoxResult.Yes)
-                Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
+                MessageBoxResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP!\nOpen log file?", ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
-            Current.Shutdown(-1);
+                if (result == MessageBoxResult.Yes)
+                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
+
+                Current.Shutdown(-1);
+            }
         }
         #endregion
 
@@ -329,7 +338,7 @@ namespace AAP
                 art.SetSize(width, height);
 
                 bgWorker.ReportProgress(66, new BackgroundTaskState("Creating background layer...", true));
-                art.AddLayer(new("Background", width, height, 0, 0));
+                art.ArtLayers.Add(new("Background", width, height, 0, 0));
 
                 bgWorker.ReportProgress(90, new BackgroundTaskState("Finishing up art...", true));
                 art.UnsavedChanges = true;
@@ -747,10 +756,11 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            CurrentArt.InsertLayer(CurrentLayerID + 1, new("Layer", CurrentArt.Width, CurrentArt.Height));
+            CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, new("Layer", CurrentArt.Width, CurrentArt.Height));
             CurrentLayerID += 1;
 
             CurrentArtTimeline?.NewTimePoint();
+            CurrentArt.Update();
         }
 
         public static void DuplicateCurrentArtLayer()
@@ -759,6 +769,9 @@ namespace AAP
                 return;
 
             if (CurrentArt.ArtLayers.Count == 0)
+                return;
+
+            if (CurrentLayerID == -1)
                 return;
 
             ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
@@ -771,10 +784,11 @@ namespace AAP
                 for (int y = 0; y < CurrentArt.Height; y++)
                     duplicateArtLayer.Data[x][y] = currentArtLayer.Data[x][y];
 
-            CurrentArt.InsertLayer(CurrentLayerID + 1, duplicateArtLayer);
+            CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, duplicateArtLayer);
             CurrentLayerID += 1;
 
             CurrentArtTimeline?.NewTimePoint();
+            CurrentArt.Update();
         }
 
         public static void RemoveCurrentArtLayer()
@@ -785,10 +799,14 @@ namespace AAP
             if (CurrentArt.ArtLayers.Count == 0)
                 return;
 
+            if (CurrentLayerID == -1)
+                return;
+
             CurrentLayerID -= 1;
-            CurrentArt.RemoveLayer(CurrentLayerID + 1);
+            CurrentArt.ArtLayers.RemoveAt(CurrentLayerID + 1);
 
             CurrentArtTimeline?.NewTimePoint();
+            CurrentArt.Update();
         }
 
         public static void SetArtLayerName(ArtLayer layer, string name)

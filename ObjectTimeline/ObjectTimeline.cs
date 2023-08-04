@@ -41,7 +41,7 @@ namespace AAP.Timelines
             this.timeline = new object?[sizeLimit];
             
             timeline[timePoint] = timelineObject.Clone();
-            Console.WriteLine("Created timepoint 0");
+            ConsoleLogger.Log("Created timepoint 0");
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace AAP.Timelines
                 for (int i = Math.Clamp(timePoint + 1, 0, SizeLimit - 1); i < SizeLimit; i++)
                     timeline[i] = null;
 
-            Console.WriteLine("Created new time point " +  timePoint);
+            ConsoleLogger.Log("Created new time point " +  timePoint);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace AAP.Timelines
             if (timeObject != null)
                 timelineObject.CopyPropertiesOf(timeObject);
 
-            Console.WriteLine("Rolled back to time point " + timePoint);
+            ConsoleLogger.Log("Rolled back to time point " + timePoint);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace AAP.Timelines
             if (timeObject != null)
                 timelineObject.CopyPropertiesOf(timeObject);
 
-            Console.WriteLine("Rolled forward to time point " + timePoint);
+            ConsoleLogger.Log("Rolled forward to time point " + timePoint);
         }
 
         /// <summary>

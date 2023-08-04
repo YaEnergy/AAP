@@ -111,11 +111,11 @@
                 <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DuplicateLayerIcon.png" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
                 <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DestroyLayerIcon.png" Grid.Column="4" Command="{Binding RemoveLayerCommand}"/>
             </Grid>
-            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" Height="90" Visibility="{Binding LayerOptionsVisibility}">
+            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}" MaxHeight="500">
                 <Label Content="Layer Options" FontSize="14" Height="30"/>
                 <Grid Margin="0,5,0,5">
                     <Label Content="Name" HorizontalAlignment="Left" VerticalAlignment="Top" Width="42"/>
-                    <TextBox TextWrapping="Wrap" Margin="45,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0"/>
+                    <TextBox TextWrapping="Wrap" Margin="45,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100"/>
                 </Grid>
                 <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="0,0,0,5">
                     <CheckBox.Resources>
@@ -125,7 +125,15 @@
                     </CheckBox.Resources>
                 </CheckBox>
             </StackPanel>
-            <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top"/>
+            <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <WrapPanel>
+                            <TextBlock Text="{Binding Name}"/>
+                        </WrapPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </DockPanel>
         <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto">
             <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Left" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt, Source={StaticResource artCanvasViewModel}}" DisplayArtDraw="{Binding CurrentArtDraw, Source={StaticResource artCanvasViewModel}}" SelectionHighlightRect="{Binding Selected, Source={StaticResource artCanvasViewModel}}" TextSize="{Binding TextSize, Source={StaticResource artCanvasViewModel}}" Tool="{Binding CurrentTool, Source={StaticResource artCanvasViewModel}}" CanUseTool="{Binding CanUseTool, Source={StaticResource artCanvasViewModel}}" HighlightRectThickness="{Binding HighlightThickness, Source={StaticResource artCanvasViewModel}}"/>
