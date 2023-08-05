@@ -82,17 +82,21 @@ namespace AAP
         /// </summary>
         public event SizeChangedEvent? OnSizeChanged;
 
-        public delegate void ArtLayerAddedEvent(int index, ArtLayer artLayer);
+        public delegate void ArtLayerListChangeEvent(int index, ArtLayer artLayer);
         /// <summary>
         /// Invoked when a layer is added.
         /// </summary>
-        public event ArtLayerAddedEvent? OnArtLayerAdded;
+        public event ArtLayerListChangeEvent? OnArtLayerAdded;
 
-        public delegate void ArtLayerRemovedEvent(int index, ArtLayer artLayer);
         /// <summary>
         /// Invoked when a layer is removed.
         /// </summary>
-        public event ArtLayerRemovedEvent? OnArtLayerRemoved;
+        public event ArtLayerListChangeEvent? OnArtLayerRemoved;
+
+        /// <summary>
+        /// Invoked when a layer's index in the artLayers changes.
+        /// </summary>
+        public event ArtLayerListChangeEvent? OnArtLayerIndexChanged;
 
         public delegate void UnsavedChangesChangedEvent(ASCIIArt art, bool unsavedChanges);
         /// <summary>
@@ -147,6 +151,12 @@ namespace AAP
                     if (e.OldItems != null)
                         foreach (ArtLayer layer in e.OldItems)
                             OnArtLayerRemoved?.Invoke(e.OldStartingIndex, layer);
+
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    if (e.OldItems != null)
+                        foreach (ArtLayer layer in e.OldItems)
+                            OnArtLayerIndexChanged?.Invoke(e.OldStartingIndex, layer);
 
                     break;
                 case NotifyCollectionChangedAction.Reset:
@@ -324,26 +334,6 @@ namespace AAP
         {
             if (obj is not ASCIIArt toCopy)
                 return;
-
-            /*ArtLayer[] layers = ArtLayers.ToArray();
-
-            for (int i = 0; i < layers.Length; i++)
-            {
-                ArtLayer artLayer = layers[i];
-                ArtLayers.Remove(artLayer);
-                artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer events
-                artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
-                OnArtLayerRemoved?.Invoke(i, artLayer);
-            }
-
-            for (int i = 0; i < toCopy.ArtLayers.Count; i++)
-            {
-                ArtLayer artLayer = (ArtLayer)toCopy.ArtLayers[i].Clone();
-                ArtLayers.Add(artLayer);
-                artLayer.OffsetChanged += OnArtLayerOffsetChanged;
-                artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
-                OnArtLayerAdded?.Invoke(i, artLayer);
-            }*/
 
             for (int i = 0; i < Math.Max(ArtLayers.Count, toCopy.ArtLayers.Count); i++)
             {

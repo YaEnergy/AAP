@@ -179,8 +179,8 @@ namespace AAP.UI.ViewModels
         public LayerManagementViewModel()
         {
             CreateNewLayerCommand = new ActionCommand((parameter) => App.AddArtLayer());
-            MoveLayerUpCommand = new ActionCommand((parameter) => throw new NotImplementedException());
-            MoveLayerDownCommand = new ActionCommand((parameter) => throw new NotImplementedException());
+            MoveLayerUpCommand = new ActionCommand((parameter) => App.MoveCurrentArtLayer(-1));
+            MoveLayerDownCommand = new ActionCommand((parameter) => App.MoveCurrentArtLayer(1));
             DuplicateLayerCommand = new ActionCommand((parameter) => App.DuplicateCurrentArtLayer());
             RemoveLayerCommand = new ActionCommand((parameter) => App.RemoveCurrentArtLayer());
         }
@@ -188,7 +188,6 @@ namespace AAP.UI.ViewModels
         private void LayerNameChanged(ArtLayer layer, string name)
         {
             SelectedLayerName = name;
-            PropertyChanged?.Invoke(this, new(nameof(Layers)));
         }
 
         private void LayerVisibilityChanged(ArtLayer layer, bool visible)
@@ -196,14 +195,12 @@ namespace AAP.UI.ViewModels
 
         private void ArtLayerAdded(int index, ArtLayer layer)
         {
-            SelectedLayer = SelectedLayerID != -1 ? Layers[SelectedLayerID] : null;
-            PropertyChanged?.Invoke(this, new(nameof(Layers)));
+            SelectedLayer = SelectedLayerID != -1 ? Layers[Math.Clamp(SelectedLayerID, 0, Layers.Count - 1)] : null;
         }
 
         private void ArtLayerRemoved(int index, ArtLayer layer)
         {
-            SelectedLayer = SelectedLayerID != -1 ? Layers[SelectedLayerID] : null;
-            PropertyChanged?.Invoke(this, new(nameof(Layers)));
+            SelectedLayer = SelectedLayerID != -1 ? Layers[Math.Clamp(SelectedLayerID, 0, Layers.Count - 1)] : null;
         }
     }
 }

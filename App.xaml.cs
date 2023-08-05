@@ -809,6 +809,29 @@ namespace AAP
             CurrentArt.Update();
         }
 
+        public static void MoveCurrentArtLayer(int amount)
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (CurrentArt.ArtLayers.Count == 0)
+                return;
+
+            if (CurrentLayerID == -1)
+                return;
+
+            int newIndex = Math.Clamp(CurrentLayerID + amount, 0, CurrentArt.ArtLayers.Count - 1);
+
+            if (newIndex == CurrentLayerID)
+                return; //No changes
+
+            CurrentArt.ArtLayers.Move(CurrentLayerID, newIndex);
+            CurrentLayerID = newIndex;
+
+            CurrentArtTimeline?.NewTimePoint();
+            CurrentArt.Update();
+        }
+
         public static void SetArtLayerName(ArtLayer layer, string name)
         {
             if (layer.Name == name)

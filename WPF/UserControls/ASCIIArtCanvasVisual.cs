@@ -464,6 +464,24 @@ namespace AAP.UI.Controls
             }
         }
 
+        private void DisplayArtArtLayerIndexChanged(int index, ArtLayer artLayer)
+        {
+            if (DisplayArt == null)
+                return;
+
+            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            {
+                if (y < 0)
+                    continue;
+
+                if (y >= DisplayArt.Height)
+                    break;
+
+                if (!changedLines.Contains(y))
+                    changedLines.Add(y);
+            }
+        }
+
         private void DisplayArtArtLayerRemoved(int index, ArtLayer artLayer)
         {
             if (DisplayArt == null)
@@ -615,6 +633,7 @@ namespace AAP.UI.Controls
             if (oldDisplayArt != null)
             {
                 oldDisplayArt.OnArtLayerAdded -= canvas.DisplayArtArtLayerAdded;
+                oldDisplayArt.OnArtLayerIndexChanged -= canvas.DisplayArtArtLayerIndexChanged;
                 oldDisplayArt.OnArtLayerRemoved -= canvas.DisplayArtArtLayerRemoved;
                 oldDisplayArt.OnCropped -= canvas.DisplayArtCropped;
                 oldDisplayArt.OnSizeChanged -= canvas.DisplayArtSizeChanged;
@@ -634,6 +653,7 @@ namespace AAP.UI.Controls
             else
             {
                 newDisplayArt.OnArtLayerAdded += canvas.DisplayArtArtLayerAdded;
+                newDisplayArt.OnArtLayerIndexChanged += canvas.DisplayArtArtLayerIndexChanged;
                 newDisplayArt.OnArtLayerRemoved += canvas.DisplayArtArtLayerRemoved;
                 newDisplayArt.OnCropped += canvas.DisplayArtCropped;
                 newDisplayArt.OnSizeChanged += canvas.DisplayArtSizeChanged;
