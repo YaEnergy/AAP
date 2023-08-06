@@ -21,6 +21,7 @@ namespace AAP
     /// </summary>
     public partial class App : Application
     {
+        public static readonly DirectoryInfo? ExecutableDirectory = Environment.ProcessPath != null ? Directory.GetParent(Environment.ProcessPath) : null;
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
@@ -144,6 +145,12 @@ namespace AAP
                 return;
             }
 
+            if (ExecutableDirectory == null)
+                throw new NullReferenceException(nameof(ExecutableDirectory));
+
+            if (!ExecutableDirectory.Exists)
+                throw new Exception(nameof(ExecutableDirectory) + " doesn't exist!");
+
             App app = new();
             app.InitializeComponent();
 
@@ -192,7 +199,7 @@ namespace AAP
             CurrentToolType = ToolType.None;
 
             //Preset Character Palettes
-            foreach (FileInfo presetFileInfo in new DirectoryInfo(@"Resources\PresetCharacterPalettes").GetFiles())
+            foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
             {
                 string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
 

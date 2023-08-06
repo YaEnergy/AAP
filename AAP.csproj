@@ -8,10 +8,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <IncludeSymbols>False</IncludeSymbols>
     <StartupObject>AAP.App</StartupObject>
-    <ApplicationIcon>Icon.ico</ApplicationIcon>
-    <Company>$(Kygira5)</Company>
+    <Company>Kiara/Kygira5</Company>
     <UseWPF>True</UseWPF>
     <Configurations>Debug;Release</Configurations>
+    <FileVersion>$(AssemblyVersion)</FileVersion>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Version>$(AssemblyVersion)-beta</Version>
+    <AssemblyName>ASCII Art Program</AssemblyName>
+    <Title>ASCII Art Program</Title>
+    <Description>A program used to create ASCII Art!</Description>
+    <PackageIcon>Icon.png</PackageIcon>
+    <ApplicationIcon>Resources\Images\ProgramIcons\Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Icon.ico">
+    <Content Include="Resources\Images\ProgramIcons\Icon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -90,6 +98,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Resources\Images\ProgramIcons\Icon.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Resources\Images\ProgramIcons\Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Update="Resources\PresetCharacterPalettes\Alphabet.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
