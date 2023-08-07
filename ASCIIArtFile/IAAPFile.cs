@@ -9,9 +9,12 @@ namespace AAP
 {
     internal interface IAAPFile<T>
     {
-        public abstract void Import(T file, BackgroundWorker? bgWorker = null);
+        public T FileObject { get; protected set; }
+        public string FilePath { get; protected set; }
 
-        public abstract void Export(T file, BackgroundWorker? bgWorker = null);
+        public abstract void Import(BackgroundWorker? bgWorker = null);
+
+        public abstract void Export(BackgroundWorker? bgWorker = null);
 
     }
 }

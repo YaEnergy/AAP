@@ -48,6 +48,17 @@ namespace AAP.UI.Windows
             worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
 
             viewModel.StartStopwatch();
+
+            Closing += OnClosing;
+        }
+
+        private void OnClosing(object? sender, CancelEventArgs e)
+        {
+            if (!DisplayBackgroundWorker.WorkerSupportsCancellation && DisplayBackgroundWorker.IsBusy)
+            {
+                e.Cancel = true;
+                MessageBox.Show("Background Task cannot be cancelled!", viewModel.TaskName, MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void Worker_ProgressChanged(object? sender, ProgressChangedEventArgs e)

@@ -115,7 +115,7 @@ namespace AAP
         public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
 
-        private static CharacterPalette currentCharacterPalette = CharacterPalette.ImportFilePath(@"Resources\PresetCharacterPalettes\Main ASCII Characters.txt") ?? new("Unknown", new List<char>());
+        private static CharacterPalette currentCharacterPalette = new();
         public static CharacterPalette CurrentCharacterPalette { get => currentCharacterPalette; set { currentCharacterPalette = value; OnCurrentCharacterPaletteChanged?.Invoke(value); } }
         public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette palette);
         public static event OnCurrentCharacterPaletteChangedEvent? OnCurrentCharacterPaletteChanged;
@@ -203,12 +203,14 @@ namespace AAP
             {
                 string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
 
-                CharacterPalette? characterPalette = CharacterPalette.ImportFilePath(presetFileInfo.FullName);
+                CharacterPalette palette = new();
+                TXTCharacterPalette presetTxTCharacterPalette = new(palette, presetFileInfo.FullName);
+                presetTxTCharacterPalette.Import();
 
-                if (characterPalette == null)
-                    continue;
+                AAPPALCharacterPalette aappalCharacterPalette = new(palette, presetCharacterPaletteFilePath);
+                aappalCharacterPalette.Export();
 
-                FileInfo fileInfo = characterPalette.ExportTo(presetCharacterPaletteFilePath);
+                FileInfo fileInfo = new(presetCharacterPaletteFilePath);
 
                 ConsoleLogger.Log($"Created Preset Character Palette File: {fileInfo.FullName}");
             }
@@ -216,16 +218,28 @@ namespace AAP
             //Character Palettes
             foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
             {
-                CharacterPalette? characterPalette = CharacterPalette.ImportFilePath(fileInfo.FullName);
+                CharacterPalette palette = new();
 
-                if (characterPalette == null)
-                    continue;
+                IAAPFile<CharacterPalette> fileCharacterPalette;
+                switch(fileInfo.Extension.ToLower())
+                {
+                    case ".aappal":
+                        fileCharacterPalette = new AAPPALCharacterPalette(palette, fileInfo.FullName);
+                        break;
+                    case ".txt":
+                        fileCharacterPalette = new TXTCharacterPalette(palette, fileInfo.FullName);
+                        break;
+                    default:
+                        ConsoleLogger.Warn("Invalid character palette extension " + fileInfo.Extension);
+                        continue;
+                }
 
-                characterPalettes.Add(characterPalette);
+                fileCharacterPalette.Import();
+
+                characterPalettes.Add(palette);
 
                 ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
             }
-
 
             OnAvailableCharacterPalettesChanged?.Invoke(CharacterPalettes);
 
@@ -249,9 +263,6 @@ namespace AAP
                         {
                             case ".aaf":
                                 OpenArtFileAsync(fileInfo);
-                                break;
-                            case ".aappal":
-                                exception = ImportCharacterPalette(fileInfo);
                                 break;
                             case ".txt":
                                 OpenArtFileAsync(fileInfo);
@@ -287,8 +298,6 @@ namespace AAP
         private static void OnApplicationExit(object? sender, ExitEventArgs e)
         {
             Console.WriteLine("\n--APPLICATION EXIT--\n");
-
-            //Ask to save
 
             ConsoleLogger.Log("Exited with code {0}", e.ApplicationExitCode);
 
@@ -399,14 +408,14 @@ namespace AAP
                 IAAPFile<ASCIIArt> AAPFile;
                 ASCIIArt art = new();
 
-                switch (file.Extension)
+                switch (file.Extension.ToLower())
                 {
                     case ".txt":
-                        AAPFile = new TextASCIIArt(file.FullName);
+                        AAPFile = new TXTASCIIArt(art, file.FullName);
                         art.UnsavedChanges = true;
                         break;
                     case ".aaf":
-                        AAPFile = new AAFASCIIArt(file.FullName);
+                        AAPFile = new AAFASCIIArt(art, file.FullName);
                         art.UnsavedChanges = false;
                         break;
                     default:
@@ -414,7 +423,7 @@ namespace AAP
                 }
 
                 ConsoleLogger.Log($"Open File: Imported file!");
-                AAPFile.Import(art, bgWorker);
+                AAPFile.Import(bgWorker);
 
                 if (art.Width * art.Height > MaxArtArea)
                     throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
@@ -473,8 +482,8 @@ namespace AAP
                 ConsoleLogger.Log("Save File: Saving art file to " + path);
                 bgWorker.ReportProgress(90, new BackgroundTaskState("Exporting as .aaf file...", true));
 
-                AAFASCIIArt aafASCIIArt = new(path);
-                aafASCIIArt.Export(art, bgWorker);
+                AAFASCIIArt aafASCIIArt = new(art, path);
+                aafASCIIArt.Export(bgWorker);
 
                 args.Result = new FileInfo(path);
             }
@@ -537,16 +546,16 @@ namespace AAP
                 switch (fileInfo.Extension)
                 {
                     case ".txt":
-                        AAPFile = new TextASCIIArt(fileInfo.FullName);
+                        AAPFile = new TXTASCIIArt(art, fileInfo.FullName);
                         break;
                     case ".aaf":
-                        AAPFile = new AAFASCIIArt(fileInfo.FullName);
+                        AAPFile = new AAFASCIIArt(art, fileInfo.FullName);
                         break;
                     default:
                         throw new Exception("Unknown file extension!");
                 }
 
-                AAPFile.Export(art, bgWorker);
+                AAPFile.Export(bgWorker);
 
                 args.Result = fileInfo;
             }
@@ -673,60 +682,6 @@ namespace AAP
 
         #endregion
         #region Character Palettes
-        /// <summary>
-        /// should be updated
-        /// </summary>
-        /// <param name="file"></param>
-        /// <returns></returns>
-        public static Exception? ImportCharacterPalette(FileInfo file)
-        {
-            if (!file.Exists)
-                return new FileNotFoundException("Failed to open non-existant file", file.FullName);
-
-            try
-            {
-                ConsoleLogger.Log($"Import Character Palette: importing character palette from path... {file.FullName}");
-
-                CharacterPalette? palette = CharacterPalette.ImportFilePath(file.FullName);
-
-                if (palette == null)
-                {
-                    ConsoleLogger.Log("Import Character Palette: current character palette file is null!");
-                    throw new NullReferenceException("Current character palette file is null!");
-                }
-
-                if (palette.Characters.Length > MaxCharacterPaletteCharacters)
-                {
-                    ConsoleLogger.Log($"Import Character Palette: More than or {MaxCharacterPaletteCharacters} characters!) ({palette.Characters.Length} characters)");
-                    throw new Exception($"Character Palette is too large! Max: {MaxCharacterPaletteCharacters} characters ({palette.Characters.Length} characters)");
-                }
-
-                if (CharacterPalettes.Contains(palette))
-                    throw new Exception($"Character Palette already exists! {palette.Name}");
-
-                string characterPaletteFolderFilePath = @$"{CharacterPaletteDirectoryPath}\{file.Name.Replace(file.Extension, ".aappal")}";
-
-                if (File.Exists(characterPaletteFolderFilePath))
-                    throw new Exception($"Character Palette File with name: {file.Name.Replace(file.Extension, ".aappal")} already exists in the character palettes folder!");
-
-                palette.ExportTo(characterPaletteFolderFilePath);
-
-                CharacterPalettes.Add(palette);
-
-                ConsoleLogger.Log($"Import Character Palette: Imported character palette!");
-                ConsoleLogger.Log($"\nFILE INFO\nFile Path: {file.FullName}\nTotal Characters: {palette.Characters.Length}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
-            }
-            catch (Exception ex)
-            {
-                ConsoleLogger.Error("Import Character Palette: error occurred while importing character palette {0}", ex, file.FullName);
-                return ex;
-            }
-
-            OnAvailableCharacterPalettesChanged?.Invoke(CharacterPalettes);
-
-            return null;
-        }
-
         public static void SelectCharacterTool(char? character)
         {
             if (CurrentTool == null)

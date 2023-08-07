@@ -12,15 +12,23 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class TextASCIIArt : IAAPFile<ASCIIArt>
+    public class TXTASCIIArt : IAAPFile<ASCIIArt>
     {
-        public readonly string FilePath;
+        public ASCIIArt FileObject { get; set; }
+        public string FilePath { get; set; }
 
-        public TextASCIIArt(string filePath)
-            => this.FilePath = filePath;
-
-        public void Import(ASCIIArt art, BackgroundWorker? bgWorker = null)
+        public TXTASCIIArt(ASCIIArt art, string filePath)
         {
+            FileObject = art;
+            FilePath = filePath;
+        }
+
+        public void Import(BackgroundWorker? bgWorker = null)
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
             bgWorker?.ReportProgress(33, new BackgroundTaskState("Reading text...", true));
             string[] txtLines = File.ReadAllLines(FilePath);
 
@@ -36,9 +44,9 @@ namespace AAP
                     txtWidth = line.Length;
 
             bgWorker?.ReportProgress(66, new BackgroundTaskState("Creating art...", true));
-            art.SetSize(txtWidth, txtHeight);
-            art.CreatedInVersion = ASCIIArt.VERSION;
-            ArtLayer txtArtLayer = new("Imported Art", art.Width, art.Height);
+            FileObject.SetSize(txtWidth, txtHeight);
+            FileObject.CreatedInVersion = ASCIIArt.VERSION;
+            ArtLayer txtArtLayer = new("Imported Art", FileObject.Width, FileObject.Height);
 
             for (int y = 0; y < txtHeight; y++)
             {
@@ -48,15 +56,15 @@ namespace AAP
                     txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == ASCIIArt.EMPTYCHARACTER ? null : chars[x];
             }
 
-            art.ArtLayers.Add(txtArtLayer);
+            FileObject.ArtLayers.Add(txtArtLayer);
 
-            art.UnsavedChanges = true;
+            FileObject.UnsavedChanges = true;
         }
 
-        public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
+        public void Export(BackgroundWorker? bgWorker = null)
         {
             bgWorker?.ReportProgress(0, new BackgroundTaskState("Getting art string...", true));
-            string artString = art.GetArtString();
+            string artString = FileObject.GetArtString();
 
             bgWorker?.ReportProgress(50, new BackgroundTaskState("Writing to file...", true));
             StreamWriter sw = File.CreateText(FilePath);
@@ -69,13 +77,22 @@ namespace AAP
     public class AAFASCIIArt : IAAPFile<ASCIIArt>
     {
         private static readonly string UncompressedExportPath = @$"{App.ApplicationDataFolderPath}\uncompressedExport";
-        public readonly string FilePath;
 
-        public AAFASCIIArt(string filePath)
-            => this.FilePath = filePath;
+        public ASCIIArt FileObject { get; set; }
+        public string FilePath { get; set; }
 
-        public void Import(ASCIIArt art, BackgroundWorker? bgWorker = null)
+        public AAFASCIIArt(ASCIIArt art, string filePath)
         {
+            FileObject = art;
+            FilePath = filePath;
+        }
+
+        public void Import(BackgroundWorker? bgWorker = null)
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
             bgWorker?.ReportProgress(33, new BackgroundTaskState("Decompressing art file...", true));
             FileStream fs = File.Create(UncompressedExportPath);
 
@@ -92,11 +109,11 @@ namespace AAP
             ASCIIArt? importedArt = js.Deserialize<ASCIIArt>(jr);
             if (importedArt != null)
             {
-                art.CreatedInVersion = importedArt.CreatedInVersion;
-                art.SetSize(importedArt.Width, importedArt.Height);
+                FileObject.CreatedInVersion = importedArt.CreatedInVersion;
+                FileObject.SetSize(importedArt.Width, importedArt.Height);
 
                 for (int i = 0; i < importedArt.ArtLayers.Count; i++)
-                    art.ArtLayers.Insert(i, importedArt.ArtLayers[i]);
+                    FileObject.ArtLayers.Insert(i, importedArt.ArtLayers[i]);
             }
             else
                 throw new Exception("No art could be imported!");
@@ -107,15 +124,15 @@ namespace AAP
             bgWorker?.ReportProgress(100, new BackgroundTaskState("Deleting decompressed path...", true));
             File.Delete(UncompressedExportPath);
 
-            art.UnsavedChanges = false;
+            FileObject.UnsavedChanges = false;
         }
 
-        public void Export(ASCIIArt art, BackgroundWorker? bgWorker = null)
+        public void Export(BackgroundWorker? bgWorker = null)
         {
             bgWorker?.ReportProgress(33, new BackgroundTaskState("Writing as uncompressed file...", true));
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(UncompressedExportPath);
-            js.Serialize(sw, art);
+            js.Serialize(sw, FileObject);
             sw.Close();
 
             bgWorker?.ReportProgress(66, new BackgroundTaskState("Decompressing uncompressed file to file path...", true));
