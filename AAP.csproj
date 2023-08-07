@@ -18,8 +18,8 @@
     <AssemblyName>ASCII Art Program</AssemblyName>
     <Title>ASCII Art Program</Title>
     <Description>A program used to create ASCII Art!</Description>
-    <PackageIcon>Icon.png</PackageIcon>
-    <ApplicationIcon>Resources\Images\ProgramIcons\Icon.ico</ApplicationIcon>
+    <PackageIcon>icon2_color.png</PackageIcon>
+    <ApplicationIcon>Resources\Images\ProgramIcons\icon2_color.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,7 +44,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Resources\Images\ProgramIcons\Icon.ico">
+    <Content Include="Resources\Images\ProgramIcons\icon2_color.ico" />
+    <Content Include="Resources\Images\ProgramIcons\icon2_color.png" />
+    <Content Include="Resources\Images\ProgramIcons\Icon_old.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -98,11 +100,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Resources\Images\ProgramIcons\Icon.ico">
+    <None Update="Resources\Images\ProgramIcons\icon2_color.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Update="Resources\Images\ProgramIcons\Icon.png">
+    <None Update="Resources\Images\ProgramIcons\Icon_old.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Resources\Images\ProgramIcons\Icon_old.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
