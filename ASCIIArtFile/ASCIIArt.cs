@@ -239,12 +239,14 @@ namespace AAP
         {
             layer.OffsetChanged += OnArtLayerOffsetChanged;
             layer.VisibilityChanged += OnArtLayerVisibilityChanged;
+            layer.NameChanged += OnArtLayerNameChanged;
         }
 
         private void LayerRemoved(int index, ArtLayer layer)
         {
             layer.OffsetChanged -= OnArtLayerOffsetChanged;
             layer.VisibilityChanged -= OnArtLayerVisibilityChanged;
+            layer.NameChanged -= OnArtLayerNameChanged;
         }
         #endregion
 
@@ -339,7 +341,7 @@ namespace AAP
             {
                 if (i >= ArtLayers.Count) //Readd layer
                 {
-                    ArtLayer artLayer = (ArtLayer)toCopy.ArtLayers[i].Clone();
+                    ArtLayer artLayer = toCopy.ArtLayers[i];
                     ArtLayers.Add(artLayer);
                     artLayer.OffsetChanged += OnArtLayerOffsetChanged;
                     artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
@@ -383,6 +385,9 @@ namespace AAP
             => UnsavedChanges = true;
 
         private void OnArtLayerVisibilityChanged(ArtLayer artLayer, bool visible)
+            => UnsavedChanges = true;
+
+        private void OnArtLayerNameChanged(ArtLayer artLayer, string name)
             => UnsavedChanges = true;
         #endregion
 

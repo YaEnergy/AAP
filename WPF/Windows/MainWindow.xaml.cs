@@ -181,7 +181,10 @@ namespace AAP.UI.Windows
 
             //Remove old listeners
             if (artCanvasViewModel.CurrentArt != null)
+            {
                 artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged -= OnArtCanvasViewModelArtUnsavedChangesChanged;
+                artCanvasViewModel.CurrentArt.OnSizeChanged -= OnArtCanvasViewModelArtSizeChanged;
+            }
 
             artCanvasViewModel.CurrentArt = art; 
             artCanvasViewModel.CurrentArtDraw = artDraw;
@@ -191,7 +194,10 @@ namespace AAP.UI.Windows
 
             //Add new listeners
             if (artCanvasViewModel.CurrentArt != null)
+            {
                 artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged += OnArtCanvasViewModelArtUnsavedChangesChanged;
+                artCanvasViewModel.CurrentArt.OnSizeChanged += OnArtCanvasViewModelArtSizeChanged;
+            }
 
             UpdateTitle();
         }
@@ -236,6 +242,9 @@ namespace AAP.UI.Windows
         #region Art Canvas View Model Art Events
 
         private void OnArtCanvasViewModelArtUnsavedChangesChanged(ASCIIArt art, bool unsavedChanges)
+            => UpdateTitle();
+
+        private void OnArtCanvasViewModelArtSizeChanged(int width, int height)
             => UpdateTitle();
 
         #endregion
