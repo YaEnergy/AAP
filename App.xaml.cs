@@ -1,4 +1,6 @@
-﻿using AAP.Timelines;
+﻿using AAP.BackgroundTasks;
+using AAP.Timelines;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +9,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,7 +31,6 @@ namespace AAP
         public static readonly int MaxArtArea = 10000000;
         public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
-        public readonly static int MaxCharacterPaletteCharacters = 200;
 
         public static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
 
@@ -54,74 +56,114 @@ namespace AAP
                 OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw, currentArtTimeline);
             }
         }
+
         public delegate void CurrentArtChangedEvent(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline);
         public static event CurrentArtChangedEvent? OnCurrentArtChanged;
 
         private static string? currentFilePath;
-        public static string? CurrentFilePath { get => currentFilePath; set { currentFilePath = value; OnCurrentFilePathChanged?.Invoke(value); } }
+        public static string? CurrentFilePath 
+        { 
+            get => currentFilePath; 
+            set 
+            {
+                if (currentFilePath == value)
+                    return;
+
+                currentFilePath = value; 
+                OnCurrentFilePathChanged?.Invoke(value); 
+            } 
+        }
+        
         public delegate void CurrentFilePathChangedEvent(string? filePath);
         public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
 
         private static Rect selected = Rect.Empty;
-        public static Rect Selected { get => selected; set { selected = value; OnSelectionChanged?.Invoke(value); } }
-        public delegate void OnSelectionChangedEvent(Rect selection);
-        public static event OnSelectionChangedEvent? OnSelectionChanged;
+        public static Rect Selected 
+        { 
+            get => selected; 
+            set 
+            {
+                if (selected == value)
+                    return;
+
+                selected = value; 
+                OnSelectionChanged?.Invoke(value); 
+            } 
+        }
+        public delegate void SelectEvent(Rect selection);
+        public static event SelectEvent? OnSelectionChanged;
 
         private static int currentLayerID = -1;
-        public static int CurrentLayerID { get => currentLayerID; set { currentLayerID = value; OnCurrentLayerIDChanged?.Invoke(value); } }
+        public static int CurrentLayerID 
+        { 
+            get => currentLayerID; 
+            set 
+            { 
+                if (currentLayerID == value) 
+                    return;
+
+                currentLayerID = value; 
+                OnCurrentLayerIDChanged?.Invoke(value); 
+            } 
+        }
         public delegate void CurrentLayerIDChangedEvent(int currentLayerID);
         public static event CurrentLayerIDChangedEvent? OnCurrentLayerIDChanged;
 
-        private static List<Tool> tools = new();
-        public static List<Tool> Tools { get => tools; set => tools = value; }
+        private static readonly List<Tool> tools = new();
+        public static List<Tool> Tools 
+        { 
+            get => tools; 
+        }
 
         private static Tool? currentTool = null;
-        public static Tool? CurrentTool { get => currentTool; }
-
-        private static ToolType currentToolType = ToolType.None;
-        public static ToolType CurrentToolType
-        {
-            get => currentToolType;
+        public static Tool? CurrentTool 
+        { 
+            get => currentTool;
             set
             {
+                if (currentTool == value) 
+                    return;
+
                 if (currentTool != null)
-                {
                     currentTool.OnActivateEnd -= OnToolActivateEnd;
-                }
 
-                currentToolType = value;
+                currentTool = value;
 
-                if (value != ToolType.None)
-                {
-                    foreach (Tool tool in Tools)
-                        if (tool.Type == currentToolType)
-                            currentTool = tool;
-                }
-                else
-                    currentTool = null;
-
-                if(currentTool != null)
-                {
+                if (currentTool != null)
                     currentTool.OnActivateEnd += OnToolActivateEnd;
-                }
 
-                OnCurrentToolChanged?.Invoke(currentTool);
+                OnCurrentToolChanged?.Invoke(value);
 
-                ConsoleLogger.Log("Selected ToolType: " + value.ToString());
-                ConsoleLogger.Log("Selected Tool: " + currentTool?.ToString());
-
+                ConsoleLogger.Log($"Selected Tool: {value}");
+                ConsoleLogger.Log($"Selected ToolType: {(value != null ? value.Type : ToolType.None)}");
             }
         }
+
         public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
 
         private static CharacterPalette currentCharacterPalette = new();
-        public static CharacterPalette CurrentCharacterPalette { get => currentCharacterPalette; set { currentCharacterPalette = value; OnCurrentCharacterPaletteChanged?.Invoke(value); } }
+        public static CharacterPalette CurrentCharacterPalette 
+        { 
+            get => currentCharacterPalette;
+            set 
+            {
+                if (currentCharacterPalette == value)
+                    return;
+
+                currentCharacterPalette = value; 
+                OnCurrentCharacterPaletteChanged?.Invoke(value); 
+            } 
+        }
         public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette palette);
         public static event OnCurrentCharacterPaletteChangedEvent? OnCurrentCharacterPaletteChanged;
 
-        private static List<CharacterPalette> characterPalettes = new();
-        public static List<CharacterPalette> CharacterPalettes { get => characterPalettes; set => characterPalettes = value; }
+        private static readonly List<CharacterPalette> characterPalettes = new();
+        public static List<CharacterPalette> CharacterPalettes 
+        { 
+            get => characterPalettes; 
+        }
+
         public delegate void OnAvailableCharacterPalettesChangedEvent(List<CharacterPalette> palette);
         public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
 
@@ -196,7 +238,7 @@ namespace AAP
             Tools.Add(new BucketTool('|'));
             Tools.Add(new TextTool());
 
-            CurrentToolType = ToolType.None;
+            SelectToolType(ToolType.None);
 
             //Preset Character Palettes
             foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
@@ -323,7 +365,6 @@ namespace AAP
             }
         }
         #endregion
-
         #region Files
         public static void NewFile(ASCIIArt? artFile)
         {
@@ -332,7 +373,7 @@ namespace AAP
             CurrentFilePath = null;
         }
 
-        public static BackgroundWorker? CreateNewArtFileAsync(int width, int height)
+        public static BackgroundTask? CreateNewArtFileAsync(int width, int height)
         {
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = true;
@@ -348,15 +389,15 @@ namespace AAP
                     return;
 
                 ConsoleLogger.Log($"Create Art: creating art...");
-                bgWorker.ReportProgress(33, new BackgroundTaskState("Creating art...", true));
+                bgWorker.ReportProgress(33, new BackgroundTaskUpdateArgs("Creating art...", true));
 
                 ASCIIArt art = new();
                 art.SetSize(width, height);
 
-                bgWorker.ReportProgress(66, new BackgroundTaskState("Creating background layer...", true));
+                bgWorker.ReportProgress(66, new BackgroundTaskUpdateArgs("Creating background layer...", true));
                 art.ArtLayers.Add(new("Background", width, height, 0, 0));
 
-                bgWorker.ReportProgress(90, new BackgroundTaskState("Finishing up art...", true));
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Finishing up art...", true));
                 art.UnsavedChanges = true;
 
                 args.Result = art;
@@ -379,11 +420,11 @@ namespace AAP
                 }
             }
 
-            return bgWorker;
+            return new("Creating art...", bgWorker);
         }
 
 
-        public static BackgroundWorker? OpenArtFileAsync(FileInfo file)
+        public static BackgroundTask? OpenArtFileAsync(FileInfo file)
         {
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = true;
@@ -400,7 +441,7 @@ namespace AAP
 
                 ConsoleLogger.Log($"Open File: importing file from path... {file.FullName}");
 
-                bgWorker.ReportProgress(30, new BackgroundTaskState("Importing art...", true));
+                bgWorker.ReportProgress(30, new BackgroundTaskUpdateArgs("Importing art...", true));
 
                 if (!file.Exists)
                     throw new FileNotFoundException("Tried to open non-existant file", file.FullName);
@@ -430,7 +471,7 @@ namespace AAP
 
                 ConsoleLogger.Inform($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
-                bgWorker.ReportProgress(90, new BackgroundTaskState("Finishing up art...", true));
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Finishing up art...", true));
                 args.Result = art;
             }
 
@@ -452,10 +493,10 @@ namespace AAP
                 }
             }
 
-            return bgWorker;
+            return new($"Opening {file.Name}...", bgWorker);
         }
 
-        public static BackgroundWorker? SaveArtFileToPathAsync(string path)
+        public static BackgroundTask? SaveArtFileToPathAsync(string path)
         {
             if (CurrentArt == null)
                 return null;
@@ -480,7 +521,7 @@ namespace AAP
                     return;
 
                 ConsoleLogger.Log("Save File: Saving art file to " + path);
-                bgWorker.ReportProgress(90, new BackgroundTaskState("Exporting as .aaf file...", true));
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Exporting as .aaf file...", true));
 
                 AAFASCIIArt aafASCIIArt = new(art, path);
                 aafASCIIArt.Export(bgWorker);
@@ -512,10 +553,10 @@ namespace AAP
             }
 
 
-            return bgWorker;
+            return new($"Saving to {new FileInfo(path).Name}...", bgWorker);
         }
 
-        public static BackgroundWorker? ExportArtFileToPathAsync(string path)
+        public static BackgroundTask? ExportArtFileToPathAsync(string path)
         {
             if (CurrentArt == null)
                 return null;
@@ -540,7 +581,7 @@ namespace AAP
                 ConsoleLogger.Log("Export File: Exporting art file to " + path);
 
                 FileInfo fileInfo = new(path);
-                bgWorker.ReportProgress(90, new BackgroundTaskState($"Exporting as {fileInfo.Extension} file...", true));
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Exporting as {fileInfo.Extension} file...", true));
                 IAAPFile<ASCIIArt> AAPFile;
 
                 switch (fileInfo.Extension)
@@ -575,7 +616,7 @@ namespace AAP
                 }
             }
 
-            return bgWorker;
+            return new($"Exporting to {new FileInfo(path).Name}...", bgWorker);
         }
 
         public static void CopyArtFileToClipboard()
@@ -592,13 +633,11 @@ namespace AAP
         #endregion
         #region Art
         public static void OnCurrentArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
-        {
-            Selected = Rect.Empty;
-        }
+            => Selected = Rect.Empty;
 
         private static void OnToolActivateEnd(Tool tool, Point position)
         {
-            if (tool.Type == ToolType.Draw || tool.Type == ToolType.Eraser || tool.Type == ToolType.Move)
+            if (tool.Type != ToolType.Select && tool.Type != ToolType.Text)
                 currentArtTimeline?.NewTimePoint();
         }
 
@@ -681,38 +720,7 @@ namespace AAP
             => Selected = Rect.Empty;
 
         #endregion
-        #region Character Palettes
-        public static void SelectCharacterTool(char? character)
-        {
-            if (CurrentTool == null)
-                return;
-
-            switch(CurrentTool.Type)
-            {
-                case ToolType.Draw:
-                    if (CurrentTool is not DrawTool drawTool)
-                        return;
-
-                    drawTool.Character = character;
-
-                    break;
-                case ToolType.Bucket:
-                    if (CurrentTool is not BucketTool bucketTool)
-                        return;
-
-                    bucketTool.Character = character;
-
-                    break;
-                default:
-                    ConsoleLogger.Warn("Current Tool cannot select characters!");
-                    break;
-            }
-
-            ConsoleLogger.Log("Selected Character: " + character.ToString());
-        }
-        #endregion
         #region Layers
-
         public static void AddArtLayer()
         {
             if (CurrentArt == null)
@@ -816,6 +824,51 @@ namespace AAP
             CurrentArt?.Update();
         }
 
+        #endregion
+        #region Tools
+        public static void SelectToolType(ToolType toolType)
+        {
+            foreach (Tool tool in Tools)
+                if (tool.Type == toolType)
+                {
+                    CurrentTool = tool;
+                    return;
+                }
+
+            CurrentTool = null;
+        }
+
+        public static void SelectCharacterTool(char? character)
+        {
+            if (CurrentTool == null)
+            {
+                ConsoleLogger.Warn(nameof(CurrentTool) + " is null!");
+                return;
+            }
+
+            switch (CurrentTool.Type)
+            {
+                case ToolType.Draw:
+                    if (CurrentTool is not DrawTool drawTool)
+                        return;
+
+                    drawTool.Character = character;
+
+                    break;
+                case ToolType.Bucket:
+                    if (CurrentTool is not BucketTool bucketTool)
+                        return;
+
+                    bucketTool.Character = character;
+
+                    break;
+                default:
+                    ConsoleLogger.Warn("Current Tool cannot select characters!");
+                    break;
+            }
+
+            ConsoleLogger.Log("Selected Character: " + character.ToString());
+        }
         #endregion
     }
 }

@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using AAP.BackgroundTasks;
 using AAP.Timelines;
 using AAP.UI.ViewModels;
 using Microsoft.Win32;
@@ -32,7 +33,7 @@ namespace AAP.UI.Windows
     {
         private ArtCanvasViewModel artCanvasViewModel { get; set; }
 
-        private BackgroundWorker? currentBackgroundWorker { get; set; } = null;
+        private BackgroundTask? currentBackgroundTask { get; set; } = null;
 
         public MainWindow()
         {
@@ -53,10 +54,7 @@ namespace AAP.UI.Windows
             artCanvasViewModel.CurrentTool = App.CurrentTool;
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
-            artCanvasViewModel.CurrentArt = App.CurrentArt;
-            artCanvasViewModel.CurrentArtDraw = App.CurrentArtDraw;
-            artCanvasViewModel.CurrentArtTimeline = App.CurrentArtTimeline;
-            LayerManagementViewModel.Art = App.CurrentArt;
+            OnCurrentArtChanged(App.CurrentArt, App.CurrentArtDraw, App.CurrentArtTimeline);
 
             UpdateTitle();
 
@@ -126,13 +124,13 @@ namespace AAP.UI.Windows
             if (App.CurrentArt == null)
                 return;
 
-            if (currentBackgroundWorker != null)
+            if (currentBackgroundTask != null)
             {
                 e.Cancel = true;
                 
-                currentBackgroundWorker.RunWorkerCompleted += (sender, e) => Close();
+                currentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => Close();
 
-                BackgroundTaskWindow backgroundTaskWindow = new(currentBackgroundWorker, "Waiting for remaining task to finish...", true);
+                BackgroundTaskWindow backgroundTaskWindow = new(new("Waiting for remaining task to finish...", currentBackgroundTask.Worker), true);
                 backgroundTaskWindow.Show();
                 backgroundTaskWindow.Owner = this;
                 
@@ -145,15 +143,15 @@ namespace AAP.UI.Windows
 
                 if (result == MessageBoxResult.Yes)
                 {
+
+                    BackgroundTask? bgTask = SaveFileAction();
+
+                    if (bgTask == null)
+                        return;
+
+                    currentBackgroundTask = bgTask;
+                    currentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => Close();
                     e.Cancel = true;
-
-                    BackgroundWorker? bgWorker = SaveFileAction();
-                    currentBackgroundWorker = bgWorker;
-
-                    if (currentBackgroundWorker == null)
-                        throw new NullReferenceException(nameof(bgWorker));
-
-                    currentBackgroundWorker.RunWorkerCompleted += (sender, e) => Close();
 
                     return;
                 }
@@ -248,11 +246,12 @@ namespace AAP.UI.Windows
             if (sender is not BackgroundWorker bgWorker)
                 return;
 
-            if (bgWorker == currentBackgroundWorker)
-            {
-                currentBackgroundWorker = null;
-                artCanvasViewModel.CanUseTool = true;
-            }
+            if (currentBackgroundTask != null)
+                if (bgWorker == currentBackgroundTask.Worker)
+                {
+                    currentBackgroundTask = null;
+                    artCanvasViewModel.CanUseTool = true;
+                }
 
             if (args.Cancelled)
                 MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -272,11 +271,12 @@ namespace AAP.UI.Windows
             if (sender is not BackgroundWorker bgWorker)
                 return;
 
-            if (bgWorker == currentBackgroundWorker)
-            {
-                currentBackgroundWorker = null;
-                artCanvasViewModel.CanUseTool = true;
-            }
+            if (currentBackgroundTask != null)
+                if (bgWorker == currentBackgroundTask.Worker)
+                {
+                    currentBackgroundTask = null;
+                    artCanvasViewModel.CanUseTool = true;
+                }
 
             if (args.Cancelled)
                 MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -297,11 +297,12 @@ namespace AAP.UI.Windows
             if (sender is not BackgroundWorker bgWorker)
                 return;
 
-            if (bgWorker == currentBackgroundWorker)
-            {
-                currentBackgroundWorker = null;
-                artCanvasViewModel.CanUseTool = true;
-            }
+            if (currentBackgroundTask != null)
+                if (bgWorker == currentBackgroundTask.Worker)
+                {
+                    currentBackgroundTask = null;
+                    artCanvasViewModel.CanUseTool = true;
+                }
 
             if (args.Cancelled)
                 MessageBox.Show("Cancelled opening art file!", "Open File", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -314,11 +315,12 @@ namespace AAP.UI.Windows
             if (sender is not BackgroundWorker bgWorker)
                 return;
 
-            if (bgWorker == currentBackgroundWorker)
-            {
-                currentBackgroundWorker = null;
-                artCanvasViewModel.CanUseTool = true;
-            }
+            if (currentBackgroundTask != null)
+                if (bgWorker == currentBackgroundTask.Worker)
+                {
+                    currentBackgroundTask = null;
+                    artCanvasViewModel.CanUseTool = true;
+                }
 
             if (args.Cancelled)
                 MessageBox.Show("Cancelled creating art file!", "Create Art", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -329,9 +331,9 @@ namespace AAP.UI.Windows
 
         #region Menu Item Actions
 
-        private BackgroundWorker? NewFileAction()
+        private BackgroundTask? NewFileAction()
         {
-            if (currentBackgroundWorker != null)
+            if (currentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to create a new file.", "New File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
@@ -342,30 +344,30 @@ namespace AAP.UI.Windows
 
             if (newASCIIArtDialogWindow.DialogResult == true)
             {
-                BackgroundWorker? bgWorker = App.CreateNewArtFileAsync(newASCIIArtDialogWindow.ArtWidth, newASCIIArtDialogWindow.ArtHeight);
+                BackgroundTask? bgTask = App.CreateNewArtFileAsync(newASCIIArtDialogWindow.ArtWidth, newASCIIArtDialogWindow.ArtHeight);
 
-                if (bgWorker == null)
-                    return bgWorker;
+                if (bgTask == null)
+                    return bgTask;
 
                 artCanvasViewModel.CanUseTool = false;
 
-                BackgroundTaskWindow backgroundTaskWindow = new(bgWorker, $"Creating art...");
+                BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
                 backgroundTaskWindow.Show();
                 backgroundTaskWindow.Owner = this;
 
-                bgWorker.RunWorkerCompleted += BackgroundCreateComplete;
+                bgTask.Worker.RunWorkerCompleted += BackgroundCreateComplete;
 
-                currentBackgroundWorker = bgWorker;
+                currentBackgroundTask = bgTask;
 
-                return bgWorker;
+                return bgTask;
             }
 
             return null;
         }
 
-        private BackgroundWorker? OpenFileAction()
+        private BackgroundTask? OpenFileAction()
         {
-            if (currentBackgroundWorker != null)
+            if (currentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to open file.", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
@@ -386,33 +388,33 @@ namespace AAP.UI.Windows
 
             if (result == true)
             {
-                BackgroundWorker? bgWorker = App.OpenArtFileAsync(new(openFileDialog.FileName));
+                BackgroundTask? bgTask = App.OpenArtFileAsync(new(openFileDialog.FileName));
 
-                if (bgWorker == null)
-                    return bgWorker;
+                if (bgTask == null)
+                    return bgTask;
 
                 artCanvasViewModel.CanUseTool = false;
 
-                BackgroundTaskWindow backgroundTaskWindow = new(bgWorker, $"Opening {new FileInfo(openFileDialog.FileName).Name}");
+                BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
                 backgroundTaskWindow.Show();
                 backgroundTaskWindow.Owner = this;
 
-                bgWorker.RunWorkerCompleted += BackgroundOpenComplete;
+                bgTask.Worker.RunWorkerCompleted += BackgroundOpenComplete;
 
-                currentBackgroundWorker = bgWorker;
+                currentBackgroundTask = bgTask;
 
-                return bgWorker;
+                return bgTask;
             }
 
             return null;
         }
 
-        private BackgroundWorker? SaveFileAction()
+        private BackgroundTask? SaveFileAction()
         {
             if (App.CurrentArt == null)
                 return null;
 
-            if (currentBackgroundWorker != null)
+            if (currentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save file.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
@@ -442,30 +444,30 @@ namespace AAP.UI.Windows
                     return null;
             }
 
-            BackgroundWorker? bgWorker = App.SaveArtFileToPathAsync(savePath);
+            BackgroundTask? bgTask = App.SaveArtFileToPathAsync(savePath);
 
-            if (bgWorker == null)
-                return bgWorker;
+            if (bgTask == null)
+                return bgTask;
 
             artCanvasViewModel.CanUseTool = false;
 
-            BackgroundTaskWindow backgroundTaskWindow = new(bgWorker, $"Saving to {new FileInfo(savePath).Name}");
+            BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
             backgroundTaskWindow.Show();
             backgroundTaskWindow.Owner = this;
 
-            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+            bgTask.Worker.RunWorkerCompleted += BackgroundSaveComplete;
 
-            currentBackgroundWorker = bgWorker;
+            currentBackgroundTask = bgTask;
 
-            return bgWorker;
+            return bgTask;
         }
 
-        private BackgroundWorker? SaveAsFileAction()
+        private BackgroundTask? SaveAsFileAction()
         {
             if (App.CurrentArt == null)
                 return null;
 
-            if (currentBackgroundWorker != null)
+            if (currentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save file.", "Save As File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
@@ -491,30 +493,30 @@ namespace AAP.UI.Windows
             else
                 return null;
 
-            BackgroundWorker? bgWorker = App.SaveArtFileToPathAsync(savePath);
+            BackgroundTask? bgTask = App.SaveArtFileToPathAsync(savePath);
 
-            if (bgWorker == null)
-                return bgWorker;
+            if (bgTask == null)
+                return bgTask;
 
             artCanvasViewModel.CanUseTool = false;
 
-            BackgroundTaskWindow backgroundTaskWindow = new(bgWorker, $"Saving to {new FileInfo(savePath).Name}");
+            BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
             backgroundTaskWindow.Show();
             backgroundTaskWindow.Owner = this;
 
-            bgWorker.RunWorkerCompleted += BackgroundSaveComplete;
+            bgTask.Worker.RunWorkerCompleted += BackgroundSaveComplete;
 
-            currentBackgroundWorker = bgWorker;
+            currentBackgroundTask = bgTask;
 
-            return bgWorker;
+            return bgTask;
         }
 
-        private BackgroundWorker? ExportAction()
+        private BackgroundTask? ExportAction()
         {
             if (App.CurrentArt == null)
                 return null;
 
-            if (currentBackgroundWorker != null)
+            if (currentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to export file.", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return null;
@@ -540,22 +542,22 @@ namespace AAP.UI.Windows
             else
                 return null;
 
-            BackgroundWorker? bgWorker = App.ExportArtFileToPathAsync(savePath);
+            BackgroundTask? bgTask = App.ExportArtFileToPathAsync(savePath);
 
-            if (bgWorker == null)
-                return bgWorker;
+            if (bgTask == null)
+                return bgTask;
 
             artCanvasViewModel.CanUseTool = false;
 
-            BackgroundTaskWindow backgroundTaskWindow = new(bgWorker, $"Exporting to {new FileInfo(savePath).Name}");
+            BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
             backgroundTaskWindow.Show();
             backgroundTaskWindow.Owner = this;
 
-            bgWorker.RunWorkerCompleted += BackgroundExportComplete;
+            bgTask.Worker.RunWorkerCompleted += BackgroundExportComplete;
 
-            currentBackgroundWorker = bgWorker;
+            currentBackgroundTask = bgTask;
 
-            return bgWorker;
+            return bgTask;
         }
 
         private void CopyArtToClipboardAction()

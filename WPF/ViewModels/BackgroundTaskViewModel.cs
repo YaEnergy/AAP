@@ -6,59 +6,47 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using AAP.BackgroundTasks;
 using AAP.UI.Controls;
 
 namespace AAP.UI.ViewModels
 {
     public class BackgroundTaskViewModel : INotifyPropertyChanged
     {
-        private string taskName = "Background Task";
-        public string TaskName
+        private BackgroundTask? backgroundTask = null;
+        public BackgroundTask? BackgroundTask
         {
-            get => taskName;
+            get => backgroundTask;
             set
             {
-                taskName = value;
-                PropertyChanged?.Invoke(this, new(nameof(TaskName)));
+                if (backgroundTask == value)
+                    return;
+
+                if (backgroundTask != null)
+                {
+                    if (backgroundTask.Worker.IsBusy)
+                        UpdateTimeTimer.Stop();
+
+                    backgroundTask.Worker.DoWork -= Worker_DoWork;
+                }
+
+                if (value != null)
+                {
+                    if (value.Worker.IsBusy)
+                        UpdateTimeTimer.Start();
+                    else
+                        value.Worker.DoWork += Worker_DoWork;
+
+                    value.Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+                }
+
+                backgroundTask = value;
+                PropertyChanged?.Invoke(this, new(nameof(BackgroundTask)));
             }
         }
 
-        private string taskState = "";
-        public string TaskState
-        {
-            get => taskState;
-            set
-            {
-                taskState = value;
-                PropertyChanged?.Invoke(this, new(nameof(TaskState)));
-            }
-        }
 
-        private int taskProgress = 0;
-        public int TaskProgress
-        {
-            get => taskProgress;
-            set
-            {
-                taskProgress = value;
-                PropertyChanged?.Invoke(this, new(nameof(TaskProgress)));
-            }
-        }
-
-        private bool isDeterminate = false;
-        public bool IsDeterminate
-        {
-            get => isDeterminate;
-            set
-            {
-                isDeterminate = value;
-                PropertyChanged?.Invoke(this, new(nameof(IsDeterminate)));
-            }
-        }
-
-        private readonly DispatcherTimer dispatcherTimer = new();
-
-        private readonly Stopwatch taskStopwatch = new();
+        public DispatcherTimer UpdateTimeTimer { get; } = new();
 
         private string taskElapsedTimeString = TimeSpan.Zero.ToString(@"hh\:mm\:ss");
         public string TaskElapsedTimeString
@@ -71,25 +59,31 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        public void StartStopwatch()
-        {
-            taskStopwatch.Start();
-            dispatcherTimer.Start();
-        }
-
-        public void StopStopwatch()
-        {
-            taskStopwatch.Stop();
-            dispatcherTimer.Stop();
-        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public BackgroundTaskViewModel() 
         {
-            dispatcherTimer.Interval = new(0, 0, 1);
-            dispatcherTimer.Tick += (sender, e) => TaskElapsedTimeString = taskStopwatch.Elapsed.ToString(@"hh\:mm\:ss");
+            UpdateTimeTimer.Interval = new(0, 0, 1);
+            UpdateTimeTimer.Tick += UpdateTimeTimer_Tick;
         }
 
+        private void UpdateTimeTimer_Tick(object? sender, EventArgs e)
+        {
+            if (BackgroundTask == null)
+                return;
+
+            TaskElapsedTimeString = BackgroundTask.Time.ToString(@"hh\:mm\:ss");
+        }
+
+        private void Worker_DoWork(object? sender, DoWorkEventArgs e)
+        {
+            UpdateTimeTimer.Start();
+        }
+
+        private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
+        {
+            UpdateTimeTimer.Stop();
+        }
     }
 }

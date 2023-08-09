@@ -39,7 +39,7 @@ namespace AAP.UI.ViewModels
                 if (toolStateBox != stateBox)
                     toolStateBox.State = false;
 
-            App.CurrentToolType = toolType;
+            App.SelectToolType(toolType);
         }
     }
 }

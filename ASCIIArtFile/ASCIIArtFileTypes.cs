@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using AAP.BackgroundTasks;
+using Newtonsoft.Json;
 using System;
 using System.Buffers.Text;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace AAP
             if (!fileInfo.Exists)
                 throw new FileNotFoundException(fileInfo.FullName);
 
-            bgWorker?.ReportProgress(33, new BackgroundTaskState("Reading text...", true));
+            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Reading text...", true));
             string[] txtLines = File.ReadAllLines(FilePath);
 
             if (txtLines.Length <= 0)
@@ -43,14 +44,14 @@ namespace AAP
                 if (line.Length > txtWidth)
                     txtWidth = line.Length;
 
-            bgWorker?.ReportProgress(66, new BackgroundTaskState("Creating art...", true));
+            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Creating art...", true));
             FileObject.SetSize(txtWidth, txtHeight);
             FileObject.CreatedInVersion = ASCIIArt.VERSION;
             ArtLayer txtArtLayer = new("Imported Art", FileObject.Width, FileObject.Height);
 
             for (int y = 0; y < txtHeight; y++)
             {
-                bgWorker?.ReportProgress((int)((double)(y + 1)/txtHeight * 100), new BackgroundTaskState("Creating lines...", false));
+                bgWorker?.ReportProgress((int)((double)(y + 1)/txtHeight * 100), new BackgroundTaskUpdateArgs("Creating lines...", false));
                 char[] chars = txtLines[y].ToCharArray();
                 for (int x = 0; x < txtWidth; x++)
                     txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == ASCIIArt.EMPTYCHARACTER ? null : chars[x];
@@ -63,10 +64,10 @@ namespace AAP
 
         public void Export(BackgroundWorker? bgWorker = null)
         {
-            bgWorker?.ReportProgress(0, new BackgroundTaskState("Getting art string...", true));
+            bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Getting art string...", true));
             string artString = FileObject.GetArtString();
 
-            bgWorker?.ReportProgress(50, new BackgroundTaskState("Writing to file...", true));
+            bgWorker?.ReportProgress(50, new BackgroundTaskUpdateArgs("Writing to file...", true));
             StreamWriter sw = File.CreateText(FilePath);
             sw.Write(artString);
 
@@ -93,7 +94,7 @@ namespace AAP
             if (!fileInfo.Exists)
                 throw new FileNotFoundException(fileInfo.FullName);
 
-            bgWorker?.ReportProgress(33, new BackgroundTaskState("Decompressing art file...", true));
+            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Decompressing art file...", true));
             FileStream fs = File.Create(UncompressedExportPath);
 
             using (GZipStream output = new(File.Open(FilePath, FileMode.Open), CompressionMode.Decompress))
@@ -101,7 +102,7 @@ namespace AAP
 
             fs.Close();
 
-            bgWorker?.ReportProgress(66, new BackgroundTaskState("Deserializing decompressed art file...", true));
+            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Deserializing decompressed art file...", true));
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamReader sr = File.OpenText(UncompressedExportPath);
             JsonTextReader jr = new(sr);
@@ -121,7 +122,7 @@ namespace AAP
             jr.CloseInput = true;
             jr.Close();
 
-            bgWorker?.ReportProgress(100, new BackgroundTaskState("Deleting decompressed path...", true));
+            bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting decompressed path...", true));
             File.Delete(UncompressedExportPath);
 
             FileObject.UnsavedChanges = false;
@@ -129,18 +130,18 @@ namespace AAP
 
         public void Export(BackgroundWorker? bgWorker = null)
         {
-            bgWorker?.ReportProgress(33, new BackgroundTaskState("Writing as uncompressed file...", true));
+            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Writing as uncompressed file...", true));
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(UncompressedExportPath);
             js.Serialize(sw, FileObject);
             sw.Close();
 
-            bgWorker?.ReportProgress(66, new BackgroundTaskState("Decompressing uncompressed file to file path...", true));
+            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Decompressing uncompressed file to file path...", true));
             using (FileStream fs = File.OpenRead(UncompressedExportPath))
                 using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
                     fs.CopyTo(output);
 
-            bgWorker?.ReportProgress(100, new BackgroundTaskState("Deleting uncompressed path", true));
+            bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting uncompressed path", true));
             File.Delete(UncompressedExportPath);
         }
     }

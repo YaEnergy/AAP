@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AAP
+namespace AAP.BackgroundTasks
 {
-    public readonly struct BackgroundTaskState
+    public readonly struct BackgroundTaskUpdateArgs
     {
         public readonly string CurrentObjective;
         public readonly bool IsDeterminate;
 
-        public BackgroundTaskState(string currentObjective = "", bool isDeterminate = false) 
+        public BackgroundTaskUpdateArgs(string currentObjective = "", bool isDeterminate = false) 
         {
             CurrentObjective = currentObjective;
             IsDeterminate = isDeterminate;
