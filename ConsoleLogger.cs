@@ -9,9 +9,19 @@ namespace AAP
 {
     public static class ConsoleLogger
     {
+        public static void Log(string message)
+        {
+            Console.WriteLine($"[LOG, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {message}");
+        }
+
         public static void Log(string message, params object[] args)
         {
             Console.WriteLine($"[LOG, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {message}", args);
+        }
+
+        public static void Inform(string message)
+        {
+            Console.WriteLine($"[INFO, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {message}");
         }
 
         public static void Inform(string message, params object[] args)
@@ -19,11 +29,21 @@ namespace AAP
             Console.WriteLine($"[INFO, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {message}", args);
         }
 
+        public static void Warn(string message)
+        {
+            Console.WriteLine($"[WARNING, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {message}");
+        }
+
         public static void Warn(string message, params object[] args)
         {
             Console.WriteLine($"[WARNING, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {message}", args);
         }
 
+        public static void Error(Exception exception)
+        {
+            Console.WriteLine($"[ERROR, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {exception.Message}\n{exception.StackTrace ?? "      No stacktrace"}");
+        }
+        
         public static void Error(Exception exception, params object[] args)
         {
             Console.WriteLine($"[ERROR, {DateTimeOffset.UtcNow.TimeOfDay:hh\\:mm\\:ss}] {exception.Message}\n{exception.StackTrace ?? "      No stacktrace"}", args);
