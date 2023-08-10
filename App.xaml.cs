@@ -366,7 +366,7 @@ namespace AAP
         }
         #endregion
         #region Files
-        public static void NewFile(ASCIIArt? artFile)
+        public static void SetArtAsNewFile(ASCIIArt? artFile)
         {
             CurrentArt = artFile;
             CurrentLayerID = -1;
@@ -414,8 +414,7 @@ namespace AAP
                     if (e.Result is not ASCIIArt art)
                         throw new Exception("Create Art: BackgroundWorker Result is not of type ASCIIArt!");
 
-                    CurrentArt = art;
-                    CurrentLayerID = -1;
+                    SetArtAsNewFile(art);
                     ConsoleLogger.Log($"Create Art: created new art!");
                 }
             }
@@ -639,6 +638,9 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
+            if (Selected == Rect.Empty)
+                return;
+
             ConsoleLogger.Log("Copy Selected Art To Clipboard: Copying selected art to clipboard...");
             ArtLayer currentLayerClone = (ArtLayer)CurrentArt.ArtLayers[CurrentLayerID].Clone();
 
@@ -689,6 +691,9 @@ namespace AAP
                 return;
 
             if (CurrentLayerID == -1)
+                return;
+
+            if (Selected == Rect.Empty)
                 return;
 
             CopySelectedArtToClipboard();

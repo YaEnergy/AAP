@@ -9,12 +9,20 @@ namespace AAP.UI
 {
     public static class FileShortcutCommands
     {
-        public static RoutedCommand ExportAsShortcut = new()
+        /// <summary>
+        /// ApplicationCommands.SaveAs has no input gestures. 
+        /// </summary>
+        public readonly static RoutedCommand SaveAsShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.S, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand ExportAsShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.E, ModifierKeys.Control) }
         };
 
-        public static RoutedCommand CopyToClipboardShortcut = new()
+        public readonly static RoutedCommand CopyToClipboardShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift) }
         };
@@ -22,22 +30,22 @@ namespace AAP.UI
 
     public static class EditShortcutCommands
     {
-        public static RoutedCommand SelectLayerShortcut = new()
+        public readonly static RoutedCommand SelectLayerShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.A, ModifierKeys.Control | ModifierKeys.Alt) }
         };
 
-        public static RoutedCommand CancelSelectionShortcut = new()
+        public readonly static RoutedCommand CancelSelectionShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.A, ModifierKeys.Shift | ModifierKeys.Control) }
         };
 
-        public static RoutedCommand CropArtShortcut = new()
+        public readonly static RoutedCommand CropArtShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control) }
         };
 
-        public static RoutedCommand CropLayerShortcut = new()
+        public readonly static RoutedCommand CropLayerShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.Enter, ModifierKeys.Control | ModifierKeys.Shift) }
         };
@@ -47,7 +55,7 @@ namespace AAP.UI
 
     public static class DrawShortcutCommands
     {
-        public static RoutedCommand FillSelectionShortcut = new()
+        public readonly static RoutedCommand FillSelectionShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.F, ModifierKeys.Alt) }
         };
@@ -56,17 +64,17 @@ namespace AAP.UI
 
     public static class CanvasShortcutCommands
     {
-        public static RoutedCommand EnlargeTextSizeShortcut = new()
+        public readonly static RoutedCommand EnlargeTextSizeShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.I, ModifierKeys.Alt) }
         };
 
-        public static RoutedCommand ShrinkTextSizeShortcut = new()
+        public readonly static RoutedCommand ShrinkTextSizeShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.O, ModifierKeys.Alt) }
         };
 
-        public static RoutedCommand ResetTextSizeShortcut = new()
+        public readonly static RoutedCommand ResetTextSizeShortcut = new()
         {
             InputGestures = { new KeyGesture(Key.P, ModifierKeys.Alt) }
         };
