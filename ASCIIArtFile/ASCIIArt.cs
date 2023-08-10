@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 
 namespace AAP
 {
+    [Serializable]
     public class ASCIIArt : ITimelineObject, INotifyPropertyChanged
     {
         public static readonly char EMPTYCHARACTER = ' '; //Figure Space

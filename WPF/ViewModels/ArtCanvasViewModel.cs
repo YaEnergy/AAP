@@ -177,6 +177,10 @@ namespace AAP.UI.ViewModels
         public ICommand UndoCommand { get; private set; }
         public ICommand RedoCommand { get; private set; }
 
+        public ICommand CutCommand { get; private set; }
+        public ICommand CopyCommand { get; private set; }
+        public ICommand PasteCommand { get; private set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ArtCanvasViewModel()
@@ -200,6 +204,10 @@ namespace AAP.UI.ViewModels
 
             UndoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollback());
             RedoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollforward());
+
+            CutCommand = new ActionCommand((parameter) => App.CutSelectedArt());
+            CopyCommand = new ActionCommand((parameter) => App.CopySelectedArtToClipboard());
+            PasteCommand = new ActionCommand((parameter) => App.PasteLayerFromClipboard());
         }
 
         public void EnlargeTextSize(object? parameter = null)

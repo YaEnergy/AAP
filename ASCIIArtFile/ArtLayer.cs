@@ -10,6 +10,7 @@ using System.Windows.Markup;
 
 namespace AAP
 {
+    [Serializable]
     public class ArtLayer : ITimelineObject, INotifyPropertyChanged
     {
         private char?[][] data = new char?[1][];

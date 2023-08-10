@@ -28,9 +28,9 @@
                         <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <MenuItem Header="Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V"></MenuItem>
+                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding CutCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding CopyCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding DeleteSelectedCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
                         <Separator></Separator>
                         <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>

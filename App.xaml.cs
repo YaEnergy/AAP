@@ -619,16 +619,81 @@ namespace AAP
             return new($"Exporting to {new FileInfo(path).Name}...", bgWorker);
         }
 
-        public static void CopyArtFileToClipboard()
+        public static void CopyArtStringToClipboard()
         {
             if (CurrentArt == null)
                 return;
 
-            ConsoleLogger.Log("Copy Art To Clipboard: Copying art file to clipboard...");
+            ConsoleLogger.Log("Copy Art String To Clipboard: Copying art string to clipboard...");
             string artString = CurrentArt.GetArtString();
 
             Clipboard.SetText(artString);
-            ConsoleLogger.Log("Copy Art To Clipboard: Copied art file to clipboard!");
+            ConsoleLogger.Log("Copy Art String To Clipboard: Copied art string to clipboard!");
+        }
+
+        public static void CopySelectedArtToClipboard()
+        {
+            if (CurrentArt == null) 
+                return;
+
+            if (CurrentLayerID == -1)
+                return;
+
+            ConsoleLogger.Log("Copy Selected Art To Clipboard: Copying selected art to clipboard...");
+            ArtLayer currentLayerClone = (ArtLayer)CurrentArt.ArtLayers[CurrentLayerID].Clone();
+
+            currentLayerClone.Name = "Clipboard";
+            currentLayerClone.Crop(Selected);
+
+            IDataObject dataObject = new DataObject();
+            dataObject.SetData(typeof(ArtLayer).FullName, currentLayerClone);
+
+            Clipboard.SetDataObject(dataObject);
+            ConsoleLogger.Log("Copy Selected Art To Clipboard: Copied selected art to clipboard!");
+        }
+
+        public static void PasteLayerFromClipboard()
+        {
+            if (CurrentArt == null)
+                return;
+
+            IDataObject? dataObject = Clipboard.GetDataObject();
+
+            if (dataObject == null)
+            {
+                ConsoleLogger.Inform("No data object on the clipboard!");
+                return;
+            }
+
+            if (dataObject.GetDataPresent(typeof(ArtLayer).Name))
+            {
+                ConsoleLogger.Inform("Data present in clipboard is not ArtLayer!");
+                return;
+            }
+
+            if (dataObject.GetData(typeof(ArtLayer).FullName) is not ArtLayer clipboardLayer)
+                return;
+
+            ConsoleLogger.Log("Paste Layer From Clipboard: Pasting layer from clipboard...");
+            CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, clipboardLayer);
+            CurrentLayerID += 1;
+
+            CurrentArtTimeline?.NewTimePoint();
+            CurrentArt.Update();
+            ConsoleLogger.Log("Paste Layer From Clipboard: Pasted layer from clipboard!");
+        }
+
+        public static void CutSelectedArt()
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (CurrentLayerID == -1)
+                return;
+
+            CopySelectedArtToClipboard();
+
+            FillSelectedWith(null);
         }
         #endregion
         #region Art
