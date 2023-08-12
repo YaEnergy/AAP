@@ -44,11 +44,12 @@ namespace AAP.UI.Windows
             App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
             App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
 
+            ArtFileViewModel.PropertyChanged += ArtFileViewModelPropertyChanged;
+            ArtCanvasViewModel.PropertyChanged += ArtCanvasViewModelPropertyChanged;
             CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
             LayerManagementViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
             ArtFileViewModel.CurrentTool = App.CurrentTool;
-            ArtCanvasViewModel.CurrentTool = App.CurrentTool;
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
@@ -190,11 +191,8 @@ namespace AAP.UI.Windows
 
             ArtFileViewModel.CurrentArt = art;
             ArtFileViewModel.CurrentArtTimeline = artTimeline;
-
-            ArtCanvasViewModel.CurrentArt = art; 
+            
             ArtCanvasViewModel.CurrentArtDraw = artDraw;
-
-            LayerManagementViewModel.Art = art;
 
             //Add new listeners
             if (art != null)
@@ -212,7 +210,6 @@ namespace AAP.UI.Windows
         private void OnCurrentToolChanged(Tool? tool)
         {
             ArtFileViewModel.CurrentTool = tool;
-            ArtCanvasViewModel.CurrentTool = tool;
 
             CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw || tool?.Type == ToolType.Bucket ? Visibility.Visible : Visibility.Hidden;
 
@@ -268,7 +265,6 @@ namespace AAP.UI.Windows
                 {
                     currentBackgroundTask = null;
                     ArtFileViewModel.CanUseTool = true;
-                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -294,7 +290,6 @@ namespace AAP.UI.Windows
                 {
                     currentBackgroundTask = null;
                     ArtFileViewModel.CanUseTool = true;
-                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -321,7 +316,6 @@ namespace AAP.UI.Windows
                 {
                     currentBackgroundTask = null;
                     ArtFileViewModel.CanUseTool = true;
-                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -340,7 +334,6 @@ namespace AAP.UI.Windows
                 {
                     currentBackgroundTask = null;
                     ArtFileViewModel.CanUseTool = true;
-                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -621,6 +614,31 @@ namespace AAP.UI.Windows
         #endregion
 
         #region ViewModel Property Changed Events
+        private void ArtFileViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            if (sender is not ArtFileViewModel vm)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(vm.CurrentArt):
+                    ArtCanvasViewModel.CurrentArt = vm.CurrentArt;
+                    LayerManagementViewModel.Art = vm.CurrentArt;
+                    break;
+                case nameof(vm.CurrentTool):
+                    ArtCanvasViewModel.CurrentTool = vm.CurrentTool;
+                    break;
+                case nameof(vm.CanUseTool):
+                    ArtCanvasViewModel.CanUseTool = vm.CanUseTool;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void ArtCanvasViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender == null)
@@ -631,7 +649,7 @@ namespace AAP.UI.Windows
 
             switch (e.PropertyName)
             {
-                case "CanUseTool":
+                case nameof(vm.CanUseTool):
                     ArtFileViewModel.CanUseTool = vm.CanUseTool;
                     break;
                 default:
@@ -649,7 +667,7 @@ namespace AAP.UI.Windows
 
             switch (e.PropertyName)
             {
-                case "SelectedCharacter":
+                case nameof(vm.SelectedCharacter):
                     App.SelectCharacterTool(vm.SelectedCharacter);
                     break;
                 default:
@@ -667,10 +685,10 @@ namespace AAP.UI.Windows
 
             switch (e.PropertyName)
             {
-                case "SelectedLayerID":
+                case nameof(vm.SelectedLayerID):
                     App.CurrentLayerID = vm.SelectedLayerID;
                     break;
-                case "SelectedLayerName":
+                case nameof(vm.SelectedLayerName):
                     if (vm.SelectedLayer == null)
                         break;
 
@@ -679,7 +697,7 @@ namespace AAP.UI.Windows
 
                     App.SetArtLayerName(vm.SelectedLayer, vm.SelectedLayerName);
                     break;
-                case "SelectedLayerVisibility":
+                case nameof(vm.SelectedLayer):
                     if (vm.SelectedLayer == null)
                         break;
 
