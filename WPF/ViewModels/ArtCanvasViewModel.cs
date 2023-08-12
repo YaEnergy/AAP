@@ -86,20 +86,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private ObjectTimeline? currentArtTimeline = null;
-        public ObjectTimeline? CurrentArtTimeline
-        {
-            get => currentArtTimeline;
-            set
-            {
-                if (currentArtTimeline == value)
-                    return;
-
-                currentArtTimeline = value;
-                PropertyChanged?.Invoke(this, new(nameof(CurrentArtTimeline)));
-            }
-        }
-
         private Tool? currentTool = null;
         public Tool? CurrentTool
         {
@@ -164,23 +150,6 @@ namespace AAP.UI.ViewModels
         public ICommand DecreaseHighlightThicknessCommand { get; private set; }
         public ICommand ResetHighlightThicknessCommand { get; private set; }
 
-        public ICommand DeleteSelectedCommand { get; private set; }
-        public ICommand SelectArtCommand { get; private set; }
-        public ICommand SelectLayerCommand { get; private set; }
-        public ICommand CancelSelectionCommand { get; private set; }
-
-        public ICommand CropArtCommand { get; private set; }
-        public ICommand CropLayerCommand { get; private set; }
-
-        public ICommand FillSelectionCommand { get; private set; }
-
-        public ICommand UndoCommand { get; private set; }
-        public ICommand RedoCommand { get; private set; }
-
-        public ICommand CutCommand { get; private set; }
-        public ICommand CopyCommand { get; private set; }
-        public ICommand PasteCommand { get; private set; }
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ArtCanvasViewModel()
@@ -191,23 +160,6 @@ namespace AAP.UI.ViewModels
             IncreaseHighlightThicknessCommand = new ActionCommand(IncreaseHighlightThickness);
             DecreaseHighlightThicknessCommand = new ActionCommand(DecreaseHighlightThickness);
             ResetHighlightThicknessCommand = new ActionCommand(ResetHighlightThickness);
-
-            DeleteSelectedCommand = new ActionCommand((parameter) => DeleteSelected());
-            SelectArtCommand = new ActionCommand((parameter) => App.SelectArt());
-            SelectLayerCommand = new ActionCommand((parameter) => App.SelectLayer());
-            CancelSelectionCommand = new ActionCommand((parameter) => CancelSelection());
-
-            CropArtCommand = new ActionCommand((parameter) => CropArt());
-            CropLayerCommand = new ActionCommand((parameter) => CropLayer());
-
-            FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
-
-            UndoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollback());
-            RedoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollforward());
-
-            CutCommand = new ActionCommand((parameter) => App.CutSelectedArt());
-            CopyCommand = new ActionCommand((parameter) => App.CopySelectedArtToClipboard());
-            PasteCommand = new ActionCommand((parameter) => App.PasteLayerFromClipboard());
         }
 
         public void EnlargeTextSize(object? parameter = null)
@@ -227,25 +179,5 @@ namespace AAP.UI.ViewModels
 
         public void ResetHighlightThickness(object? parameter = null)
             => HighlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
-
-        public void DeleteSelected()
-            => App.FillSelectedWith(null);
-
-        public void CancelSelection()
-            => App.CancelSelection();
-
-        public void CropArt()
-            => App.CropArtFileToSelected();
-
-        public void CropLayer()
-            => App.CropCurrentArtLayerToSelected();
-
-        public void FillSelection()
-        {
-            if (CurrentTool is not DrawTool drawTool || CurrentTool.Type != ToolType.Draw)
-                return;
-
-            App.FillSelectedWith(drawTool.Character);
-        }
     }
 }

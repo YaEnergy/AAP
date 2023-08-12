@@ -31,27 +31,25 @@ namespace AAP.UI.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ArtCanvasViewModel artCanvasViewModel { get; set; }
-
         private BackgroundTask? currentBackgroundTask { get; set; } = null;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            artCanvasViewModel = (ArtCanvasViewModel)FindResource("artCanvasViewModel");
-
             App.OnCurrentArtChanged += OnCurrentArtChanged;
             App.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
             App.OnCurrentToolChanged += OnCurrentToolChanged;
-            App.OnSelectionChanged += OnSelectionChanged;
+            App.OnSelectedArtChanged += OnSelectedArtChanged;
             App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
             App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
 
             CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
             LayerManagementViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
-            artCanvasViewModel.CurrentTool = App.CurrentTool;
+            ArtFileViewModel.CurrentTool = App.CurrentTool;
+            ArtCanvasViewModel.CurrentTool = App.CurrentTool;
+
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
             OnCurrentArtChanged(App.CurrentArt, App.CurrentArtDraw, App.CurrentArtTimeline);
@@ -79,9 +77,9 @@ namespace AAP.UI.Windows
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => Application.Current.Shutdown())));
 
-            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EnlargeTextSizeShortcut, new((sender, e) => artCanvasViewModel.EnlargeTextSize())));
-            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ShrinkTextSizeShortcut, new((sender, e) => artCanvasViewModel.ShrinkTextSize())));
-            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ResetTextSizeShortcut, new((sender, e) => artCanvasViewModel.ResetTextSize())));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EnlargeTextSizeShortcut, new((sender, e) => ArtCanvasViewModel.EnlargeTextSize())));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ShrinkTextSizeShortcut, new((sender, e) => ArtCanvasViewModel.ShrinkTextSize())));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.ResetTextSizeShortcut, new((sender, e) => ArtCanvasViewModel.ResetTextSize())));
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Undo, new((sender, e) => App.CurrentArtTimeline?.Rollback())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Redo, new((sender, e) => App.CurrentArtTimeline?.Rollforward())));
@@ -93,12 +91,12 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, new((sender, e) => App.FillSelectedWith(null))));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.SelectAll, new((sender, e) => App.SelectArt())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.SelectLayerShortcut, new((sender, e) => App.SelectLayer())));
-            CommandBindings.Add(new CommandBinding(EditShortcutCommands.CancelSelectionShortcut, new((sender, e) => App.CancelSelection())));
+            CommandBindings.Add(new CommandBinding(EditShortcutCommands.CancelSelectionShortcut, new((sender, e) => App.CancelArtSelection())));
 
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropArtShortcut, new((sender, e) => App.CropArtFileToSelected())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropLayerShortcut, new((sender, e) => App.CropCurrentArtLayerToSelected())));
 
-            CommandBindings.Add(new CommandBinding(DrawShortcutCommands.FillSelectionShortcut, new((sender, e) => artCanvasViewModel.FillSelection())));
+            CommandBindings.Add(new CommandBinding(DrawShortcutCommands.FillSelectionShortcut, new((sender, e) => ArtFileViewModel.FillSelection())));
             #endregion
         }
         
@@ -184,23 +182,25 @@ namespace AAP.UI.Windows
                 }
 
             //Remove old listeners
-            if (artCanvasViewModel.CurrentArt != null)
+            if (ArtFileViewModel.CurrentArt != null)
             {
-                artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged -= OnArtCanvasViewModelArtUnsavedChangesChanged;
-                artCanvasViewModel.CurrentArt.OnSizeChanged -= OnArtCanvasViewModelArtSizeChanged;
+                ArtFileViewModel.CurrentArt.OnUnsavedChangesChanged -= OnArtFileViewModelArtUnsavedChangesChanged;
+                ArtFileViewModel.CurrentArt.OnSizeChanged -= OnArtFileViewModelArtSizeChanged;
             }
 
-            artCanvasViewModel.CurrentArt = art; 
-            artCanvasViewModel.CurrentArtDraw = artDraw;
-            artCanvasViewModel.CurrentArtTimeline = artTimeline;
+            ArtFileViewModel.CurrentArt = art;
+            ArtFileViewModel.CurrentArtTimeline = artTimeline;
+
+            ArtCanvasViewModel.CurrentArt = art; 
+            ArtCanvasViewModel.CurrentArtDraw = artDraw;
 
             LayerManagementViewModel.Art = art;
 
             //Add new listeners
-            if (artCanvasViewModel.CurrentArt != null)
+            if (art != null)
             {
-                artCanvasViewModel.CurrentArt.OnUnsavedChangesChanged += OnArtCanvasViewModelArtUnsavedChangesChanged;
-                artCanvasViewModel.CurrentArt.OnSizeChanged += OnArtCanvasViewModelArtSizeChanged;
+                art.OnUnsavedChangesChanged += OnArtFileViewModelArtUnsavedChangesChanged;
+                art.OnSizeChanged += OnArtFileViewModelArtSizeChanged;
             }
 
             UpdateTitle();
@@ -211,7 +211,8 @@ namespace AAP.UI.Windows
 
         private void OnCurrentToolChanged(Tool? tool)
         {
-            artCanvasViewModel.CurrentTool = tool;
+            ArtFileViewModel.CurrentTool = tool;
+            ArtCanvasViewModel.CurrentTool = tool;
 
             CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw || tool?.Type == ToolType.Bucket ? Visibility.Visible : Visibility.Hidden;
 
@@ -235,8 +236,11 @@ namespace AAP.UI.Windows
             }
         }
 
-        private void OnSelectionChanged(Rect selected)
-            => artCanvasViewModel.Selected = selected;
+        private void OnSelectedArtChanged(Rect selected)
+        {
+            ArtFileViewModel.HasSelected = selected != Rect.Empty;
+            ArtCanvasViewModel.Selected = selected;
+        }
 
         private void CurrentLayerIDChanged(int layerID)
             => LayerManagementViewModel.SelectedLayerID = layerID;
@@ -245,10 +249,10 @@ namespace AAP.UI.Windows
 
         #region Art Canvas View Model Art Events
 
-        private void OnArtCanvasViewModelArtUnsavedChangesChanged(ASCIIArt art, bool unsavedChanges)
+        private void OnArtFileViewModelArtUnsavedChangesChanged(ASCIIArt art, bool unsavedChanges)
             => UpdateTitle();
 
-        private void OnArtCanvasViewModelArtSizeChanged(int width, int height)
+        private void OnArtFileViewModelArtSizeChanged(int width, int height)
             => UpdateTitle();
 
         #endregion
@@ -263,7 +267,8 @@ namespace AAP.UI.Windows
                 if (bgWorker == currentBackgroundTask.Worker)
                 {
                     currentBackgroundTask = null;
-                    artCanvasViewModel.CanUseTool = true;
+                    ArtFileViewModel.CanUseTool = true;
+                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -288,7 +293,8 @@ namespace AAP.UI.Windows
                 if (bgWorker == currentBackgroundTask.Worker)
                 {
                     currentBackgroundTask = null;
-                    artCanvasViewModel.CanUseTool = true;
+                    ArtFileViewModel.CanUseTool = true;
+                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -314,7 +320,8 @@ namespace AAP.UI.Windows
                 if (bgWorker == currentBackgroundTask.Worker)
                 {
                     currentBackgroundTask = null;
-                    artCanvasViewModel.CanUseTool = true;
+                    ArtFileViewModel.CanUseTool = true;
+                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -332,7 +339,8 @@ namespace AAP.UI.Windows
                 if (bgWorker == currentBackgroundTask.Worker)
                 {
                     currentBackgroundTask = null;
-                    artCanvasViewModel.CanUseTool = true;
+                    ArtFileViewModel.CanUseTool = true;
+                    ArtCanvasViewModel.CanUseTool = true;
                 }
 
             if (args.Cancelled)
@@ -362,7 +370,8 @@ namespace AAP.UI.Windows
                 if (bgTask == null)
                     return bgTask;
 
-                artCanvasViewModel.CanUseTool = false;
+                ArtFileViewModel.CanUseTool = false;
+                ArtCanvasViewModel.CanUseTool = false;
 
                 BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
                 backgroundTaskWindow.Show();
@@ -406,7 +415,8 @@ namespace AAP.UI.Windows
                 if (bgTask == null)
                     return bgTask;
 
-                artCanvasViewModel.CanUseTool = false;
+                ArtFileViewModel.CanUseTool = false;
+                ArtCanvasViewModel.CanUseTool = false;
 
                 BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
                 backgroundTaskWindow.Show();
@@ -462,7 +472,8 @@ namespace AAP.UI.Windows
             if (bgTask == null)
                 return bgTask;
 
-            artCanvasViewModel.CanUseTool = false;
+            ArtFileViewModel.CanUseTool = false;
+            ArtCanvasViewModel.CanUseTool = false;
 
             BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
             backgroundTaskWindow.Show();
@@ -511,7 +522,8 @@ namespace AAP.UI.Windows
             if (bgTask == null)
                 return bgTask;
 
-            artCanvasViewModel.CanUseTool = false;
+            ArtFileViewModel.CanUseTool = false;
+            ArtCanvasViewModel.CanUseTool = false;
 
             BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
             backgroundTaskWindow.Show();
@@ -560,7 +572,8 @@ namespace AAP.UI.Windows
             if (bgTask == null)
                 return bgTask;
 
-            artCanvasViewModel.CanUseTool = false;
+            ArtFileViewModel.CanUseTool = false;
+            ArtCanvasViewModel.CanUseTool = false;
 
             BackgroundTaskWindow backgroundTaskWindow = new(bgTask);
             backgroundTaskWindow.Show();
@@ -608,6 +621,24 @@ namespace AAP.UI.Windows
         #endregion
 
         #region ViewModel Property Changed Events
+        private void ArtCanvasViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            if (sender is not ArtCanvasViewModel vm)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case "CanUseTool":
+                    ArtFileViewModel.CanUseTool = vm.CanUseTool;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void CharacterPaletteSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender == null)

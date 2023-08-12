@@ -77,21 +77,21 @@ namespace AAP
         public delegate void CurrentFilePathChangedEvent(string? filePath);
         public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
 
-        private static Rect selected = Rect.Empty;
-        public static Rect Selected 
+        private static Rect selectedArt = Rect.Empty;
+        public static Rect SelectedArt
         { 
-            get => selected; 
+            get => selectedArt; 
             set 
             {
-                if (selected == value)
+                if (selectedArt == value)
                     return;
 
-                selected = value; 
-                OnSelectionChanged?.Invoke(value); 
+                selectedArt = value; 
+                OnSelectedArtChanged?.Invoke(value); 
             } 
         }
-        public delegate void SelectEvent(Rect selection);
-        public static event SelectEvent? OnSelectionChanged;
+        public delegate void SelectArtEvent(Rect selection);
+        public static event SelectArtEvent? OnSelectedArtChanged;
 
         private static int currentLayerID = -1;
         public static int CurrentLayerID 
@@ -138,6 +138,7 @@ namespace AAP
                 ConsoleLogger.Log($"Selected ToolType: {(value != null ? value.Type : ToolType.None)}");
             }
         }
+
 
         public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
@@ -366,6 +367,9 @@ namespace AAP
         }
         #endregion
         #region Files
+        public static void OnCurrentArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
+            => SelectedArt = Rect.Empty;
+
         public static void SetArtAsNewFile(ASCIIArt? artFile)
         {
             CurrentArt = artFile;
@@ -421,7 +425,6 @@ namespace AAP
 
             return new("Creating art...", bgWorker);
         }
-
 
         public static BackgroundTask? OpenArtFileAsync(FileInfo file)
         {
@@ -638,14 +641,14 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            if (Selected == Rect.Empty)
+            if (SelectedArt == Rect.Empty)
                 return;
 
             ConsoleLogger.Log("Copy Selected Art To Clipboard: Copying selected art to clipboard...");
             ArtLayer currentLayerClone = (ArtLayer)CurrentArt.ArtLayers[CurrentLayerID].Clone();
 
             currentLayerClone.Name = "Clipboard";
-            currentLayerClone.Crop(Selected);
+            currentLayerClone.Crop(SelectedArt);
 
             IDataObject dataObject = new DataObject();
             dataObject.SetData(typeof(ArtLayer).FullName, currentLayerClone);
@@ -693,7 +696,7 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            if (Selected == Rect.Empty)
+            if (SelectedArt == Rect.Empty)
                 return;
 
             CopySelectedArtToClipboard();
@@ -702,26 +705,17 @@ namespace AAP
         }
         #endregion
         #region Art
-        public static void OnCurrentArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
-            => Selected = Rect.Empty;
-
-        private static void OnToolActivateEnd(Tool tool, Point position)
-        {
-            if (tool.Type != ToolType.Select && tool.Type != ToolType.Text)
-                currentArtTimeline?.NewTimePoint();
-        }
-
         public static void CropArtFileToSelected()
         {
             if (CurrentArt == null)
                 return;
 
-            if (Selected == Rect.Empty)
+            if (SelectedArt == Rect.Empty)
                 return;
 
-            CurrentArt.Crop(Selected);
+            CurrentArt.Crop(SelectedArt);
 
-            Selected = new(0, 0, Selected.Width, Selected.Height);
+            SelectedArt = new(0, 0, SelectedArt.Width, SelectedArt.Height);
 
             CurrentArtTimeline?.NewTimePoint();
         }
@@ -731,13 +725,13 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            if (Selected == Rect.Empty)
+            if (SelectedArt == Rect.Empty)
                 return;
 
             if (CurrentLayerID == -1)
                 return;
 
-            CurrentArt.ArtLayers[CurrentLayerID].Crop(Selected);
+            CurrentArt.ArtLayers[CurrentLayerID].Crop(SelectedArt);
 
             CurrentArtTimeline?.NewTimePoint();
 
@@ -749,46 +743,46 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            if (Selected == Rect.Empty)
+            if (SelectedArt == Rect.Empty)
                 return;
 
-            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, Selected);
+            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, SelectedArt);
 
             CurrentArtTimeline?.NewTimePoint();
         }
-
+        #endregion
+        #region Art Selection
         public static void SelectArt()
         {
             if (CurrentArt == null)
             {
-                Selected = Rect.Empty;
+                SelectedArt = Rect.Empty;
                 return;
             }
 
-            Selected = new(0, 0, CurrentArt.Width, CurrentArt.Height);
+            SelectedArt = new(0, 0, CurrentArt.Width, CurrentArt.Height);
         }
 
         public static void SelectLayer()
         {
             if (CurrentArt == null)
             {
-                Selected = Rect.Empty;
+                SelectedArt = Rect.Empty;
                 return;
             }
 
             if (CurrentLayerID == -1)
             {
-                Selected = Rect.Empty;
+                SelectedArt = Rect.Empty;
                 return;
             }
 
             ArtLayer layer = CurrentArt.ArtLayers[CurrentLayerID];
-            Selected = new(layer.Offset, layer.Size);
+            SelectedArt = new(layer.Offset, layer.Size);
         }
 
-        public static void CancelSelection()
-            => Selected = Rect.Empty;
-
+        public static void CancelArtSelection()
+            => SelectedArt = Rect.Empty;
         #endregion
         #region Layers
         public static void AddArtLayer()
@@ -938,6 +932,12 @@ namespace AAP
             }
 
             ConsoleLogger.Log("Selected Character: " + character.ToString());
+        }
+
+        private static void OnToolActivateEnd(Tool tool, Point position)
+        {
+            if (tool.Type != ToolType.Select && tool.Type != ToolType.Text)
+                currentArtTimeline?.NewTimePoint();
         }
         #endregion
     }

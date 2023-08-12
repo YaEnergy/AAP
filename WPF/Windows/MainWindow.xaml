@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:AAP.UI.Windows"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtCanvasViewModel}">
-    <Window.Resources>
-        <viewmodels:ArtCanvasViewModel x:Name="artCanvasViewModel" x:Key="artCanvasViewModel"/>
-    </Window.Resources>
+    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtFileViewModel}">
+    <Window.DataContext>
+        <viewmodels:ArtFileViewModel x:Name="ArtFileViewModel"/>
+    </Window.DataContext>
     <Grid>
         <ToolBarTray VerticalAlignment="Top" >
             <ToolBar ClipToBounds="True" >
@@ -17,47 +17,47 @@
                     <MenuItem Header="File">
                         <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
                         <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
-                        <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Export" Click="ExportButton_Click" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Copy art to clipboard"  Click="CopyArtToClipboardButton_Click" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                        <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                        <MenuItem Header="Export" Click="ExportButton_Click" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                        <MenuItem Header="Copy art to clipboard"  Click="CopyArtToClipboardButton_Click" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}"></MenuItem>
                         <Separator></Separator>
                         <MenuItem Header="Exit" Click="ExitButton_Click" InputGestureText="Alt+F4"></MenuItem>
                     </MenuItem>
-                    <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen, Source={StaticResource artCanvasViewModel}}">
-                        <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                    <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen}">
+                        <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
+                        <MenuItem Header="Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding CutCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding CopyCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding DeleteSelectedCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected}" Command="{Binding CutCommand}"></MenuItem>
+                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected}" Command="{Binding CopyCommand}"></MenuItem>
+                        <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand}"></MenuItem>
+                        <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected}" Command="{Binding DeleteSelectedCommand}"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand}"></MenuItem>
+                        <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand}"></MenuItem>
+                        <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand}"></MenuItem>
                         <Separator></Separator>
-                        <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                        <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                        <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand}"></MenuItem>
+                        <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="View">
-                        <MenuItem x:Name="menuItem" Header="Canvas">
-                            <MenuItem Header="{Binding TextSize, Source={StaticResource artCanvasViewModel}}" HeaderStringFormat="Canvas Text Size: {0}"></MenuItem>
-                            <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+I"/>
-                            <MenuItem Header="Shrink text size" Command="{Binding ShrinkTextSizeCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+O"></MenuItem>
-                            <MenuItem Header="Reset text zize" Command="{Binding ResetTextSizeCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+P"></MenuItem>
+                        <MenuItem x:Name="menuItem" Header="Canvas" DataContext="{Binding DataContext, ElementName=artCanvas}">
+                            <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding DataContext.TextSize, ElementName=artCanvas}"/>
+                            <MenuItem Header="Enlarge text size" Command="{Binding DataContext.EnlargeTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+I"/>
+                            <MenuItem Header="Shrink text size" Command="{Binding DataContext.ShrinkTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+O"></MenuItem>
+                            <MenuItem Header="Reset text zize" Command="{Binding DataContext.ResetTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+P"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="{Binding HighlightThickness, Source={StaticResource artCanvasViewModel}}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
-                            <MenuItem Header="Increase thickness" Command="{Binding IncreaseHighlightThicknessCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                            <MenuItem Header="Decrease thickness" Command="{Binding DecreaseHighlightThicknessCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
-                            <MenuItem Header="Reset thickness" Command="{Binding ResetHighlightThicknessCommand, Source={StaticResource artCanvasViewModel}}"></MenuItem>
+                            <MenuItem Header="{Binding DataContext.HighlightThickness, ElementName=artCanvas}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
+                            <MenuItem Header="Increase thickness" Command="{Binding DataContext.IncreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                            <MenuItem Header="Decrease thickness" Command="{Binding DataContext.DecreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                            <MenuItem Header="Reset thickness" Command="{Binding DataContext.ResetHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem Header="Filters">
                         <MenuItem Header="No filters!"></MenuItem>
                     </MenuItem>
                     <MenuItem Header="Draw">
-                        <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected, Source={StaticResource artCanvasViewModel}}" Command="{Binding FillSelectionCommand, Source={StaticResource artCanvasViewModel}}" InputGestureText="Alt+F"></MenuItem>
+                        <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected}" Command="{Binding FillSelectionCommand}" InputGestureText="Alt+F"></MenuItem>
                     </MenuItem>
                 </Menu>
             </ToolBar>
@@ -83,11 +83,11 @@
                 <controls:ImageStateBox x:Name="BucketToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
                 <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
             </Grid>
-            <StackPanel Panel.ZIndex="1" Visibility="{Binding Visibility}">
+            <StackPanel x:Name="stackPanel" Panel.ZIndex="1">
                 <StackPanel.DataContext>
                     <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
                 </StackPanel.DataContext>
-                <Grid>
+                <Grid Visibility="{Binding Visibility}">
                     <ComboBox VerticalAlignment="Top" Padding="0,0,0,0" Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}"/>
                     <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="200" Margin="0,25,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
                 </Grid>
@@ -136,7 +136,10 @@
             </ListBox>
         </DockPanel>
         <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto">
-            <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt, Source={StaticResource artCanvasViewModel}}" DisplayArtDraw="{Binding CurrentArtDraw, Source={StaticResource artCanvasViewModel}}" SelectionHighlightRect="{Binding Selected, Source={StaticResource artCanvasViewModel}}" TextSize="{Binding TextSize, Source={StaticResource artCanvasViewModel}}" Tool="{Binding CurrentTool, Source={StaticResource artCanvasViewModel}}" CanUseTool="{Binding CanUseTool, Source={StaticResource artCanvasViewModel}}" HighlightRectThickness="{Binding HighlightThickness, Source={StaticResource artCanvasViewModel}}"/>
+            <ScrollViewer.DataContext>
+                <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
+            </ScrollViewer.DataContext>
+            <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}"/>
         </ScrollViewer>
     </Grid>
 </Window>

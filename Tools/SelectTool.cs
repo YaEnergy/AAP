@@ -28,7 +28,7 @@ namespace AAP
             int sizeX = (int)Math.Clamp(artMatrixPosition.X > StartPoint.X ? artMatrixPosition.X - StartPoint.X + 1 : StartPoint.X - artMatrixPosition.X + 1, 0, App.CurrentArt.Width - Math.Min(StartPoint.X, artMatrixPosition.X));
             int sizeY = (int)Math.Clamp(artMatrixPosition.Y > StartPoint.Y ? artMatrixPosition.Y - StartPoint.Y + 1 : StartPoint.Y - artMatrixPosition.Y + 1, 0, App.CurrentArt.Height - Math.Min(StartPoint.Y, artMatrixPosition.Y));
 
-            App.Selected = new(startX, startY, sizeX, sizeY);
+            App.SelectedArt = new(startX, startY, sizeX, sizeY);
         }
     }
 }
