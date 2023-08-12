@@ -16,8 +16,8 @@ namespace AAP
 
         public ASCIIArtDraw(ASCIIArt art)
             => Art = art;
-        
-        private bool CanDrawOn(int layerIndex, Point position)
+
+        private bool CanDrawOn(int layerIndex, int x, int y)
         {
             if (Art.ArtLayers.Count == 0) //No layers
                 return false;
@@ -28,8 +28,22 @@ namespace AAP
             if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
                 return false;
 
-            /*if (position.X < 0 || position.Y < 0 || position.X >= Art.Width || position.Y >= Art.Height) //Point out of bounds of canvas
-                return false;*/
+            if (!Art.ArtLayers[layerIndex].IsPointVisible(x, y)) //Point out of bounds of layer
+                return false;
+
+            return true; //No issues
+        }
+
+        private bool CanDrawOn(int layerIndex, Point position)
+        {
+            if (Art.ArtLayers.Count == 0) //No layers
+                return false;
+
+            if (layerIndex < 0) //Invalid Layer index
+                return false;
+
+            if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
+                return false;
 
             if (!Art.ArtLayers[layerIndex].IsPointVisible(position)) //Point out of bounds of layer
                 return false;
@@ -44,10 +58,11 @@ namespace AAP
 
             ArtLayer layer = Art.ArtLayers[layerIndex];
             Point layerPoint = layer.GetLayerPoint(position);
-            if (Art.ArtLayers[layerIndex].Data[(int)layerPoint.X][(int)layerPoint.Y] == character)
+
+            if (layer.Data[(int)layerPoint.X][(int)layerPoint.Y] == character)
                 return;
 
-            Art.ArtLayers[layerIndex].Data[(int)layerPoint.X][(int)layerPoint.Y] = character;
+            layer.Data[(int)layerPoint.X][(int)layerPoint.Y] = character;
             Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, new Point[] { position });
@@ -55,21 +70,46 @@ namespace AAP
             Art.Update();
         }
 
-        public void DrawLine(int layerIndex, char? character, Point startPosition, Point endPosition)
+        public void DrawLine(int layerIndex, char? character, Point point1, Point point2)
         {
-            throw new NotImplementedException();
-            /*if (layerIndex < 0)
-                return;
+            List<Point> updatedPositions = new();
+            ArtLayer artLayer = Art.ArtLayers[layerIndex];
 
-            if (Art.ArtLayers.Count == 0)
-                return;
+            int startX = Math.Min((int)point1.X, (int)point2.X);
+            int endX = Math.Max((int)point1.X, (int)point2.X);
 
-            if (artMatrixPosition.X < 0 || artMatrixPosition.Y < 0 || artMatrixPosition.X >= Art.Width || artMatrixPosition.Y >= Art.Height)
-                return;
+            int startY = Math.Min((int)point1.Y, (int)point2.Y);
+            int endY = Math.Max((int)point1.Y, (int)point2.Y);
 
-            Art.ArtLayers[layerIndex].Data[artMatrixPosition.X][artMatrixPosition.Y] = character;
+            if (CanDrawOn(layerIndex, startX, startY))
+            {
+                updatedPositions.Add(new(startX, startY));
+                artLayer.Data[startX - artLayer.OffsetX][startY - artLayer.OffsetY] = character;
+            }
 
-            OnArtChanged?.Invoke(layerIndex, artMatrixPosition, character);*/
+            for (int x = startX; x < endX + 1; x++)
+            {
+                float prevProgress = Math.Abs((x - startX - 1) / (endX - startX));
+                float newProgress = Math.Abs((x - startX) / (endX - startX));
+
+                int prevY = (int)(startY + (endY - startY) * prevProgress);
+                int newY = (int)(startY + (endY - startY) * newProgress);
+
+                for (int y = Math.Min(prevY + 1, newY); y < newY + 1; y++)
+                {
+                    if (CanDrawOn(layerIndex, x, y))
+                    {
+                        updatedPositions.Add(new(x, y));
+                        artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                    }
+                }
+            }
+
+            Art.UnsavedChanges = true;
+
+            OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
+
+            Art.Update();
         }
 
         public void DrawRectangle(int layerIndex, char? character, Rect rectangle)
@@ -81,10 +121,9 @@ namespace AAP
             for (int x = (int)rectangle.Left; x < (int)rectangle.Right; x++)
                 for (int y = (int)rectangle.Top; y < (int)rectangle.Bottom; y++)
                 {
-                    Point canvasPoint = new(x, y);
-                    if (CanDrawOn(layerIndex, canvasPoint))
+                    if (CanDrawOn(layerIndex, x, y))
                     {
-                        updatedPositions.Add(canvasPoint);
+                        updatedPositions.Add(new(x, y));
                         artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
                     }
                 }
