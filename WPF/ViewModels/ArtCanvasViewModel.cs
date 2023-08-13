@@ -143,6 +143,36 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private int selectedLayerID = -1;
+        public int SelectedLayerID
+        {
+            get => selectedLayerID;
+            set
+            {
+                SelectedLayer = value != -1 && CurrentArt != null ? CurrentArt.ArtLayers[value] : null;
+
+                if (selectedLayerID == value)
+                    return;
+
+                selectedLayerID = value;
+                PropertyChanged?.Invoke(this, new(nameof(SelectedLayerID)));
+            }
+        }
+
+        private ArtLayer? selectedLayer = null;
+        public ArtLayer? SelectedLayer
+        {
+            get => selectedLayer;
+            set
+            {
+                if (selectedLayer == value)
+                    return;
+
+                selectedLayer = value;
+                PropertyChanged?.Invoke(this, new(nameof(SelectedLayer)));
+            }
+        }
+
         public ICommand EnlargeTextSizeCommand { get; private set; }
         public ICommand ShrinkTextSizeCommand { get; private set; }
         public ICommand ResetTextSizeCommand { get; private set; }

@@ -240,7 +240,10 @@ namespace AAP.UI.Windows
         }
 
         private void CurrentLayerIDChanged(int layerID)
-            => LayerManagementViewModel.SelectedLayerID = layerID;
+        {
+            LayerManagementViewModel.SelectedLayerID = layerID;
+            ArtCanvasViewModel.SelectedLayerID = layerID; 
+        }
 
         #endregion
 
@@ -697,7 +700,7 @@ namespace AAP.UI.Windows
 
                     App.SetArtLayerName(vm.SelectedLayer, vm.SelectedLayerName);
                     break;
-                case nameof(vm.SelectedLayer):
+                case nameof(vm.SelectedLayerVisibility):
                     if (vm.SelectedLayer == null)
                         break;
 

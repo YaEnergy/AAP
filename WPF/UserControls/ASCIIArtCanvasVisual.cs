@@ -27,7 +27,8 @@ namespace AAP.UI.Controls
 
         private readonly DrawingVisual backgroundVisual = new();
         private readonly List<DrawingVisual> displayArtVisuals = new();
-        private readonly DrawingVisual highlightVisual = new();
+        private readonly DrawingVisual displayLayerHighlightVisual = new();
+        private readonly DrawingVisual selectionHighlightsVisual = new();
 
         protected override int VisualChildrenCount => _children.Count;
 
@@ -78,6 +79,25 @@ namespace AAP.UI.Controls
                     return;
 
                 SetValue(DisplayArtDrawProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty DisplayLayerProperty =
+        DependencyProperty.Register(
+            name: "DisplayLayer",
+            propertyType: typeof(ArtLayer),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null, OnDisplayLayerPropertyChangedCallBack));
+
+        public ArtLayer? DisplayLayer
+        {
+            get => (ArtLayer?)GetValue(DisplayLayerProperty);
+            set
+            {
+                if (DisplayLayer == value)
+                    return;
+
+                SetValue(DisplayLayerProperty, value);
             }
         }
 
@@ -151,7 +171,7 @@ namespace AAP.UI.Controls
 
                 mouseHighlightRect = value;
 
-                DrawHighlights();
+                DrawSelectionHighlights();
             }
         }
 
@@ -314,7 +334,7 @@ namespace AAP.UI.Controls
 
             CultureInfo cultureInfo = CultureInfo.InvariantCulture;
             
-            _children.RemoveRange(1, _children.Count - 2);
+            _children.RemoveRange(1, _children.Count - 3);
 
             if (DisplayArt == null)
             {
@@ -380,11 +400,11 @@ namespace AAP.UI.Controls
         }
 
         /// <summary>
-        /// Draws the highlights, such as the MouseHighlightRect & SelectionHighlightRect
+        /// Draws the highlights, such as the MouseHighlightRect & SelectionHighlightRect (excluding display layer highlight)
         /// </summary>
-        protected void DrawHighlights()
+        protected void DrawSelectionHighlights()
         {
-            using DrawingContext dc = highlightVisual.RenderOpen();
+            using DrawingContext dc = selectionHighlightsVisual.RenderOpen();
 
             //Selection Highlight
             if (SelectionHighlightRect != Rect.Empty)
@@ -393,6 +413,22 @@ namespace AAP.UI.Controls
             //Mouse Highlight
             if (MouseHighlightRect != Rect.Empty)
                 dc.DrawRectangle(null, new(Brushes.Blue, HighlightRectThickness), GetArtCanvasRectangle(MouseHighlightRect));
+        }
+
+        /// <summary>
+        /// Draws the display layer highlight
+        /// </summary>
+        protected void DrawDisplayLayerHighlight()
+        {
+            using DrawingContext dc = displayLayerHighlightVisual.RenderOpen();
+
+            //Display Layer Size Highlight
+            if (DisplayLayer != null)
+            {
+                Pen rectPen = new(Brushes.Gray, HighlightRectThickness);
+                rectPen.DashStyle = DisplayLayer.Visible ? DashStyles.Dash : DashStyles.Dot;
+                dc.DrawRectangle(null, rectPen, GetArtCanvasRectangle(new(DisplayLayer.Offset, DisplayLayer.Size)));
+            }
         }
         #endregion
 
@@ -617,7 +653,16 @@ namespace AAP.UI.Controls
         private void DisplayArtSizeChanged(int width, int height)
             => UpdateBackground();
         #endregion
+        #region Display Layer Event Implementations
+        private void DisplayLayerOffsetChanged(ArtLayer layer, Point oldOffset, Point newOffset)
+            => DrawDisplayLayerHighlight();
 
+        private void DisplayLayerDataChanged(ArtLayer layer, char?[][] data)
+            => DrawDisplayLayerHighlight();
+
+        private void DisplayLayerVisibilityChanged(ArtLayer layer, bool visible)
+            => DrawDisplayLayerHighlight();
+        #endregion
         #region Dependancy Properties Changed Callbacks
         private static void OnDisplayArtPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
@@ -691,6 +736,31 @@ namespace AAP.UI.Controls
             }
         }
 
+        private static void OnDisplayLayerPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawDisplayLayerHighlight();
+
+            ArtLayer? oldDisplayLayer = (ArtLayer?)e.OldValue;
+            ArtLayer? newDisplayLayer = (ArtLayer?)e.NewValue;
+
+            if (oldDisplayLayer != null)
+            {
+                oldDisplayLayer.OffsetChanged -= canvas.DisplayLayerOffsetChanged;
+                oldDisplayLayer.DataChanged -= canvas.DisplayLayerDataChanged;
+                oldDisplayLayer.VisibilityChanged -= canvas.DisplayLayerVisibilityChanged;
+            }
+
+            if (newDisplayLayer != null)
+            {
+                newDisplayLayer.OffsetChanged += canvas.DisplayLayerOffsetChanged;
+                newDisplayLayer.DataChanged += canvas.DisplayLayerDataChanged;
+                newDisplayLayer.VisibilityChanged += canvas.DisplayLayerVisibilityChanged;
+            }
+        }
+
         private static void OnTextSizePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is not ASCIIArtCanvasVisual canvas)
@@ -698,7 +768,8 @@ namespace AAP.UI.Controls
 
             canvas.UpdateBackground();
             canvas.DrawDisplayArt();
-            canvas.DrawHighlights();
+            canvas.DrawSelectionHighlights();
+            canvas.DrawDisplayLayerHighlight();
         }
 
         private static void OnArtFontPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
@@ -708,7 +779,8 @@ namespace AAP.UI.Controls
 
             canvas.UpdateBackground();
             canvas.DrawDisplayArt();
-            canvas.DrawHighlights();
+            canvas.DrawSelectionHighlights();
+            canvas.DrawDisplayLayerHighlight();
         }
 
         private static void OnSelectionHighlightRectPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
@@ -716,7 +788,7 @@ namespace AAP.UI.Controls
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
             
-            canvas.DrawHighlights();
+            canvas.DrawSelectionHighlights();
         }
 
         private static void OnHighlightRectThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
@@ -724,7 +796,8 @@ namespace AAP.UI.Controls
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
 
-            canvas.DrawHighlights();
+            canvas.DrawSelectionHighlights();
+            canvas.DrawDisplayLayerHighlight();
         }
         #endregion
 
@@ -750,7 +823,8 @@ namespace AAP.UI.Controls
             {
                 backgroundVisual,
                 //art visuals
-                highlightVisual
+                displayLayerHighlightVisual,
+                selectionHighlightsVisual
             };
             
             MouseMove += OnMouseMove;
@@ -758,7 +832,8 @@ namespace AAP.UI.Controls
 
             UpdateBackground();
             DrawDisplayArt();
-            DrawHighlights();
+            DrawSelectionHighlights();
+            DrawDisplayLayerHighlight();
         }
     }
 }
