@@ -548,21 +548,39 @@ namespace AAP.UI.Controls
             }
         }
 
-        private void DisplayArtArtLayerDataChanged(ArtLayer artLayer, char?[][] data)
+        private void DisplayArtArtLayerDataChanged(ArtLayer artLayer, char?[][] oldData, char?[][] newData)
         {
             if (DisplayArt == null)
                 return;
 
-            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            if (oldData[0] != null)
             {
-                if (y < 0)
-                    continue;
+                for (int y = artLayer.OffsetY; y < artLayer.OffsetY + oldData[0].Length; y++)
+                {
+                    if (y < 0)
+                        continue;
 
-                if (y >= DisplayArt.Height)
-                    break;
+                    if (y >= DisplayArt.Height)
+                        break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                    if (!changedLines.Contains(y))
+                        changedLines.Add(y);
+                }
+            }
+
+            if (newData[0] != null)
+            {
+                for (int y = artLayer.OffsetY; y < artLayer.OffsetY + newData[0].Length; y++)
+                {
+                    if (y < 0)
+                        continue;
+
+                    if (y >= DisplayArt.Height)
+                        break;
+    
+                    if (!changedLines.Contains(y))
+                        changedLines.Add(y);
+                }
             }
         }
 
@@ -664,7 +682,7 @@ namespace AAP.UI.Controls
         private void DisplayLayerOffsetChanged(ArtLayer layer, Point oldOffset, Point newOffset)
             => DrawDisplayLayerHighlight();
 
-        private void DisplayLayerDataChanged(ArtLayer layer, char?[][] data)
+        private void DisplayLayerDataChanged(ArtLayer layer, char?[][] oldData, char?[][] newData)
             => DrawDisplayLayerHighlight();
 
         private void DisplayLayerVisibilityChanged(ArtLayer layer, bool visible)

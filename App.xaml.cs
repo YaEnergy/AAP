@@ -746,6 +746,9 @@ namespace AAP
             if (SelectedArt == Rect.Empty)
                 return;
 
+            if (CurrentLayerID == -1)
+                return;
+
             CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, SelectedArt);
 
             CurrentArtTimeline?.NewTimePoint();
@@ -809,14 +812,8 @@ namespace AAP
                 return;
 
             ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
-            ArtLayer duplicateArtLayer = new(currentArtLayer.Name + " copy", CurrentArt.Width, CurrentArt.Height)
-            {
-                Visible = currentArtLayer.Visible
-            };
-
-            for (int x = 0; x < CurrentArt.Width; x++)
-                for (int y = 0; y < CurrentArt.Height; y++)
-                    duplicateArtLayer.Data[x][y] = currentArtLayer.Data[x][y];
+            ArtLayer duplicateArtLayer = (ArtLayer)currentArtLayer.Clone();
+            duplicateArtLayer.Name += " copy";
 
             CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, duplicateArtLayer);
             CurrentLayerID += 1;

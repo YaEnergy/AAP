@@ -22,8 +22,9 @@ namespace AAP
                 if (data == value)
                     return;
 
+                char?[][] oldData = data;
                 data = value;
-                DataChanged?.Invoke(this, value);
+                DataChanged?.Invoke(this, oldData, value);
                 PropertyChanged?.Invoke(this, new(nameof(Data)));
             }
         }
@@ -148,7 +149,7 @@ namespace AAP
             get => new(Width, Height);
         }
 
-        public delegate void DataChangedEvent(ArtLayer layer, char?[][] data);
+        public delegate void DataChangedEvent(ArtLayer layer, char?[][] oldData, char?[][] newData);
         public event DataChangedEvent? DataChanged;
 
         public delegate void NameChangedEvent(ArtLayer layer, string name);
