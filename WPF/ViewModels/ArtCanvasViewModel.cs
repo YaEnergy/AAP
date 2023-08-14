@@ -15,22 +15,22 @@ namespace AAP.UI.ViewModels
 {
     public class ArtCanvasViewModel : INotifyPropertyChanged
     {
-        private int textSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
-        public int TextSize
+        private double textSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
+        public double TextSize
         {
             get => textSize;
             set
             {
-                if (textSize == Math.Clamp(value, 4, 128))
+                if (textSize == Math.Clamp(value, 1, 128))
                     return;
 
-                textSize = Math.Clamp(value, 4, 128);
+                textSize = Math.Clamp(value, 1, 128);
                 PropertyChanged?.Invoke(this, new(nameof(TextSize)));
             }
         }
 
-        private int highlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
-        public int HighlightThickness
+        private double highlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
+        public double HighlightThickness
         {
             get => highlightThickness;
             set
@@ -193,10 +193,10 @@ namespace AAP.UI.ViewModels
         }
 
         public void EnlargeTextSize(object? parameter = null)
-            => TextSize += 2;
+            => TextSize += 1;
 
         public void ShrinkTextSize(object? parameter = null)
-            => TextSize -= 2;
+            => TextSize -= 1;
 
         public void ResetTextSize(object? parameter = null)
             => TextSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;

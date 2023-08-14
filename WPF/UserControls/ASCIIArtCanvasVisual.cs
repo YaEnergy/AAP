@@ -19,8 +19,15 @@ namespace AAP.UI.Controls
 {
     public class ASCIIArtCanvasVisual : FrameworkElement
     {
-        public readonly static int DefaultCanvasTextSize = 16;
-        public readonly static int DefaultHighlightRectThickness = 4;
+        public readonly static double MinCanvasTextSize = 128;
+        public readonly static double MinHighlightRectThickness = 1;
+
+        public readonly static double MaxCanvasTextSize = 128;
+        public readonly static double MaxHighlightRectThickness = 1;
+
+        public readonly static double DefaultCanvasTextSize = 16;
+        public readonly static double DefaultHighlightRectThickness = 4;
+
         private readonly static string EmptyDisplayArtText = "No art to display!";
 
         private readonly VisualCollection _children;
@@ -104,19 +111,19 @@ namespace AAP.UI.Controls
         public static readonly DependencyProperty TextSizeProperty =
        DependencyProperty.Register(
            name: "TextSize",
-           propertyType: typeof(int),
+           propertyType: typeof(double),
            ownerType: typeof(ASCIIArtCanvasVisual),
-           typeMetadata: new FrameworkPropertyMetadata(defaultValue: 16, OnTextSizePropertyChangedCallBack));
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: DefaultCanvasTextSize, OnTextSizePropertyChangedCallBack));
 
-        public int TextSize
+        public double TextSize
         {
-            get => (int)GetValue(TextSizeProperty);
+            get => (double)GetValue(TextSizeProperty);
             set
             {
-                if (TextSize == value)
+                if (TextSize == Math.Clamp(value, MinCanvasTextSize, MaxCanvasTextSize))
                     return;
 
-                SetValue(TextSizeProperty, value);
+                SetValue(TextSizeProperty, Math.Clamp(value, MinCanvasTextSize, MaxCanvasTextSize));
             }
         }
 
@@ -178,19 +185,19 @@ namespace AAP.UI.Controls
         public static readonly DependencyProperty HighlightRectThicknessProperty =
        DependencyProperty.Register(
            name: "HighlightRectThickness",
-           propertyType: typeof(int),
+           propertyType: typeof(double),
            ownerType: typeof(ASCIIArtCanvasVisual),
-           typeMetadata: new FrameworkPropertyMetadata(defaultValue: 2, OnHighlightRectThicknessPropertyChangedCallBack));
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: DefaultHighlightRectThickness, OnHighlightRectThicknessPropertyChangedCallBack));
 
-        public int HighlightRectThickness
+        public double HighlightRectThickness
         {
-            get => (int)GetValue(HighlightRectThicknessProperty);
+            get => (double)GetValue(HighlightRectThicknessProperty);
             set
             {
-                if (HighlightRectThickness == value)
+                if (HighlightRectThickness == Math.Clamp(value, MinHighlightRectThickness, MaxHighlightRectThickness))
                     return;
 
-                SetValue(HighlightRectThicknessProperty, value);
+                SetValue(HighlightRectThicknessProperty, Math.Clamp(value, MinHighlightRectThickness, MaxHighlightRectThickness));
             }
         }
 
