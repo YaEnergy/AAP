@@ -10,9 +10,10 @@ namespace AAP
 {
     public class TextTool: Tool
     {
+        public override ToolType Type { get; protected set; } = ToolType.Text;
+
         public TextTool()
         {
-            Type = ToolType.Text;
             //System.Windows.Input.Keyboard.PrimaryDevice.FocusedElement.PreviewTextInput returns strings!!
         }
 

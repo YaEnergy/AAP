@@ -8,11 +8,12 @@ namespace AAP
 {
     public class BucketTool: Tool
     {
+        public override ToolType Type { get; protected set; } = ToolType.Bucket;
+
         public char? Character = '/';
 
         public BucketTool(char? character)
         {
-            Type = ToolType.Bucket;
             Character = character;
         }
 

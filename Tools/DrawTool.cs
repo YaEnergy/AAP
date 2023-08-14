@@ -8,6 +8,8 @@ namespace AAP
 {
     public class DrawTool: Tool
     {
+        public override ToolType Type { get; protected set; }
+
         public char? Character = '/';
         public int Size = 1;
 

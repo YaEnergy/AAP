@@ -8,9 +8,11 @@ namespace AAP
 {
     public class SelectTool: Tool
     {
+        public override ToolType Type { get; protected set; } = ToolType.Select;
+
         public SelectTool() 
         {
-            Type = ToolType.Select;
+            
         }
 
         public override void ActivateUpdate(Point artMatrixPosition)

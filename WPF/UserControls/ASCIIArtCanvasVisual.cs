@@ -380,16 +380,16 @@ namespace AAP.UI.Controls
         /// </summary>
         protected void UpdateDisplayArt()
         {
-            Stopwatch stopwatch = new();
-            stopwatch.Start();
-
             CultureInfo cultureInfo = CultureInfo.InvariantCulture;
 
             if (DisplayArt == null) 
                 throw new NullReferenceException(nameof(DisplayArt));
 
-            if (changedLines.Count < 0)
+            if (changedLines.Count <= 0)
                 return;
+            
+            Stopwatch stopwatch = new();
+            stopwatch.Start();
 
             foreach (int y in changedLines)
             {
@@ -603,7 +603,7 @@ namespace AAP.UI.Controls
                     changedLines.Add(y);
             }
 
-            int newOffsetY = (int)oldOffset.Y;
+            int newOffsetY = (int)newOffset.Y;
 
             for (int y = newOffsetY; y < newOffsetY + artLayer.Height; y++)
             {

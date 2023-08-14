@@ -17,7 +17,7 @@ namespace AAP
         public delegate void ActivateEndEvent(Tool tool, Point endPosition);
         public event ActivateStartEvent? OnActivateEnd;
 
-        public ToolType Type { get; protected set; } = ToolType.None;
+        public abstract ToolType Type { get; protected set; }
         protected Point StartPoint = new(0, 0);
         protected Point CurrentPoint = new(0, 0);
         protected Point EndPoint = new(0, 0);
