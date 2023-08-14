@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AAP.UI.Windows"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtFileViewModel}">
+    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtFileViewModel}" MinWidth="600" MinHeight="450">
     <Window.DataContext>
         <viewmodels:ArtFileViewModel x:Name="ArtFileViewModel"/>
     </Window.DataContext>
@@ -111,13 +111,13 @@
                 <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DuplicateLayerIcon.png" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
                 <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DestroyLayerIcon.png" Grid.Column="4" Command="{Binding RemoveLayerCommand}"/>
             </Grid>
-            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}" MaxHeight="500">
-                <Label Content="Layer Options" FontSize="14" Height="30"/>
-                <Grid Margin="0,5,0,5">
-                    <Label Content="Name" HorizontalAlignment="Left" VerticalAlignment="Top" Width="42"/>
-                    <TextBox TextWrapping="Wrap" Margin="45,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100"/>
-                </Grid>
-                <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="0,0,0,5">
+            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
+                <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
+                <WrapPanel Margin="5,0,5,5">
+                    <Label Content="Name" HorizontalAlignment="Left"/>
+                    <TextBox TextWrapping="Wrap" Margin="5,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100" MinWidth="100" HorizontalAlignment="Left" MaxWidth="140"/>
+                </WrapPanel>
+                <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5">
                     <CheckBox.Resources>
                         <Style TargetType="{x:Type Path}">
                             <Setter Property="FlowDirection" Value="LeftToRight" />

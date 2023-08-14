@@ -5,13 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AAP.UI.Windows" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels"
         mc:Ignorable="d"
-        Title="BackgroundTaskWindow" Height="138" ResizeMode="NoResize" SizeToContent="Width" ShowInTaskbar="False">
+        Title="BackgroundTaskWindow" ResizeMode="NoResize" SizeToContent="WidthAndHeight" ShowInTaskbar="False">
     <Window.Resources>
         <viewmodels:BackgroundTaskViewModel x:Name="ViewModel" x:Key="ViewModel"/>
     </Window.Resources>
     <Grid>
-        <Label Margin="10,10,10,10" VerticalAlignment="Top" Content="{Binding BackgroundTask.Objective, Source={StaticResource ViewModel}}"/>
-        <Label Margin="10,44,10,0" VerticalAlignment="Top" ContentStringFormat="({0})" Content="{Binding TaskElapsedTimeString, Source={StaticResource ViewModel}}"/>
-        <ProgressBar Margin="10,77,10,10" IsIndeterminate="{Binding BackgroundTask.IsDeterminate, Source={StaticResource ViewModel}}" Value="{Binding BackgroundTask.ProgressPercentage, Source={StaticResource ViewModel}}"/>
+        <WrapPanel Orientation="Vertical" Margin="10,10,10,10">
+            <Label VerticalAlignment="Top" Content="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>
+            <Label VerticalAlignment="Top" ContentStringFormat="({0})" Content="{Binding TaskElapsedTimeString, Source={StaticResource ViewModel}}"/>
+            <ProgressBar IsIndeterminate="{Binding BackgroundTask.IsDeterminate, Source={StaticResource ViewModel}}" Value="{Binding BackgroundTask.ProgressPercentage, Source={StaticResource ViewModel}}" VerticalAlignment="Top" Height="20" Margin="5,0,0,0"/>
+            <Label VerticalAlignment="Top" Content="{Binding BackgroundTask.Objective, Source={StaticResource ViewModel}}"/>
+        </WrapPanel>
     </Grid>
 </Window>

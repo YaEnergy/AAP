@@ -5,17 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AAP.UI.Windows" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels"
         mc:Ignorable="d"
-        Title="Create New ASCII Art" Height="150" Width="300" ResizeMode="NoResize">
+        Title="Create New ASCII Art" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150">
     <Window.Resources>
         <viewmodels:NewASCIIArtDialogViewModel x:Name="newFileDialogViewModel" x:Key="NewFileDialogViewModel"/>
     </Window.Resources>
     <Grid>
         <Button Content="Create new ASCII art" Margin="10,0,10,5" VerticalAlignment="Bottom" Click="CreateButton_Click" IsEnabled="{Binding CanCreate, Source={StaticResource NewFileDialogViewModel}}"/>
-        <TextBox HorizontalAlignment="Left" Margin="10,52,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22" Width="120" Text="{Binding WidthText, Source={StaticResource NewFileDialogViewModel}, ValidatesOnNotifyDataErrors=True}"/>
-        <Label Content="ASCII Art Options" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" FontSize="14"/>
-        <Label Content="Size" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top"/>
-        <Label Content="x" HorizontalAlignment="Left" Margin="130,48,0,0" VerticalAlignment="Top"/>
-        <TextBox HorizontalAlignment="Left" Margin="146,52,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="22" Width="120" Text="{Binding HeightText, Source={StaticResource NewFileDialogViewModel}, ValidatesOnNotifyDataErrors=True}"/>
-
+        <WrapPanel Margin="10,5,10,30" Orientation="Vertical">
+            <Label Content="ASCII Art Options" HorizontalAlignment="Left" VerticalAlignment="Top" FontSize="14"/>
+            <WrapPanel HorizontalAlignment="Left" VerticalAlignment="Top">
+                <Label Content="Size" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Height="22" Text="{Binding WidthText, Source={StaticResource NewFileDialogViewModel}, ValidatesOnNotifyDataErrors=True}" Margin="8,0,0,0" Width="90"/>
+                <Label Content="x" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" VerticalAlignment="Center" Height="22" Text="{Binding HeightText, Source={StaticResource NewFileDialogViewModel}, ValidatesOnNotifyDataErrors=True}" Width="90"/>
+            </WrapPanel>
+        </WrapPanel>
     </Grid>
 </Window>
