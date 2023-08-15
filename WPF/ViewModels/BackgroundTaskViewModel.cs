@@ -45,7 +45,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-
         public DispatcherTimer UpdateTimeTimer { get; } = new();
 
         private string taskElapsedTimeString = TimeSpan.Zero.ToString(@"hh\:mm\:ss");
@@ -58,7 +57,6 @@ namespace AAP.UI.ViewModels
                 PropertyChanged?.Invoke(this, new(nameof(TaskElapsedTimeString)));
             }
         }
-
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

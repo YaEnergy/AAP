@@ -12,9 +12,18 @@ namespace AAP
         public T FileObject { get; protected set; }
         public string FilePath { get; protected set; }
 
+        /// <summary>
+        /// Sets properties of FileObject to the properties of the object imported from FilePath
+        /// </summary>
+        /// <param name="bgWorker"></param>
         public abstract void Import(BackgroundWorker? bgWorker = null);
 
-        public abstract void Export(BackgroundWorker? bgWorker = null);
+        /// <summary>
+        /// Writes FileObject to FilePath
+        /// </summary>
+        /// <param name="bgWorker"></param>
+        /// <returns>True if export was a success, false if cancelled.</returns>
+        public abstract bool Export(BackgroundWorker? bgWorker = null);
 
     }
 }

@@ -49,18 +49,32 @@ namespace AAP
             FileObject.Characters = characters;
         }
 
-        public void Export(BackgroundWorker? bgWorker = null)
+        public bool Export(BackgroundWorker? bgWorker = null)
         {
+            if (bgWorker != null)
+                if (bgWorker.CancellationPending)
+                    return false;
+
             string charString = "";
 
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Creating string...", true));
             foreach (char character in FileObject.Characters)
                 charString += character;
 
+            if (bgWorker != null)
+            {
+                if (bgWorker.CancellationPending)
+                    return false;
+
+                bgWorker.WorkerSupportsCancellation = false;
+            }
+
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Writing to file...", true));
             using StreamWriter swText = File.CreateText(FilePath);
 
             swText.Write(charString);
+
+            return true;
         }
     }
 
@@ -101,8 +115,16 @@ namespace AAP
             FileObject.Characters = importedPalette.Characters;
         }
 
-        public void Export(BackgroundWorker? bgWorker = null)
+        public bool Export(BackgroundWorker? bgWorker = null)
         {
+            if (bgWorker != null)
+            {
+                if (bgWorker.CancellationPending)
+                    return false;
+
+                bgWorker.WorkerSupportsCancellation = false;
+            }
+
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter swAAPPAL = File.CreateText(FilePath);
 
@@ -110,6 +132,8 @@ namespace AAP
             js.Serialize(swAAPPAL, FileObject);
 
             swAAPPAL.Close();
+
+            return true;
         }
     }
 }

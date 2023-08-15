@@ -49,10 +49,16 @@ namespace AAP.UI.Windows
 
         private void OnClosing(object? sender, CancelEventArgs e)
         {
-            if (!DisplayBackgroundTask.Worker.WorkerSupportsCancellation && DisplayBackgroundTask.Worker.IsBusy)
+            if (DisplayBackgroundTask.Worker.IsBusy)
             {
-                e.Cancel = true;
-                MessageBox.Show("Background Task cannot be cancelled!", DisplayBackgroundTask.Name, MessageBoxButton.OK, MessageBoxImage.Warning);
+                if (!DisplayBackgroundTask.Worker.WorkerSupportsCancellation)
+                    e.Cancel = true;
+                else
+                {
+                    e.Cancel = true;
+                    CloseOnFinish = true;
+                    DisplayBackgroundTask.CancelAsync();
+                }
             }
         }
 

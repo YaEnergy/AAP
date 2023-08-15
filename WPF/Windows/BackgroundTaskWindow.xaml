@@ -9,6 +9,9 @@
     <Window.Resources>
         <viewmodels:BackgroundTaskViewModel x:Name="ViewModel" x:Key="ViewModel"/>
     </Window.Resources>
+    <Window.TaskbarItemInfo>
+        <TaskbarItemInfo ProgressValue="{Binding BackgroundTask.ProgressPercentage, Source={StaticResource ViewModel}}" ProgressState="Normal" Description="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>
+    </Window.TaskbarItemInfo>
     <Grid>
         <WrapPanel Orientation="Vertical" Margin="10,10,10,10">
             <Label VerticalAlignment="Top" Content="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>

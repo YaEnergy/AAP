@@ -8,6 +8,7 @@ using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -381,6 +382,7 @@ namespace AAP
         {
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerReportsProgress = true;
+            bgWorker.WorkerReportsProgress = true;
             bgWorker.DoWork += CreateWork;
             bgWorker.RunWorkerCompleted += CreateWorkComplete;
 
@@ -398,11 +400,29 @@ namespace AAP
                 ASCIIArt art = new();
                 art.SetSize(width, height);
 
+                if (bgWorker.CancellationPending)
+                {
+                    args.Cancel = true;
+                    return;
+                }
+
                 bgWorker.ReportProgress(66, new BackgroundTaskUpdateArgs("Creating background layer...", true));
                 art.ArtLayers.Add(new("Background", width, height, 0, 0));
 
+                if (bgWorker.CancellationPending)
+                {
+                    args.Cancel = true;
+                    return;
+                }
+
                 bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Finishing up art...", true));
                 art.UnsavedChanges = true;
+
+                if (bgWorker.CancellationPending)
+                {
+                    args.Cancel = true;
+                    return;
+                }
 
                 args.Result = art;
             }
@@ -429,6 +449,7 @@ namespace AAP
         public static BackgroundTask? OpenArtFileAsync(FileInfo file)
         {
             BackgroundWorker bgWorker = new();
+            bgWorker.WorkerSupportsCancellation = true;
             bgWorker.WorkerReportsProgress = true;
             bgWorker.DoWork += OpenWork;
             bgWorker.RunWorkerCompleted += OpenWorkComplete;
@@ -467,6 +488,12 @@ namespace AAP
 
                 ConsoleLogger.Log($"Open File: Imported file!");
                 AAPFile.Import(bgWorker);
+
+                if (bgWorker.CancellationPending)
+                {
+                    args.Cancel = true;
+                    return;
+                }
 
                 if (art.Width * art.Height > MaxArtArea)
                     throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
@@ -510,6 +537,7 @@ namespace AAP
             CurrentFilePath = path;
 
             BackgroundWorker bgWorker = new();
+            bgWorker.WorkerSupportsCancellation = true;
             bgWorker.WorkerReportsProgress = true;
             bgWorker.DoWork += SaveWork;
             bgWorker.RunWorkerCompleted += SaveWorkComplete;
@@ -526,7 +554,14 @@ namespace AAP
                 bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Exporting as .aaf file...", true));
 
                 AAFASCIIArt aafASCIIArt = new(art, path);
-                aafASCIIArt.Export(bgWorker);
+
+                bool exportSuccess = aafASCIIArt.Export(bgWorker);
+
+                if (bgWorker.CancellationPending && !exportSuccess)
+                {
+                    args.Cancel = true;
+                    return;
+                }
 
                 args.Result = new FileInfo(path);
             }
@@ -568,6 +603,7 @@ namespace AAP
 
             ASCIIArt art = CurrentArt;
             BackgroundWorker bgWorker = new();
+            bgWorker.WorkerSupportsCancellation = true;
             bgWorker.WorkerReportsProgress = true;
             bgWorker.DoWork += ExportWork;
             bgWorker.RunWorkerCompleted += ExportWorkComplete;
@@ -598,7 +634,13 @@ namespace AAP
                         throw new Exception("Unknown file extension!");
                 }
 
-                AAPFile.Export(bgWorker);
+                bool exportSuccess = AAPFile.Export(bgWorker);
+
+                if (bgWorker.CancellationPending && !exportSuccess)
+                {
+                    args.Cancel = true;
+                    return;
+                }
 
                 args.Result = fileInfo;
             }

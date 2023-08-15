@@ -62,16 +62,30 @@ namespace AAP
             FileObject.UnsavedChanges = true;
         }
 
-        public void Export(BackgroundWorker? bgWorker = null)
+        public bool Export(BackgroundWorker? bgWorker = null)
         {
+            if (bgWorker != null)
+                if (bgWorker.CancellationPending)
+                    return false;
+
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Getting art string...", true));
             string artString = FileObject.GetArtString();
+
+            if (bgWorker != null)
+            {
+                if (bgWorker.CancellationPending)
+                    return false;
+
+                bgWorker.WorkerSupportsCancellation = false;
+            }
 
             bgWorker?.ReportProgress(50, new BackgroundTaskUpdateArgs("Writing to file...", true));
             StreamWriter sw = File.CreateText(FilePath);
             sw.Write(artString);
 
             sw.Close();
+
+            return true;
         }
     }
 
@@ -103,6 +117,7 @@ namespace AAP
             fs.Close();
 
             bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Deserializing decompressed art file...", true));
+
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamReader sr = File.OpenText(UncompressedExportPath);
             JsonTextReader jr = new(sr);
@@ -128,13 +143,25 @@ namespace AAP
             FileObject.UnsavedChanges = false;
         }
 
-        public void Export(BackgroundWorker? bgWorker = null)
+        public bool Export(BackgroundWorker? bgWorker = null)
         {
+            if (bgWorker != null)
+                if (bgWorker.CancellationPending)
+                    return false;
+
             bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Writing as uncompressed file...", true));
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(UncompressedExportPath);
             js.Serialize(sw, FileObject);
             sw.Close();
+
+            if (bgWorker != null)
+            {
+                if (bgWorker.CancellationPending)
+                    return false;
+
+                bgWorker.WorkerSupportsCancellation = false;
+            }
 
             bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Decompressing uncompressed file to file path...", true));
             using (FileStream fs = File.OpenRead(UncompressedExportPath))
@@ -143,6 +170,8 @@ namespace AAP
 
             bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting uncompressed path", true));
             File.Delete(UncompressedExportPath);
+
+            return true;
         }
     }
 }
