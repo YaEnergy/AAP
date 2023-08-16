@@ -166,12 +166,18 @@ namespace AAP.UI.Windows
         private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
         {
             if (art != null)
-                if (art.Width * art.Height * Math.Clamp(art.ArtLayers.Count, 1, int.MaxValue) >= App.WarningLargeArtArea)
-                {
-                    string message = $"The ASCII Art you're trying to open has an total art area of {art.Width * art.Height * art.ArtLayers.Count} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
+            {
+                int fullArtArea = art.GetTotalArtArea();
 
-                    if (art.Width * art.Height * Math.Clamp(art.ArtLayers.Count, 1, int.MaxValue) >= App.WarningIncrediblyLargeArtArea)
-                        message = $"The ASCII Art you're trying to open has an total art area of {art.Width * art.Height * art.ArtLayers.Count} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
+                if (fullArtArea < art.Width * art.Height)
+                    fullArtArea = art.Width * art.Height;
+
+                if (fullArtArea >= App.WarningLargeArtArea)
+                {
+                    string message = $"The ASCII Art you're trying to open has an total art area of {fullArtArea} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
+
+                    if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
+                        message = $"The ASCII Art you're trying to open has an total art area of {fullArtArea} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
 
                     MessageBoxResult result = MessageBox.Show(message, "ASCII Art Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                     
@@ -181,6 +187,7 @@ namespace AAP.UI.Windows
                         return;
                     }
                 }
+            }
 
             //Remove old listeners
             if (ArtFileViewModel.CurrentArt != null)
@@ -211,7 +218,7 @@ namespace AAP.UI.Windows
         {
             ArtFileViewModel.CurrentTool = tool;
 
-            CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw || tool?.Type == ToolType.Bucket ? Visibility.Visible : Visibility.Hidden;
+            CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw || tool?.Type == ToolType.Bucket ? Visibility.Visible : Visibility.Collapsed;
 
             if (tool == null)
                 return;

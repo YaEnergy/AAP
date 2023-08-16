@@ -8,6 +8,7 @@ namespace AAP.Timelines
 {
     /// <summary>
     /// Rolls ITimelineObjects backwards and forwards to saved time points without creating an entirely new object.
+    /// TimelineObject must include a method to DEEP CLONE the object.
     /// </summary>
     public class ObjectTimeline
     {
@@ -32,15 +33,18 @@ namespace AAP.Timelines
         }
 
         private int timePoint = 0;
-        private readonly object?[] timeline;
+        private readonly ICloneable?[] timeline;
         private readonly ITimelineObject timelineObject;
-        
+
+        /// <summary>
+        /// TimelineObject must include a method to DEEP CLONE the object.
+        /// </summary>
         public ObjectTimeline(ITimelineObject timelineObject, int sizeLimit)
         {
             this.timelineObject = timelineObject;
-            this.timeline = new object?[sizeLimit];
+            this.timeline = new ICloneable?[sizeLimit];
             
-            timeline[timePoint] = timelineObject.Clone();
+            timeline[timePoint] = (ICloneable)timelineObject.Clone();
             ConsoleLogger.Log("Created timepoint 0");
         }
 
@@ -60,8 +64,8 @@ namespace AAP.Timelines
             else
                 timePoint++;
 
-            object deepCopy = timelineObject.Clone();
-            timeline[timePoint] = deepCopy;
+            ICloneable deepCopyCloneable = (ICloneable)timelineObject.Clone();
+            timeline[timePoint] = deepCopyCloneable;
 
             //Destroy now incorrect future, if there is one
             if (timePoint != Size - 1)
@@ -81,9 +85,14 @@ namespace AAP.Timelines
 
             timePoint--;
 
-            object? timeObject = timeline[timePoint];
-            if (timeObject != null)
-                timelineObject.CopyPropertiesOf(timeObject);
+            ICloneable? timeObjectCloneable = timeline[timePoint];
+            if (timeObjectCloneable != null)
+            {
+                object clone = timeObjectCloneable.Clone();
+                timelineObject.CopyPropertiesOf(clone);
+            }
+            else
+                throw new NullReferenceException($"Timepoint {timePoint} in timeline {this} is null!");
 
             ConsoleLogger.Log("Rolled back to time point " + timePoint);
         }
@@ -98,9 +107,14 @@ namespace AAP.Timelines
 
             timePoint++;
 
-            object? timeObject = timeline[timePoint];
-            if (timeObject != null)
-                timelineObject.CopyPropertiesOf(timeObject);
+            ICloneable? timeObjectCloneable = timeline[timePoint];
+            if (timeObjectCloneable != null)
+            {
+                object clone = timeObjectCloneable.Clone();
+                timelineObject.CopyPropertiesOf(clone);
+            }
+            else
+                throw new NullReferenceException($"Timepoint {timePoint} in timeline {this} is null!");
 
             ConsoleLogger.Log("Rolled forward to time point " + timePoint);
         }

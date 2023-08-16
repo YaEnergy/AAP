@@ -55,7 +55,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private Visibility visibility = Visibility.Hidden;
+        private Visibility visibility = Visibility.Collapsed;
         public Visibility Visibility
         {
             get => visibility;

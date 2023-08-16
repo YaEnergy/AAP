@@ -8,14 +8,12 @@ namespace AAP
 {
     public abstract class Tool
     {
-        public delegate void ActivateStartEvent(Tool tool, Point startPosition);
-        public event ActivateStartEvent? OnActivateStart;
+        public delegate void ActivateEvent(Tool tool, Point artPosition);
+        public event ActivateEvent? OnActivateStart;
 
-        public delegate void ActivateUpdateEvent(Tool tool, Point updatePosition);
-        public event ActivateStartEvent? OnActivateUpdate;
+        public event ActivateEvent? OnActivateUpdate;
 
-        public delegate void ActivateEndEvent(Tool tool, Point endPosition);
-        public event ActivateStartEvent? OnActivateEnd;
+        public event ActivateEvent? OnActivateEnd;
 
         public abstract ToolType Type { get; protected set; }
         protected Point StartPoint = new(0, 0);

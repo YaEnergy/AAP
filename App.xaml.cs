@@ -185,7 +185,8 @@ namespace AAP
             Mutex mutex = new(false, ProgramTitle + "_" + Environment.UserName);
             if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
             {
-                System.Windows.MessageBox.Show("There is already an instance of AAP running!", "AAP", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show("There is already an instance of AAP running!", ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                mutex.Close();
                 return;
             }
 
@@ -498,7 +499,7 @@ namespace AAP
                 if (art.Width * art.Height > MaxArtArea)
                     throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
 
-                ConsoleLogger.Inform($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nLayer Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.Width * art.Height * art.ArtLayers.Count}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+                ConsoleLogger.Inform($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nVisible Art Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.GetTotalArtArea()}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
 
                 bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Finishing up art...", true));
                 args.Result = art;

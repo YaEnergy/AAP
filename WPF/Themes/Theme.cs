@@ -11,7 +11,8 @@ namespace AAP.UI
     public class Theme
     {
         public Brush Background { get; set; } = Brushes.White;
-        public Brush Accent { get; set; } = new SolidColorBrush(Color.FromRgb(242, 242, 242));
+        public Brush LightAccent { get; set; } = new SolidColorBrush(Color.FromRgb(242, 242, 242));
+        public Brush DarkAccent { get; set; } = new SolidColorBrush(Color.FromRgb(222, 222, 222));
 
         public Brush Art { get; set; } = Brushes.Black;
         public Brush Border { get; set; } = Brushes.Black;

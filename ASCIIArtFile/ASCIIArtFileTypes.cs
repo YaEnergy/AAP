@@ -158,7 +158,10 @@ namespace AAP
             if (bgWorker != null)
             {
                 if (bgWorker.CancellationPending)
+                {
+                    File.Delete(UncompressedExportPath);
                     return false;
+                }
 
                 bgWorker.WorkerSupportsCancellation = false;
             }

@@ -70,7 +70,6 @@ namespace AAP
             }
         }
 
-
         public delegate void CroppedEvent(ASCIIArt art);
         /// <summary>
         /// Invoked when the art is cropped.
@@ -139,7 +138,6 @@ namespace AAP
 
         private void ArtLayerCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            //Move & Replace do not need to invoke any events, they only need to set UnsavedChanges to true.
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
@@ -306,6 +304,19 @@ namespace AAP
             return line;
         }
 
+        /// <summary>
+        /// Gets the sum of the areas of all layers.
+        /// </summary>
+        public int GetTotalArtArea()
+        {
+            int area = 0;
+
+            foreach (ArtLayer artLayer in ArtLayers)
+                area += artLayer.Width * artLayer.Height;
+
+            return area;
+        }
+
         #region Tool Functions
         public void Crop(Rect cropRect)
         {
@@ -357,7 +368,10 @@ namespace AAP
                     OnArtLayerRemoved?.Invoke(i, artLayer);
                 }
                 else
+                {
                     ArtLayers[i].CopyPropertiesOf(toCopy.ArtLayers[i]);
+                    ConsoleLogger.Log($"ArtLayer {i} copied properties!");
+                }
             }
 
             SetSize(toCopy.Width, toCopy.Height);
