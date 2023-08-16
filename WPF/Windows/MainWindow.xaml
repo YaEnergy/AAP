@@ -1,4 +1,4 @@
-﻿<Window x:Class="AAP.UI.Windows.MainWindow"
+﻿<Window x:Name="window" x:Class="AAP.UI.Windows.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,140 +6,156 @@
         xmlns:local="clr-namespace:AAP.UI.Windows"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:ArtFileViewModel}" MinWidth="600" MinHeight="450">
+    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:ui="clr-namespace:AAP.UI" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}" MinWidth="600" MinHeight="450">
     <Window.DataContext>
-        <viewmodels:ArtFileViewModel x:Name="ArtFileViewModel"/>
+        <viewmodels:MainWindowViewModel x:Name="MainWindowViewModel"/>
     </Window.DataContext>
+    <Window.Resources>
+        <ui:Theme x:Key="WindowTheme"></ui:Theme>
+    </Window.Resources>
     <Grid>
-        <ToolBarTray VerticalAlignment="Top" >
-            <ToolBar ClipToBounds="True" >
-                <Menu>
-                    <MenuItem Header="File">
-                        <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
-                        <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
-                        <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                        <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                        <MenuItem Header="Export" Click="ExportButton_Click" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                        <MenuItem Header="Copy art to clipboard"  Click="CopyArtToClipboardButton_Click" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                        <Separator></Separator>
-                        <MenuItem Header="Exit" Click="ExitButton_Click" InputGestureText="Alt+F4"></MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen}">
-                        <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
-                        <MenuItem Header="Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"></MenuItem>
-                        <Separator></Separator>
-                        <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected}" Command="{Binding CutCommand}"></MenuItem>
-                        <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected}" Command="{Binding CopyCommand}"></MenuItem>
-                        <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand}"></MenuItem>
-                        <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected}" Command="{Binding DeleteSelectedCommand}"></MenuItem>
-                        <Separator></Separator>
-                        <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand}"></MenuItem>
-                        <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand}"></MenuItem>
-                        <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand}"></MenuItem>
-                        <Separator></Separator>
-                        <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand}"></MenuItem>
-                        <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="View">
-                        <MenuItem x:Name="menuItem" Header="Canvas" DataContext="{Binding DataContext, ElementName=artCanvas}">
-                            <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding DataContext.TextSize, ElementName=artCanvas}"/>
-                            <MenuItem Header="Enlarge text size" Command="{Binding DataContext.EnlargeTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+I"/>
-                            <MenuItem Header="Shrink text size" Command="{Binding DataContext.ShrinkTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+O"></MenuItem>
-                            <MenuItem Header="Reset text zize" Command="{Binding DataContext.ResetTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+P"></MenuItem>
-                            <Separator></Separator>
-                            <MenuItem Header="{Binding DataContext.HighlightThickness, ElementName=artCanvas}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
-                            <MenuItem Header="Increase thickness" Command="{Binding DataContext.IncreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
-                            <MenuItem Header="Decrease thickness" Command="{Binding DataContext.DecreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
-                            <MenuItem Header="Reset thickness" Command="{Binding DataContext.ResetHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
-                        </MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="Filters">
-                        <MenuItem Header="No filters!"></MenuItem>
-                    </MenuItem>
-                    <MenuItem Header="Draw">
-                        <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected}" Command="{Binding FillSelectionCommand}" InputGestureText="Alt+F"></MenuItem>
-                    </MenuItem>
-                </Menu>
-            </ToolBar>
-        </ToolBarTray>
-        <StackPanel Background="#FFA959FF" HorizontalAlignment="Left" Margin="0,28,0,0" Width="200" ClipToBounds="True">
-            <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="#FFCECECE">
-                <Grid.DataContext>
-                    <viewmodels:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
-                </Grid.DataContext>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <controls:ImageStateBox x:Name="DrawToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/Images/ToolIcons/DrawToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetDrawToolCommand}" />
-                <controls:ImageStateBox x:Name="EraserToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/EraserToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetEraserToolCommand}"/>
-                <controls:ImageStateBox x:Name="SelectToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/SelectToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}"/>
-                <controls:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/Images/ToolIcons/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
-                <controls:ImageStateBox x:Name="BucketToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
-                <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
-            </Grid>
-            <StackPanel x:Name="stackPanel" Panel.ZIndex="1">
-                <StackPanel.DataContext>
-                    <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
-                </StackPanel.DataContext>
-                <Grid Visibility="{Binding Visibility}">
-                    <ComboBox VerticalAlignment="Top" Padding="0,0,0,0" Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}"/>
-                    <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="200" Margin="0,25,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
-                </Grid>
-            </StackPanel>
-        </StackPanel>
-        <DockPanel Background="#FF73FF59" HorizontalAlignment="Right" Margin="0,28,0,0" Width="200" ClipToBounds="True">
+        <DockPanel Background="{Binding Background, Source={StaticResource WindowTheme}}">
             <DockPanel.DataContext>
-                <viewmodels:LayerManagementViewModel x:Name="LayerManagementViewModel"/>
+                <viewmodels:ArtFileViewModel x:Name="ArtFileViewModel"/>
             </DockPanel.DataContext>
-            <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="#FFE2E2E2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/NewLayerIcon.png" Command="{Binding CreateNewLayerCommand}"/>
-                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/MoveLayerUpIcon.png" Grid.Column="1" Command="{Binding MoveLayerUpCommand}"/>
-                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/MoveLayerDownIcon.png" Grid.Column="2" Command="{Binding MoveLayerDownCommand}"/>
-                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DuplicateLayerIcon.png" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
-                <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DestroyLayerIcon.png" Grid.Column="4" Command="{Binding RemoveLayerCommand}"/>
-            </Grid>
-            <StackPanel VerticalAlignment="Top" Background="#FFDFF447" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
-                <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
-                <WrapPanel Margin="5,0,5,5">
-                    <Label Content="Name" HorizontalAlignment="Left"/>
-                    <TextBox TextWrapping="Wrap" Margin="5,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100" MinWidth="100" HorizontalAlignment="Left" MaxWidth="140"/>
-                </WrapPanel>
-                <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5">
-                    <CheckBox.Resources>
-                        <Style TargetType="{x:Type Path}">
-                            <Setter Property="FlowDirection" Value="LeftToRight" />
-                        </Style>
-                    </CheckBox.Resources>
-                </CheckBox>
+            <ToolBarTray VerticalAlignment="Top" DockPanel.Dock="Top" >
+                <ToolBar ClipToBounds="True" >
+                    <Menu>
+                        <MenuItem Header="File">
+                            <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
+                            <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
+                            <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                            <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                            <MenuItem Header="Export" Click="ExportButton_Click" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                            <MenuItem Header="Copy art to clipboard"  Click="CopyArtToClipboardButton_Click" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Exit" Click="ExitButton_Click" InputGestureText="Alt+F4"></MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen}">
+                            <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
+                            <MenuItem Header="Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected}" Command="{Binding CutCommand}"></MenuItem>
+                            <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected}" Command="{Binding CopyCommand}"></MenuItem>
+                            <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand}"></MenuItem>
+                            <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected}" Command="{Binding DeleteSelectedCommand}"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand}"></MenuItem>
+                            <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand}"></MenuItem>
+                            <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand}"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand}"></MenuItem>
+                            <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="View">
+                            <MenuItem Header="Toolbox">
+
+                            </MenuItem>
+                            <MenuItem Header="Canvas" DataContext="{Binding DataContext, ElementName=artCanvas}">
+                                <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding DataContext.TextSize, ElementName=artCanvas}"/>
+                                <MenuItem Header="Enlarge text size" Command="{Binding DataContext.EnlargeTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+I"/>
+                                <MenuItem Header="Shrink text size" Command="{Binding DataContext.ShrinkTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+O"></MenuItem>
+                                <MenuItem Header="Reset text zize" Command="{Binding DataContext.ResetTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+P"></MenuItem>
+                                <Separator></Separator>
+                                <MenuItem Header="{Binding DataContext.HighlightThickness, ElementName=artCanvas}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
+                                <MenuItem Header="Increase thickness" Command="{Binding DataContext.IncreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                                <MenuItem Header="Decrease thickness" Command="{Binding DataContext.DecreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                                <MenuItem Header="Reset thickness" Command="{Binding DataContext.ResetHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                            </MenuItem>
+                            <MenuItem Header="Layer Management">
+
+                            </MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="Filters">
+                            <MenuItem Header="No filters!"></MenuItem>
+                        </MenuItem>
+                        <MenuItem Header="Draw">
+                            <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected}" Command="{Binding FillSelectionCommand}" InputGestureText="Alt+F"></MenuItem>
+                        </MenuItem>
+                    </Menu>
+                </ToolBar>
+            </ToolBarTray>
+            <StackPanel HorizontalAlignment="Left" Margin="0,0,0,0" Width="200" ClipToBounds="True" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}">
+                <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="{Binding Accent, Source={StaticResource WindowTheme}}">
+                    <Grid.DataContext>
+                        <viewmodels:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
+                    </Grid.DataContext>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <controls:ImageStateBox x:Name="DrawToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/Images/ToolIcons/DrawToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetDrawToolCommand}" />
+                    <controls:ImageStateBox x:Name="EraserToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/EraserToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetEraserToolCommand}"/>
+                    <controls:ImageStateBox x:Name="SelectToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/SelectToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}"/>
+                    <controls:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/Images/ToolIcons/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
+                    <controls:ImageStateBox x:Name="BucketToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
+                    <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
+                </Grid>
+                <StackPanel x:Name="stackPanel" Panel.ZIndex="1" Background="{Binding Accent, Source={StaticResource WindowTheme}}">
+                    <StackPanel.DataContext>
+                        <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
+                    </StackPanel.DataContext>
+                    <Grid Visibility="{Binding Visibility}">
+                        <ComboBox VerticalAlignment="Top" Padding="0,0,0,0" Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}"/>
+                        <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="500" Margin="0,25,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
+                    </Grid>
+                </StackPanel>
             </StackPanel>
-            <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <TextBlock Text="{Binding Name}"/>
-                        </WrapPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}"/>
+            <DockPanel Margin="0,0,0,0" Width="200" ClipToBounds="True" HorizontalAlignment="Right" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}">
+                <DockPanel.DataContext>
+                    <viewmodels:LayerManagementViewModel x:Name="LayerManagementViewModel"/>
+                </DockPanel.DataContext>
+                <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="{Binding Accent, Source={StaticResource WindowTheme}}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/NewLayerIcon.png" Command="{Binding CreateNewLayerCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/MoveLayerUpIcon.png" Grid.Column="1" Command="{Binding MoveLayerUpCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/MoveLayerDownIcon.png" Grid.Column="2" Command="{Binding MoveLayerDownCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DuplicateLayerIcon.png" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DestroyLayerIcon.png" Grid.Column="4" Command="{Binding RemoveLayerCommand}"/>
+                </Grid>
+                <StackPanel VerticalAlignment="Top" Background="{Binding Accent, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
+                    <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
+                    <WrapPanel Margin="5,0,5,5">
+                        <Label Content="Name" HorizontalAlignment="Left"/>
+                        <TextBox TextWrapping="Wrap" Margin="5,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100" MinWidth="100" HorizontalAlignment="Left" MaxWidth="140"/>
+                    </WrapPanel>
+                    <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5">
+                        <CheckBox.Resources>
+                            <Style TargetType="{x:Type Path}">
+                                <Setter Property="FlowDirection" Value="LeftToRight" />
+                            </Style>
+                        </CheckBox.Resources>
+                    </CheckBox>
+                </StackPanel>
+                <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <TextBlock Text="{Binding Name}"/>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Right"/>
+            <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{Binding Accent, Source={StaticResource WindowTheme}}">
+                <ScrollViewer.DataContext>
+                    <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
+                </ScrollViewer.DataContext>
+                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}"/>
+            </ScrollViewer>
         </DockPanel>
-        <ScrollViewer Background="#FFFFBF59" Margin="200,28,200,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto">
-            <ScrollViewer.DataContext>
-                <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
-            </ScrollViewer.DataContext>
-            <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="8,8,8,8" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}"/>
-        </ScrollViewer>
     </Grid>
 </Window>
