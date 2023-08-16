@@ -218,26 +218,13 @@ namespace AAP.UI.Windows
         {
             ArtFileViewModel.CurrentTool = tool;
 
-            CharacterPaletteSelectionViewModel.Visibility = tool?.Type == ToolType.Draw || tool?.Type == ToolType.Bucket ? Visibility.Visible : Visibility.Collapsed;
+            CharacterPaletteSelectionViewModel.Visibility = tool is ICharacterSelectable ? Visibility.Visible : Visibility.Collapsed;
 
             if (tool == null)
                 return;
 
-            switch(tool.Type)
-            {
-                case ToolType.Draw:
-                    if (tool is DrawTool drawTool)
-                        CharacterPaletteSelectionViewModel.SelectedCharacter = drawTool.Character;
-
-                    break;
-                case ToolType.Bucket:
-                    if (tool is BucketTool bucketTool)
-                        CharacterPaletteSelectionViewModel.SelectedCharacter = bucketTool.Character;
-
-                    break;
-                default:
-                    break;
-            }
+            if (tool is ICharacterSelectable characterSelectableTool)
+                CharacterPaletteSelectionViewModel.SelectedCharacter = characterSelectableTool.Character;
         }
 
         private void OnSelectedArtChanged(Rect selected)

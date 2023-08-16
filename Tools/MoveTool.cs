@@ -8,7 +8,7 @@ namespace AAP
 {
     public class MoveTool: Tool
     {
-        public override ToolType Type { get; protected set; } = ToolType.Move;
+        public override ToolType Type { get; } = ToolType.Move;
 
         private Point startLayerOffset = new();
         
@@ -17,24 +17,20 @@ namespace AAP
             
         }
 
-
-        public override void ActivateStart(Point location)
+        protected override void UseStart(Point startArtPos)
         {
             if (App.CurrentArt == null)
                 return;
-
-            base.ActivateStart(location);
+            
             startLayerOffset = App.CurrentArt.ArtLayers[App.CurrentLayerID].Offset;
         }
 
-        public override void ActivateUpdate(Point location)
+        protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
             if (App.CurrentArt == null)
                 return;
 
-            base.ActivateUpdate(location);
-
-            Point newLayerOffset = new(startLayerOffset.X + (location.X - StartPoint.X), startLayerOffset.Y + (location.Y - StartPoint.Y));
+            Point newLayerOffset = new(startLayerOffset.X + (currentArtPos.X - startArtPos.X), startLayerOffset.Y + (currentArtPos.Y - startArtPos.Y));
 
             if (App.CurrentArt.ArtLayers[App.CurrentLayerID].Offset == newLayerOffset) //Layer offset remains the same, don't update.
                 return;
@@ -44,12 +40,10 @@ namespace AAP
             App.CurrentArt.Update();
         }
 
-        public override void ActivateEnd()
+        protected override void UseEnd(Point startArtPos, Point endArtPos)
         {
             if (App.CurrentArt == null)
                 return;
-
-            base.ActivateEnd();
 
             if (App.CurrentArt.ArtLayers[App.CurrentLayerID].Offset == startLayerOffset) //Layer offset remains the same, don't update.
                 return;

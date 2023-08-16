@@ -368,10 +368,7 @@ namespace AAP
                     OnArtLayerRemoved?.Invoke(i, artLayer);
                 }
                 else
-                {
                     ArtLayers[i].CopyPropertiesOf(toCopy.ArtLayers[i]);
-                    ConsoleLogger.Log($"ArtLayer {i} copied properties!");
-                }
             }
 
             SetSize(toCopy.Width, toCopy.Height);

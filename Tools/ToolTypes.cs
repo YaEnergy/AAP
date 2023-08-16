@@ -14,6 +14,7 @@ namespace AAP
         Select = 3,
         Move = 4,
         Text = 5,
-        Bucket = 6
+        Bucket = 6,
+        Line = 7
     }
 }

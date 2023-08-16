@@ -138,7 +138,7 @@ namespace AAP.UI.ViewModels
 
         public void FillSelection()
         {
-            if (CurrentTool is not DrawTool drawTool || CurrentTool.Type != ToolType.Draw)
+            if (CurrentTool is not PencilTool drawTool || CurrentTool.Type != ToolType.Draw)
                 return;
 
             if (!CanUseTool)

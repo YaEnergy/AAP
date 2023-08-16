@@ -6,22 +6,20 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class BucketTool: Tool
+    public class BucketTool: Tool, ICharacterSelectable
     {
-        public override ToolType Type { get; protected set; } = ToolType.Bucket;
+        public override ToolType Type { get; } = ToolType.Bucket;
 
-        public char? Character = '/';
+        public char? Character { get; set; }
 
         public BucketTool(char? character)
         {
             Character = character;
         }
 
-        public override void ActivateStart(Point artMatrixPosition)
+        protected override void UseStart(Point startArtPos)
         {
-            base.ActivateStart(artMatrixPosition);
-
-            FillArea(artMatrixPosition);
+            FillArea(startArtPos);
         }
 
         public void FillArea(Point artMatrixPosition)

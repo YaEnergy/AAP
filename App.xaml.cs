@@ -234,8 +234,8 @@ namespace AAP
             }
 
             //Tools
-            Tools.Add(new DrawTool(ToolType.Draw, '|', 1));
-            Tools.Add(new DrawTool(ToolType.Eraser, null, 1));
+            Tools.Add(new PencilTool('|', 1));
+            Tools.Add(new EraserTool(1));
             Tools.Add(new SelectTool());
             Tools.Add(new MoveTool());
             Tools.Add(new BucketTool('|'));
@@ -953,7 +953,7 @@ namespace AAP
             switch (CurrentTool.Type)
             {
                 case ToolType.Draw:
-                    if (CurrentTool is not DrawTool drawTool)
+                    if (CurrentTool is not PencilTool drawTool)
                         return;
 
                     drawTool.Character = character;

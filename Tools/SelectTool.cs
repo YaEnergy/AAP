@@ -8,27 +8,43 @@ namespace AAP
 {
     public class SelectTool: Tool
     {
-        public override ToolType Type { get; protected set; } = ToolType.Select;
+        public override ToolType Type { get; } = ToolType.Select;
 
         public SelectTool() 
         {
             
         }
 
-        public override void ActivateUpdate(Point artMatrixPosition)
+        protected override void UseStart(Point startArtPos)
         {
             if (App.CurrentArt == null)
                 return;
 
-            base.ActivateUpdate(artMatrixPosition);
+            Select(startArtPos, startArtPos);
+        }
 
-            artMatrixPosition = new(Math.Clamp(artMatrixPosition.X, 0, App.CurrentArt.Width - 1), Math.Clamp(artMatrixPosition.Y, 0, App.CurrentArt.Height - 1));
+        protected override void UseUpdate(Point startArtPos, Point currentArtPos)
+        {
+            if (App.CurrentArt == null)
+                return;
 
-            int startX = (int)Math.Clamp(artMatrixPosition.X > StartPoint.X ? StartPoint.X : artMatrixPosition.X, 0, App.CurrentArt.Width - 1);
-            int startY = (int)Math.Clamp(artMatrixPosition.Y > StartPoint.Y ? StartPoint.Y : artMatrixPosition.Y, 0, App.CurrentArt.Height - 1);
+            Select(startArtPos, currentArtPos);
+        }
 
-            int sizeX = (int)Math.Clamp(artMatrixPosition.X > StartPoint.X ? artMatrixPosition.X - StartPoint.X + 1 : StartPoint.X - artMatrixPosition.X + 1, 0, App.CurrentArt.Width - Math.Min(StartPoint.X, artMatrixPosition.X));
-            int sizeY = (int)Math.Clamp(artMatrixPosition.Y > StartPoint.Y ? artMatrixPosition.Y - StartPoint.Y + 1 : StartPoint.Y - artMatrixPosition.Y + 1, 0, App.CurrentArt.Height - Math.Min(StartPoint.Y, artMatrixPosition.Y));
+        public static void Select(Point startArtPos, Point endArtPos)
+        {
+            if (App.CurrentArt == null)
+                return;
+
+            //Keep points within canvas
+            startArtPos = new(Math.Clamp(startArtPos.X, 0, App.CurrentArt.Width - 1), Math.Clamp(startArtPos.Y, 0, App.CurrentArt.Height - 1));
+            endArtPos = new(Math.Clamp(endArtPos.X, 0, App.CurrentArt.Width - 1), Math.Clamp(endArtPos.Y, 0, App.CurrentArt.Height - 1));
+
+            int startX = (int)Math.Clamp(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X, 0, App.CurrentArt.Width - 1);
+            int startY = (int)Math.Clamp(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y, 0, App.CurrentArt.Height - 1);
+
+            int sizeX = (int)Math.Clamp(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1, 0, App.CurrentArt.Width - Math.Min(startArtPos.X, endArtPos.X));
+            int sizeY = (int)Math.Clamp(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1, 0, App.CurrentArt.Height - Math.Min(startArtPos.Y, endArtPos.Y));
 
             App.SelectedArt = new(startX, startY, sizeX, sizeY);
         }

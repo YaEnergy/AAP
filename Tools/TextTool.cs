@@ -10,21 +10,19 @@ namespace AAP
 {
     public class TextTool: Tool
     {
-        public override ToolType Type { get; protected set; } = ToolType.Text;
+        public override ToolType Type { get; } = ToolType.Text;
 
         public TextTool()
         {
             //System.Windows.Input.Keyboard.PrimaryDevice.FocusedElement.PreviewTextInput returns strings!!
         }
 
-        public override void ActivateStart(Point location)
+        protected override void UseStart(Point startArtPos)
         {
             if (App.CurrentArt == null)
                 return;
 
-            base.ActivateStart(location);
-
-            App.SelectedArt = new(Math.Clamp(location.X, 0, App.CurrentArt.Width), Math.Clamp(location.Y, 0, App.CurrentArt.Height), 1, 1);
+            App.SelectedArt = new(Math.Clamp(startArtPos.X, 0, App.CurrentArt.Width), Math.Clamp(startArtPos.Y, 0, App.CurrentArt.Height), 1, 1);
         }
 
         public static void TypeKeyCharacter(char character)
@@ -75,7 +73,7 @@ namespace AAP
                     App.SelectedArt = new(Math.Clamp(App.SelectedArt.Location.X - 1, 0, App.CurrentArt.Width - 1), App.SelectedArt.Location.Y, 1, 1);
                     break;
                 case Key.Return:
-                    App.SelectedArt = new(StartPoint.X, Math.Clamp(App.SelectedArt.Location.Y + 1, 0, App.CurrentArt.Height - 1), 1, 1);
+                    App.SelectedArt = new(StartArtPos.X, Math.Clamp(App.SelectedArt.Location.Y + 1, 0, App.CurrentArt.Height - 1), 1, 1);
                     break;
                 case Key.Back:
                     if (App.SelectedArt.X > 0)
@@ -87,8 +85,8 @@ namespace AAP
                     break;
             }
 
-            if (StartPoint.X > App.SelectedArt.X)
-                StartPoint = new((int)App.SelectedArt.X, StartPoint.Y);
+            if (StartArtPos.X > App.SelectedArt.X)
+                StartArtPos = new((int)App.SelectedArt.X, StartArtPos.Y);
         }
     }
 }

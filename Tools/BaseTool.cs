@@ -15,27 +15,56 @@ namespace AAP
 
         public event ActivateEvent? OnActivateEnd;
 
-        public abstract ToolType Type { get; protected set; }
-        protected Point StartPoint = new(0, 0);
-        protected Point CurrentPoint = new(0, 0);
-        protected Point EndPoint = new(0, 0);
+        public abstract ToolType Type { get; }
+        protected Point StartArtPos = new(0, 0);
+        protected Point CurrentArtPos = new(0, 0);
+        protected Point EndArtPos = new(0, 0);
 
-        public virtual void ActivateStart(Point artMatrixPosition) //Location has the x and y of the character on the canvas clicked
+        public Tool()
         {
-            StartPoint = artMatrixPosition;
-            OnActivateStart?.Invoke(this, StartPoint);
+
         }
 
-        public virtual void ActivateUpdate(Point artMatrixPosition)
+        protected virtual void UseStart(Point startArtPos)
         {
-            CurrentPoint = artMatrixPosition;
-            OnActivateUpdate?.Invoke(this, CurrentPoint);
+            return;
         }
 
-        public virtual void ActivateEnd()
+        protected virtual void UseUpdate(Point startArtPos, Point currentArtPos)
         {
-            EndPoint = CurrentPoint;
-            OnActivateEnd?.Invoke(this, EndPoint);
+            return;
+        }
+
+        protected virtual void UseEnd(Point startArtPos, Point endArtPos)
+        {
+            return;
+        }
+
+        public void ActivateStart(Point artMatrixPosition) //Location has the x and y of the character on the canvas clicked
+        {
+            StartArtPos = artMatrixPosition;
+
+            UseStart(StartArtPos);
+
+            OnActivateStart?.Invoke(this, StartArtPos);
+        }
+
+        public void ActivateUpdate(Point artMatrixPosition)
+        {
+            CurrentArtPos = artMatrixPosition;
+
+            UseUpdate(StartArtPos, CurrentArtPos);
+
+            OnActivateUpdate?.Invoke(this, CurrentArtPos);
+        }
+
+        public void ActivateEnd()
+        {
+            EndArtPos = CurrentArtPos;
+
+            UseEnd(StartArtPos, EndArtPos);
+
+            OnActivateEnd?.Invoke(this, EndArtPos);
         }
     }
 }
