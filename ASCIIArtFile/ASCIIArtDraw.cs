@@ -4,6 +4,8 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Shapes;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace AAP
 {
@@ -75,33 +77,48 @@ namespace AAP
             List<Point> updatedPositions = new();
             ArtLayer artLayer = Art.ArtLayers[layerIndex];
 
-            int startX = Math.Min((int)point1.X, (int)point2.X);
-            int endX = Math.Max((int)point1.X, (int)point2.X);
+            int startX = (int)point1.X;
+            int endX = (int)point2.X;
 
-            int startY = Math.Min((int)point1.Y, (int)point2.Y);
-            int endY = Math.Max((int)point1.Y, (int)point2.Y);
+            int startY = (int)point1.Y;
+            int endY = (int)point2.Y;
 
-            if (CanDrawOn(layerIndex, startX, startY))
+            //Implementation of Bresenham's Line Algorithm
+            //Couldn't figure this one out on my own :(
+
+            int dx = Math.Abs(endX - startX);
+            int stepX = startX < endX ? 1 : -1;
+
+            int dy = -Math.Abs(endY - startY);
+            int stepY = startY < endY ? 1 : -1;
+
+            int x = startX;
+            int y = startY;
+
+            int error = dx + dy;
+
+            while (x != endX || y != endY)
             {
-                updatedPositions.Add(new(startX, startY));
-                artLayer.Data[startX - artLayer.OffsetX][startY - artLayer.OffsetY] = character;
-            }
-
-            for (int x = startX; x < endX + 1; x++)
-            {
-                float prevProgress = Math.Abs((x - startX - 1) / (endX - startX));
-                float newProgress = Math.Abs((x - startX) / (endX - startX));
-
-                int prevY = (int)(startY + (endY - startY) * prevProgress);
-                int newY = (int)(startY + (endY - startY) * newProgress);
-
-                for (int y = Math.Min(prevY + 1, newY); y < newY + 1; y++)
+                if (CanDrawOn(layerIndex, x, y))
                 {
-                    if (CanDrawOn(layerIndex, x, y))
-                    {
-                        updatedPositions.Add(new(x, y));
-                        artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
-                    }
+                    updatedPositions.Add(new(x, y));
+                    artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                }
+
+                if (error * 2 >= dy)
+                {
+                    error += dy;
+
+                    if (x != endX)
+                        x += stepX;
+                }
+
+                if (error * 2 <= dx)
+                {
+                    error += dx;
+
+                    if (y != endY)
+                        y += stepY;
                 }
             }
 

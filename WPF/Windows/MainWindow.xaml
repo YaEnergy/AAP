@@ -52,7 +52,7 @@
                         </MenuItem>
                         <MenuItem Header="View">
                             <MenuItem Header="Toolbox">
-
+                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding DataContext.IsToolboxVisible, ElementName=window}"></MenuItem>
                             </MenuItem>
                             <MenuItem Header="Canvas" DataContext="{Binding DataContext, ElementName=artCanvas}">
                                 <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding DataContext.TextSize, ElementName=artCanvas}"/>
@@ -66,7 +66,7 @@
                                 <MenuItem Header="Reset thickness" Command="{Binding DataContext.ResetHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
                             </MenuItem>
                             <MenuItem Header="Layer Management">
-
+                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding DataContext.IsLayerManagementVisible, ElementName=window}"></MenuItem>
                             </MenuItem>
                         </MenuItem>
                         <MenuItem Header="Filters">
@@ -87,15 +87,18 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <controls:ImageStateBox x:Name="DrawToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/Images/ToolIcons/DrawToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetDrawToolCommand}" />
                     <controls:ImageStateBox x:Name="EraserToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/EraserToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetEraserToolCommand}"/>
                     <controls:ImageStateBox x:Name="SelectToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/SelectToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}"/>
-                    <controls:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" BoxImageSource="/Resources/Images/ToolIcons/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
+                    <controls:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column ="3" Grid.Row="0" BoxImageSource="/Resources/Images/ToolIcons/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
+                    <controls:ImageStateBox x:Name="LineToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="0" BoxImageSource="/Resources/Images/ToolIcons/LineToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetLineToolCommand}"/>
                     <controls:ImageStateBox x:Name="BucketToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
                     <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
                 </Grid>

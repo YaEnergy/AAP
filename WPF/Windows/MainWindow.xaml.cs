@@ -63,6 +63,7 @@ namespace AAP.UI.Windows
             ToolSelectionViewModel.ToolStateBoxes.Add(MoveToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(BucketToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(TextToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(LineToolStateBox);
 
             Closing += OnClosing;
 

@@ -240,6 +240,7 @@ namespace AAP
             Tools.Add(new MoveTool());
             Tools.Add(new BucketTool('|'));
             Tools.Add(new TextTool());
+            Tools.Add(new LineTool('|'));
 
             SelectToolType(ToolType.None);
 
@@ -950,26 +951,13 @@ namespace AAP
                 return;
             }
 
-            switch (CurrentTool.Type)
+            if (CurrentTool is not ICharacterSelectable characterSelectableTool)
             {
-                case ToolType.Draw:
-                    if (CurrentTool is not PencilTool drawTool)
-                        return;
-
-                    drawTool.Character = character;
-
-                    break;
-                case ToolType.Bucket:
-                    if (CurrentTool is not BucketTool bucketTool)
-                        return;
-
-                    bucketTool.Character = character;
-
-                    break;
-                default:
-                    ConsoleLogger.Warn("Current Tool cannot select characters!");
-                    break;
+                ConsoleLogger.Warn(nameof(CurrentTool) + " can not select characters!");
+                return;
             }
+
+            characterSelectableTool.Character = character;
 
             ConsoleLogger.Log("Selected Character: " + character.ToString());
         }

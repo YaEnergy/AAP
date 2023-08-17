@@ -10,8 +10,5 @@ namespace AAP
     {
         public char? Character { get; set; }
 
-        public void SelectCharacter(char? character)
-            => Character = character;
-
     }
 }
