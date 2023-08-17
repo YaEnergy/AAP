@@ -122,6 +122,12 @@ namespace AAP
                 }
             }
 
+            if (CanDrawOn(layerIndex, x, y))
+            {
+                updatedPositions.Add(new(x, y));
+                artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+            }
+
             Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
