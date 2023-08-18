@@ -77,20 +77,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private Theme windowTheme = new();
-        public Theme WindowTheme
-        {
-            get => windowTheme;
-            set
-            {
-                if (windowTheme == value)
-                    return;
-
-                windowTheme = value;
-                PropertyChanged?.Invoke(this, new(nameof(WindowTheme)));
-            }
-        }
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public MainWindowViewModel()

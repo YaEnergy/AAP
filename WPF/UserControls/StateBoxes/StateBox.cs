@@ -19,6 +19,130 @@ namespace AAP.UI.Controls
 
         protected override int VisualChildrenCount => _children.Count;
 
+        protected override Visual GetVisualChild(int index)
+        {
+            if (index < 0 || index >= _children.Count)
+                throw new ArgumentOutOfRangeException();
+
+            return _children[index];
+        }
+
+        #region Brushes
+        public static readonly DependencyProperty UnhighlightedDisabledProperty =
+        DependencyProperty.Register(
+            name: "UnhighlightedDisabled",
+            propertyType: typeof(Brush),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.White, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush UnhighlightedDisabled
+        {
+            get => (Brush)GetValue(UnhighlightedDisabledProperty);
+            set
+            {
+                if (UnhighlightedDisabled == value)
+                    return;
+
+                SetValue(UnhighlightedDisabledProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty HighlightedDisabledProperty =
+        DependencyProperty.Register(
+            name: "HighlightedDisabled",
+            propertyType: typeof(Brush),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Gray, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush HighlightedDisabled
+        {
+            get => (Brush)GetValue(HighlightedDisabledProperty);
+            set
+            {
+                if (HighlightedDisabled == value)
+                    return;
+
+                SetValue(HighlightedDisabledProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty UnhighlightedEnabledProperty =
+        DependencyProperty.Register(
+            name: "UnhighlightedEnabled",
+            propertyType: typeof(Brush),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Green, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush UnhighlightedEnabled
+        {
+            get => (Brush)GetValue(UnhighlightedEnabledProperty);
+            set
+            {
+                if (UnhighlightedEnabled == value)
+                    return;
+
+                SetValue(UnhighlightedEnabledProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty HighlightedEnabledProperty =
+        DependencyProperty.Register(
+            name: "HighlightedEnabled",
+            propertyType: typeof(Brush),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.DarkGreen, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush HighlightedEnabled
+        {
+            get => (Brush)GetValue(HighlightedEnabledProperty);
+            set
+            {
+                if (HighlightedEnabled == value)
+                    return;
+
+                SetValue(HighlightedEnabledProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty BorderProperty =
+        DependencyProperty.Register(
+            name: "Border",
+            propertyType: typeof(Brush),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush Border
+        {
+            get => (Brush)GetValue(BorderProperty);
+            set
+            {
+                if (Border == value)
+                    return;
+
+                SetValue(BorderProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty BorderThicknessProperty =
+        DependencyProperty.Register(
+            name: "BorderThickness",
+            propertyType: typeof(double),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 0d, OnBackgroundDrawPropertyChangedCallBack));
+
+        public double BorderThickness
+        {
+            get => (double)GetValue(BorderThicknessProperty);
+            set
+            {
+                if (BorderThickness == value)
+                    return;
+
+                SetValue(BorderThicknessProperty, value);
+            }
+        }
+        #endregion
+
         private bool state = false;
         public bool State
         {
@@ -30,10 +154,7 @@ namespace AAP.UI.Controls
 
                 state = value;
 
-                if (Highlighted)
-                    BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
-                else
-                    BoxBrush = State ? EnabledStateBrush : DisabledStateBrush;
+                DrawBackground();
 
                 OnStateChanged?.Invoke(this, state);
             }
@@ -50,33 +171,11 @@ namespace AAP.UI.Controls
 
                 highlighted = value;
 
-                if (value)
-                    BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
-                else
-                    BoxBrush = State ? EnabledStateBrush : DisabledStateBrush;
-            }
-        }
-
-        private Brush boxBrush = Brushes.White;
-        public Brush BoxBrush
-        {
-            get => boxBrush;
-            set
-            {
-                if (value == boxBrush)
-                    return;
-
-                boxBrush = value;
                 DrawBackground();
             }
         }
 
         public bool AllowManualDisable { get; set; } = true;
-
-        public Brush DisabledStateBrush { get; } = Brushes.White;
-        public Brush DisabledStateBrushHighlighted { get; } = Brushes.LightGray;
-        public Brush EnabledStateBrush { get; } = Brushes.DarkGreen;
-        public Brush EnabledStateBrushHighlighted { get; } = Brushes.DarkOliveGreen;
 
         public delegate void StateChangedEvent(StateBox sender, bool state);
         public event StateChangedEvent? OnStateChanged;
@@ -91,15 +190,13 @@ namespace AAP.UI.Controls
         public EventArgsCommand<bool>? StateCommand 
         { 
             get => (EventArgsCommand<bool>?)GetValue(StateCommandProperty); 
-            set => SetValue(StateCommandProperty, value); 
-        }
+            set
+            {
+                if (StateCommand == value)
+                    return;
 
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index < 0 || index >= _children.Count)
-                throw new ArgumentOutOfRangeException();
-
-            return _children[index];
+                SetValue(StateCommandProperty, value);
+            }
         }
 
         /// <summary>
@@ -113,10 +210,7 @@ namespace AAP.UI.Controls
 
             this.state = state;
 
-            if (Highlighted)
-                BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
-            else
-                BoxBrush = State ? EnabledStateBrush : DisabledStateBrush;
+            DrawBackground();
         }
 
         private void StateChanged(StateBox sender, bool state)
@@ -126,25 +220,21 @@ namespace AAP.UI.Controls
         {
             using DrawingContext dc = backgroundVisual.RenderOpen();
 
-            dc.DrawRectangle(boxBrush, null, new(0, 0, ActualWidth, ActualHeight));
+            Brush fillBrush;
+            if (Highlighted)
+                fillBrush = State ? HighlightedEnabled : HighlightedDisabled;
+            else
+                fillBrush = State ? UnhighlightedEnabled : UnhighlightedDisabled;
+
+            dc.DrawRectangle(fillBrush, new(Border, BorderThickness), new(0, 0, ActualWidth, ActualHeight));
         }
 
         public StateBox()
         {
-            DisabledStateBrush.Freeze();
-            DisabledStateBrushHighlighted.Freeze();
-            EnabledStateBrush.Freeze();
-            EnabledStateBrushHighlighted.Freeze();
-
             _children = new(this)
             {
                 backgroundVisual
             };
-
-            if (highlighted)
-                BoxBrush = State ? EnabledStateBrushHighlighted : DisabledStateBrushHighlighted;
-            else
-                BoxBrush = State ? EnabledStateBrush : DisabledStateBrush;
 
             DrawBackground();
 
@@ -169,5 +259,15 @@ namespace AAP.UI.Controls
 
             State = !State;
         }
+
+        #region Draw Property Changed Callbacks
+        private static void OnBackgroundDrawPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not StateBox box)
+                return;
+
+            box.DrawBackground();
+        }
+        #endregion
     }
 }

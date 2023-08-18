@@ -26,7 +26,7 @@ namespace AAP.UI.Controls
         public readonly static double MaxHighlightRectThickness = 1;
 
         public readonly static double DefaultCanvasTextSize = 16;
-        public readonly static double DefaultHighlightRectThickness = 4;
+        public readonly static double DefaultHighlightRectThickness = 2;
 
         private readonly static string EmptyDisplayArtText = "No art to display!";
 
@@ -46,10 +46,87 @@ namespace AAP.UI.Controls
 
             return _children[index];
         }
-        
-        private SolidColorBrush ArtBrush = Brushes.Black;
+
+
+        #region Brushes
+        public static readonly DependencyProperty TextProperty =
+        DependencyProperty.Register(
+            name: "Text",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnTextBrushPropertyChangedCallBack));
+
+        public Brush Text
+        {
+            get => (Brush)GetValue(TextProperty);
+            set
+            {
+                if (Text == value)
+                    return;
+
+                SetValue(TextProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty BackgroundProperty =
+        DependencyProperty.Register(
+            name: "Background",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.White, OnBackgroundBrushPropertyChangedCallBack));
+
+        public Brush Background
+        {
+            get => (Brush)GetValue(BackgroundProperty);
+            set
+            {
+                if (Background == value)
+                    return;
+
+                SetValue(BackgroundProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty BorderProperty =
+        DependencyProperty.Register(
+            name: "Border",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnBorderBrushPropertyChangedCallBack));
+
+        public Brush Border
+        {
+            get => (Brush)GetValue(BorderProperty);
+            set
+            {
+                if (Border == value)
+                    return;
+
+                SetValue(BorderProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty BorderThicknessProperty =
+        DependencyProperty.Register(
+            name: "BorderThickness",
+            propertyType: typeof(double),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 1d, OnBorderThicknessPropertyChangedCallBack));
+
+        public double BorderThickness
+        {
+            get => (double)GetValue(BorderThicknessProperty);
+            set
+            {
+                if (BorderThickness == value)
+                    return;
+
+                SetValue(BorderThicknessProperty, value);
+            }
+        }
+        #endregion
+
         private Point ArtOffset = new(8, 8);
-        private readonly Pen backgroundPen = new(Brushes.Black, 1);
 
         public static readonly DependencyProperty DisplayArtProperty =
         DependencyProperty.Register(
@@ -313,7 +390,7 @@ namespace AAP.UI.Controls
         /// </summary>
         protected void UpdateBackground()
         {
-            FormattedText artText = DisplayArt == null ? new(EmptyDisplayArtText, CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, ArtBrush, 1) : new(DisplayArt.GetArtString(), CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
+            FormattedText artText = DisplayArt == null ? new(EmptyDisplayArtText, CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, Text, 1) : new(DisplayArt.GetArtString(), CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, Text, 1);
 
             Width = artText.WidthIncludingTrailingWhitespace + ArtOffset.X * 2;
             Height = (DisplayArt == null ? 1 : DisplayArt.Height) * LineHeight + ArtOffset.Y * 2;
@@ -328,7 +405,7 @@ namespace AAP.UI.Controls
         {
             using DrawingContext dc = backgroundVisual.RenderOpen();
 
-            dc.DrawRectangle(Brushes.White, backgroundPen, new(0, 0, Width, Height));
+            dc.DrawRectangle(Background, new(Border, BorderThickness), new(0, 0, Width, Height));
         }
 
         /// <summary>
@@ -348,7 +425,7 @@ namespace AAP.UI.Controls
                 DrawingVisual lineVisual = new();
                 DrawingContext dc = lineVisual.RenderOpen();
 
-                FormattedText noFileOpenText = new(EmptyDisplayArtText, cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
+                FormattedText noFileOpenText = new(EmptyDisplayArtText, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
 
                 dc.DrawText(noFileOpenText, new(ArtOffset.X, ArtOffset.Y));
 
@@ -364,7 +441,7 @@ namespace AAP.UI.Controls
 
                     using DrawingContext dc = lineVisual.RenderOpen();
                     
-                    FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
+                    FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
                     dc.DrawText(lineText, new(0, 0));
 
                     displayArtVisuals.Insert(y, lineVisual);
@@ -393,7 +470,7 @@ namespace AAP.UI.Controls
 
             foreach (int y in changedLines)
             {
-                FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, ArtBrush, 1);
+                FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
 
                 DrawingVisual lineVisual = displayArtVisuals[y];
                 using DrawingContext dc = lineVisual.RenderOpen();
@@ -792,6 +869,56 @@ namespace AAP.UI.Controls
             }
         }
 
+        private static void OnSelectionHighlightRectPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+            
+            canvas.DrawSelectionHighlights();
+        }
+
+        private static void OnHighlightRectThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawSelectionHighlights();
+            canvas.DrawDisplayLayerHighlight();
+        }
+
+        #region Draw Property Changed Callbacks
+        private static void OnTextBrushPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawDisplayArt();
+        }
+
+        private static void OnBackgroundBrushPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawBackground();
+        }
+
+        private static void OnBorderBrushPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawBackground();
+        }
+
+        private static void OnBorderThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawBackground();
+        }
+
         private static void OnTextSizePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is not ASCIIArtCanvasVisual canvas)
@@ -813,23 +940,7 @@ namespace AAP.UI.Controls
             canvas.DrawSelectionHighlights();
             canvas.DrawDisplayLayerHighlight();
         }
-
-        private static void OnSelectionHighlightRectPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is not ASCIIArtCanvasVisual canvas)
-                return;
-            
-            canvas.DrawSelectionHighlights();
-        }
-
-        private static void OnHighlightRectThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is not ASCIIArtCanvasVisual canvas)
-                return;
-
-            canvas.DrawSelectionHighlights();
-            canvas.DrawDisplayLayerHighlight();
-        }
+        #endregion
         #endregion
 
         #region Mouse Events
@@ -847,9 +958,6 @@ namespace AAP.UI.Controls
 
         public ASCIIArtCanvasVisual()
         {
-            ArtBrush.Freeze();
-            backgroundPen.Freeze();
-
             _children = new(this)
             {
                 backgroundVisual,

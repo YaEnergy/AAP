@@ -14,21 +14,18 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Styles/CheckBoxStyles.xaml"/>
+                <ResourceDictionary Source="/Resources/Themes/LightTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <ui:Theme x:Key="WindowTheme"></ui:Theme>
-            <Style TargetType="controls:ImageStateBox">
-                <!--<Setter Property=""></Setter>!-->
-            </Style>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
-        <DockPanel Background="{Binding DarkAccent, Source={StaticResource WindowTheme}}">
+        <DockPanel Background="{Binding Mode=OneWay, Source={StaticResource DarkAccent}}">
             <DockPanel.DataContext>
                 <viewmodels:ArtFileViewModel x:Name="ArtFileViewModel"/>
             </DockPanel.DataContext>
-            <ToolBarTray VerticalAlignment="Top" DockPanel.Dock="Top" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" >
-                <ToolBar ClipToBounds="True" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" >
-                    <Menu Background="{Binding LightAccent, Source={StaticResource WindowTheme}}">
+            <ToolBarTray VerticalAlignment="Top" DockPanel.Dock="Top" >
+                <ToolBar ClipToBounds="True" >
+                    <Menu>
                         <MenuItem Header="File">
                             <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
                             <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
@@ -84,7 +81,7 @@
                 </ToolBar>
             </ToolBarTray>
             <DockPanel HorizontalAlignment="Left" Margin="0,0,0,0" Width="200" ClipToBounds="True" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}">
-                <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" Margin="0,0,0,5">
+                <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}" DockPanel.Dock="Top" Margin="0,0,0,5">
                     <Grid.DataContext>
                         <viewmodels:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
                     </Grid.DataContext>
@@ -99,22 +96,22 @@
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <controls:ImageStateBox x:Name="DrawToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/Images/ToolIcons/DrawToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetDrawToolCommand}" />
-                    <controls:ImageStateBox x:Name="EraserToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/EraserToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetEraserToolCommand}"/>
-                    <controls:ImageStateBox x:Name="SelectToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/SelectToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}"/>
-                    <controls:ImageStateBox x:Name="MoveToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column ="3" Grid.Row="0" BoxImageSource="/Resources/Images/ToolIcons/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
-                    <controls:ImageStateBox x:Name="LineToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="0" BoxImageSource="/Resources/Images/ToolIcons/LineToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetLineToolCommand}"/>
-                    <controls:ImageStateBox x:Name="BucketToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
-                    <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
+                    <controls:ImageStateBox x:Name="DrawToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" BoxImageSource="/Resources/Images/ToolIcons/DrawToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetDrawToolCommand}"/>
+                    <controls:ImageStateBox x:Name="EraserToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/EraserToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetEraserToolCommand}"/>
+                    <controls:ImageStateBox x:Name="SelectToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/SelectToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}"/>
+                    <controls:ImageStateBox x:Name="MoveToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column ="3" Grid.Row="0" BoxImageSource="/Resources/Images/ToolIcons/MoveToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}"/>
+                    <controls:ImageStateBox x:Name="LineToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="0" BoxImageSource="/Resources/Images/ToolIcons/LineToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetLineToolCommand}"/>
+                    <controls:ImageStateBox x:Name="BucketToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
+                    <controls:ImageStateBox x:Name="TextToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
                 </Grid>
-                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top"/>
-                <ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="0,5,0,0">
+                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Mode=OneWay, Source={StaticResource Border}}" DockPanel.Dock="Top"/>
+                <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="0,5,0,0">
                     <ScrollViewer.DataContext>
                         <viewmodels:ToolOptionsViewModel x:Name="ToolOptionsViewModel"/>
                     </ScrollViewer.DataContext>
                     <StackPanel>
                         <WrapPanel Visibility="{Binding CharacterOptionVisibility}">
-                            <WrapPanel Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" Orientation="Vertical">
+                            <WrapPanel Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}" Orientation="Vertical">
                                 <WrapPanel.DataContext>
                                     <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
                                 </WrapPanel.DataContext>
@@ -125,24 +122,24 @@
                                 <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
                             </WrapPanel>
                         </WrapPanel>
-                        <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" Visibility="{Binding CharacterOptionVisibility}"/>
-                        <WrapPanel Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" Visibility="{Binding SizeOptionVisibility}">
+                        <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Mode=OneWay, Source={StaticResource Secondary}}" DockPanel.Dock="Top" Visibility="{Binding CharacterOptionVisibility}"/>
+                        <WrapPanel Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}" Visibility="{Binding SizeOptionVisibility}">
                             <Label Content="Size" Height="30" Margin="5,0,0,0"></Label>
                             <Slider Width="100" Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Minimum="1" Value="{Binding Size}" Maximum="64"/>
                             <Label Content="{Binding Size}"/>
                         </WrapPanel>
-                        <WrapPanel Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" Visibility="{Binding EightDirectionalOptionVisibility}">
-                            <CheckBox Content="Eight Directional" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}"/>
+                        <WrapPanel Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}" Visibility="{Binding EightDirectionalOptionVisibility}">
+                            <CheckBox Content="Eight Directional" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}" Foreground="{Binding Mode=OneWay, Source={StaticResource Text}}"/>
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}"/>
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Mode=OneWay, Source={StaticResource Border}}"/>
             <DockPanel Margin="0,0,0,0" Width="200" ClipToBounds="True" HorizontalAlignment="Right" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}">
                 <DockPanel.DataContext>
                     <viewmodels:LayerManagementViewModel x:Name="LayerManagementViewModel"/>
                 </DockPanel.DataContext>
-                <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}">
+                <Grid DockPanel.Dock="Bottom" Height="45" VerticalAlignment="Top" Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
@@ -156,15 +153,15 @@
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DuplicateLayerIcon.png" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" ImageSource="/Resources/Images/LayerManagementIcons/DestroyLayerIcon.png" Grid.Column="4" Command="{Binding RemoveLayerCommand}"/>
                 </Grid>
-                <StackPanel VerticalAlignment="Top" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
+                <StackPanel VerticalAlignment="Top" Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
                     <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
                     <WrapPanel Margin="5,0,5,5">
                         <Label Content="Name" HorizontalAlignment="Left"/>
                         <TextBox TextWrapping="Wrap" Margin="5,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100" MinWidth="100" HorizontalAlignment="Left" MaxWidth="140"/>
                     </WrapPanel>
-                    <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5" Style="{StaticResource ContentLeftCheckBoxStyle}"/>
+                    <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5" Style="{StaticResource ContentLeftCheckBoxStyle}" Foreground="{DynamicResource Text}"/>
                 </StackPanel>
-                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}"/>
+                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Mode=OneWay, Source={StaticResource Border}}" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}"/>
                 <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -175,12 +172,12 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Right"/>
-            <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}">
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Mode=OneWay, Source={StaticResource Border}}" DockPanel.Dock="Right"/>
+            <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{Binding Mode=OneWay, Source={StaticResource LightAccent}}">
                 <ScrollViewer.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
                 </ScrollViewer.DataContext>
-                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}"/>
+                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}" Background="{Binding Mode=OneWay, Source={StaticResource Canvas}}" Text="{Binding Mode=OneWay, Source={StaticResource Text}}" Border="{Binding Mode=OneWay, Source={StaticResource Border}}"/>
             </ScrollViewer>
         </DockPanel>
     </Grid>
