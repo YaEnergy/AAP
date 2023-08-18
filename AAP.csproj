@@ -122,6 +122,9 @@
     <None Update="Resources\PresetCharacterPalettes\Main ASCII Characters.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Resources\PresetCharacterPalettes\Shapes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Resources\PresetCharacterPalettes\Numbers.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
