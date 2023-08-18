@@ -157,5 +157,81 @@ namespace AAP
 
             Art.Update();
         }
+
+        public void FloodFillArtPosWithCharacter(int layerIndex, char? character, Point artPos, bool eightDirectional = false)
+        {
+            Stack<Point> positionStack = new();
+            List<Point> updatedPositions = new();
+
+            ArtLayer artLayer = Art.ArtLayers[layerIndex];
+
+            if (!CanDrawOn(layerIndex, artPos))
+                return;
+
+            char? findCharacter = artLayer.Data[(int)artPos.X - artLayer.OffsetX][(int)artPos.Y - artLayer.OffsetY];
+            if (findCharacter == character)
+                return; //No changes will be made
+
+            //Flood Fill Algorithm
+            positionStack.Push(artPos);
+
+            while (positionStack.Count > 0)
+            {
+                Point pos = positionStack.Pop();
+
+                int x = (int)pos.X;
+                int y = (int)pos.Y;
+                
+                artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                updatedPositions.Add(pos);
+
+                if (x + 1 - artLayer.OffsetX < artLayer.Width)
+                    if (artLayer.Data[x + 1 - artLayer.OffsetX][y - artLayer.OffsetY] == findCharacter)
+                        positionStack.Push(new(x + 1, y));
+
+                if (x - 1 - artLayer.OffsetX >= 0)
+                    if (artLayer.Data[x - 1 - artLayer.OffsetX][y - artLayer.OffsetY] == findCharacter)
+                        positionStack.Push(new(x - 1, y));
+
+                if (y + 1 - artLayer.OffsetY < artLayer.Height)
+                    if (artLayer.Data[x - artLayer.OffsetX][y + 1 - artLayer.OffsetY] == findCharacter)
+                        positionStack.Push(new(x, y + 1));
+
+                if (y - 1 - artLayer.OffsetY >= 0)
+                    if (artLayer.Data[x - artLayer.OffsetX][y - 1 - artLayer.OffsetY] == findCharacter)
+                        positionStack.Push(new(x, y - 1));
+
+                if (eightDirectional)
+                {
+                    if (x + 1 - artLayer.OffsetX < artLayer.Width)
+                    {
+                        if (y + 1 - artLayer.OffsetY < artLayer.Height)
+                            if (artLayer.Data[x + 1 - artLayer.OffsetX][y + 1 - artLayer.OffsetY] == findCharacter)
+                                positionStack.Push(new(x + 1, y + 1));
+
+                        if (y - 1 - artLayer.OffsetY >= 0)
+                            if (artLayer.Data[x + 1 - artLayer.OffsetX][y - 1 - artLayer.OffsetY] == findCharacter)
+                                positionStack.Push(new(x + 1, y - 1));
+                    }
+
+                    if (x - 1 - artLayer.OffsetX >= 0)
+                    {
+                        if (y + 1 - artLayer.OffsetY < artLayer.Height)
+                            if (artLayer.Data[x - 1 - artLayer.OffsetX][y + 1 - artLayer.OffsetY] == findCharacter)
+                                positionStack.Push(new(x - 1, y + 1));
+
+                        if (y - 1 - artLayer.OffsetY >= 0)
+                            if (artLayer.Data[x - 1 - artLayer.OffsetX][y - 1 - artLayer.OffsetY] == findCharacter)
+                                positionStack.Push(new(x - 1, y - 1));
+                    }
+                }
+            }
+
+            Art.UnsavedChanges = true;
+
+            OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
+
+            Art.Update();
+        }
     }
 }

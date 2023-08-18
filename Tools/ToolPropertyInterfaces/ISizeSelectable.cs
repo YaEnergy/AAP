@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    internal interface ICharacterSelectable
+    internal interface ISizeSelectable
     {
-        public char? Character { get; set; }
+        public int Size { get; set; }
     }
 }

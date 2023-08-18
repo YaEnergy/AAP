@@ -479,9 +479,15 @@ namespace AAP.UI.Controls
 
         private void OnArtDraw(int layerIndex, char? character, Point[] positions)
         {
+            if (DisplayArt == null)
+                return;
+
             foreach(Point point in positions)
-                if (!changedLines.Contains((int)point.Y))
-                    changedLines.Add((int)point.Y);
+            {
+                int y = (int)point.Y;
+                if (!changedLines.Contains(y) && y >= 0 && y < DisplayArt.Height)
+                    changedLines.Add(y);
+            }
         }
 
         private void DisplayArtArtLayerAdded(int index, ArtLayer artLayer)

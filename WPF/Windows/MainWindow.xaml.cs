@@ -50,6 +50,7 @@ namespace AAP.UI.Windows
             LayerManagementViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
             ArtFileViewModel.CurrentTool = App.CurrentTool;
+            ToolOptionsViewModel.CharacterPaletteSelectionViewModel = CharacterPaletteSelectionViewModel;
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
@@ -218,14 +219,6 @@ namespace AAP.UI.Windows
         private void OnCurrentToolChanged(Tool? tool)
         {
             ArtFileViewModel.CurrentTool = tool;
-
-            CharacterPaletteSelectionViewModel.Visibility = tool is ICharacterSelectable ? Visibility.Visible : Visibility.Collapsed;
-
-            if (tool == null)
-                return;
-
-            if (tool is ICharacterSelectable characterSelectableTool)
-                CharacterPaletteSelectionViewModel.SelectedCharacter = characterSelectableTool.Character;
         }
 
         private void OnSelectedArtChanged(Rect selected)
@@ -628,6 +621,7 @@ namespace AAP.UI.Windows
                     break;
                 case nameof(vm.CurrentTool):
                     ArtCanvasViewModel.CurrentTool = vm.CurrentTool;
+                    ToolOptionsViewModel.Tool = vm.CurrentTool;
                     break;
                 case nameof(vm.CanUseTool):
                     ArtCanvasViewModel.CanUseTool = vm.CanUseTool;

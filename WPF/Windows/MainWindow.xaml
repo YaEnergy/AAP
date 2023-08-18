@@ -11,10 +11,15 @@
         <viewmodels:MainWindowViewModel x:Name="MainWindowViewModel"/>
     </Window.DataContext>
     <Window.Resources>
-        <ui:Theme x:Key="WindowTheme"></ui:Theme>
-        <Style TargetType="controls:ImageStateBox">
-            <!--<Setter Property=""></Setter>!-->
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <ui:Theme x:Key="WindowTheme"></ui:Theme>
+            <Style TargetType="controls:ImageStateBox">
+                <!--<Setter Property=""></Setter>!-->
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
     <Grid>
         <DockPanel Background="{Binding DarkAccent, Source={StaticResource WindowTheme}}">
@@ -78,8 +83,8 @@
                     </Menu>
                 </ToolBar>
             </ToolBarTray>
-            <StackPanel HorizontalAlignment="Left" Margin="0,0,0,0" Width="200" ClipToBounds="True" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}">
-                <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}">
+            <DockPanel HorizontalAlignment="Left" Margin="0,0,0,0" Width="200" ClipToBounds="True" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}">
+                <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" Margin="0,0,0,5">
                     <Grid.DataContext>
                         <viewmodels:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
                     </Grid.DataContext>
@@ -102,17 +107,36 @@
                     <controls:ImageStateBox x:Name="BucketToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" BoxImageSource="/Resources/Images/ToolIcons/BucketToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}"/>
                     <controls:ImageStateBox x:Name="TextToolStateBox" BoxBrush="White" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" BoxImageSource="/Resources/Images/ToolIcons/TextToolIcon.png" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}"/>
                 </Grid>
-                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}"/>
-                <StackPanel x:Name="stackPanel" Panel.ZIndex="1" Background="{Binding LightAccent, Source={StaticResource WindowTheme}}">
-                    <StackPanel.DataContext>
-                        <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
-                    </StackPanel.DataContext>
-                    <Grid Visibility="{Binding Visibility}">
-                        <ComboBox VerticalAlignment="Top" Padding="0,0,0,0" Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}"/>
-                        <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="500" Margin="0,25,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
-                    </Grid>
-                </StackPanel>
-            </StackPanel>
+                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top"/>
+                <ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="0,5,0,0">
+                    <ScrollViewer.DataContext>
+                        <viewmodels:ToolOptionsViewModel x:Name="ToolOptionsViewModel"/>
+                    </ScrollViewer.DataContext>
+                    <StackPanel>
+                        <WrapPanel Visibility="{Binding CharacterOptionVisibility}">
+                            <WrapPanel Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" Orientation="Vertical">
+                                <WrapPanel.DataContext>
+                                    <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
+                                </WrapPanel.DataContext>
+                                <DockPanel>
+                                    <Label Content="Palette" VerticalAlignment="Top"/>
+                                    <ComboBox VerticalAlignment="Top" Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DockPanel.Dock="Right"/>
+                                </DockPanel>
+                                <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Palette="{Binding SelectedPalette, Mode=OneWay}"/>
+                            </WrapPanel>
+                        </WrapPanel>
+                        <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" Visibility="{Binding CharacterOptionVisibility}"/>
+                        <WrapPanel Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" Visibility="{Binding SizeOptionVisibility}">
+                            <Label Content="Size" Height="30" Margin="5,0,0,0"></Label>
+                            <Slider Width="100" Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Minimum="1" Value="{Binding Size}" Maximum="64"/>
+                            <Label Content="{Binding Size}"/>
+                        </WrapPanel>
+                        <WrapPanel Background="{Binding LightAccent, Source={StaticResource WindowTheme}}" Visibility="{Binding EightDirectionalOptionVisibility}">
+                            <CheckBox Content="Eight Directional" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
             <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}"/>
             <DockPanel Margin="0,0,0,0" Width="200" ClipToBounds="True" HorizontalAlignment="Right" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}">
                 <DockPanel.DataContext>
@@ -138,13 +162,7 @@
                         <Label Content="Name" HorizontalAlignment="Left"/>
                         <TextBox TextWrapping="Wrap" Margin="5,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100" MinWidth="100" HorizontalAlignment="Left" MaxWidth="140"/>
                     </WrapPanel>
-                    <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" FlowDirection="RightToLeft" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5">
-                        <CheckBox.Resources>
-                            <Style TargetType="{x:Type Path}">
-                                <Setter Property="FlowDirection" Value="LeftToRight" />
-                            </Style>
-                        </CheckBox.Resources>
-                    </CheckBox>
+                    <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5" Style="{StaticResource ContentLeftCheckBoxStyle}"/>
                 </StackPanel>
                 <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{Binding Secondary, Source={StaticResource WindowTheme}}" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}"/>
                 <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">

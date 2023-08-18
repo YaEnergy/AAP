@@ -55,21 +55,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private Visibility visibility = Visibility.Collapsed;
-        public Visibility Visibility
-        {
-            get => visibility;
-            set
-            {
-                if (value == visibility) 
-                    return;
-
-                visibility = value;
-
-                PropertyChanged?.Invoke(this, new(nameof(Visibility)));
-            }
-        }
-
         public event PropertyChangedEventHandler? PropertyChanged;
     }
 }
