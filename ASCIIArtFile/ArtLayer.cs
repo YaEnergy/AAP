@@ -260,7 +260,7 @@ namespace AAP
 
             for (int x = 0; x < mergeLayer.Width; x++)
                 for (int y = 0; y < mergeLayer.Height; y++)
-                    if (mergeLayer.Data[x][y] != null)
+                    if (Data[x - OffsetX + mergeLayer.OffsetX][y - OffsetY + mergeLayer.OffsetY] == null)
                         Data[x - OffsetX + mergeLayer.OffsetX][y - OffsetY + mergeLayer.OffsetY] = mergeLayer.Data[x][y];
         }
 

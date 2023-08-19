@@ -848,8 +848,9 @@ namespace AAP
             if (CurrentArt == null)
                 return;
 
-            CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, new("Layer", CurrentArt.Width, CurrentArt.Height));
-            CurrentLayerID += 1;
+            int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
+            CurrentArt.ArtLayers.Insert(layerID, new("New Layer", CurrentArt.Width, CurrentArt.Height));
+            CurrentLayerID = layerID;
 
             CurrentArtTimeline?.NewTimePoint();
             CurrentArt.Update();
@@ -870,8 +871,9 @@ namespace AAP
             ArtLayer duplicateArtLayer = (ArtLayer)currentArtLayer.Clone();
             duplicateArtLayer.Name += " copy";
 
-            CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, duplicateArtLayer);
-            CurrentLayerID += 1;
+            int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
+            CurrentArt.ArtLayers.Insert(layerID, duplicateArtLayer);
+            CurrentLayerID = layerID;
 
             CurrentArtTimeline?.NewTimePoint();
             CurrentArt.Update();
@@ -908,8 +910,16 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            CurrentLayerID -= 1;
-            CurrentArt.ArtLayers.RemoveAt(CurrentLayerID + 1);
+            int layerID = CurrentLayerID;
+
+            if (CurrentArt.ArtLayers.Count - 1 == 0)
+                CurrentLayerID = -1;
+
+            CurrentArt.ArtLayers.RemoveAt(layerID);
+
+            if (CurrentArt.ArtLayers.Count != 0)
+                CurrentLayerID = Math.Clamp(layerID, -1, CurrentArt.ArtLayers.Count - 1);
+
 
             CurrentArtTimeline?.NewTimePoint();
             CurrentArt.Update();

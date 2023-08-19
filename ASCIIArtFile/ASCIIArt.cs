@@ -277,7 +277,7 @@ namespace AAP
             if (Width == 0)
                 return line;
 
-            for (int i = 0; i < ArtLayers.Count; i++)
+            for (int i = ArtLayers.Count - 1; i >= 0; i--)
             {
                 ArtLayer artLayer = ArtLayers[i];
                 if (artLayer.Visible)

@@ -19,11 +19,11 @@ namespace AAP.UI.Controls
 {
     public class ASCIIArtCanvasVisual : FrameworkElement
     {
-        public readonly static double MinCanvasTextSize = 128;
+        public readonly static double MinCanvasTextSize = 1;
         public readonly static double MinHighlightRectThickness = 1;
 
         public readonly static double MaxCanvasTextSize = 128;
-        public readonly static double MaxHighlightRectThickness = 1;
+        public readonly static double MaxHighlightRectThickness = 12;
 
         public readonly static double DefaultCanvasTextSize = 16;
         public readonly static double DefaultHighlightRectThickness = 2;
