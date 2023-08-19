@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class LineTool: Tool, ICharacterSelectable, ISizeSelectable, INotifyPropertyChanged
+    public class LineTool: Tool, ICharacterSelectable, ISizeSelectable, IStayInsideSelectionProperty, INotifyPropertyChanged
     {
         public override ToolType Type { get; } = ToolType.Line;
 
@@ -41,6 +41,21 @@ namespace AAP
             }
         }
 
+        private bool stayInsideSelection = true;
+        public bool StayInsideSelection
+        {
+            get => stayInsideSelection;
+            set
+            {
+                if (stayInsideSelection == value)
+                    return;
+
+                stayInsideSelection = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(StayInsideSelection)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public LineTool(char? character)
@@ -59,9 +74,9 @@ namespace AAP
         }
 
         public void DrawCharacter(Point artPos)
-            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artPos);
+            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artPos, StayInsideSelection);
 
         public void DrawLine(Point startArtPos, Point endArtPos)
-            => App.CurrentArtDraw?.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos);
+            => App.CurrentArtDraw?.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos, StayInsideSelection);
     }
 }

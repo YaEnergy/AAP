@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class EraserTool: Tool, ISizeSelectable, INotifyPropertyChanged
+    public class EraserTool: Tool, ISizeSelectable, IStayInsideSelectionProperty, INotifyPropertyChanged
     {
         public override ToolType Type { get; } = ToolType.Eraser;
 
@@ -23,6 +23,21 @@ namespace AAP
                 size = value;
 
                 PropertyChanged?.Invoke(this, new(nameof(Size)));
+            }
+        }
+
+        private bool stayInsideSelection = true;
+        public bool StayInsideSelection
+        {
+            get => stayInsideSelection;
+            set
+            {
+                if (stayInsideSelection == value)
+                    return;
+
+                stayInsideSelection = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(StayInsideSelection)));
             }
         }
 
@@ -43,7 +58,7 @@ namespace AAP
             EraseCharacter(currentArtPos);
         }
 
-        public static void EraseCharacter(Point artPos)
-           => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, null, artPos);
+        public void EraseCharacter(Point artPos)
+           => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, null, artPos, StayInsideSelection);
     }
 }

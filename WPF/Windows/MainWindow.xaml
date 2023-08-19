@@ -131,6 +131,9 @@
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding EightDirectionalOptionVisibility}">
                             <CheckBox Content="Eight Directional" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}" Foreground="{DynamicResource Text}"/>
                         </WrapPanel>
+                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding StayInsideSelectionOptionVisibility}">
+                            <CheckBox Content="Stay Inside Selection" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding StayInsideSelection}" Foreground="{DynamicResource Text}"/>
+                        </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class BucketTool: Tool, ICharacterSelectable, IEightDirectionalProperty, INotifyPropertyChanged
+    public class BucketTool: Tool, ICharacterSelectable, IEightDirectionalProperty, IStayInsideSelectionProperty, INotifyPropertyChanged
     {
         public override ToolType Type { get; } = ToolType.Bucket;
 
@@ -41,6 +41,21 @@ namespace AAP
             }
         }
 
+        private bool stayInsideSelection = true;
+        public bool StayInsideSelection
+        {
+            get => stayInsideSelection;
+            set
+            {
+                if (stayInsideSelection == value)
+                    return;
+
+                stayInsideSelection = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(StayInsideSelection)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public BucketTool(char? character)
@@ -54,7 +69,7 @@ namespace AAP
         }
 
         public void FillArea(Point artPos)
-            => App.CurrentArtDraw?.FloodFillArtPosWithCharacter(App.CurrentLayerID, Character, artPos, EightDirectional);
+            => App.CurrentArtDraw?.FloodFillArtPosWithCharacter(App.CurrentLayerID, Character, artPos, EightDirectional, StayInsideSelection);
             
     }
 }

@@ -174,6 +174,54 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool stayInsideSelection = false;
+        public bool StayInsideSelection
+        {
+            get => stayInsideSelection;
+            set
+            {
+                if (stayInsideSelection == value)
+                    return;
+
+                stayInsideSelection = value;
+
+                if (tool is IStayInsideSelectionProperty propertyTool)
+                    propertyTool.StayInsideSelection = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(StayInsideSelection)));
+            }
+        }
+
+        private bool isStayInsideSelectionOptionVisible = false;
+        public bool IsStayInsideSelectionOptionVisible
+        {
+            get => isStayInsideSelectionOptionVisible;
+            set
+            {
+                if (isStayInsideSelectionOptionVisible == value)
+                    return;
+
+                isStayInsideSelectionOptionVisible = value;
+                StayInsideSelectionOptionVisibility = value ? Visibility.Visible : Visibility.Collapsed;
+
+                PropertyChanged?.Invoke(this, new(nameof(IsStayInsideSelectionOptionVisible)));
+            }
+        }
+
+        private Visibility stayInsideSelectionOptionVisibility = Visibility.Collapsed;
+        public Visibility StayInsideSelectionOptionVisibility
+        {
+            get => stayInsideSelectionOptionVisibility;
+            private set
+            {
+                if (stayInsideSelectionOptionVisibility == value)
+                    return;
+
+                stayInsideSelectionOptionVisibility = value;
+                PropertyChanged?.Invoke(this, new(nameof(StayInsideSelectionOptionVisibility)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public void OnToolSelected(Tool? tool)
@@ -181,6 +229,7 @@ namespace AAP.UI.ViewModels
             IsCharacterOptionVisible = tool is ICharacterSelectable;
             IsSizeOptionVisible = tool is ISizeSelectable;
             IsEightDirectionalOptionVisible = tool is IEightDirectionalProperty;
+            IsStayInsideSelectionOptionVisible = tool is IStayInsideSelectionProperty;
 
             if (tool is ICharacterSelectable characterSelectableTool && CharacterPaletteSelectionViewModel != null)
                 CharacterPaletteSelectionViewModel.SelectedCharacter = characterSelectableTool.Character;
@@ -190,6 +239,9 @@ namespace AAP.UI.ViewModels
 
             if (tool is IEightDirectionalProperty eightDirectionalPropertyTool)
                 EightDirectional = eightDirectionalPropertyTool.EightDirectional;
+
+            if (tool is IStayInsideSelectionProperty stayInsideSelectionPropertyTool)
+                StayInsideSelection = stayInsideSelectionPropertyTool.StayInsideSelection;
 
         }
     }

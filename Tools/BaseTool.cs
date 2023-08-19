@@ -44,6 +44,8 @@ namespace AAP
         public void ActivateStart(Point artMatrixPosition) //Location has the x and y of the character on the canvas clicked
         {
             StartArtPos = artMatrixPosition;
+            CurrentArtPos = artMatrixPosition;
+            EndArtPos = artMatrixPosition;
 
             UseStart(StartArtPos);
 
