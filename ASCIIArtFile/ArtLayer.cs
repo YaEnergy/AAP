@@ -253,6 +253,17 @@ namespace AAP
             Cropped?.Invoke(this, oldArtRect, cropRect);
         }
 
+        public void Merge(ArtLayer mergeLayer)
+        {
+            Rect mergedLayerRect = Rect.Union(new Rect(Offset, Size), new Rect(mergeLayer.Offset, mergeLayer.Size));
+            Crop(mergedLayerRect);
+
+            for (int x = 0; x < mergeLayer.Width; x++)
+                for (int y = 0; y < mergeLayer.Height; y++)
+                    if (mergeLayer.Data[x][y] != null)
+                        Data[x - OffsetX + mergeLayer.OffsetX][y - OffsetY + mergeLayer.OffsetY] = mergeLayer.Data[x][y];
+        }
+
         public object Clone()
         {
             ArtLayer cloneLayer = new(Name, Width, Height, OffsetX, OffsetY);

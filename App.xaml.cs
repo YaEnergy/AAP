@@ -877,6 +877,26 @@ namespace AAP
             CurrentArt.Update();
         }
 
+        public static void MergeCurrentArtLayerDown()
+        {
+            if (CurrentArt == null)
+                return;
+
+            if (CurrentArt.ArtLayers.Count - CurrentLayerID <= 1)
+                return;
+
+            if (CurrentLayerID == -1)
+                return;
+
+            ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
+            currentArtLayer.Merge(CurrentArt.ArtLayers[CurrentLayerID + 1]);
+
+            CurrentArt.ArtLayers.RemoveAt(CurrentLayerID + 1);
+
+            CurrentArtTimeline?.NewTimePoint();
+            CurrentArt.Update();
+        }
+
         public static void RemoveCurrentArtLayer()
         {
             if (CurrentArt == null)

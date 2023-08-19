@@ -128,4 +128,8 @@
     <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Remove" BasedOn="{StaticResource LayerManagementButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/DestroyLayerIcon.png"/>
     </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Merge" BasedOn="{StaticResource LayerManagementButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/MergeLayerIcon.png"/>
+    </Style>
 </ResourceDictionary>

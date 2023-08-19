@@ -172,6 +172,7 @@ namespace AAP.UI.ViewModels
         public ICommand MoveLayerUpCommand { get; private set; }
         public ICommand MoveLayerDownCommand { get; private set; }
         public ICommand DuplicateLayerCommand { get; private set; }
+        public ICommand MergeLayerCommand { get; private set; }
         public ICommand RemoveLayerCommand { get; private set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -182,6 +183,7 @@ namespace AAP.UI.ViewModels
             MoveLayerUpCommand = new ActionCommand((parameter) => App.MoveCurrentArtLayer(-1));
             MoveLayerDownCommand = new ActionCommand((parameter) => App.MoveCurrentArtLayer(1));
             DuplicateLayerCommand = new ActionCommand((parameter) => App.DuplicateCurrentArtLayer());
+            MergeLayerCommand = new ActionCommand((parameter) => App.MergeCurrentArtLayerDown());
             RemoveLayerCommand = new ActionCommand((parameter) => App.RemoveCurrentArtLayer());
         }
 

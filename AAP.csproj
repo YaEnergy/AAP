@@ -34,9 +34,12 @@
     <None Remove="Resources\highlightbox.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\DestroyLayerIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\DuplicateLayerIcon.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Dark\MergeLayerIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\MoveLayerDownIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\MoveLayerUpIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\NewLayerIcon.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Light\MergeLayerIcon.png" />
+    <None Remove="Resources\Images\ProgramIcons\Icon_old.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\BucketToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\DrawToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\EraserToolIcon.png" />
@@ -57,10 +60,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Images\LayerManagementIcons\Light\MergeLayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Resources\Images\ProgramIcons\icon2_color.ico" />
     <Content Include="Resources\Images\ProgramIcons\icon2_color.png" />
     <Content Include="Resources\Images\ProgramIcons\Icon_old.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -77,6 +86,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\LayerManagementIcons\Dark\DuplicateLayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\LayerManagementIcons\Dark\MergeLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Images\LayerManagementIcons\Dark\MoveLayerDownIcon.png">
@@ -100,6 +112,10 @@
     <Resource Include="Resources\Images\LayerManagementIcons\Light\MoveLayerUpIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Content Include="Resources\Images\ProgramIcons\Icon_old.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </Content>
     <Resource Include="Resources\Images\ToolIcons\Dark\BucketToolIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -157,10 +173,6 @@
       <PackagePath>\</PackagePath>
     </None>
     <None Update="Resources\Images\ProgramIcons\Icon_old.ico">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Update="Resources\Images\ProgramIcons\Icon_old.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

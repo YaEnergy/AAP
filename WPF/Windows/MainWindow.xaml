@@ -134,7 +134,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}"/>
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}"/>
             <DockPanel Margin="0,0,0,0" Width="200" ClipToBounds="True" HorizontalAlignment="Right" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}">
                 <DockPanel.DataContext>
                     <viewmodels:LayerManagementViewModel x:Name="LayerManagementViewModel"/>
@@ -146,12 +146,14 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_New}" Command="{Binding CreateNewLayerCommand}"/>
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_MoveUp}" Grid.Column="1" Command="{Binding MoveLayerUpCommand}"/>
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_MoveDown}" Grid.Column="2" Command="{Binding MoveLayerDownCommand}"/>
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_Duplicate}" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_Remove}" Grid.Column="4" Command="{Binding RemoveLayerCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_Merge}" Grid.Column="4" Command="{Binding MergeLayerCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource LayerManagement_Remove}" Grid.Column="5" Command="{Binding RemoveLayerCommand}"/>
                 </Grid>
                 <StackPanel VerticalAlignment="Top" Background="{DynamicResource LightAccent}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
                     <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
@@ -172,7 +174,7 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right"/>
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}"/>
             <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="True" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LightAccent}">
                 <ScrollViewer.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
