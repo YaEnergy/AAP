@@ -14,51 +14,106 @@ namespace AAP.UI.Controls
     {
         private readonly DrawingVisual labelVisual = new();
 
-        private string text = "";
-        public string Text
+        public static readonly DependencyProperty TextProperty =
+        DependencyProperty.Register(
+            name: "Text",
+            propertyType: typeof(Brush),
+            ownerType: typeof(LabelStateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnTextDrawPropertyChangedCallBack));
+
+        public Brush Text
         {
-            get => text;
+            get => (Brush)GetValue(TextProperty);
             set
             {
-                if (value == text)
+                if (Text == value)
                     return;
 
-                text = value;
-                DrawLabel();
+                SetValue(TextProperty, value);
             }
         }
 
-        private Typeface typeface = new("Consolas");
+        public static readonly DependencyProperty ContentFormatProperty =
+        DependencyProperty.Register(
+            name: "ContentFormatFormat",
+            propertyType: typeof(string),
+            ownerType: typeof(LabelStateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: string.Empty, OnTextDrawPropertyChangedCallBack));
+
+        public string ContentFormat
+        {
+            get => (string)GetValue(ContentFormatProperty);
+            set
+            {
+                if (Content == value)
+                    return;
+
+                SetValue(ContentFormatProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty ContentProperty =
+        DependencyProperty.Register(
+            name: "Content",
+            propertyType: typeof(string),
+            ownerType: typeof(LabelStateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: string.Empty, OnTextDrawPropertyChangedCallBack));
+
+        public string Content
+        {
+            get => (string)GetValue(ContentProperty);
+            set
+            {
+                if (Content == value)
+                    return;
+
+                SetValue(ContentProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty TypefaceProperty =
+        DependencyProperty.Register(
+            name: "Typeface",
+            propertyType: typeof(Typeface),
+            ownerType: typeof(LabelStateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: new Typeface("Consolas"), OnTextDrawPropertyChangedCallBack));
+
         public Typeface Typeface
         {
-            get => typeface;
+            get => (Typeface)GetValue(TypefaceProperty);
             set
             {
-                if (value == typeface)
+                if (Typeface == value)
                     return;
 
-                typeface = value;
-                DrawLabel();
+                SetValue(TypefaceProperty, value);
             }
         }
 
-        private double textSize = 48;
+        public static readonly DependencyProperty TextSizeProperty =
+        DependencyProperty.Register(
+            name: "TextSize",
+            propertyType: typeof(double),
+            ownerType: typeof(LabelStateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 48d, OnTextDrawPropertyChangedCallBack));
+
         public double TextSize
         {
-            get => textSize;
+            get => (double)GetValue(TextSizeProperty);
             set
             {
-                if (value == textSize)
+                if (TextSize == value)
                     return;
 
-                textSize = value;
-                DrawLabel();
+                SetValue(TextSizeProperty, value);
             }
         }
 
         private void DrawLabel()
         {
-            FormattedText formattedText = new(Text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, TextSize, Brushes.Black, 1);
+            string formattedContent = ContentFormat == string.Empty ? Content : string.Format(ContentFormat, Content);
+
+            FormattedText formattedText = new(formattedContent, CultureInfo.InvariantCulture, FlowDirection.LeftToRight, Typeface, TextSize, Text, 1);
            
             using DrawingContext dc = labelVisual.RenderOpen();
 
@@ -72,6 +127,14 @@ namespace AAP.UI.Controls
             DrawLabel();
 
             SizeChanged += (sender, e) => DrawLabel();
+        }
+
+        private static void OnTextDrawPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not LabelStateBox box)
+                return;
+
+            box.DrawLabel();
         }
     }
 }

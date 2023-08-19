@@ -20,6 +20,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using AAP.BackgroundTasks;
 using AAP.Timelines;
+using AAP.UI.Themes;
 using AAP.UI.ViewModels;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
@@ -44,6 +45,7 @@ namespace AAP.UI.Windows
             App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
             App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
 
+            MainWindowViewModel.PropertyChanged += MainWindowViewModelPropertyChanged;
             ArtFileViewModel.PropertyChanged += ArtFileViewModelPropertyChanged;
             ArtCanvasViewModel.PropertyChanged += ArtCanvasViewModelPropertyChanged;
             CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
@@ -580,7 +582,6 @@ namespace AAP.UI.Windows
         #endregion
 
         #region Click Events
-
         private void NewFileButton_Click(object sender, RoutedEventArgs e)
             => NewFileAction();
 
@@ -605,6 +606,24 @@ namespace AAP.UI.Windows
         #endregion
 
         #region ViewModel Property Changed Events
+        private void MainWindowViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            if (sender is not MainWindowViewModel vm)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(vm.IsDarkModeOn):
+                    App.AppTheme = vm.IsDarkModeOn ? Theme.Dark : Theme.Light;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void ArtFileViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender == null)

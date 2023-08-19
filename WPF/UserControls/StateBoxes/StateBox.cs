@@ -143,20 +143,44 @@ namespace AAP.UI.Controls
         }
         #endregion
 
-        private bool state = false;
+        public static readonly DependencyProperty StateProperty =
+        DependencyProperty.Register(
+            name: "State",
+            propertyType: typeof(bool),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, OnStatePropertyChangedCallBack));
+
         public bool State
         {
-            get => state;
+            get => (bool)GetValue(StateProperty);
             set
             {
-                if (value == state)
+                if (State == value)
                     return;
 
-                state = value;
+                SetValue(StateProperty, value);
+            }
+        }
 
-                DrawBackground();
+        public delegate void StateChangedEvent(StateBox sender, bool state);
+        public event StateChangedEvent? OnStateChanged;
 
-                OnStateChanged?.Invoke(this, state);
+        public static readonly DependencyProperty AllowManualDisableProperty =
+        DependencyProperty.Register(
+            name: "AllowManualDisable",
+            propertyType: typeof(bool),
+            ownerType: typeof(StateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: false));
+
+        public bool AllowManualDisable
+        {
+            get => (bool)GetValue(AllowManualDisableProperty);
+            set
+            {
+                if (AllowManualDisable == value)
+                    return;
+
+                SetValue(AllowManualDisableProperty, value);
             }
         }
 
@@ -164,7 +188,7 @@ namespace AAP.UI.Controls
         public bool Highlighted
         {
             get => highlighted;
-            set
+            private set
             {
                 if (value == highlighted)
                     return;
@@ -174,11 +198,6 @@ namespace AAP.UI.Controls
                 DrawBackground();
             }
         }
-
-        public bool AllowManualDisable { get; set; } = true;
-
-        public delegate void StateChangedEvent(StateBox sender, bool state);
-        public event StateChangedEvent? OnStateChanged;
 
         public static readonly DependencyProperty StateCommandProperty =
         DependencyProperty.Register(
@@ -198,21 +217,7 @@ namespace AAP.UI.Controls
                 SetValue(StateCommandProperty, value);
             }
         }
-
-        /// <summary>
-        /// Sets the state of the StateBox without invoking the OnStateChanged event.
-        /// </summary>
-        /// <param name="state"></param>
-        public void ForceSetState(bool state)
-        {
-            if (this.state == state)
-                return;
-
-            this.state = state;
-
-            DrawBackground();
-        }
-
+        
         private void StateChanged(StateBox sender, bool state)
             => StateCommand?.Execute(sender, state);
 
@@ -268,6 +273,17 @@ namespace AAP.UI.Controls
 
             box.DrawBackground();
         }
+
         #endregion
+
+        private static void OnStatePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not StateBox box)
+                return;
+
+            box.DrawBackground();
+
+            box.OnStateChanged?.Invoke(box, (bool)e.NewValue);
+        }
     }
 }

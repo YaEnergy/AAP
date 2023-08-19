@@ -32,6 +32,18 @@
     <None Remove="Resources\DuplicateLayerIcon.png" />
     <None Remove="Resources\EraserToolIcon.png" />
     <None Remove="Resources\highlightbox.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Dark\DestroyLayerIcon.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Dark\DuplicateLayerIcon.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Dark\MoveLayerDownIcon.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Dark\MoveLayerUpIcon.png" />
+    <None Remove="Resources\Images\LayerManagementIcons\Dark\NewLayerIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\BucketToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\DrawToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\EraserToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\LineToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\MoveToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\SelectToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\TextToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\LineToolIcon.png" />
     <None Remove="Resources\MoveLayerDownIcon.png" />
     <None Remove="Resources\MoveLayerUpIcon.png" />
@@ -61,40 +73,76 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\Images\LayerManagementIcons\DestroyLayerIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Dark\DestroyLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\LayerManagementIcons\DuplicateLayerIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Dark\DuplicateLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\LayerManagementIcons\MoveLayerDownIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Dark\MoveLayerDownIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\LayerManagementIcons\MoveLayerUpIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Dark\MoveLayerUpIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\BucketToolIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Dark\NewLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\DrawToolIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Light\DestroyLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\EraserToolIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Light\DuplicateLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\LineToolIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Light\MoveLayerDownIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\MoveToolIcon.png">
+    <Resource Include="Resources\Images\LayerManagementIcons\Light\MoveLayerUpIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\LayerManagementIcons\NewLayerIcon.png">
+    <Resource Include="Resources\Images\ToolIcons\Dark\BucketToolIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\SelectToolIcon.png">
+    <Resource Include="Resources\Images\ToolIcons\Dark\DrawToolIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Images\ToolIcons\TextToolIcon.png">
+    <Resource Include="Resources\Images\ToolIcons\Dark\EraserToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Dark\LineToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Dark\MoveToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Dark\SelectToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Dark\TextToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\BucketToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\DrawToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\EraserToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\LineToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\MoveToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\LayerManagementIcons\Light\NewLayerIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\SelectToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\TextToolIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
@@ -128,6 +176,15 @@
     <None Update="Resources\PresetCharacterPalettes\Numbers.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Resources\Themes\DarkTheme.xaml">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Page>
+    <Page Update="Resources\Themes\LightTheme.xaml">
+      <CopyToOutputDirectory></CopyToOutputDirectory>
+    </Page>
   </ItemGroup>
 
 </Project>

@@ -101,7 +101,7 @@ namespace AAP.UI.Controls
             if (characterPaletteCharacterSelect != null)
             {
                 foreach (char character in characterPaletteCharacterSelect.stateBoxes.Keys)
-                    characterPaletteCharacterSelect.stateBoxes[character].ForceSetState(character == characterPaletteCharacterSelect.SelectedCharacter);
+                    characterPaletteCharacterSelect.stateBoxes[character].State = character == characterPaletteCharacterSelect.SelectedCharacter;
 
                 characterPaletteCharacterSelect.SelectedCharacterChanged?.Invoke((char?)e.NewValue);
             }
@@ -136,7 +136,7 @@ namespace AAP.UI.Controls
 
                 LabelStateBox labelStateBox = new()
                 {
-                    Text = stateBoxCharacter.ToString(),
+                    Content = stateBoxCharacter.ToString(),
                     TextSize = 32,
                     Margin = new(2, 2, 2, 2),
                     AllowManualDisable = false
@@ -148,10 +148,6 @@ namespace AAP.UI.Controls
                         return;
 
                     SelectedCharacter = stateBoxCharacter;
-
-                    foreach (StateBox stateBox in stateBoxes.Values)
-                        if (stateBox != sender)
-                            stateBox.State = false;
                 }
 
                 void OnUnloaded(object sender, RoutedEventArgs e)
@@ -159,7 +155,7 @@ namespace AAP.UI.Controls
 
 
                 if (SelectedCharacter == stateBoxCharacter)
-                    labelStateBox.ForceSetState(true);
+                    labelStateBox.State = true;
 
                 labelStateBox.OnStateChanged += OnStateBoxStateChanged;
                 labelStateBox.Unloaded += OnUnloaded;

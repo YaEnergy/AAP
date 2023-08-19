@@ -15,6 +15,21 @@ namespace AAP.UI.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        private bool isDarkModeOn = false;
+        public bool IsDarkModeOn
+        {
+            get => isDarkModeOn;
+            set
+            {
+                if (isDarkModeOn == value)
+                    return;
+
+                isDarkModeOn = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(IsDarkModeOn)));
+            }
+        }
+
         private bool isToolboxVisible = true;
         public bool IsToolboxVisible
         {

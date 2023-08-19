@@ -13,80 +13,168 @@ namespace AAP.UI.Controls
 {
     public class ImageButton : FrameworkElement
     {
+        protected override int VisualChildrenCount => _children.Count;
         protected readonly VisualCollection _children;
+
+        protected override Visual GetVisualChild(int index)
+        {
+            if (index < 0 || index >= _children.Count)
+                throw new ArgumentOutOfRangeException();
+
+            return _children[index];
+        }
 
         private readonly DrawingVisual backgroundVisual = new();
         private readonly DrawingVisual imageVisual = new();
 
-        private ImageSource? imageSource = null;
-        public ImageSource? ImageSource
+        #region Brushes
+        public static readonly DependencyProperty UnhighlightedProperty =
+       DependencyProperty.Register(
+           name: "Unhighlighted",
+           propertyType: typeof(Brush),
+           ownerType: typeof(ImageButton),
+           typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.White, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush Unhighlighted
         {
-            get => imageSource;
+            get => (Brush)GetValue(UnhighlightedProperty);
             set
             {
-                if (imageSource == value)
+                if (Unhighlighted == value)
                     return;
 
-                imageSource = value;
-                DrawImage();
+                SetValue(UnhighlightedProperty, value);
             }
         }
 
-        protected override int VisualChildrenCount => _children.Count;
+        public static readonly DependencyProperty HighlightedProperty =
+        DependencyProperty.Register(
+            name: "Highlighted",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ImageButton),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.LightGray, OnBackgroundDrawPropertyChangedCallBack));
 
-        private bool highlighted = false;
-        public bool Highlighted
+        public Brush Highlighted
         {
-            get => highlighted;
-            private set
+            get => (Brush)GetValue(HighlightedProperty);
+            set
             {
-                if (highlighted == value)
+                if (Highlighted == value)
                     return;
 
-                highlighted = value;
-
-                if (Clicked == true)
-                    BackgroundBrush = ClickedBackground;
-                else
-                    BackgroundBrush = Highlighted ? HighlightedBackground : Background;
+                SetValue(HighlightedProperty, value);
             }
         }
 
-        private bool clicked = false;
-        public bool Clicked
+        public static readonly DependencyProperty PressedProperty =
+        DependencyProperty.Register(
+            name: "Pressed",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ImageButton),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Gray, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush Pressed
         {
-            get => clicked;
-            private set
+            get => (Brush)GetValue(PressedProperty);
+            set
             {
-                if (clicked == value)
+                if (Pressed == value)
                     return;
 
-                clicked = value;
-
-                if (Clicked == true)
-                    BackgroundBrush = ClickedBackground;
-                else
-                    BackgroundBrush = Highlighted ? HighlightedBackground : Background;
+                SetValue(PressedProperty, value);
             }
         }
 
-        private Brush backgroundBrush;
-        public Brush BackgroundBrush
+        public static readonly DependencyProperty BorderProperty =
+        DependencyProperty.Register(
+            name: "Border",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ImageButton),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnBackgroundDrawPropertyChangedCallBack));
+
+        public Brush Border
         {
-            get => backgroundBrush;
-            private set
+            get => (Brush)GetValue(BorderProperty);
+            set
             {
-                if (value == backgroundBrush)
+                if (Border == value)
                     return;
 
-                backgroundBrush = value;
+                SetValue(BorderProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty BorderThicknessProperty =
+        DependencyProperty.Register(
+            name: "BorderThickness",
+            propertyType: typeof(double),
+            ownerType: typeof(ImageButton),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 0d, OnBackgroundDrawPropertyChangedCallBack));
+
+        public double BorderThickness
+        {
+            get => (double)GetValue(BorderThicknessProperty);
+            set
+            {
+                if (BorderThickness == value)
+                    return;
+
+                SetValue(BorderThicknessProperty, value);
+            }
+        }
+        #endregion
+        public static readonly DependencyProperty ImageSourceProperty =
+        DependencyProperty.Register(
+            name: "ImageSource",
+            propertyType: typeof(ImageSource),
+            ownerType: typeof(ImageButton),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null, OnImageSourcePropertyChangedCallBack));
+
+        public ImageSource? ImageSource
+        {
+            get => (ImageSource?)GetValue(ImageSourceProperty);
+            set
+            {
+                if (ImageSource == value)
+                    return;
+
+                SetValue(ImageSourceProperty, value);
+            }
+        }
+
+        private bool isHighlighted = false;
+        public bool IsHighlighted
+        {
+            get => isHighlighted;
+            private set
+            {
+                if (isHighlighted == value)
+                    return;
+
+                isHighlighted = value;
+
                 DrawBackground();
             }
         }
 
-        public Brush Background { get; set; } = Brushes.White;
-        public Brush HighlightedBackground { get; set; } = Brushes.LightGray;
-        public Brush ClickedBackground { get; set; } = Brushes.DarkGray;
+        public static readonly DependencyProperty IsPressedProperty =
+         DependencyProperty.Register(
+             name: "IsPressed",
+             propertyType: typeof(bool),
+             ownerType: typeof(ImageButton),
+             typeMetadata: new FrameworkPropertyMetadata(defaultValue: false, OnIsPressedPropertyChangedCallBack));
+
+        public bool IsPressed
+        {
+            get => (bool)GetValue(IsPressedProperty);
+            private set
+            {
+                if (IsPressed == value)
+                    return;
+
+                SetValue(IsPressedProperty, value);
+            }
+        }
 
         public static readonly DependencyProperty CommandProperty =
         DependencyProperty.Register(
@@ -98,30 +186,34 @@ namespace AAP.UI.Controls
         public ICommand? Command 
         { 
             get => (ICommand?)GetValue(CommandProperty); 
-            set => SetValue(CommandProperty, value); 
-        }
+            set
+            {
+                if (Command == value)
+                    return;
 
-        protected override Visual GetVisualChild(int index)
-        {
-            if (index < 0 || index >= _children.Count)
-                throw new ArgumentOutOfRangeException();
-
-            return _children[index];
+                SetValue(CommandProperty, value);
+            }
         }
 
         private void DrawBackground()
         {
             using DrawingContext dc = backgroundVisual.RenderOpen();
 
-            dc.DrawRectangle(BackgroundBrush, null, new(0, 0, ActualWidth, ActualHeight));
+            Brush fillBrush;
+            if (IsPressed)
+                fillBrush = Pressed;
+            else
+                fillBrush = IsHighlighted ? Highlighted : Unhighlighted;
+
+            dc.DrawRectangle(fillBrush, new(Border, BorderThickness), new(0, 0, ActualWidth, ActualHeight));
         }
 
         private void DrawImage()
         {
             using DrawingContext dc = imageVisual.RenderOpen();
 
-            if (imageSource != null)
-                dc.DrawImage(imageSource, new(0, 0, ActualWidth, ActualHeight));
+            if (ImageSource != null)
+                dc.DrawImage(ImageSource, new(0, 0, ActualWidth, ActualHeight));
         }
 
         public ImageButton()
@@ -131,11 +223,6 @@ namespace AAP.UI.Controls
                 backgroundVisual,
                 imageVisual
             };
-
-            if (Clicked == true)
-                backgroundBrush = ClickedBackground;
-            else
-                backgroundBrush = Highlighted ? HighlightedBackground : Background;
 
             DrawBackground();
             DrawImage();
@@ -151,23 +238,47 @@ namespace AAP.UI.Controls
 
         private void OnMouseEnter(object sender, MouseEventArgs e)
         {
-            Highlighted = true;
-            Clicked = false;
+            IsHighlighted = true;
+            IsPressed = false;
         }
 
         private void OnMouseLeave(object sender, MouseEventArgs e)
         {
-            Highlighted = false;
-            Clicked = false;
+            IsHighlighted = false;
+            IsPressed = false;
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             Command?.Execute(this);
-            Clicked = true;
+            IsPressed = true;
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-            => Clicked = false;
+            => IsPressed = false;
+
+        private static void OnImageSourcePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ImageButton button)
+                return;
+
+            button.DrawImage();
+        }
+
+        private static void OnBackgroundDrawPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ImageButton button)
+                return;
+
+            button.DrawBackground();
+        }
+
+        private static void OnIsPressedPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ImageButton button)
+                return;
+
+            button.DrawBackground();
+        }
     }
 }

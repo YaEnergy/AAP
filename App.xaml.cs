@@ -1,21 +1,10 @@
 ﻿using AAP.BackgroundTasks;
 using AAP.Timelines;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+using AAP.UI.Themes;
 using System.ComponentModel;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
 namespace AAP
@@ -169,6 +158,26 @@ namespace AAP
         public delegate void OnAvailableCharacterPalettesChangedEvent(List<CharacterPalette> palette);
         public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
 
+        private static Theme appTheme = Theme.Light;
+        public static Theme AppTheme
+        {
+            get => appTheme;
+            set
+            {
+                if (appTheme == value) 
+                    return;
+
+                appTheme = value;
+
+                SetTheme(value);
+
+                OnThemeChanged?.Invoke(value);
+            }
+        }
+
+        public delegate void OnThemeChangedEvent(Theme theme);
+        public static event OnThemeChangedEvent? OnThemeChanged;
+
         public App()
         {
             
@@ -195,7 +204,7 @@ namespace AAP
 
             if (!ExecutableDirectory.Exists)
                 throw new Exception(nameof(ExecutableDirectory) + " doesn't exist!");
-
+            
             App app = new();
             app.InitializeComponent();
 
@@ -326,6 +335,8 @@ namespace AAP
                         MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
+
+            SetTheme(AppTheme);
 
             GC.Collect();
 
@@ -966,6 +977,30 @@ namespace AAP
         {
             if (tool.Type != ToolType.Select && tool.Type != ToolType.Text)
                 currentArtTimeline?.NewTimePoint();
+        }
+        #endregion
+        #region Resources
+        private static void SetTheme(Theme theme)
+        {
+            Current.Resources.Clear();
+            Current.Resources.MergedDictionaries.Clear();
+
+            Uri themeSource;
+            switch (theme)
+            {
+                case Theme.Light:
+                    themeSource = new("/Resources/Themes/LightTheme.xaml", UriKind.Relative);
+                    break;
+                case Theme.Dark:
+                    themeSource = new("/Resources/Themes/DarkTheme.xaml", UriKind.Relative);
+                    break;
+                default:
+                    throw new Exception("Unknown theme " + theme.ToString());
+            }
+
+            ResourceDictionary resourceDictionary = new() { Source = themeSource };
+
+            Current.Resources.MergedDictionaries.Add(resourceDictionary);
         }
         #endregion
     }

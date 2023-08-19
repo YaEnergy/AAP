@@ -6,13 +6,13 @@
     <SolidColorBrush Color="#FF343434" x:Key="Primary"/>
     <SolidColorBrush Color="#FF313131" x:Key="Secondary"/>
 
-    <SolidColorBrush Color="White" x:Key="UnhighlightedInactive"/>
-    <SolidColorBrush Color="LightGray" x:Key="HighlightedInactive"/>
-    <SolidColorBrush Color="Green" x:Key="UnhighlightedActive"/>
-    <SolidColorBrush Color="DarkGreen" x:Key="HighlightedActive"/>
+    <SolidColorBrush Color="#FF282828" x:Key="UnhighlightedInactive"/>
+    <SolidColorBrush Color="#FF4B4B4B" x:Key="HighlightedInactive"/>
+    <SolidColorBrush Color="DarkGreen" x:Key="UnhighlightedActive"/>
+    <SolidColorBrush Color="Green" x:Key="HighlightedActive"/>
 
     <SolidColorBrush Color="Gray" x:Key="Pressed"/>
-    
+
     <SolidColorBrush Color="#FF171717" x:Key="Canvas"/>
     <SolidColorBrush Color="#FFF0F0F0" x:Key="Text"/>
     <SolidColorBrush Color="#FFF0F0F0" x:Key="Border"/>
@@ -43,6 +43,18 @@
         <Setter Property="Foreground" Value="{StaticResource LightAccent}"/>
     </Style>
 
+    <Style TargetType="{x:Type controls:ImageButton}">
+        <Setter Property="Unhighlighted" Value="{StaticResource UnhighlightedInactive}"/>
+        <Setter Property="Highlighted" Value="{StaticResource HighlightedInactive}"/>
+        <Setter Property="Pressed" Value="{StaticResource Pressed}"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagementButton">
+        <Setter Property="Unhighlighted" Value="{StaticResource UnhighlightedInactive}"/>
+        <Setter Property="Highlighted" Value="{StaticResource HighlightedInactive}"/>
+        <Setter Property="Pressed" Value="{StaticResource Pressed}"/>
+    </Style>
+
     <Style TargetType="{x:Type controls:ImageStateBox}">
         <Setter Property="UnhighlightedDisabled" Value="{StaticResource UnhighlightedInactive}"/>
         <Setter Property="HighlightedDisabled" Value="{StaticResource HighlightedInactive}"/>
@@ -50,10 +62,70 @@
         <Setter Property="HighlightedEnabled" Value="{StaticResource HighlightedActive}"/>
     </Style>
 
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="ToolStateBox">
+        <Setter Property="UnhighlightedDisabled" Value="{StaticResource UnhighlightedInactive}"/>
+        <Setter Property="HighlightedDisabled" Value="{StaticResource HighlightedInactive}"/>
+        <Setter Property="UnhighlightedEnabled" Value="{StaticResource UnhighlightedActive}"/>
+        <Setter Property="HighlightedEnabled" Value="{StaticResource HighlightedActive}"/>
+    </Style>
+    
     <Style TargetType="{x:Type controls:LabelStateBox}">
         <Setter Property="UnhighlightedDisabled" Value="{StaticResource UnhighlightedInactive}"/>
         <Setter Property="HighlightedDisabled" Value="{StaticResource HighlightedInactive}"/>
         <Setter Property="UnhighlightedEnabled" Value="{StaticResource UnhighlightedActive}"/>
         <Setter Property="HighlightedEnabled" Value="{StaticResource HighlightedActive}"/>
+        <Setter Property="Text" Value="{StaticResource Text}"/>
+    </Style>
+
+    <!-- Tool State Boxes -->
+    
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Pencil" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/DrawToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Eraser" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/EraserToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Select" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/SelectToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Move" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/MoveToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Line" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/LineToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Bucket" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/BucketToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Text" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Dark/TextToolIcon.png"/>
+    </Style>
+
+    <!-- Layer Managemnt Buttons -->
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_New" BasedOn="{StaticResource LayerManagementButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/NewLayerIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_MoveUp" BasedOn="{StaticResource LayerManagementButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/MoveLayerUpIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_MoveDown" BasedOn="{StaticResource LayerManagementButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/MoveLayerDownIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Duplicate" BasedOn="{StaticResource LayerManagementButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/DuplicateLayerIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Remove" BasedOn="{StaticResource LayerManagementButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Dark/DestroyLayerIcon.png"/>
     </Style>
 </ResourceDictionary>

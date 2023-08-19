@@ -13,17 +13,22 @@ namespace AAP.UI.Controls
     {
         private readonly DrawingVisual imageVisual = new();
 
-        private ImageSource? boxImageSource = null;
-        public ImageSource? BoxImageSource
+        public static readonly DependencyProperty ImageSourceProperty =
+        DependencyProperty.Register(
+            name: "ImageSource",
+            propertyType: typeof(ImageSource),
+            ownerType: typeof(ImageStateBox),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null, OnImageSourcePropertyChangedCallBack));
+
+        public ImageSource? ImageSource
         {
-            get => boxImageSource;
+            get => (ImageSource?)GetValue(ImageSourceProperty);
             set
             {
-                if (value == boxImageSource)
+                if (ImageSource == value)
                     return;
 
-                boxImageSource = value;
-                DrawImage();
+                SetValue(ImageSourceProperty, value);
             }
         }
 
@@ -31,8 +36,8 @@ namespace AAP.UI.Controls
         {
             using DrawingContext dc = imageVisual.RenderOpen();
 
-            if (boxImageSource != null)
-                dc.DrawImage(boxImageSource, new(0, 0, ActualWidth, ActualHeight));
+            if (ImageSource != null)
+                dc.DrawImage(ImageSource, new(0, 0, ActualWidth, ActualHeight));
         }
 
         public ImageStateBox() : base()
@@ -42,6 +47,14 @@ namespace AAP.UI.Controls
             DrawImage();
 
             SizeChanged += (sender, e) => DrawImage();
+        }
+
+        private static void OnImageSourcePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ImageStateBox box)
+                return;
+
+            box.DrawImage();
         }
     }
 }

@@ -12,7 +12,7 @@
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo ProgressValue="{Binding BackgroundTask.ProgressPercentage, Source={StaticResource ViewModel}}" ProgressState="Normal" Description="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>
     </Window.TaskbarItemInfo>
-    <Grid>
+    <Grid Background="{DynamicResource Background}">
         <WrapPanel Orientation="Vertical" Margin="10,10,10,10">
             <Label VerticalAlignment="Top" Content="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>
             <Label VerticalAlignment="Top" ContentStringFormat="({0})" Content="{Binding TaskElapsedTimeString, Source={StaticResource ViewModel}}"/>
