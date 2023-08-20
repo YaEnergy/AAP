@@ -14,10 +14,11 @@ using AAP.UI.ViewModels;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Reflection.Emit;
+using System.Windows.Controls.Primitives;
 
 namespace AAP.UI.Controls
 {
-    public class ASCIIArtCanvasVisual : FrameworkElement
+    public class ASCIIArtCanvasVisual : FrameworkElement, IInputElement
     {
         public readonly static double MinCanvasTextSize = 1;
         public readonly static double MinHighlightRectThickness = 1;
@@ -755,11 +756,11 @@ namespace AAP.UI.Controls
             }
         }
 
-        private void DisplayArtCropped(ASCIIArt art)
-            => DrawDisplayArt();
-
         private void DisplayArtSizeChanged(int width, int height)
-            => UpdateBackground();
+        {
+            UpdateBackground();
+            DrawDisplayArt();
+        }
         #endregion
         #region Display Layer Event Implementations
         private void DisplayLayerOffsetChanged(ArtLayer layer, Point oldOffset, Point newOffset)
@@ -788,7 +789,6 @@ namespace AAP.UI.Controls
                 oldDisplayArt.OnArtLayerAdded -= canvas.DisplayArtArtLayerAdded;
                 oldDisplayArt.OnArtLayerIndexChanged -= canvas.DisplayArtArtLayerIndexChanged;
                 oldDisplayArt.OnArtLayerRemoved -= canvas.DisplayArtArtLayerRemoved;
-                oldDisplayArt.OnCropped -= canvas.DisplayArtCropped;
                 oldDisplayArt.OnSizeChanged -= canvas.DisplayArtSizeChanged;
                 oldDisplayArt.OnArtUpdated -= canvas.DisplayArtUpdated;
 
@@ -808,7 +808,6 @@ namespace AAP.UI.Controls
                 newDisplayArt.OnArtLayerAdded += canvas.DisplayArtArtLayerAdded;
                 newDisplayArt.OnArtLayerIndexChanged += canvas.DisplayArtArtLayerIndexChanged;
                 newDisplayArt.OnArtLayerRemoved += canvas.DisplayArtArtLayerRemoved;
-                newDisplayArt.OnCropped += canvas.DisplayArtCropped;
                 newDisplayArt.OnSizeChanged += canvas.DisplayArtSizeChanged;
                 newDisplayArt.OnArtUpdated += canvas.DisplayArtUpdated;
 
@@ -944,7 +943,12 @@ namespace AAP.UI.Controls
         #endregion
 
         #region Mouse Events
-        private void OnMouseMove(object? sender, MouseEventArgs e)
+        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            Keyboard.Focus(this);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
         {
             if (DisplayArt == null)
                 return;
@@ -952,8 +956,30 @@ namespace AAP.UI.Controls
             HighlightArtMatrixPosition(GetArtMatrixPoint(e.GetPosition(this)));
         }
 
-        private void OnMouseLeave(object? sender, MouseEventArgs e)
+        protected override void OnMouseLeave(MouseEventArgs e)
             => MouseHighlightRect = Rect.Empty;
+
+        protected override void OnTextInput(TextCompositionEventArgs e)
+        {
+            if (e.Handled)
+                return;
+
+            if (Tool is not ITextInput textInputTool)
+                return;
+
+            textInputTool.OnTextInput(e.Text);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Handled)
+                return;
+
+            if (Tool is not IKeyInput keyInputTool)
+                return;
+
+            keyInputTool.OnPressedKey(e.Key, e.KeyboardDevice.Modifiers);
+        }
         #endregion
 
         public ASCIIArtCanvasVisual()
@@ -966,8 +992,7 @@ namespace AAP.UI.Controls
                 selectionHighlightsVisual
             };
             
-            MouseMove += OnMouseMove;
-            MouseLeave += OnMouseLeave;
+            RequestBringIntoView += (sender, e) => e.Handled = true; // This causes the scrollviewers to not automatically scroll, thanks WPF >:(
 
             UpdateBackground();
             DrawDisplayArt();

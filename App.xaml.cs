@@ -109,7 +109,7 @@ namespace AAP
         public static Tool? CurrentTool 
         { 
             get => currentTool;
-            set
+            private set
             {
                 if (currentTool == value) 
                     return;
