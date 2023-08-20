@@ -113,14 +113,8 @@ namespace AAP
             {
                 if (currentTool == value) 
                     return;
-
-                if (currentTool != null)
-                    currentTool.OnActivateEnd -= OnToolActivateEnd;
-
+                
                 currentTool = value;
-
-                if (currentTool != null)
-                    currentTool.OnActivateEnd += OnToolActivateEnd;
 
                 OnCurrentToolChanged?.Invoke(value);
 
@@ -1001,12 +995,6 @@ namespace AAP
             characterSelectableTool.Character = character;
 
             ConsoleLogger.Log("Selected Character: " + character.ToString());
-        }
-
-        private static void OnToolActivateEnd(Tool tool, Point position)
-        {
-            if (tool.Type != ToolType.Select && tool.Type != ToolType.Text)
-                currentArtTimeline?.NewTimePoint();
         }
         #endregion
         #region Resources

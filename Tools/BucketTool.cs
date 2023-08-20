@@ -41,7 +41,7 @@ namespace AAP
             }
         }
 
-        private bool stayInsideSelection = true;
+        private bool stayInsideSelection = false;
         public bool StayInsideSelection
         {
             get => stayInsideSelection;
@@ -66,6 +66,7 @@ namespace AAP
         protected override void UseStart(Point startArtPos)
         {
             FillArea(startArtPos);
+            App.CurrentArtTimeline?.NewTimePoint();
         }
 
         public void FillArea(Point artPos)

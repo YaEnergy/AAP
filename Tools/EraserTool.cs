@@ -26,7 +26,7 @@ namespace AAP
             }
         }
 
-        private bool stayInsideSelection = true;
+        private bool stayInsideSelection = false;
         public bool StayInsideSelection
         {
             get => stayInsideSelection;
@@ -56,6 +56,11 @@ namespace AAP
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
             EraseCharacter(currentArtPos);
+        }
+
+        protected override void UseEnd(Point startArtPos, Point endArtPos)
+        {
+            App.CurrentArtTimeline?.NewTimePoint();
         }
 
         public void EraseCharacter(Point artPos)

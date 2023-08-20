@@ -45,6 +45,8 @@ namespace AAP
             if (App.CurrentArt == null)
                 return;
 
+            App.CurrentArtTimeline?.NewTimePoint();
+
             if (App.CurrentArt.ArtLayers[App.CurrentLayerID].Offset == startLayerOffset) //Layer offset remains the same, don't update.
                 return;
 
