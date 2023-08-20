@@ -1,29 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Automation;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using AAP.BackgroundTasks;
 using AAP.Timelines;
 using AAP.UI.Themes;
 using AAP.UI.ViewModels;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 
 namespace AAP.UI.Windows
 {
@@ -583,10 +566,69 @@ namespace AAP.UI.Windows
 
         #region Click Events
         private void NewFileButton_Click(object sender, RoutedEventArgs e)
-            => NewFileAction();
+        {
+            if (currentBackgroundTask != null)
+            {
+                MessageBox.Show("Current background task must be cancelled in order to create a new file.", "New File", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (App.CurrentArt != null)
+            {
+                if (App.CurrentArt.UnsavedChanges)
+                {
+                    MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        BackgroundTask? bgTask = SaveFileAction();
+
+                        if (bgTask == null)
+                            return;
+
+                        currentBackgroundTask = bgTask;
+                        currentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => NewFileAction();
+
+                        return;
+                    }
+                }
+            }
+            
+            NewFileAction();
+        }
 
         private void OpenFileButton_Click(object sender, RoutedEventArgs e)
-            => OpenFileAction();
+        {
+            if (currentBackgroundTask != null)
+            {
+                MessageBox.Show("Current background task must be cancelled in order to open a file.", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (App.CurrentArt != null)
+            {
+                if (App.CurrentArt.UnsavedChanges)
+                {
+                    MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+
+                        BackgroundTask? bgTask = SaveFileAction();
+
+                        if (bgTask == null)
+                            return;
+
+                        currentBackgroundTask = bgTask;
+                        currentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => OpenFileAction();
+
+                        return;
+                    }
+                }
+            }
+
+            OpenFileAction();
+        }
 
         private void SaveFileButton_Click(object sender, RoutedEventArgs e)
             => SaveFileAction();
