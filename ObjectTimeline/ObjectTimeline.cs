@@ -32,6 +32,14 @@ namespace AAP.Timelines
             get => timePoint != Size - 1;
         }
 
+        public delegate void TimeTravelEvent(ObjectTimeline sender);
+        public event TimeTravelEvent? Rolledback;
+
+        public event TimeTravelEvent? Rolledforward;
+
+        public delegate void NewTimePointEvent(ObjectTimeline sender);
+        public event NewTimePointEvent? TimePointCreated;
+
         private int timePoint = 0;
         private readonly ICloneable?[] timeline;
         private readonly ITimelineObject timelineObject;
@@ -46,6 +54,7 @@ namespace AAP.Timelines
             
             timeline[timePoint] = (ICloneable)timelineObject.Clone();
             ConsoleLogger.Log("Created timepoint 0");
+            TimePointCreated?.Invoke(this);
         }
 
         /// <summary>
@@ -73,6 +82,7 @@ namespace AAP.Timelines
                     timeline[i] = null;
 
             ConsoleLogger.Log("Created new time point " +  timePoint);
+            TimePointCreated?.Invoke(this);
         }
 
         /// <summary>
@@ -95,6 +105,7 @@ namespace AAP.Timelines
                 throw new NullReferenceException($"Timepoint {timePoint} in timeline {this} is null!");
 
             ConsoleLogger.Log("Rolled back to time point " + timePoint);
+            Rolledback?.Invoke(this);
         }
 
         /// <summary>
@@ -117,6 +128,7 @@ namespace AAP.Timelines
                 throw new NullReferenceException($"Timepoint {timePoint} in timeline {this} is null!");
 
             ConsoleLogger.Log("Rolled forward to time point " + timePoint);
+            Rolledforward?.Invoke(this);
         }
 
         /// <summary>

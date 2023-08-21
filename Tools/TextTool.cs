@@ -28,10 +28,20 @@ namespace AAP
             }
         }
 
+        private ObjectTimeline? timeline = null;
+
         public TextTool()
         {
             App.OnCurrentArtChanged += OnArtFileChanged;
             App.OnCurrentToolChanged += OnToolChanged;
+
+            timeline = App.CurrentArtTimeline;
+
+            if (timeline != null)
+            {
+                timeline.Rolledback += OnArtTimelineTimeTravel;
+                timeline.Rolledforward += OnArtTimelineTimeTravel;
+            }
         }
 
         protected override void UseStart(Point startArtPos)
@@ -151,7 +161,24 @@ namespace AAP
         {
             if (IsTyping)
                 IsTyping = false;
+
+            if (timeline != null)
+            {
+                timeline.Rolledback -= OnArtTimelineTimeTravel;
+                timeline.Rolledforward -= OnArtTimelineTimeTravel;
+            }
+
+            timeline = artTimeline;
+
+            if (timeline != null)
+            {
+                timeline.Rolledback += OnArtTimelineTimeTravel;
+                timeline.Rolledforward += OnArtTimelineTimeTravel;
+            }
         }
+
+        private void OnArtTimelineTimeTravel(ObjectTimeline artTimeline)
+            => IsTyping = false;
 
         private void OnToolChanged(Tool? tool)
         {
