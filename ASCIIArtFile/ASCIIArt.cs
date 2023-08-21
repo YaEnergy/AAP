@@ -16,7 +16,7 @@ namespace AAP
     [Serializable]
     public class ASCIIArt : ITimelineObject, INotifyPropertyChanged
     {
-        public static readonly char EMPTYCHARACTER = ' '; //Figure Space
+        public static readonly char EMPTYCHARACTER = ' ';//' '; //Figure Space
         public static readonly int VERSION = 3;
 
         public int CreatedInVersion = 3;
