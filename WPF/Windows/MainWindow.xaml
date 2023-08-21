@@ -26,14 +26,14 @@
                 <ToolBar ClipToBounds="True" >
                     <Menu>
                         <MenuItem Header="File">
-                            <MenuItem Header="New" Click="NewFileButton_Click" InputGestureText="Ctrl+N"></MenuItem>
-                            <MenuItem Header="Open" Click="OpenFileButton_Click" InputGestureText="Ctrl+O"></MenuItem>
-                            <MenuItem Header="Save" Click="SaveFileButton_Click" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                            <MenuItem Header="Save As" Click="SaveAsFileButton_Click" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                            <MenuItem Header="Export" Click="ExportButton_Click" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}"></MenuItem>
-                            <MenuItem Header="Copy art to clipboard"  Click="CopyArtToClipboardButton_Click" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}"></MenuItem>
+                            <MenuItem Header="New" InputGestureText="Ctrl+N" Command="{Binding NewFileCommand}"></MenuItem>
+                            <MenuItem Header="Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"></MenuItem>
+                            <MenuItem Header="Save" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveFileCommand}"></MenuItem>
+                            <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveAsFileCommand}"></MenuItem>
+                            <MenuItem Header="Export" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}" Command="{Binding ExportFileCommand}"></MenuItem>
+                            <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Exit" Click="ExitButton_Click" InputGestureText="Alt+F4"></MenuItem>
+                            <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding DataContext.ExitCommand, ElementName=window}"></MenuItem>
                         </MenuItem>
                         <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen}">
                             <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
@@ -178,6 +178,11 @@
                 </ListBox>
             </DockPanel>
             <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}"/>
+            <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Visibility="{Binding BackgroundTaskVisibility}">
+                <Label HorizontalAlignment="Left" Margin="5,5,5,5" Content="{Binding CurrentBackgroundTask.Name, FallbackValue=BackgroundTaskName}" Padding="5,5,5,5" Grid.IsSharedSizeScope="True"/>
+                <ProgressBar IsIndeterminate="{Binding CurrentBackgroundTask.IsDeterminate}" HorizontalContentAlignment="Stretch" Value="{Binding CurrentBackgroundTask.ProgressPercentage}" Margin="5,5,5,5"/>
+            </DockPanel>
+            <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Bottom" Visibility="{Binding BackgroundTaskVisibility}"/>
             <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LightAccent}" Focusable="False">
                 <ScrollViewer.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>

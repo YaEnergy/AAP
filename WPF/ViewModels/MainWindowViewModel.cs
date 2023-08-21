@@ -92,11 +92,13 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        public ICommand? ExitCommand { get; set; }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public MainWindowViewModel()
         {
-
+            ExitCommand = new ActionCommand((parameter) => Application.Current.Shutdown());
         }
     }
 }
