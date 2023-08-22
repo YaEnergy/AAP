@@ -305,6 +305,32 @@ namespace AAP
         }
 
         /// <summary>
+        /// Gets the visible ASCII char at the specified position
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns>char?</returns>
+        public char GetCharacter(int x, int y)
+        {
+            for (int i = 0; i < ArtLayers.Count; i++)
+            {
+                ArtLayer artLayer = ArtLayers[i];
+
+                if (!artLayer.Visible)
+                    continue;
+
+                if (!artLayer.IsPointVisible(x, y))
+                    continue;
+
+                char? character = artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY];
+                if (character != null)
+                    return (char)character;
+            }
+
+            return EMPTYCHARACTER;
+        }
+
+        /// <summary>
         /// Gets the sum of the areas of all layers.
         /// </summary>
         public int GetTotalArtArea()

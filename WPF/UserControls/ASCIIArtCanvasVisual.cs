@@ -15,6 +15,7 @@ using System.Windows.Input;
 using System.Windows.Controls;
 using System.Reflection.Emit;
 using System.Windows.Controls.Primitives;
+using System.Runtime.InteropServices;
 
 namespace AAP.UI.Controls
 {
@@ -317,7 +318,9 @@ namespace AAP.UI.Controls
             }
         }
 
-        private readonly List<int> changedLines = new();
+        private readonly List<int> changedColumns = new();
+
+        private double[] columnWidths = new double[1];
 
         #region Converting between Art Matrix & Art Canvas
         public Point GetArtMatrixPoint(Point canvasPosition)
@@ -327,9 +330,32 @@ namespace AAP.UI.Controls
 
             Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-            Point artMatrixPos = new(Math.Floor((canvasPosition.X - ArtOffset.X) / (nonOffsetCanvasSize.Width / DisplayArt.Width)), Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height)));
+            int artPosX = 0;
+            int artPosY = (int)Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height));
+            double canvasPosX = ArtOffset.X;
 
-            return artMatrixPos;
+            if (canvasPosition.X < canvasPosX) //Out of bounds
+            {
+                artPosX = -1;
+                artPosY = -1;
+            }
+
+            while (canvasPosX < canvasPosition.X)
+            {
+                canvasPosX += columnWidths[artPosX];
+
+                if(canvasPosX < canvasPosition.X)
+                    artPosX++;
+
+                if (artPosX >= DisplayArt.Width) // Out of bounds
+                {
+                    artPosX = -1;
+                    artPosY = -1;
+                    break;
+                }
+            }
+
+            return new(artPosX, artPosY);//artMatrixPos;
         }
 
         public Rect GetCanvasCharacterRectangle(Point artMatrixPosition)
@@ -339,9 +365,29 @@ namespace AAP.UI.Controls
 
             Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-            Point canvasPos = new(artMatrixPosition.X * (nonOffsetCanvasSize.Width / DisplayArt.Width) + ArtOffset.X, artMatrixPosition.Y * (nonOffsetCanvasSize.Height / DisplayArt.Height) + ArtOffset.Y);
+            double defaultWidth = nonOffsetCanvasSize.Width / DisplayArt.Width;
 
-            return new(canvasPos.X - (nonOffsetCanvasSize.Width / DisplayArt.Width / 4), canvasPos.Y, (nonOffsetCanvasSize.Width / DisplayArt.Width), (nonOffsetCanvasSize.Height / DisplayArt.Height));
+            int artPosX = (int)artMatrixPosition.X;
+
+            double canvasPosX = ArtOffset.X;
+            double canvasPosY = artMatrixPosition.Y * LineHeight + ArtOffset.Y;
+
+            if (artPosX < 0)
+                canvasPosX += defaultWidth * artPosX;
+            else
+            {
+                for (int x = 0; x < artPosX; x++)
+                {
+                    if (x >= columnWidths.Length)
+                        canvasPosX += defaultWidth;
+                    else
+                        canvasPosX += columnWidths[x];
+                }
+            }
+
+            double width = artPosX >= columnWidths.Length || artPosX < 0 ? defaultWidth : columnWidths[artPosX];
+
+            return new(canvasPosX - (width / 4), canvasPosY, width, LineHeight);
         }
 
         public Rect GetArtCanvasRectangle(Rect artMatrixRectangle)
@@ -386,14 +432,42 @@ namespace AAP.UI.Controls
         #endregion
 
         #region Drawing
+        protected void UpdateColumnWidth(int x)
+        {
+            if (DisplayArt == null)
+                return;
+
+            if (x < 0 || x >= DisplayArt.Width)
+                return;
+
+            string columnString = "";
+
+            for (int y = 0; y < DisplayArt.Height; y++)
+                columnString += DisplayArt.GetCharacter(x, y) + "\n";
+
+            FormattedText text = new(columnString, CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, Text, 1);
+            columnWidths[x] = text.WidthIncludingTrailingWhitespace;
+        }
+
         /// <summary>
         /// Draws the background with an updated canvas size
         /// </summary>
         protected void UpdateBackground()
         {
-            FormattedText artText = DisplayArt == null ? new(EmptyDisplayArtText, CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, Text, 1) : new(DisplayArt.GetArtString(), CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, Text, 1);
+            if (DisplayArt != null)
+            {
+                double width = ArtOffset.X * 2;
+                foreach (double columnWidth in columnWidths)
+                    width += columnWidth;
 
-            Width = artText.WidthIncludingTrailingWhitespace + ArtOffset.X * 2;
+                Width = width;
+            }
+            else
+            {
+                FormattedText artText = new(EmptyDisplayArtText, CultureInfo.InvariantCulture, FlowDirection, ArtFont, TextSize, Text, 1);
+                Width = artText.WidthIncludingTrailingWhitespace + ArtOffset.X * 2;
+            }
+            
             Height = (DisplayArt == null ? 1 : DisplayArt.Height) * LineHeight + ArtOffset.Y * 2;
             
             DrawBackground();
@@ -409,8 +483,29 @@ namespace AAP.UI.Controls
             dc.DrawRectangle(Background, new(Border, BorderThickness), new(0, 0, Width, Height));
         }
 
+        protected void ResetDisplayArtVisuals()
+        {
+            _children.RemoveRange(1, _children.Count - 3);
+            displayArtVisuals.Clear();
+        }
+
+        protected void CreateDisplayArtVisuals()
+        {
+            if (DisplayArt == null)
+                throw new NullReferenceException("DisplayArt is null!");
+
+            columnWidths = new double[DisplayArt.Width];
+
+            for (int x = 0; x < DisplayArt.Width; x++)
+            {
+                DrawingVisual columnVisual = new();
+                displayArtVisuals.Insert(x, columnVisual);
+                _children.Insert(1 + x, columnVisual);
+            }
+        }
+
         /// <summary>
-        /// Draws all lines of the DisplayArt
+        /// Draws Display Art, updating the canvas if there any neccessary changes
         /// </summary>
         protected void DrawDisplayArt()
         {
@@ -418,11 +513,11 @@ namespace AAP.UI.Controls
             stopwatch.Start();
 
             CultureInfo cultureInfo = CultureInfo.InvariantCulture;
-            
-            _children.RemoveRange(1, _children.Count - 3);
 
             if (DisplayArt == null)
             {
+                ResetDisplayArtVisuals();
+
                 DrawingVisual lineVisual = new();
                 DrawingContext dc = lineVisual.RenderOpen();
 
@@ -433,21 +528,42 @@ namespace AAP.UI.Controls
                 displayArtVisuals.Insert(0, lineVisual);
                 _children.Insert(1, lineVisual);
                 dc.Close();
+
+                UpdateBackground();
             }
             else
-                for (int y = 0; y < DisplayArt.Height; y++)
+            {
+                if (displayArtVisuals.Count != DisplayArt.Width)
                 {
-                    DrawingVisual lineVisual = new();
-                    lineVisual.Offset = new(ArtOffset.X, LineHeight * y + ArtOffset.Y);
+                    ResetDisplayArtVisuals();
 
-                    using DrawingContext dc = lineVisual.RenderOpen();
-                    
-                    FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
-                    dc.DrawText(lineText, new(0, 0));
-
-                    displayArtVisuals.Insert(y, lineVisual);
-                    _children.Insert(1 + y, lineVisual);
+                    CreateDisplayArtVisuals();
                 }
+
+                double offsetX = ArtOffset.X;
+
+                for (int x = 0; x < DisplayArt.Width; x++)
+                {
+                    DrawingVisual columnVisual = displayArtVisuals[x];
+
+                    using DrawingContext dc = columnVisual.RenderOpen();
+
+                    string columnString = "";
+                    for (int y = 0; y < DisplayArt.Height; y++)
+                        columnString += DisplayArt.GetCharacter(x, y) + "\n";
+
+                    FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
+                    charText.LineHeight = LineHeight;
+                    dc.DrawText(charText, new(0, 0));
+
+                    columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
+
+                    columnVisual.Offset = new(offsetX, ArtOffset.Y);
+                    offsetX += columnWidths[x];
+                }
+
+                UpdateBackground();
+            }
 
             stopwatch.Stop();
             ConsoleLogger.Inform("Drew full canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
@@ -463,22 +579,53 @@ namespace AAP.UI.Controls
             if (DisplayArt == null) 
                 throw new NullReferenceException(nameof(DisplayArt));
 
-            if (changedLines.Count <= 0)
+            if (changedColumns.Count <= 0)
                 return;
             
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            foreach (int y in changedLines)
+            int lowestColumnNumWidthChanged = -1;
+            foreach (int x in changedColumns)
             {
-                FormattedText lineText = new(DisplayArt.GetLineString(y), cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
+                DrawingVisual columnVisual = displayArtVisuals[x];
+                using DrawingContext dc = columnVisual.RenderOpen();
 
-                DrawingVisual lineVisual = displayArtVisuals[y];
-                using DrawingContext dc = lineVisual.RenderOpen();
-                dc.DrawText(lineText, new(0, 0));
+                string columnString = "";
+                for (int y = 0; y < DisplayArt.Height; y++)
+                    columnString += DisplayArt.GetCharacter(x, y) + "\n";
+
+                FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
+                charText.LineHeight = LineHeight;
+                dc.DrawText(charText, new(0, 0));
+
+                if (columnWidths[x] != charText.WidthIncludingTrailingWhitespace)
+                {
+                    columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
+
+                    if (lowestColumnNumWidthChanged > x || lowestColumnNumWidthChanged == -1)
+                        lowestColumnNumWidthChanged = x;
+                }
             }
 
-            changedLines.Clear();
+            if (lowestColumnNumWidthChanged != -1) //Update background and art column visual offsets if a column width has changed
+            {
+                UpdateBackground();
+
+                double visualPosX = ArtOffset.X;
+
+                for (int x = 0; x < lowestColumnNumWidthChanged; x++)
+                    visualPosX += columnWidths[x];
+
+                for (int x = lowestColumnNumWidthChanged; x < DisplayArt.Width; x++)
+                {
+                    DrawingVisual columnVisual = displayArtVisuals[x];
+                    columnVisual.Offset = new(visualPosX, ArtOffset.Y);
+                    visualPosX += columnWidths[x];
+                }
+            }
+
+            changedColumns.Clear();
 
             stopwatch.Stop();
             ConsoleLogger.Inform("Updated canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
@@ -562,9 +709,9 @@ namespace AAP.UI.Controls
 
             foreach(Point point in positions)
             {
-                int y = (int)point.Y;
-                if (!changedLines.Contains(y) && y >= 0 && y < DisplayArt.Height)
-                    changedLines.Add(y);
+                int x = (int)point.X;
+                if (!changedColumns.Contains(x) && x >= 0 && x < DisplayArt.Width)
+                    changedColumns.Add(x);
             }
         }
 
@@ -578,16 +725,16 @@ namespace AAP.UI.Controls
             artLayer.OffsetChanged += DisplayArtArtLayerOffsetChanged;
             artLayer.Cropped += DisplayArtArtLayerCropped;
 
-            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            for (int x = artLayer.OffsetX; x < artLayer.OffsetX + artLayer.Width; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 
@@ -596,16 +743,16 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
-            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            for (int x = artLayer.OffsetX; x < artLayer.OffsetX + artLayer.Width; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 
@@ -619,16 +766,16 @@ namespace AAP.UI.Controls
             artLayer.OffsetChanged -= DisplayArtArtLayerOffsetChanged;
             artLayer.Cropped -= DisplayArtArtLayerCropped;
 
-            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+            for (int x = artLayer.OffsetX; x < artLayer.OffsetX + artLayer.Width; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 
@@ -639,31 +786,31 @@ namespace AAP.UI.Controls
 
             if (oldData[0] != null)
             {
-                for (int y = artLayer.OffsetY; y < artLayer.OffsetY + oldData[0].Length; y++)
+                for (int x = artLayer.OffsetX; x < artLayer.OffsetX + oldData[0].Length; x++)
                 {
-                    if (y < 0)
+                    if (x < 0)
                         continue;
 
-                    if (y >= DisplayArt.Height)
+                    if (x >= DisplayArt.Width)
                         break;
 
-                    if (!changedLines.Contains(y))
-                        changedLines.Add(y);
+                    if (!changedColumns.Contains(x))
+                        changedColumns.Add(x);
                 }
             }
 
             if (newData[0] != null)
             {
-                for (int y = artLayer.OffsetY; y < artLayer.OffsetY + newData[0].Length; y++)
+                for (int x = artLayer.OffsetX; x < artLayer.OffsetX + newData[0].Length; x++)
                 {
-                    if (y < 0)
+                    if (x < 0)
                         continue;
 
-                    if (y >= DisplayArt.Height)
+                    if (x >= DisplayArt.Width)
                         break;
-    
-                    if (!changedLines.Contains(y))
-                        changedLines.Add(y);
+
+                    if (!changedColumns.Contains(x))
+                        changedColumns.Add(x);
                 }
             }
         }
@@ -672,17 +819,17 @@ namespace AAP.UI.Controls
         {
             if (DisplayArt == null)
                 return;
-            
-            for (int y = artLayer.OffsetY; y < artLayer.OffsetY + artLayer.Height; y++)
+
+            for (int x = artLayer.OffsetX; x < artLayer.OffsetX + artLayer.Width; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 
@@ -691,32 +838,32 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
-            int oldOffsetY = (int)oldOffset.Y;
+            int oldOffsetX = (int)oldOffset.X;
 
-            for (int y = oldOffsetY; y < oldOffsetY + artLayer.Height; y++)
+            for (int x = oldOffsetX; x < oldOffsetX + artLayer.Width; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
 
-            int newOffsetY = (int)newOffset.Y;
+            int newOffsetX = (int)newOffset.X;
 
-            for (int y = newOffsetY; y < newOffsetY + artLayer.Height; y++)
+            for (int x = newOffsetX; x < newOffsetX + artLayer.Width; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 
@@ -725,34 +872,34 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
-            int oldOffsetY = (int)oldRect.Y;
-            int oldHeight = (int)oldRect.Height;
+            int oldOffsetX = (int)oldRect.X;
+            int oldWidth = (int)oldRect.Width;
 
-            for (int y = oldOffsetY; y < oldOffsetY + oldHeight; y++)
+            for (int x = oldOffsetX; x < oldOffsetX + oldWidth; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
 
-            int newOffsetY = (int)newRect.Y;
-            int newHeight = (int)newRect.Height;
+            int newOffsetX = (int)newRect.X;
+            int newWidth = (int)newRect.Width;
 
-            for (int y = newOffsetY; y < newOffsetY + newHeight; y++)
+            for (int x = newOffsetX; x < newOffsetX + newWidth; x++)
             {
-                if (y < 0)
+                if (x < 0)
                     continue;
 
-                if (y >= DisplayArt.Height)
+                if (x >= DisplayArt.Width)
                     break;
 
-                if (!changedLines.Contains(y))
-                    changedLines.Add(y);
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 
@@ -777,9 +924,6 @@ namespace AAP.UI.Controls
         {
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
-
-            canvas.UpdateBackground();
-            canvas.DrawDisplayArt();
 
             ASCIIArt? oldDisplayArt = (ASCIIArt?)e.OldValue;
             ASCIIArt? newDisplayArt = (ASCIIArt?)e.NewValue;
@@ -822,6 +966,8 @@ namespace AAP.UI.Controls
                 if (oldDisplayArt == null)
                     canvas.MouseLeftButtonDown += canvas.ToolActivateStart;
             }
+            
+            canvas.DrawDisplayArt();
         }
 
         private static void OnDisplayArtDrawPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
@@ -942,7 +1088,7 @@ namespace AAP.UI.Controls
         #endregion
         #endregion
 
-        #region Mouse Events
+        #region Canvas Events
         protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             Keyboard.Focus(this);
@@ -980,6 +1126,12 @@ namespace AAP.UI.Controls
 
             keyInputTool.OnPressedKey(e.Key, e.KeyboardDevice.Modifiers);
         }
+
+        private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
+        {
+            DrawSelectionHighlights();
+            DrawDisplayLayerHighlight();
+        }
         #endregion
 
         public ASCIIArtCanvasVisual()
@@ -993,6 +1145,7 @@ namespace AAP.UI.Controls
             };
             
             RequestBringIntoView += (sender, e) => e.Handled = true; // This causes the scrollviewers to not automatically scroll, thanks WPF >:(
+            SizeChanged += OnSizeChanged;
 
             UpdateBackground();
             DrawDisplayArt();
