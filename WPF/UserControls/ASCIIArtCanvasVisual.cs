@@ -330,32 +330,27 @@ namespace AAP.UI.Controls
 
             Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
+            double defaultWidth = nonOffsetCanvasSize.Width / DisplayArt.Width;
+
             int artPosX = 0;
             int artPosY = (int)Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height));
             double canvasPosX = ArtOffset.X;
 
             if (canvasPosition.X < canvasPosX) //Out of bounds
-            {
-                artPosX = -1;
-                artPosY = -1;
-            }
+                artPosX = (int)Math.Floor((canvasPosition.X - ArtOffset.X) / defaultWidth);
 
             while (canvasPosX < canvasPosition.X)
             {
-                canvasPosX += columnWidths[artPosX];
+                if (artPosX >= DisplayArt.Width) //Out of bounds x
+                    canvasPosX += defaultWidth;
+                else
+                    canvasPosX += columnWidths[artPosX];
 
                 if(canvasPosX < canvasPosition.X)
                     artPosX++;
-
-                if (artPosX >= DisplayArt.Width) // Out of bounds
-                {
-                    artPosX = -1;
-                    artPosY = -1;
-                    break;
-                }
             }
 
-            return new(artPosX, artPosY);//artMatrixPos;
+            return new(artPosX, artPosY);
         }
 
         public Rect GetCanvasCharacterRectangle(Point artMatrixPosition)
