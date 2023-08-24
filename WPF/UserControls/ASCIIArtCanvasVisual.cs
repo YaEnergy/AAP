@@ -779,34 +779,28 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 return;
 
-            if (oldData[0] != null)
+            for (int x = artLayer.OffsetX; x < artLayer.OffsetX + oldData.Length; x++)
             {
-                for (int x = artLayer.OffsetX; x < artLayer.OffsetX + oldData[0].Length; x++)
-                {
-                    if (x < 0)
-                        continue;
+                if (x < 0)
+                    continue;
 
-                    if (x >= DisplayArt.Width)
-                        break;
+                if (x >= DisplayArt.Width)
+                    break;
 
-                    if (!changedColumns.Contains(x))
-                        changedColumns.Add(x);
-                }
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
 
-            if (newData[0] != null)
+            for (int x = artLayer.OffsetX; x < artLayer.OffsetX + newData.Length; x++)
             {
-                for (int x = artLayer.OffsetX; x < artLayer.OffsetX + newData[0].Length; x++)
-                {
-                    if (x < 0)
-                        continue;
+                if (x < 0)
+                    continue;
 
-                    if (x >= DisplayArt.Width)
-                        break;
+                if (x >= DisplayArt.Width)
+                    break;
 
-                    if (!changedColumns.Contains(x))
-                        changedColumns.Add(x);
-                }
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
             }
         }
 

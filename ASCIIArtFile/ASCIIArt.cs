@@ -375,6 +375,7 @@ namespace AAP
             if (obj is not ASCIIArt toCopy)
                 return;
 
+
             for (int i = 0; i < Math.Max(ArtLayers.Count, toCopy.ArtLayers.Count); i++)
             {
                 if (i >= ArtLayers.Count) //Readd layer
