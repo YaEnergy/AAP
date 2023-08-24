@@ -94,7 +94,7 @@ namespace AAP.UI.Controls
             name: "Border",
             propertyType: typeof(Brush),
             ownerType: typeof(ASCIIArtCanvasVisual),
-            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnBorderBrushPropertyChangedCallBack));
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Black, OnBackgroundBrushPropertyChangedCallBack));
 
         public Brush Border
         {
@@ -113,7 +113,7 @@ namespace AAP.UI.Controls
             name: "BorderThickness",
             propertyType: typeof(double),
             ownerType: typeof(ASCIIArtCanvasVisual),
-            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 1d, OnBorderThicknessPropertyChangedCallBack));
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 1d, OnThicknessPropertyChangedCallBack));
 
         public double BorderThickness
         {
@@ -124,6 +124,44 @@ namespace AAP.UI.Controls
                     return;
 
                 SetValue(BorderThicknessProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty GridProperty =
+        DependencyProperty.Register(
+            name: "Grid",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.LightGray, OnBackgroundBrushPropertyChangedCallBack));
+
+        public Brush Grid
+        {
+            get => (Brush)GetValue(GridProperty);
+            set
+            {
+                if (Grid == value)
+                    return;
+
+                SetValue(GridProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty GridLineThicknessProperty =
+        DependencyProperty.Register(
+            name: "GridLineThickness",
+            propertyType: typeof(double),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 1d, OnThicknessPropertyChangedCallBack));
+
+        public double GridLineThickness
+        {
+            get => (double)GetValue(GridLineThicknessProperty);
+            set
+            {
+                if (GridLineThickness == value)
+                    return;
+
+                SetValue(GridLineThicknessProperty, value);
             }
         }
         #endregion
@@ -319,7 +357,7 @@ namespace AAP.UI.Controls
         }
 
         private readonly List<int> changedColumns = new();
-
+        
         private double[] columnWidths = new double[1];
 
         #region Converting between Art Matrix & Art Canvas
@@ -476,6 +514,28 @@ namespace AAP.UI.Controls
             using DrawingContext dc = backgroundVisual.RenderOpen();
 
             dc.DrawRectangle(Background, new(Border, BorderThickness), new(0, 0, Width, Height));
+
+            if (DisplayArt != null)
+            {
+                Pen gridLinePen = new(Grid, GridLineThickness);
+                Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
+
+                double defaultWidth = nonOffsetCanvasSize.Width / DisplayArt.Width;
+
+                double posX = ArtOffset.X;
+                for (int x = 0; x <= DisplayArt.Width; x++)
+                {
+                    dc.DrawLine(gridLinePen, new(posX, ArtOffset.Y), new(posX, Height - ArtOffset.Y));
+                    
+                    if (x >= columnWidths.Length)
+                        posX += defaultWidth;
+                    else
+                        posX += columnWidths[x];
+                }
+
+                for (int y = 0; y <= DisplayArt.Height; y++)
+                    dc.DrawLine(gridLinePen, new(ArtOffset.X, ArtOffset.Y + LineHeight * y), new(Width - ArtOffset.X, ArtOffset.Y + LineHeight * y));
+            }
         }
 
         protected void ResetDisplayArtVisuals()
@@ -1037,15 +1097,7 @@ namespace AAP.UI.Controls
             canvas.DrawBackground();
         }
 
-        private static void OnBorderBrushPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is not ASCIIArtCanvasVisual canvas)
-                return;
-
-            canvas.DrawBackground();
-        }
-
-        private static void OnBorderThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        private static void OnThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;

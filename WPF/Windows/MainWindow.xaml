@@ -187,7 +187,7 @@
                 <ScrollViewer.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
                 </ScrollViewer.DataContext>
-                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen"/>
+                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen"/>
             </ScrollViewer>
         </DockPanel>
     </Grid>
