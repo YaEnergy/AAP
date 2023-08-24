@@ -42,7 +42,7 @@ namespace AAP
             {
                 currentArt = value;
                 currentArtDraw = value == null ? null : new(value);
-                currentArtTimeline = value == null ? null : new(value, 25);
+                currentArtTimeline = value == null ? null : new(value);
                 OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw, currentArtTimeline);
             }
         }

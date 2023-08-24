@@ -12,24 +12,14 @@ namespace AAP.Timelines
     /// </summary>
     public class ObjectTimeline
     {
-        public int SizeLimit
-        {
-            get => timeline.Length;
-        }
-
-        public int Size
-        {
-            get => timeline.Count(x => x != null);
-        }
-
         public bool CanRollback
         {
-            get => timePoint != 0;
+            get => timeline.Count > 1;
         }
 
         public bool CanRollforward
         {
-            get => timePoint != Size - 1;
+            get => future.Count <= 0;
         }
 
         public delegate void TimeTravelEvent(ObjectTimeline sender);
@@ -40,21 +30,19 @@ namespace AAP.Timelines
         public delegate void NewTimePointEvent(ObjectTimeline sender);
         public event NewTimePointEvent? TimePointCreated;
 
-        private int timePoint = 0;
-        private readonly ICloneable?[] timeline;
+        private readonly Stack<ICloneable?> timeline = new();
+        private readonly Stack<ICloneable?> future = new();
+
         private readonly ITimelineObject timelineObject;
 
         /// <summary>
         /// TimelineObject must include a method to DEEP CLONE the object.
         /// </summary>
-        public ObjectTimeline(ITimelineObject timelineObject, int sizeLimit)
+        public ObjectTimeline(ITimelineObject timelineObject)
         {
             this.timelineObject = timelineObject;
-            this.timeline = new ICloneable?[sizeLimit];
-            
-            timeline[timePoint] = (ICloneable)timelineObject.Clone();
-            ConsoleLogger.Log("Created timepoint 0");
-            TimePointCreated?.Invoke(this);
+
+            NewTimePoint();
         }
 
         /// <summary>
@@ -62,26 +50,13 @@ namespace AAP.Timelines
         /// </summary>
         public void NewTimePoint()
         {
-            if (timePoint == SizeLimit - 1)
-            {
-                //Shift all elements in the timeline down by one, getting rid of element index 0 and having index SizeLimit - 1 as null
-                for (int i = 0; i < SizeLimit - 1; i++)
-                    timeline[i] = timeline[i + 1];
-
-                timeline[SizeLimit - 1] = null;
-            }
-            else
-                timePoint++;
+            if (future.Count > 0)
+                future.Clear();
 
             ICloneable deepCopyCloneable = (ICloneable)timelineObject.Clone();
-            timeline[timePoint] = deepCopyCloneable;
+            timeline.Push(deepCopyCloneable);
 
-            //Destroy now incorrect future, if there is one
-            if (timePoint != Size - 1)
-                for (int i = Math.Clamp(timePoint + 1, 0, SizeLimit - 1); i < SizeLimit; i++)
-                    timeline[i] = null;
-
-            ConsoleLogger.Log("Created new time point " +  timePoint);
+            ConsoleLogger.Log("Created new time point");
             TimePointCreated?.Invoke(this);
         }
 
@@ -90,21 +65,23 @@ namespace AAP.Timelines
         /// </summary>
         public void Rollback()
         {
-            if (!CanRollback)
+            if (timeline.Count <= 1)
                 return;
 
-            timePoint--;
+            ICloneable? rolledbackTimeObject = timeline.Pop();
+            ICloneable? newCurrentTimeObject = timeline.Peek();
 
-            ICloneable? timeObjectCloneable = timeline[timePoint];
-            if (timeObjectCloneable != null)
+            future.Push(rolledbackTimeObject);
+
+            if (newCurrentTimeObject != null)
             {
-                object clone = timeObjectCloneable.Clone();
+                object clone = newCurrentTimeObject.Clone();
                 timelineObject.CopyPropertiesOf(clone);
             }
             else
-                throw new NullReferenceException($"Timepoint {timePoint} in timeline {this} is null!");
+                throw new NullReferenceException($"Timepoint in timeline {this} is null!");
 
-            ConsoleLogger.Log("Rolled back to time point " + timePoint);
+            ConsoleLogger.Log("Rolled back timepoint");
             Rolledback?.Invoke(this);
         }
 
@@ -113,37 +90,23 @@ namespace AAP.Timelines
         /// </summary>
         public void Rollforward()
         {
-            if (!CanRollforward)
+            if (future.Count <= 0)
                 return;
 
-            timePoint++;
+            ICloneable? newCurrentTimeObject = future.Pop();
 
-            ICloneable? timeObjectCloneable = timeline[timePoint];
-            if (timeObjectCloneable != null)
+            timeline.Push(newCurrentTimeObject);
+
+            if (newCurrentTimeObject != null)
             {
-                object clone = timeObjectCloneable.Clone();
+                object clone = newCurrentTimeObject.Clone();
                 timelineObject.CopyPropertiesOf(clone);
             }
             else
-                throw new NullReferenceException($"Timepoint {timePoint} in timeline {this} is null!");
+                throw new NullReferenceException($"Timepoint in timeline {this} is null!");
 
-            ConsoleLogger.Log("Rolled forward to time point " + timePoint);
+            ConsoleLogger.Log("Rolled forward time point");
             Rolledforward?.Invoke(this);
-        }
-
-        /// <summary>
-        /// Destroys the past of the timeline object, with the current time point set to index 0.
-        /// </summary>
-        public void DestroyPast()
-        {
-            int pastAmount = timePoint;
-            for (int i = 0; i < timePoint; i++)
-                timeline[i] = null;
-
-            for(int i = timePoint; i < SizeLimit; i++)
-                timeline[i - pastAmount] = timeline[i];
-
-            timePoint = 0;
         }
     }
 }
