@@ -66,6 +66,8 @@
                                 <MenuItem Header="Increase thickness" Command="{Binding DataContext.IncreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
                                 <MenuItem Header="Decrease thickness" Command="{Binding DataContext.DecreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
                                 <MenuItem Header="Reset thickness" Command="{Binding DataContext.ResetHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                                <Separator></Separator>
+                                <MenuItem Header="Show Grid" IsChecked="{Binding DataContext.ShowGrid, ElementName=artCanvas}" IsCheckable="True"></MenuItem>
                             </MenuItem>
                             <MenuItem Header="Layer Management">
                                 <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding DataContext.IsLayerManagementVisible, ElementName=window}"></MenuItem>
@@ -187,7 +189,7 @@
                 <ScrollViewer.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
                 </ScrollViewer.DataContext>
-                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen"/>
+                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen" ShowGrid="{Binding ShowGrid}"/>
             </ScrollViewer>
         </DockPanel>
     </Grid>

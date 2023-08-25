@@ -43,6 +43,20 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool showGrid = true;
+        public bool ShowGrid
+        {
+            get => showGrid;
+            set
+            {
+                if (showGrid == value)
+                    return;
+
+                showGrid = value;
+                PropertyChanged?.Invoke(this, new(nameof(ShowGrid)));
+            }
+        }
+
         private ASCIIArt? currentArt = null;
         public ASCIIArt? CurrentArt
         {

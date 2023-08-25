@@ -164,6 +164,25 @@ namespace AAP.UI.Controls
                 SetValue(GridLineThicknessProperty, value);
             }
         }
+
+        public static readonly DependencyProperty ShowGridProperty =
+        DependencyProperty.Register(
+            name: "ShowGrid",
+            propertyType: typeof(bool),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: true, OnShowGridPropertyChangedCallBack));
+
+        public bool ShowGrid
+        {
+            get => (bool)GetValue(ShowGridProperty);
+            set
+            {
+                if (ShowGrid == value)
+                    return;
+
+                SetValue(ShowGridProperty, value);
+            }
+        }
         #endregion
 
         private Point ArtOffset = new(8, 8);
@@ -515,7 +534,7 @@ namespace AAP.UI.Controls
 
             dc.DrawRectangle(Background, new(Border, BorderThickness), new(0, 0, Width, Height));
 
-            if (DisplayArt != null)
+            if (DisplayArt != null && ShowGrid)
             {
                 Pen gridLinePen = new(Grid, GridLineThickness);
                 Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
@@ -1098,6 +1117,14 @@ namespace AAP.UI.Controls
         }
 
         private static void OnThicknessPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawBackground();
+        }
+
+        private static void OnShowGridPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
