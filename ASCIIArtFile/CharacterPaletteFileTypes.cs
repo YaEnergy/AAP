@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace AAP
                 throw new Exception($"CharacterPalette.ImportFilePath(path: {FilePath}): txt file contains no lines!");
 
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Getting characters...", true));
-            List<char> characters = new();
+            ObservableCollection<char> characters = new();
 
             foreach (string line in txtLines)
                 foreach (char character in line.ToCharArray())
@@ -113,6 +114,7 @@ namespace AAP
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Finishing up...", true));
             FileObject.Name = importedPalette.Name;
             FileObject.Characters = importedPalette.Characters;
+            FileObject.IsPresetPalette = importedPalette.IsPresetPalette;
         }
 
         public bool Export(BackgroundWorker? bgWorker = null)

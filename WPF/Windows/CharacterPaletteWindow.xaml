@@ -1,0 +1,23 @@
+﻿<Window x:Class="AAP.UI.Windows.CharacterPaletteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AAP.UI.Windows" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels"
+        mc:Ignorable="d"
+        Title="Character Palette" MinWidth="250" MinHeight="150" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MaxWidth="350" MaxHeight="400">
+    <DockPanel Background="{DynamicResource Background}">
+        <DockPanel.DataContext>
+            <viewmodels:CharacterPaletteWindowViewModel x:Name="WindowViewModel"/>
+        </DockPanel.DataContext>
+        <DockPanel DockPanel.Dock="Top" Margin="10,5,10,5">
+            <Label Content="Name"></Label>
+            <TextBox Margin="10,5,10,5" Text="{Binding PaletteName}"/>
+        </DockPanel>
+        <WrapPanel DockPanel.Dock="Top" Margin="10,5,10,5">
+            <Label Content="Characters"></Label>
+            <TextBox Margin="10,5,10,5" Text="{Binding PaletteString}" MinWidth="100"/>
+        </WrapPanel>
+        <Button Content="{Binding CloseButtonContent}" Margin="10,0,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Command="{Binding CloseButtonCommand}"/>
+    </DockPanel>
+</Window>

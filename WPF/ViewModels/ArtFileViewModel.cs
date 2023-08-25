@@ -112,24 +112,8 @@ namespace AAP.UI.ViewModels
                     return;
 
                 currentBackgroundTask = value;
-                BackgroundTaskVisibility = CurrentBackgroundTask == null ? Visibility.Collapsed : Visibility.Visible;
 
                 PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTask)));
-            }
-        }
-
-        private Visibility backgroundTaskVisibility = Visibility.Collapsed;
-        public Visibility BackgroundTaskVisibility
-        {
-            get => backgroundTaskVisibility;
-            set
-            {
-                if (backgroundTaskVisibility == value)
-                    return;
-
-                backgroundTaskVisibility = value;
-
-                PropertyChanged?.Invoke(this, new(nameof(BackgroundTaskVisibility)));
             }
         }
 

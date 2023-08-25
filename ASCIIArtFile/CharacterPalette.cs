@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -27,8 +28,8 @@ namespace AAP
             }
         }
 
-        private List<char> characters = new();
-        public List<char> Characters
+        private ObservableCollection<char> characters = new();
+        public ObservableCollection<char> Characters
         {
             get => characters;
             set
@@ -41,6 +42,21 @@ namespace AAP
             }
         }
 
+        private bool isPresetPalette = false;
+        public bool IsPresetPalette
+        {
+            get => isPresetPalette;
+            set
+            {
+                if (isPresetPalette == value)
+                    return;
+
+                isPresetPalette = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(IsPresetPalette)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public CharacterPalette()
@@ -49,7 +65,7 @@ namespace AAP
         }
 
         [JsonConstructor]
-        public CharacterPalette(string name, List<char> characters)
+        public CharacterPalette(string name, ObservableCollection<char> characters)
         {
             this.name = name;
             this.characters = characters;

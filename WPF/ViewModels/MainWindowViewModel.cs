@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using AAP.BackgroundTasks;
 using AAP.Timelines;
 using AAP.UI.Controls;
 
@@ -15,6 +16,37 @@ namespace AAP.UI.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        private BackgroundTask? currentBackgroundTask = null;
+        public BackgroundTask? CurrentBackgroundTask
+        {
+            get => currentBackgroundTask;
+            set
+            {
+                if (currentBackgroundTask == value)
+                    return;
+
+                currentBackgroundTask = value;
+                BackgroundTaskVisibility = CurrentBackgroundTask == null ? Visibility.Collapsed : Visibility.Visible;
+
+                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTask)));
+            }
+        }
+
+        private Visibility backgroundTaskVisibility = Visibility.Collapsed;
+        public Visibility BackgroundTaskVisibility
+        {
+            get => backgroundTaskVisibility;
+            set
+            {
+                if (backgroundTaskVisibility == value)
+                    return;
+
+                backgroundTaskVisibility = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(BackgroundTaskVisibility)));
+            }
+        }
+
         private bool isDarkModeOn = false;
         public bool IsDarkModeOn
         {

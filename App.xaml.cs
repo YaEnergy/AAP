@@ -1,6 +1,7 @@
 ﻿using AAP.BackgroundTasks;
 using AAP.Timelines;
 using AAP.UI.Themes;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -143,13 +144,13 @@ namespace AAP
         public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette palette);
         public static event OnCurrentCharacterPaletteChangedEvent? OnCurrentCharacterPaletteChanged;
 
-        private static readonly List<CharacterPalette> characterPalettes = new();
-        public static List<CharacterPalette> CharacterPalettes 
+        private static readonly ObservableCollection<CharacterPalette> characterPalettes = new();
+        public static ObservableCollection<CharacterPalette> CharacterPalettes 
         { 
             get => characterPalettes; 
         }
 
-        public delegate void OnAvailableCharacterPalettesChangedEvent(List<CharacterPalette> palette);
+        public delegate void OnAvailableCharacterPalettesChangedEvent(ObservableCollection<CharacterPalette> palette);
         public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
 
         private static Theme appTheme = Theme.Light;
@@ -256,6 +257,8 @@ namespace AAP
                 TXTCharacterPalette presetTxTCharacterPalette = new(palette, presetFileInfo.FullName);
                 presetTxTCharacterPalette.Import();
 
+                palette.IsPresetPalette = true;
+
                 AAPPALCharacterPalette aappalCharacterPalette = new(palette, presetCharacterPaletteFilePath);
                 aappalCharacterPalette.Export();
 
@@ -267,21 +270,12 @@ namespace AAP
             //Character Palettes
             foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
             {
+                if (fileInfo.Extension.ToLower() != ".aappal")
+                    continue;
+
                 CharacterPalette palette = new();
 
-                IAAPFile<CharacterPalette> fileCharacterPalette;
-                switch(fileInfo.Extension.ToLower())
-                {
-                    case ".aappal":
-                        fileCharacterPalette = new AAPPALCharacterPalette(palette, fileInfo.FullName);
-                        break;
-                    case ".txt":
-                        fileCharacterPalette = new TXTCharacterPalette(palette, fileInfo.FullName);
-                        break;
-                    default:
-                        ConsoleLogger.Warn("Invalid character palette extension " + fileInfo.Extension);
-                        continue;
-                }
+                AAPPALCharacterPalette fileCharacterPalette = new(palette, fileInfo.FullName);
 
                 fileCharacterPalette.Import();
 
@@ -995,6 +989,112 @@ namespace AAP
             characterSelectableTool.Character = character;
 
             ConsoleLogger.Log("Selected Character: " + character.ToString());
+        }
+        #endregion
+        #region Palettes
+        public static BackgroundTask? ExportPaletteAsync(CharacterPalette palette)
+        {
+            string path = $@"{CharacterPaletteDirectoryPath}\{palette.Name}.aappal";
+            FileInfo fileInfo = new(path);
+
+            BackgroundWorker bgWorker = new();
+            bgWorker.WorkerSupportsCancellation = true;
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.DoWork += ExportWork;
+            bgWorker.RunWorkerCompleted += ExportWorkComplete;
+
+            ConsoleLogger.Log("Export Palette: Running BackgroundWorker");
+            bgWorker.RunWorkerAsync();
+
+            void ExportWork(object? sender, DoWorkEventArgs args)
+            {
+                if (sender is not BackgroundWorker bgWorker)
+                    throw new Exception("Sender is not a background worker!");
+
+                ConsoleLogger.Log("Export Palette: Exporting art file to " + path);
+
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Exporting as {fileInfo.Extension} file...", true));
+
+                AAPPALCharacterPalette aAPPALCharacterPalette = new(palette, path);
+
+                bool exportSuccess = aAPPALCharacterPalette.Export(bgWorker);
+
+                if (bgWorker.CancellationPending && !exportSuccess)
+                {
+                    args.Cancel = true;
+                    return;
+                }
+
+                args.Result = palette;
+            }
+
+            void ExportWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
+            {
+                if (e.Error != null)
+                    ConsoleLogger.Error("Export Palette: ", e.Error);
+                else if (e.Cancelled)
+                    ConsoleLogger.Inform("Export Palette: Palette file export cancelled");
+                else
+                {
+                    if (e.Result is not CharacterPalette palette)
+                        ConsoleLogger.Warn("Export Palette: Palette file export was successful, but result is not CharacterPalette");
+                    else
+                        ConsoleLogger.Log("Export Palette: Palette file exported to " + fileInfo.FullName + "!");
+                }
+            }
+
+            return new($"Exporting palette to {fileInfo.Name}...", bgWorker);
+        }
+
+        public static BackgroundTask? RemovePaletteAsync(CharacterPalette palette)
+        {
+            CharacterPalettes.Remove(palette);
+
+            string path = $@"{CharacterPaletteDirectoryPath}\{palette.Name}.aappal";
+            FileInfo fileInfo = new(path);
+
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException("Can not remove unknown file!", fileInfo.FullName);
+
+            BackgroundWorker bgWorker = new();
+            bgWorker.WorkerSupportsCancellation = false;
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.DoWork += RemoveWork;
+            bgWorker.RunWorkerCompleted += RemoveWorkComplete;
+
+            ConsoleLogger.Log("Remove Palette: Running BackgroundWorker");
+            bgWorker.RunWorkerAsync();
+
+            void RemoveWork(object? sender, DoWorkEventArgs args)
+            {
+                if (sender is not BackgroundWorker bgWorker)
+                    throw new Exception("Sender is not a background worker!");
+
+                ConsoleLogger.Log("Export Palette: Exporting art file to " + path);
+
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Deleting file...", true));
+
+                File.Delete(path);
+
+                args.Result = palette;
+            }
+
+            void RemoveWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
+            {
+                if (e.Error != null)
+                    ConsoleLogger.Error("Remove Palette: ", e.Error);
+                else if (e.Cancelled)
+                    ConsoleLogger.Inform("Remove Palette: Palette file remove cancelled");
+                else
+                {
+                    if (e.Result is not CharacterPalette palette)
+                        ConsoleLogger.Warn("Remove Palette: Palette file remove was successful, but result is not CharacterPalette");
+                    else
+                        ConsoleLogger.Log("Remove Palette: Palette file remove to " + fileInfo.FullName + "!");
+                }
+            }
+
+            return new($"Removing palette {fileInfo.Name}...", bgWorker);
         }
         #endregion
         #region Resources

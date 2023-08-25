@@ -32,6 +32,8 @@
     <None Remove="Resources\DuplicateLayerIcon.png" />
     <None Remove="Resources\EraserToolIcon.png" />
     <None Remove="Resources\highlightbox.png" />
+    <None Remove="Resources\Images\Icons\Dark\PaletteEditIcon.png" />
+    <None Remove="Resources\Images\Icons\Light\PaletteEditIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\DestroyLayerIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\DuplicateLayerIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\MergeLayerIcon.png" />
@@ -60,6 +62,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Images\Icons\Dark\PaletteEditIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\Icons\Light\PaletteEditIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Images\LayerManagementIcons\Light\MergeLayerIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

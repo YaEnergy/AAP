@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,22 +37,22 @@ namespace AAP.UI.Controls
             }
         }
 
-        public static readonly DependencyProperty PaletteProperty =
+        public static readonly DependencyProperty CharactersProperty =
         DependencyProperty.Register(
-            name: "Palette",
-            propertyType: typeof(CharacterPalette),
+            name: "Characters",
+            propertyType: typeof(ObservableCollection<char>),
             ownerType: typeof(CharacterPaletteCharacterSelect),
-            typeMetadata: new FrameworkPropertyMetadata(defaultValue: null, OnPalettePropertyChangedCallBack));
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: new ObservableCollection<char>(), OnCharactersPropertyChangedCallBack));
 
-        public CharacterPalette? Palette
+        public ObservableCollection<char> Characters
         {
-            get => (CharacterPalette?)GetValue(PaletteProperty);
+            get => (ObservableCollection<char>)GetValue(CharactersProperty);
             set
             {
-                if (value == Palette) 
+                if (Characters == value)
                     return;
 
-                SetValue(PaletteProperty, value);
+                SetValue(CharactersProperty, value);
             }
         }
 
@@ -86,7 +87,7 @@ namespace AAP.UI.Controls
             Loaded += (sender, e) => UpdateDisplay();
         }
 
-        private static void OnPalettePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        private static void OnCharactersPropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             CharacterPaletteCharacterSelect? characterPaletteCharacterSelect = sender as CharacterPaletteCharacterSelect;
 
@@ -115,13 +116,10 @@ namespace AAP.UI.Controls
 
             stateBoxes.Clear();
 
-            if (Palette == null)
-                return;
-
             int column = 0;
             int row = 0;
 
-            foreach (char character in Palette.Characters)
+            foreach (char character in Characters)
             {
                 char stateBoxCharacter = character;
 

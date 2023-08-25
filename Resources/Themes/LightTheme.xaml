@@ -35,7 +35,7 @@
         <Setter Property="Pressed" Value="{StaticResource Pressed}"/>
     </Style>
 
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagementButton">
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="ImageButton">
         <Setter Property="Unhighlighted" Value="{StaticResource UnhighlightedInactive}"/>
         <Setter Property="Highlighted" Value="{StaticResource HighlightedInactive}"/>
         <Setter Property="Pressed" Value="{StaticResource Pressed}"/>
@@ -92,30 +92,34 @@
     <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Text" BasedOn="{StaticResource ToolStateBox}">
         <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Light/TextToolIcon.png"/>
     </Style>
-    
-    <!-- Layer Managemnt Buttons -->
-    
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_New" BasedOn="{StaticResource LayerManagementButton}">
+
+    <!-- Image Buttons -->
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="Plus_Button" BasedOn="{StaticResource ImageButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Light/NewLayerIcon.png"/>
     </Style>
 
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_MoveUp" BasedOn="{StaticResource LayerManagementButton}">
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="UpArrow_Button" BasedOn="{StaticResource ImageButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Light/MoveLayerUpIcon.png"/>
     </Style>
 
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_MoveDown" BasedOn="{StaticResource LayerManagementButton}">
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="DownArrow_Button" BasedOn="{StaticResource ImageButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Light/MoveLayerDownIcon.png"/>
     </Style>
 
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Duplicate" BasedOn="{StaticResource LayerManagementButton}">
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="Duplicate_Button" BasedOn="{StaticResource ImageButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Light/DuplicateLayerIcon.png"/>
     </Style>
 
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Remove" BasedOn="{StaticResource LayerManagementButton}">
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="Remove_Button" BasedOn="{StaticResource ImageButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Light/DestroyLayerIcon.png"/>
     </Style>
 
-    <Style TargetType="{x:Type controls:ImageButton}" x:Key="LayerManagement_Merge" BasedOn="{StaticResource LayerManagementButton}">
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="Merge_Button" BasedOn="{StaticResource ImageButton}">
         <Setter Property="ImageSource" Value="/Resources/Images/LayerManagementIcons/Light/MergeLayerIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageButton}" x:Key="PaletteEdit_Button" BasedOn="{StaticResource ImageButton}">
+        <Setter Property="ImageSource" Value="/Resources/Images/Icons/Light/PaletteEditIcon.png"/>
     </Style>
 </ResourceDictionary>

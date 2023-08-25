@@ -250,6 +250,10 @@ namespace AAP.UI.Windows
                 case nameof(vm.IsDarkModeOn):
                     App.AppTheme = vm.IsDarkModeOn ? Theme.Dark : Theme.Light;
                     break;
+                case nameof(vm.CurrentBackgroundTask):
+                    ArtFileViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
+                    CharacterPaletteSelectionViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
+                    break;
                 default:
                     break;
             }
@@ -275,6 +279,9 @@ namespace AAP.UI.Windows
                     break;
                 case nameof(vm.CanUseTool):
                     ArtCanvasViewModel.CanUseTool = vm.CanUseTool;
+                    break;
+                case nameof(vm.CurrentBackgroundTask):
+                    MainWindowViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
                     break;
                 default:
                     break;
@@ -311,6 +318,9 @@ namespace AAP.UI.Windows
             {
                 case nameof(vm.SelectedCharacter):
                     App.SelectCharacterTool(vm.SelectedCharacter);
+                    break;
+                case nameof(vm.CurrentBackgroundTask):
+                    MainWindowViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
                     break;
                 default:
                     break;
