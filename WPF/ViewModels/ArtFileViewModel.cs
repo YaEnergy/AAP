@@ -171,36 +171,6 @@ namespace AAP.UI.ViewModels
         }
 
         #region Background Task Work
-        private BackgroundTask? NewFileAsync()
-        {
-            if (CurrentBackgroundTask != null)
-            {
-                MessageBox.Show("Current background task must be cancelled in order to create a new file.", "New File", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-
-            NewASCIIArtDialogWindow newASCIIArtDialogWindow = new();
-            newASCIIArtDialogWindow.ShowDialog();
-
-            if (newASCIIArtDialogWindow.DialogResult == true)
-            {
-                BackgroundTask? bgTask = App.CreateNewArtFileAsync(newASCIIArtDialogWindow.ArtWidth, newASCIIArtDialogWindow.ArtHeight);
-
-                if (bgTask == null)
-                    return bgTask;
-
-                CanUseTool = false;
-
-                bgTask.Worker.RunWorkerCompleted += BackgroundCreateComplete;
-
-                CurrentBackgroundTask = bgTask;
-
-                return bgTask;
-            }
-
-            return null;
-        }
-
         private BackgroundTask? OpenFileAsync()
         {
             if (CurrentBackgroundTask != null)
@@ -402,24 +372,6 @@ namespace AAP.UI.ViewModels
             else if (args.Error != null)
                 MessageBox.Show("An error has occurred while opening art file!\nException: " + args.Error.Message, "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
-        void BackgroundCreateComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                    CanUseTool = true;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled creating art file!", "Create Art", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while creating art file!\nException: " + args.Error.Message, "Create Art", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
         #endregion
 
         public void NewFile()
@@ -443,14 +395,22 @@ namespace AAP.UI.ViewModels
                         if (CurrentBackgroundTask == null)
                             return;
 
-                        CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => NewFileAsync();
+                        CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => NewFile();
 
                         return;
                     }
                 }
             }
 
-            NewFileAsync();
+            ASCIIArtWindow newASCIIArtWindow = new();
+            bool? windowResult = newASCIIArtWindow.ShowDialog();
+
+            if (windowResult == true)
+            {
+                newASCIIArtWindow.Art.ArtLayers.Add(new("Background", newASCIIArtWindow.Art.Width, newASCIIArtWindow.Art.Height));
+                App.SetArtAsNewFile(newASCIIArtWindow.Art);
+            }
+
         }
 
         public void OpenFile()
