@@ -66,9 +66,29 @@ namespace AAP.UI.Windows
         {
             if (WindowViewModel.PaletteName == string.Empty)
             {
-                MessageBox.Show("Invalid Palette Name!", "Invalid Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Invalid Palette Name! Palette name can not be empty.", "Invalid Palette", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
+
+            foreach (char fileNameChar in WindowViewModel.PaletteName.ToCharArray())
+                if (invalidFileNameChars.Contains(fileNameChar))
+                {
+                    string invalidFileNameCharsString = "";
+                    foreach (char invalidFileNameChar in invalidFileNameChars)
+                        invalidFileNameCharsString += invalidFileNameChar.ToString();
+
+                    MessageBox.Show($"Invalid Palette Name! Palette name can not contain any of these characters: {invalidFileNameCharsString}", "Invalid Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+            foreach (CharacterPalette characterPalette in App.CharacterPalettes)
+                if (characterPalette.Name == WindowViewModel.PaletteName && characterPalette != Palette)
+                {
+                    MessageBox.Show("Palette " + WindowViewModel.PaletteName + " already exists!", "Invalid Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
             Palette.Name = WindowViewModel.PaletteName;
 

@@ -1,11 +1,14 @@
 ﻿using AAP.BackgroundTasks;
 using AAP.Timelines;
 using AAP.UI.Themes;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Windows.Controls.Primitives;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace AAP
@@ -19,7 +22,7 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        public static readonly int MaxArtArea = 10000000;
+        public static readonly int MaxArtArea = 2000000;
         public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
 
@@ -994,7 +997,23 @@ namespace AAP
         #region Palettes
         public static BackgroundTask? ExportPaletteAsync(CharacterPalette palette)
         {
+            if (palette.Name == string.Empty)
+                throw new Exception("Invalid Palette Name! Palette name can not be empty!");
+
+            char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
+
+            foreach (char fileNameChar in palette.Name.ToCharArray())
+                if (invalidFileNameChars.Contains(fileNameChar))
+                {
+                    string invalidFileNameCharsString = "";
+                    foreach (char invalidFileNameChar in invalidFileNameChars)
+                        invalidFileNameCharsString += invalidFileNameChar.ToString();
+
+                    throw new Exception($"Invalid Palette Name! Palette name can not contain any of these characters: {invalidFileNameCharsString}");
+                }
+
             string path = $@"{CharacterPaletteDirectoryPath}\{palette.Name}.aappal";
+
             FileInfo fileInfo = new(path);
 
             BackgroundWorker bgWorker = new();
@@ -1048,8 +1067,6 @@ namespace AAP
 
         public static BackgroundTask? RemovePaletteAsync(CharacterPalette palette)
         {
-            CharacterPalettes.Remove(palette);
-
             string path = $@"{CharacterPaletteDirectoryPath}\{palette.Name}.aappal";
             FileInfo fileInfo = new(path);
 
@@ -1070,7 +1087,7 @@ namespace AAP
                 if (sender is not BackgroundWorker bgWorker)
                     throw new Exception("Sender is not a background worker!");
 
-                ConsoleLogger.Log("Export Palette: Exporting art file to " + path);
+                ConsoleLogger.Log("Remove Palette: Removing palette file from " + path);
 
                 bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Deleting file...", true));
 
@@ -1085,16 +1102,95 @@ namespace AAP
                     ConsoleLogger.Error("Remove Palette: ", e.Error);
                 else if (e.Cancelled)
                     ConsoleLogger.Inform("Remove Palette: Palette file remove cancelled");
+                else if (e.Result is not CharacterPalette palette)
+                    ConsoleLogger.Warn("Remove Palette: Palette file remove was successful, but result is not CharacterPalette");
                 else
                 {
-                    if (e.Result is not CharacterPalette palette)
-                        ConsoleLogger.Warn("Remove Palette: Palette file remove was successful, but result is not CharacterPalette");
-                    else
-                        ConsoleLogger.Log("Remove Palette: Palette file remove to " + fileInfo.FullName + "!");
+                    CharacterPalettes.Remove(palette);
+                    ConsoleLogger.Log("Remove Palette: Palette file removed from " + fileInfo.FullName + "!");
                 }
             }
 
             return new($"Removing palette {fileInfo.Name}...", bgWorker);
+        }
+
+        public static BackgroundTask? EditPaletteFileAsync(string originalName, CharacterPalette palette)
+        {
+            if (originalName == palette.Name)
+            {
+                ConsoleLogger.Log("Edit Palette: Name has not changed, will export normally...");
+                return ExportPaletteAsync(palette);
+            }
+
+            string removePath = $@"{CharacterPaletteDirectoryPath}\{originalName}.aappal";
+            FileInfo removeFileInfo = new(removePath);
+
+            if (!removeFileInfo.Exists)
+                throw new FileNotFoundException("Can not remove unknown file!", removeFileInfo.FullName);
+
+            if (palette.Name == string.Empty)
+                throw new Exception("Invalid Palette Name! Palette name can not be empty!");
+
+            char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
+
+            foreach (char fileNameChar in palette.Name.ToCharArray())
+                if (invalidFileNameChars.Contains(fileNameChar))
+                {
+                    string invalidFileNameCharsString = "";
+                    foreach (char invalidFileNameChar in invalidFileNameChars)
+                        invalidFileNameCharsString += invalidFileNameChar.ToString();
+
+                    throw new Exception($"Invalid Palette Name! Palette name can not contain any of these characters: {invalidFileNameCharsString}");
+                }
+
+            string newPath = $@"{CharacterPaletteDirectoryPath}\{palette.Name}.aappal";
+
+            FileInfo newFileInfo = new(newPath);
+
+            BackgroundWorker bgWorker = new();
+            bgWorker.WorkerSupportsCancellation = false;
+            bgWorker.WorkerReportsProgress = true;
+            bgWorker.DoWork += EditWork;
+            bgWorker.RunWorkerCompleted += EditWorkComplete;
+
+            ConsoleLogger.Log("Edit Palette: Running BackgroundWorker");
+            bgWorker.RunWorkerAsync();
+
+            void EditWork(object? sender, DoWorkEventArgs args)
+            {
+                if (sender is not BackgroundWorker bgWorker)
+                    throw new Exception("Sender is not a background worker!");
+
+                ConsoleLogger.Log("Edit Palette: Removing palette file at " + removePath);
+
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Deleting file...", true));
+
+                File.Delete(removePath);
+
+                ConsoleLogger.Log("Export Palette: Exporting palette to " + newPath);
+
+                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Exporting as {newFileInfo.Extension} file...", true));
+
+                AAPPALCharacterPalette aAPPALCharacterPalette = new(palette, newPath);
+
+                aAPPALCharacterPalette.Export(bgWorker);
+
+                args.Result = palette;
+            }
+
+            void EditWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
+            {
+                if (e.Error != null)
+                    ConsoleLogger.Error("Edit Palette: ", e.Error);
+                else if (e.Cancelled)
+                    ConsoleLogger.Inform("Edit Palette: Palette file edit cancelled");
+                else if (e.Result is not CharacterPalette palette)
+                    ConsoleLogger.Warn("Edit Palette: Palette file edit was successful, but result is not CharacterPalette");
+                else
+                    ConsoleLogger.Log("Edit Palette: Palette file exported " + newFileInfo.FullName + "! Palette file removed from " + removeFileInfo.FullName);
+            }
+
+            return null;
         }
         #endregion
         #region Resources

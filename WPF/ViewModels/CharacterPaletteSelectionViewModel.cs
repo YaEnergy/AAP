@@ -134,13 +134,15 @@ namespace AAP.UI.ViewModels
                 return null;
             }
 
+            string originalPaletteName = SelectedPalette.Name;
+
             CharacterPaletteWindow characterPaletteWindow = new(SelectedPalette);
             characterPaletteWindow.Owner = Application.Current.MainWindow;
 
             bool? appliedChanges = characterPaletteWindow.ShowDialog();
             if (appliedChanges == true)
             {
-                BackgroundTask? bgTask = App.ExportPaletteAsync(characterPaletteWindow.Palette);
+                BackgroundTask? bgTask = App.EditPaletteFileAsync(originalPaletteName, characterPaletteWindow.Palette);
 
                 if (bgTask == null)
                     return bgTask;
