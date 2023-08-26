@@ -101,7 +101,8 @@ namespace AAP.UI.Windows
                     return;
                 }
 
-                characters.Add(character);
+                if (!characters.Contains(character))
+                    characters.Add(character);
             }
 
             Palette.Characters = characters;

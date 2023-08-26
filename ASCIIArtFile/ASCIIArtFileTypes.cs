@@ -91,7 +91,7 @@ namespace AAP
 
     public class AAFASCIIArt : IAAPFile<ASCIIArt>
     {
-        private static readonly string UncompressedExportPath = @$"{App.ApplicationDataFolderPath}\uncompressedExport";
+        //private static readonly string UncompressedExportPath = @$"{App.ApplicationDataFolderPath}\uncompressedArtExport";
 
         public ASCIIArt FileObject { get; set; }
         public string FilePath { get; set; }
@@ -108,8 +108,10 @@ namespace AAP
             if (!fileInfo.Exists)
                 throw new FileNotFoundException(fileInfo.FullName);
 
+            string tempFilePath = Path.GetTempFileName();
+
             bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Decompressing art file...", true));
-            FileStream fs = File.Create(UncompressedExportPath);
+            FileStream fs = File.Create(tempFilePath);
 
             using (GZipStream output = new(File.Open(FilePath, FileMode.Open), CompressionMode.Decompress))
                 output.CopyTo(fs);
@@ -119,7 +121,7 @@ namespace AAP
             bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Deserializing decompressed art file...", true));
 
             JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamReader sr = File.OpenText(UncompressedExportPath);
+            StreamReader sr = File.OpenText(tempFilePath);
             JsonTextReader jr = new(sr);
 
             ASCIIArt? importedArt = js.Deserialize<ASCIIArt>(jr);
@@ -138,7 +140,7 @@ namespace AAP
             jr.Close();
 
             bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting decompressed path...", true));
-            File.Delete(UncompressedExportPath);
+            File.Delete(tempFilePath);
 
             FileObject.UnsavedChanges = false;
         }
@@ -149,9 +151,11 @@ namespace AAP
                 if (bgWorker.CancellationPending)
                     return false;
 
+            string tempFilePath = Path.GetTempFileName();
+
             bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Writing as uncompressed file...", true));
             JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamWriter sw = File.CreateText(UncompressedExportPath);
+            StreamWriter sw = File.CreateText(tempFilePath);
             js.Serialize(sw, FileObject);
             sw.Close();
 
@@ -159,7 +163,7 @@ namespace AAP
             {
                 if (bgWorker.CancellationPending)
                 {
-                    File.Delete(UncompressedExportPath);
+                    File.Delete(tempFilePath);
                     return false;
                 }
 
@@ -167,12 +171,12 @@ namespace AAP
             }
 
             bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Decompressing uncompressed file to file path...", true));
-            using (FileStream fs = File.OpenRead(UncompressedExportPath))
+            using (FileStream fs = File.OpenRead(tempFilePath))
                 using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
                     fs.CopyTo(output);
 
             bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting uncompressed path", true));
-            File.Delete(UncompressedExportPath);
+            File.Delete(tempFilePath);
 
             return true;
         }

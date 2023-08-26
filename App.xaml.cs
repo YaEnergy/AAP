@@ -8,7 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows.Controls.Primitives;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace AAP

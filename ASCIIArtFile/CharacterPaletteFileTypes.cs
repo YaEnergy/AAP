@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Shapes;
 
 namespace AAP
 {
@@ -96,11 +96,22 @@ namespace AAP
             if (!fileInfo.Exists)
                 throw new FileNotFoundException(fileInfo.FullName);
 
+            string tempFilePath = Path.GetTempFileName();
+
+            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Decompressing file...", true));
+            FileStream fs = File.Create(tempFilePath);
+
+            using (GZipStream output = new(File.Open(FilePath, FileMode.Open), CompressionMode.Decompress))
+                output.CopyTo(fs);
+
+            fs.Close();
+
+            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Deserializing decompressed file...", true));
+
             JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamReader sr = File.OpenText(FilePath);
+            StreamReader sr = File.OpenText(tempFilePath);
             JsonTextReader jr = new(sr);
 
-            bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Deserializing file...", true));
             CharacterPalette? importedPalette = js.Deserialize<CharacterPalette>(jr) ?? throw new Exception($"CharacterPalette.ImportFilePath(path: {FilePath}): imported palette is null!");
 
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Checking for invalid characters...", true));
@@ -111,6 +122,9 @@ namespace AAP
             jr.CloseInput = true;
             jr.Close();
 
+            bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting decompressed path...", true));
+            File.Delete(tempFilePath);
+
             bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Finishing up...", true));
             FileObject.Name = importedPalette.Name;
             FileObject.Characters = importedPalette.Characters;
@@ -120,20 +134,35 @@ namespace AAP
         public bool Export(BackgroundWorker? bgWorker = null)
         {
             if (bgWorker != null)
-            {
                 if (bgWorker.CancellationPending)
                     return false;
+
+            string tempFilePath = Path.GetTempFileName();
+
+            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Writing as uncompressed file...", true));
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamWriter sw = File.CreateText(tempFilePath);
+            js.Serialize(sw, FileObject);
+            sw.Close();
+
+            if (bgWorker != null)
+            {
+                if (bgWorker.CancellationPending)
+                {
+                    File.Delete(tempFilePath);
+                    return false;
+                }
 
                 bgWorker.WorkerSupportsCancellation = false;
             }
 
-            JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamWriter swAAPPAL = File.CreateText(FilePath);
+            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Decompressing uncompressed file to file path...", true));
+            using (FileStream fs = File.OpenRead(tempFilePath))
+            using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
+                fs.CopyTo(output);
 
-            bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Serializing to file...", true));
-            js.Serialize(swAAPPAL, FileObject);
-
-            swAAPPAL.Close();
+            bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting uncompressed path", true));
+            File.Delete(tempFilePath);
 
             return true;
         }
