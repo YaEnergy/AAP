@@ -31,6 +31,9 @@
                             <MenuItem Header="Save" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveFileCommand}"></MenuItem>
                             <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveAsFileCommand}"></MenuItem>
                             <MenuItem Header="Export" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}" Command="{Binding ExportFileCommand}"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Edit File" IsEnabled="{Binding HasArtOpen}" Command="{Binding EditFileCommand}"/>
+                            <Separator></Separator>
                             <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
                             <Separator></Separator>
                             <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding DataContext.ExitCommand, ElementName=window}"></MenuItem>

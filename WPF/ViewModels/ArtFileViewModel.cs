@@ -117,12 +117,13 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        public ICommand? NewFileCommand { get; set; }
-        public ICommand? OpenFileCommand { get; set; }
-        public ICommand? SaveFileCommand { get; set; }
-        public ICommand? SaveAsFileCommand { get; set; }
-        public ICommand? ExportFileCommand { get; set; }
-        public ICommand? CopyArtToClipboardCommand { get; set; }
+        public ICommand NewFileCommand { get; set; }
+        public ICommand OpenFileCommand { get; set; }
+        public ICommand SaveFileCommand { get; set; }
+        public ICommand SaveAsFileCommand { get; set; }
+        public ICommand ExportFileCommand { get; set; }
+        public ICommand CopyArtToClipboardCommand { get; set; }
+        public ICommand EditFileCommand { get; set; }
 
         public ICommand DeleteSelectedCommand { get; private set; }
         public ICommand SelectArtCommand { get; private set; }
@@ -151,6 +152,7 @@ namespace AAP.UI.ViewModels
             SaveAsFileCommand = new ActionCommand((parameter) => SaveAsFile());
             ExportFileCommand = new ActionCommand((parameter) => ExportFile());
             CopyArtToClipboardCommand = new ActionCommand((parameter) => CopyArtToClipboard());
+            EditFileCommand = new ActionCommand((parameter) => EditFile());
 
             DeleteSelectedCommand = new ActionCommand((parameter) => App.FillSelectedWith(null));
             SelectArtCommand = new ActionCommand((parameter) => App.SelectArt());
@@ -495,6 +497,15 @@ namespace AAP.UI.ViewModels
                 return;
 
             App.FillSelectedWith(drawTool.Character);
+        }
+
+        public void EditFile()
+        {
+            if (CurrentArt == null)
+                return;
+
+            ASCIIArtWindow artWindow = new(CurrentArt);
+            artWindow.ShowDialog();
         }
     }
 }

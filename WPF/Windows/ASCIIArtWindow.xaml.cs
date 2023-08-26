@@ -53,7 +53,7 @@ namespace AAP.UI.Windows
 
             Title = "Edit ASCII Art";
             Art = art;
-            WindowViewModel.CloseButtonContent = "Apply changes to palette";
+            WindowViewModel.CloseButtonContent = "Apply changes to ASCII Art";
 
             WindowViewModel.CloseButtonCommand = new ActionCommand((parameter) => ApplyToArt());
         }
