@@ -21,7 +21,7 @@ namespace AAP
         public static readonly string ProgramTitle = "ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        public static readonly int MaxArtArea = 2000000;
+        public static readonly int MaxArtArea = 1600000;
         public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
 

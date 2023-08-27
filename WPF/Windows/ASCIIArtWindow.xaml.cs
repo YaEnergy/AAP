@@ -86,7 +86,7 @@ namespace AAP.UI.Windows
 
             if (width * height > App.MaxArtArea)
             {
-                MessageBox.Show($"The art area of one layer is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Canvas is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
