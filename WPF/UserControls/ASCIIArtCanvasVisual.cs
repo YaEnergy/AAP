@@ -183,6 +183,63 @@ namespace AAP.UI.Controls
                 SetValue(ShowGridProperty, value);
             }
         }
+
+        public static readonly DependencyProperty ArtSelectionHighlightProperty =
+        DependencyProperty.Register(
+            name: "ArtSelectionHighlight",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Orange, OnSelectionHighlightBrushChangedCallBack));
+
+        public Brush ArtSelectionHighlight
+        {
+            get => (Brush)GetValue(ArtSelectionHighlightProperty);
+            set
+            {
+                if (ArtSelectionHighlight == value)
+                    return;
+
+                SetValue(ArtSelectionHighlightProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty MouseSelectionHighlightProperty =
+        DependencyProperty.Register(
+            name: "MouseSelectionHighlight",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Blue, OnSelectionHighlightBrushChangedCallBack));
+
+        public Brush MouseSelectionHighlight
+        {
+            get => (Brush)GetValue(MouseSelectionHighlightProperty);
+            set
+            {
+                if (MouseSelectionHighlight == value)
+                    return;
+
+                SetValue(MouseSelectionHighlightProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty DisplayLayerHighlightProperty =
+        DependencyProperty.Register(
+            name: "DisplayLayerHighlight",
+            propertyType: typeof(Brush),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: Brushes.Gray, OnDisplayLayerHighlightBrushChangedCallBack));
+
+        public Brush DisplayLayerHighlight
+        {
+            get => (Brush)GetValue(DisplayLayerHighlightProperty);
+            set
+            {
+                if (DisplayLayerHighlight == value)
+                    return;
+
+                SetValue(DisplayLayerHighlightProperty, value);
+            }
+        }
         #endregion
 
         private Point ArtOffset = new(8, 8);
@@ -714,11 +771,11 @@ namespace AAP.UI.Controls
 
             //Selection Highlight
             if (SelectionHighlightRect != Rect.Empty)
-                dc.DrawRectangle(null, new(Brushes.Orange, HighlightRectThickness), GetArtCanvasRectangle(SelectionHighlightRect));
+                dc.DrawRectangle(null, new(ArtSelectionHighlight, HighlightRectThickness), GetArtCanvasRectangle(SelectionHighlightRect));
 
             //Mouse Highlight
             if (MouseHighlightRect != Rect.Empty)
-                dc.DrawRectangle(null, new(Brushes.Blue, HighlightRectThickness), GetArtCanvasRectangle(MouseHighlightRect));
+                dc.DrawRectangle(null, new(MouseSelectionHighlight, HighlightRectThickness), GetArtCanvasRectangle(MouseHighlightRect));
         }
 
         /// <summary>
@@ -731,7 +788,7 @@ namespace AAP.UI.Controls
             //Display Layer Size Highlight
             if (DisplayLayer != null)
             {
-                Pen rectPen = new(Brushes.Gray, HighlightRectThickness);
+                Pen rectPen = new(DisplayLayerHighlight, HighlightRectThickness);
                 rectPen.DashStyle = DisplayLayer.Visible ? DashStyles.Dash : DashStyles.Dot;
                 dc.DrawRectangle(null, rectPen, GetArtCanvasRectangle(new(DisplayLayer.Offset, DisplayLayer.Size)));
             }
@@ -1130,6 +1187,22 @@ namespace AAP.UI.Controls
                 return;
 
             canvas.DrawBackground();
+        }
+
+        private static void OnSelectionHighlightBrushChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawSelectionHighlights();
+        }
+
+        private static void OnDisplayLayerHighlightBrushChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is not ASCIIArtCanvasVisual canvas)
+                return;
+
+            canvas.DrawDisplayLayerHighlight();
         }
 
         private static void OnTextSizePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
