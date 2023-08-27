@@ -681,7 +681,7 @@ namespace AAP.UI.Controls
 
                     string columnString = "";
                     for (int y = 0; y < DisplayArt.Height; y++)
-                        columnString += DisplayArt.GetCharacter(x, y) + "\n";
+                        columnString += (DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
 
                     FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
                     charText.LineHeight = LineHeight;
@@ -724,7 +724,7 @@ namespace AAP.UI.Controls
 
                 string columnString = "";
                 for (int y = 0; y < DisplayArt.Height; y++)
-                    columnString += DisplayArt.GetCharacter(x, y) + "\n";
+                    columnString += (DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
 
                 FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
                 charText.LineHeight = LineHeight;

@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Markup;
 
 namespace AAP
@@ -214,6 +215,60 @@ namespace AAP
             offsetY = (int)offset.Y;
         }
 
+        #region Drawing
+        public char? GetCharacter(int x, int y)
+        {
+            if (x < 0 || x >= Width)
+                throw new IndexOutOfRangeException($"{nameof(x)} outside of bounds of layer (x: {x})");
+
+            if (y < 0 || y >= Height)
+                throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
+
+            return Data[x][y];
+        }
+
+        public char? GetCharacter(Point point)
+        {
+            int x = (int)point.X;
+            int y = (int)point.Y;
+
+            if (x < 0 || x >= Width)
+                throw new IndexOutOfRangeException($"{nameof(x)} outside of bounds of layer (x: {x})");
+
+            if (y < 0 || y >= Height)
+                throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
+
+            return Data[x][y];
+        }
+
+        public void SetCharacter(int x, int y, char? character)
+        {
+            if (x < 0 || x >= Width)
+                throw new IndexOutOfRangeException($"{nameof(x)} outside of bounds of layer (x: {x})");
+
+            if (y < 0 || y >= Height)
+                throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
+
+            if (Data[x][y] != character)
+                Data[x][y] = character;
+        }
+
+        public void SetCharacter(Point point, char? character)
+        {
+            int x = (int)point.X;
+            int y = (int)point.Y;
+
+            if (x < 0 || x >= Width)
+                throw new IndexOutOfRangeException($"{nameof(x)} outside of bounds of layer (x: {x})");
+
+            if (y < 0 || y >= Height)
+                throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
+
+            if (Data[x][y] != character)
+                Data[x][y] = character;
+        }
+        #endregion
+
         public void Crop(Rect cropRect)
         {
             if ((int)cropRect.Width <= 0)
@@ -253,7 +308,7 @@ namespace AAP
             Cropped?.Invoke(this, oldArtRect, cropRect);
         }
 
-        public void Merge(ArtLayer mergeLayer)
+        public void MergeDown(ArtLayer mergeLayer)
         {
             Rect mergedLayerRect = Rect.Union(new Rect(Offset, Size), new Rect(mergeLayer.Offset, mergeLayer.Size));
             Crop(mergedLayerRect);

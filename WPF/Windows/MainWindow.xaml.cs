@@ -15,14 +15,11 @@ namespace AAP.UI.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
-        private BackgroundTask? currentBackgroundTask { get; set; } = null;
-
         public MainWindow()
         {
             InitializeComponent();
 
-            App.OnCurrentArtChanged += OnCurrentArtChanged;
-            App.OnCurrentFilePathChanged += OnCurrentFilePathChanged;
+            App.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
             App.OnCurrentToolChanged += OnCurrentToolChanged;
             App.OnSelectedArtChanged += OnSelectedArtChanged;
             App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
@@ -39,7 +36,7 @@ namespace AAP.UI.Windows
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
-            OnCurrentArtChanged(App.CurrentArt, App.CurrentArtDraw, App.CurrentArtTimeline);
+            OnCurrentArtFileChanged(App.CurrentArtFile);
 
             UpdateTitle();
 
@@ -89,21 +86,8 @@ namespace AAP.UI.Windows
         }
         
         private void UpdateTitle()
-        {
-            string sizeText = $"{(App.CurrentArt != null ? App.CurrentArt.Width.ToString() : "*")}x{(App.CurrentArt != null ? App.CurrentArt.Height.ToString() : "*")}";
-            string changedText = "";
-
-            if (App.CurrentArt != null)
-            {
-                sizeText = $"{App.CurrentArt.Width}x{App.CurrentArt.Height}";
-
-                if (App.CurrentArt.UnsavedChanges)
-                    changedText = "*";
-            }
-
-            string fileName = App.CurrentFilePath == null ? "*.*" : new FileInfo(App.CurrentFilePath).Name;
-            
-            string fullTitle = $"{App.ProgramTitle} - {fileName}{changedText} - {sizeText}";
+        {            
+            string fullTitle = App.CurrentArtFile == null ? $"{App.ProgramTitle}" : $"{App.ProgramTitle} - {App.CurrentArtFile}";
 
             if (fullTitle != Title)
                 Title = fullTitle;
@@ -111,7 +95,7 @@ namespace AAP.UI.Windows
 
         private void OnClosing(object? sender, CancelEventArgs e)
         {
-            if (App.CurrentArt == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             if (ArtFileViewModel.CurrentBackgroundTask != null)
@@ -127,7 +111,7 @@ namespace AAP.UI.Windows
                 return;
             }
 
-            if (App.CurrentArt.UnsavedChanges)
+            if (App.CurrentArtFile.UnsavedChanges)
             {
                 MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
@@ -149,14 +133,14 @@ namespace AAP.UI.Windows
         }
 
         #region App Events
-        private void OnCurrentArtChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
+        private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
         {
-            if (art != null)
+            if (artFile != null)
             {
-                int fullArtArea = art.GetTotalArtArea();
+                int fullArtArea = artFile.Art.GetTotalArtArea();
 
-                if (fullArtArea < art.Width * art.Height)
-                    fullArtArea = art.Width * art.Height;
+                if (fullArtArea < artFile.Art.Width * artFile.Art.Height)
+                    fullArtArea = artFile.Art.Width * artFile.Art.Height;
 
                 if (fullArtArea >= App.WarningLargeArtArea)
                 {
@@ -176,29 +160,27 @@ namespace AAP.UI.Windows
             }
 
             //Remove old listeners
-            if (ArtFileViewModel.CurrentArt != null)
+            if (ArtFileViewModel.CurrentArtFile != null)
             {
-                ArtFileViewModel.CurrentArt.OnUnsavedChangesChanged -= OnArtFileViewModelArtUnsavedChangesChanged;
-                ArtFileViewModel.CurrentArt.OnSizeChanged -= OnArtFileViewModelArtSizeChanged;
+                ArtFileViewModel.CurrentArtFile.OnUnsavedChangesChanged -= OnArtFileViewModelArtUnsavedChangesChanged;
+                ArtFileViewModel.CurrentArtFile.Art.OnSizeChanged -= OnArtFileViewModelArtSizeChanged;
+                ArtFileViewModel.CurrentArtFile.OnSavePathChanged -= OnSavePathChanged;
             }
 
-            ArtFileViewModel.CurrentArt = art;
-            ArtFileViewModel.CurrentArtTimeline = artTimeline;
+            ArtFileViewModel.CurrentArtFile = artFile;
             
-            ArtCanvasViewModel.CurrentArtDraw = artDraw;
+            ArtCanvasViewModel.CurrentArtDraw = artFile?.ArtDraw;
 
             //Add new listeners
-            if (art != null)
+            if (artFile != null)
             {
-                art.OnUnsavedChangesChanged += OnArtFileViewModelArtUnsavedChangesChanged;
-                art.OnSizeChanged += OnArtFileViewModelArtSizeChanged;
+                artFile.OnUnsavedChangesChanged += OnArtFileViewModelArtUnsavedChangesChanged;
+                artFile.Art.OnSizeChanged += OnArtFileViewModelArtSizeChanged;
+                artFile.OnSavePathChanged += OnSavePathChanged;
             }
 
             UpdateTitle();
         }
-
-        private void OnCurrentFilePathChanged(string? filePath)
-            => UpdateTitle();
 
         private void OnCurrentToolChanged(Tool? tool)
         {
@@ -221,18 +203,14 @@ namespace AAP.UI.Windows
 
         #region Art Canvas View Model Art Events
 
-        private void OnArtFileViewModelArtUnsavedChangesChanged(ASCIIArt art, bool unsavedChanges)
+        private void OnArtFileViewModelArtUnsavedChangesChanged(bool unsavedChanges)
             => UpdateTitle();
 
         private void OnArtFileViewModelArtSizeChanged(int width, int height)
             => UpdateTitle();
 
-        #endregion
-
-        #region Click Events
-
-        private void ExitCommand()
-            => Application.Current.Shutdown();
+        private void OnSavePathChanged(string? savePath)
+            => UpdateTitle();
 
         #endregion
 
@@ -269,9 +247,10 @@ namespace AAP.UI.Windows
 
             switch (e.PropertyName)
             {
-                case nameof(vm.CurrentArt):
-                    ArtCanvasViewModel.CurrentArt = vm.CurrentArt;
-                    LayerManagementViewModel.Art = vm.CurrentArt;
+                case nameof(vm.CurrentArtFile):
+                    ArtCanvasViewModel.CurrentArt = vm.CurrentArtFile?.Art;
+                    ArtCanvasViewModel.CurrentArtDraw = vm.CurrentArtFile?.ArtDraw;
+                    LayerManagementViewModel.Art = vm.CurrentArtFile?.Art;
                     break;
                 case nameof(vm.CurrentTool):
                     ArtCanvasViewModel.CurrentTool = vm.CurrentTool;

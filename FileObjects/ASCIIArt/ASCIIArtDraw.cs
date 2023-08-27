@@ -63,14 +63,7 @@ namespace AAP
             if (!CanDrawOn(layerIndex, position, stayInsideSelection))
                 return;
 
-            ArtLayer layer = Art.ArtLayers[layerIndex];
-            Point layerPoint = layer.GetLayerPoint(position);
-
-            if (layer.Data[(int)layerPoint.X][(int)layerPoint.Y] == character)
-                return;
-
-            layer.Data[(int)layerPoint.X][(int)layerPoint.Y] = character;
-            Art.UnsavedChanges = true;
+            Art.SetCharacter(layerIndex, position, character);
 
             OnDrawArt?.Invoke(layerIndex, character, new Point[] { position });
 
@@ -80,7 +73,6 @@ namespace AAP
         public void DrawLine(int layerIndex, char? character, Point point1, Point point2, bool stayInsideSelection = false)
         {
             List<Point> updatedPositions = new();
-            ArtLayer artLayer = Art.ArtLayers[layerIndex];
 
             int startX = (int)point1.X;
             int endX = (int)point2.X;
@@ -107,7 +99,7 @@ namespace AAP
                 if (CanDrawOn(layerIndex, x, y, stayInsideSelection))
                 {
                     updatedPositions.Add(new(x, y));
-                    artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                    Art.SetCharacter(layerIndex, x, y, character);
                 }
 
                 if (error * 2 >= dy)
@@ -130,10 +122,8 @@ namespace AAP
             if (CanDrawOn(layerIndex, x, y, stayInsideSelection))
             {
                 updatedPositions.Add(new(x, y));
-                artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                Art.SetCharacter(layerIndex, x, y, character);
             }
-
-            Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
 
@@ -143,20 +133,16 @@ namespace AAP
         public void DrawRectangle(int layerIndex, char? character, Rect rectangle, bool stayInsideSelection = false)
         {
             List<Point> updatedPositions = new();
-
-            ArtLayer artLayer = Art.ArtLayers[layerIndex];
-
+            
             for (int x = (int)rectangle.Left; x < (int)rectangle.Right; x++)
                 for (int y = (int)rectangle.Top; y < (int)rectangle.Bottom; y++)
                 {
                     if (CanDrawOn(layerIndex, x, y, stayInsideSelection))
                     {
                         updatedPositions.Add(new(x, y));
-                        artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                        Art.SetCharacter(layerIndex, x, y, character);
                     }
                 }
-
-            Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
 
@@ -173,7 +159,7 @@ namespace AAP
             if (!CanDrawOn(layerIndex, artPos, stayInsideSelection))
                 return;
 
-            char? findCharacter = artLayer.Data[(int)artPos.X - artLayer.OffsetX][(int)artPos.Y - artLayer.OffsetY];
+            char? findCharacter = artLayer.GetCharacter(artLayer.GetLayerPoint(artPos));
             if (findCharacter == character)
                 return; //No changes will be made
 
@@ -187,23 +173,23 @@ namespace AAP
                 int x = (int)pos.X;
                 int y = (int)pos.Y;
                 
-                artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY] = character;
+                Art.SetCharacter(layerIndex, x, y, character);
                 updatedPositions.Add(pos);
 
                 if (x + 1 - artLayer.OffsetX < artLayer.Width)
-                    if (artLayer.Data[x + 1 - artLayer.OffsetX][y - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x + 1, y, stayInsideSelection))
+                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x + 1, y)) == findCharacter && CanDrawOn(layerIndex, x + 1, y, stayInsideSelection))
                         positionStack.Push(new(x + 1, y));
 
                 if (x - 1 - artLayer.OffsetX >= 0)
-                    if (artLayer.Data[x - 1 - artLayer.OffsetX][y - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x - 1, y, stayInsideSelection))
+                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x - 1, y)) == findCharacter && CanDrawOn(layerIndex, x - 1, y, stayInsideSelection))
                         positionStack.Push(new(x - 1, y));
 
                 if (y + 1 - artLayer.OffsetY < artLayer.Height)
-                    if (artLayer.Data[x - artLayer.OffsetX][y + 1 - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x, y + 1, stayInsideSelection))
+                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x, y + 1)) == findCharacter && CanDrawOn(layerIndex, x, y + 1, stayInsideSelection))
                         positionStack.Push(new(x, y + 1));
 
                 if (y - 1 - artLayer.OffsetY >= 0)
-                    if (artLayer.Data[x - artLayer.OffsetX][y - 1 - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x, y - 1, stayInsideSelection))
+                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x, y - 1)) == findCharacter && CanDrawOn(layerIndex, x, y - 1, stayInsideSelection))
                         positionStack.Push(new(x, y - 1));
 
                 if (eightDirectional)
@@ -211,28 +197,26 @@ namespace AAP
                     if (x + 1 - artLayer.OffsetX < artLayer.Width)
                     {
                         if (y + 1 - artLayer.OffsetY < artLayer.Height)
-                            if (artLayer.Data[x + 1 - artLayer.OffsetX][y + 1 - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x + 1, y + 1, stayInsideSelection))
+                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x + 1, y + 1)) == findCharacter && CanDrawOn(layerIndex, x + 1, y + 1, stayInsideSelection))
                                 positionStack.Push(new(x + 1, y + 1));
 
                         if (y - 1 - artLayer.OffsetY >= 0)
-                            if (artLayer.Data[x + 1 - artLayer.OffsetX][y - 1 - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x + 1, y - 1, stayInsideSelection))
+                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x + 1, y - 1)) == findCharacter && CanDrawOn(layerIndex, x + 1, y - 1, stayInsideSelection))
                                 positionStack.Push(new(x + 1, y - 1));
                     }
 
                     if (x - 1 - artLayer.OffsetX >= 0)
                     {
                         if (y + 1 - artLayer.OffsetY < artLayer.Height)
-                            if (artLayer.Data[x - 1 - artLayer.OffsetX][y + 1 - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x - 1, y + 1, stayInsideSelection))
+                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x - 1, y + 1)) == findCharacter && CanDrawOn(layerIndex, x - 1, y + 1, stayInsideSelection))
                                 positionStack.Push(new(x - 1, y + 1));
 
                         if (y - 1 - artLayer.OffsetY >= 0)
-                            if (artLayer.Data[x - 1 - artLayer.OffsetX][y - 1 - artLayer.OffsetY] == findCharacter && CanDrawOn(layerIndex, x - 1, y - 1, stayInsideSelection))
+                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x - 1, y - 1)) == findCharacter && CanDrawOn(layerIndex, x - 1, y - 1, stayInsideSelection))
                                 positionStack.Push(new(x - 1, y - 1));
                     }
                 }
             }
-
-            Art.UnsavedChanges = true;
 
             OnDrawArt?.Invoke(layerIndex, character, updatedPositions.ToArray());
 

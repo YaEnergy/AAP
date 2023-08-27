@@ -20,10 +20,10 @@ namespace AAP
         public static readonly int VERSION = 3;
 
         public int CreatedInVersion = 3;
-        private int updatedInVersion = 3;
+        private readonly int updatedInVersion = 3;
         public int UpdatedInVersion { get => updatedInVersion; }
 
-        private ObservableCollection<ArtLayer> artLayers = new();
+        private readonly ObservableCollection<ArtLayer> artLayers = new();
         public ObservableCollection<ArtLayer> ArtLayers
         {
             get => artLayers;
@@ -44,7 +44,6 @@ namespace AAP
                 width = value;
 
                 OnSizeChanged?.Invoke(Width, Height);
-                UnsavedChanges = true;
 
                 PropertyChanged?.Invoke(this, new(nameof(Width)));
             }
@@ -64,7 +63,6 @@ namespace AAP
                 height = value;
 
                 OnSizeChanged?.Invoke(Width, Height);
-                UnsavedChanges = true;
 
                 PropertyChanged?.Invoke(this, new(nameof(Height)));
             }
@@ -98,12 +96,6 @@ namespace AAP
         /// </summary>
         public event ArtLayerListChangeEvent? OnArtLayerIndexChanged;
 
-        public delegate void UnsavedChangesChangedEvent(ASCIIArt art, bool unsavedChanges);
-        /// <summary>
-        /// Invoked when the UnsavedChanges bool changes.
-        /// </summary>
-        public event UnsavedChangesChangedEvent? OnUnsavedChangesChanged;
-
         public delegate void OnArtUpdatedEvent(ASCIIArt art);
         /// <summary>
         /// Invoked when the visible art mostly likely changed.
@@ -112,28 +104,9 @@ namespace AAP
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private bool unsavedChanges = false;
-        [JsonIgnore]
-        public bool UnsavedChanges
-        {
-            get => unsavedChanges;
-            set 
-            {
-                if (unsavedChanges == value)
-                    return;
-
-                unsavedChanges = value;
-
-                OnUnsavedChangesChanged?.Invoke(this, unsavedChanges);
-                PropertyChanged?.Invoke(this, new(nameof(UnsavedChanges)));
-            }
-        }
-
         public ASCIIArt()
         {
             ArtLayers.CollectionChanged += ArtLayerCollectionChanged;
-            OnArtLayerAdded += LayerAdded;
-            OnArtLayerRemoved += LayerRemoved;
         }
 
         private void ArtLayerCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -171,8 +144,6 @@ namespace AAP
                 default:
                     break;
             }
-
-            UnsavedChanges = true;
         }
 
         /// <summary>
@@ -205,10 +176,7 @@ namespace AAP
             }
 
             if (changedSize)
-            {
-                UnsavedChanges = true;
                 OnSizeChanged?.Invoke(width, height);
-            }
         }
 
         #region Layers
@@ -218,8 +186,6 @@ namespace AAP
                 return;
 
             ArtLayers[index].Name = layerName;
-
-            UnsavedChanges = true;
         }
 
         public void SetLayerIndexVisibility(int index, bool visible)
@@ -229,23 +195,7 @@ namespace AAP
 
             ArtLayers[index].Visible = visible;
 
-            UnsavedChanges = true;
-
             OnArtUpdated?.Invoke(this);
-        }
-
-        private void LayerAdded(int index, ArtLayer layer)
-        {
-            layer.OffsetChanged += OnArtLayerOffsetChanged;
-            layer.VisibilityChanged += OnArtLayerVisibilityChanged;
-            layer.NameChanged += OnArtLayerNameChanged;
-        }
-
-        private void LayerRemoved(int index, ArtLayer layer)
-        {
-            layer.OffsetChanged -= OnArtLayerOffsetChanged;
-            layer.VisibilityChanged -= OnArtLayerVisibilityChanged;
-            layer.NameChanged -= OnArtLayerNameChanged;
         }
         #endregion
 
@@ -271,38 +221,18 @@ namespace AAP
         /// <returns>String of line (y)</returns>
         public string GetLineString(int y)
         {
-            char?[] visibleArtLineArray = new char?[Width];
             string line = "";
 
             if (Width == 0)
                 return line;
 
-            for (int i = ArtLayers.Count - 1; i >= 0; i--)
-            {
-                ArtLayer artLayer = ArtLayers[i];
-                if (artLayer.Visible)
-                    for (int x = 0; x < Width; x++)
-                    {
-                        if (x > artLayer.OffsetX + artLayer.Width) //from here on x-positions will never be on the canvas
-                            break;
-
-                        if (!artLayer.IsPointVisible(x, y))
-                            continue;
-
-                        char? character = artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY];
-
-                        if (character == null)
-                            continue;
-
-                        visibleArtLineArray[x] = character.Value;
-                    }
-            }
-
             for (int x = 0; x < Width; x++)
-                line += visibleArtLineArray[x] == null ? EMPTYCHARACTER : visibleArtLineArray[x].ToString();
+                line += GetCharacter(x, y) ?? EMPTYCHARACTER;
 
             return line;
         }
+
+        #region Drawing
 
         /// <summary>
         /// Gets the visible ASCII char at the specified position
@@ -310,7 +240,7 @@ namespace AAP
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>char?</returns>
-        public char GetCharacter(int x, int y)
+        public char? GetCharacter(int x, int y)
         {
             for (int i = 0; i < ArtLayers.Count; i++)
             {
@@ -324,11 +254,55 @@ namespace AAP
 
                 char? character = artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY];
                 if (character != null)
-                    return (char)character;
+                    return character;
             }
 
-            return EMPTYCHARACTER;
+            return null;
         }
+
+        /// <summary>
+        /// Gets the visible ASCII char at the specified position
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns>char?</returns>
+        public char? GetCharacter(Point point)
+        {
+            for (int i = 0; i < ArtLayers.Count; i++)
+            {
+                ArtLayer artLayer = ArtLayers[i];
+
+                if (!artLayer.Visible)
+                    continue;
+
+                if (!artLayer.IsPointVisible(point))
+                    continue;
+
+                char? character = artLayer.GetCharacter(point);
+                if (character != null)
+                    return character;
+            }
+
+            return null;
+        }
+
+        public void SetCharacter(int layerIndex, int x, int y, char? character)
+        {
+            if (layerIndex < 0 || layerIndex >= ArtLayers.Count)
+                throw new IndexOutOfRangeException($"{nameof(layerIndex)} index outside of bounds (index: {layerIndex})");
+
+            ArtLayer layer = ArtLayers[layerIndex];
+            layer.SetCharacter(x - layer.OffsetX, y - layer.OffsetY, character);
+        }
+
+        public void SetCharacter(int layerIndex, Point point, char? character)
+        {
+            if (layerIndex < 0 || layerIndex >= ArtLayers.Count)
+                throw new IndexOutOfRangeException($"{nameof(layerIndex)} index outside of bounds (index: {layerIndex})");
+
+            ArtLayer layer = ArtLayers[layerIndex];
+            layer.SetCharacter((int)point.X - layer.OffsetX, (int)point.Y - layer.OffsetY, character);
+        }
+        #endregion
 
         /// <summary>
         /// Gets the sum of the areas of all layers.
@@ -360,8 +334,6 @@ namespace AAP
 
             OnCropped?.Invoke(this);
 
-            UnsavedChanges = true;
-
             OnArtUpdated?.Invoke(this);
 
             return;
@@ -382,16 +354,12 @@ namespace AAP
                 {
                     ArtLayer artLayer = toCopy.ArtLayers[i];
                     ArtLayers.Add(artLayer);
-                    artLayer.OffsetChanged += OnArtLayerOffsetChanged;
-                    artLayer.VisibilityChanged += OnArtLayerVisibilityChanged;
                     OnArtLayerAdded?.Invoke(i, artLayer);
                 }
                 else if (i >= toCopy.ArtLayers.Count) //Reremove layer
                 {
                     ArtLayer artLayer = ArtLayers[i];
                     ArtLayers.Remove(artLayer);
-                    artLayer.OffsetChanged -= OnArtLayerOffsetChanged;//Stop listening to art layer events
-                    artLayer.VisibilityChanged -= OnArtLayerVisibilityChanged;
                     OnArtLayerRemoved?.Invoke(i, artLayer);
                 }
                 else
@@ -399,8 +367,6 @@ namespace AAP
             }
 
             SetSize(toCopy.Width, toCopy.Height);
-
-            UnsavedChanges = true;
             
             OnArtUpdated?.Invoke(this);
         }
@@ -409,7 +375,6 @@ namespace AAP
         {
             ASCIIArt clone = new();
 
-            clone.UnsavedChanges = UnsavedChanges;
             clone.SetSize(Width, Height);
 
             for (int i = 0; i < ArtLayers.Count; i++)
@@ -417,17 +382,6 @@ namespace AAP
 
             return clone;
         }
-        #endregion
-
-        #region Events
-        private void OnArtLayerOffsetChanged(ArtLayer artLayer, Point oldOffset, Point newOffset)
-            => UnsavedChanges = true;
-
-        private void OnArtLayerVisibilityChanged(ArtLayer artLayer, bool visible)
-            => UnsavedChanges = true;
-
-        private void OnArtLayerNameChanged(ArtLayer artLayer, string name)
-            => UnsavedChanges = true;
         #endregion
 
         /// <summary>

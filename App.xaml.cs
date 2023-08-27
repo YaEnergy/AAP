@@ -31,44 +31,58 @@ namespace AAP
         public static readonly string CharacterPaletteDirectoryPath = $@"{ApplicationDataFolderPath}\CharacterPalettes";
         public static readonly string AutoSaveDirectoryPath = $@"{ApplicationDataFolderPath}\Autosaves";
 
-        private static ObjectTimeline? currentArtTimeline;
-        public static ObjectTimeline? CurrentArtTimeline { get => currentArtTimeline; }
-
-        private static ASCIIArtDraw? currentArtDraw;
-        public static ASCIIArtDraw? CurrentArtDraw { get => currentArtDraw; }
-
-        private static ASCIIArt? currentArt;
-        public static ASCIIArt? CurrentArt
+        private static ASCIIArtFile? currentArtFile;
+        public static ASCIIArtFile? CurrentArtFile
         {
-            get => currentArt;
+            get => currentArtFile;
             set
             {
-                currentArt = value;
-                currentArtDraw = value == null ? null : new(value);
-                currentArtTimeline = value == null ? null : new(value);
-                OnCurrentArtChanged?.Invoke(currentArt, currentArtDraw, currentArtTimeline);
+                if (currentArtFile == value)
+                    return;
+
+                currentArtFile?.Dispose();
+
+                currentArtFile = value;
+
+                OnCurrentArtFileChanged?.Invoke(currentArtFile);
             }
         }
 
-        public delegate void CurrentArtChangedEvent(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline);
-        public static event CurrentArtChangedEvent? OnCurrentArtChanged;
-
-        private static string? currentFilePath;
-        public static string? CurrentFilePath 
-        { 
-            get => currentFilePath; 
-            set 
+        public static ASCIIArt? CurrentArt
+        {
+            get
             {
-                if (currentFilePath == value)
-                    return;
+                if (CurrentArtFile == null)
+                    return null;
 
-                currentFilePath = value; 
-                OnCurrentFilePathChanged?.Invoke(value); 
-            } 
+                return CurrentArtFile.Art;
+            }
         }
-        
-        public delegate void CurrentFilePathChangedEvent(string? filePath);
-        public static event CurrentFilePathChangedEvent? OnCurrentFilePathChanged;
+
+        public static ASCIIArtDraw? CurrentArtDraw
+        {
+            get
+            {
+                if (CurrentArtFile == null)
+                    return null;
+
+                return CurrentArtFile.ArtDraw;
+            }
+        }
+
+        public static ObjectTimeline? CurrentArtTimeline
+        {
+            get
+            {
+                if (CurrentArtFile == null)
+                    return null;
+
+                return CurrentArtFile.ArtTimeline;
+            }
+        }
+
+        public delegate void CurrentArtFileChangedEvent(ASCIIArtFile? artFile);
+        public static event CurrentArtFileChangedEvent? OnCurrentArtFileChanged;
 
         private static Rect selectedArt = Rect.Empty;
         public static Rect SelectedArt
@@ -125,7 +139,6 @@ namespace AAP
                 ConsoleLogger.Log($"Selected ToolType: {(value != null ? value.Type : ToolType.None)}");
             }
         }
-
 
         public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
@@ -290,7 +303,7 @@ namespace AAP
 
             CurrentCharacterPalette = CharacterPalettes[0];
 
-            OnCurrentArtChanged += OnCurrentArtFileChanged;
+            OnCurrentArtFileChanged += CurrentArtFileChanged;
 
             ConsoleLogger.Log("Set up complete!");
 
@@ -371,14 +384,20 @@ namespace AAP
         }
         #endregion
         #region Files
-        public static void OnCurrentArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
+        public static void CurrentArtFileChanged(ASCIIArtFile? artFile)
             => SelectedArt = Rect.Empty;
 
-        public static void SetArtAsNewFile(ASCIIArt? artFile)
+        public static void SetArtAsNewFile(ASCIIArt? art)
         {
-            CurrentArt = artFile;
+            CurrentArtFile = art != null ? new(art) : null;
+
+            if (CurrentArtFile != null)
+            {
+                CurrentArtFile.SavePath = null;
+                CurrentArtFile.UnsavedChanges = true;
+            }
+
             CurrentLayerID = -1;
-            CurrentFilePath = null;
         }
 
         public static BackgroundTask? OpenArtFileAsync(FileInfo file)
@@ -411,11 +430,9 @@ namespace AAP
                 {
                     case ".txt":
                         AAPFile = new TXTASCIIArt(art, file.FullName);
-                        art.UnsavedChanges = true;
                         break;
                     case ".aaf":
                         AAPFile = new AAFASCIIArt(art, file.FullName);
-                        art.UnsavedChanges = false;
                         break;
                     default:
                         throw new Exception("Unknown file extension!");
@@ -450,9 +467,10 @@ namespace AAP
                     if (e.Result is not ASCIIArt art)
                         throw new Exception("Open File: BackgroundWorker Result is not of type ASCIIArt!");
                     
-                    CurrentArt = art;
+                    CurrentArtFile = new(art);
+                    CurrentArtFile.SavePath = file.Extension == ".aaf" ? file.FullName : null;
+                    CurrentArtFile.UnsavedChanges = false;
                     CurrentLayerID = -1;
-                    CurrentFilePath = file.Extension == ".aaf" ? file.FullName : null;
                     ConsoleLogger.Log($"Open File Path: opened file!");
                 }
             }
@@ -462,70 +480,14 @@ namespace AAP
 
         public static BackgroundTask? SaveArtFileToPathAsync(string path)
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return null;
 
             if (path == null)
                 return null;
-
-            ASCIIArt art = CurrentArt;
-            CurrentFilePath = path;
-
-            BackgroundWorker bgWorker = new();
-            bgWorker.WorkerSupportsCancellation = true;
-            bgWorker.WorkerReportsProgress = true;
-            bgWorker.DoWork += SaveWork;
-            bgWorker.RunWorkerCompleted += SaveWorkComplete;
-
-            ConsoleLogger.Log("Save File: Running BackgroundWorker");
-            bgWorker.RunWorkerAsync();
-
-            void SaveWork(object? sender, DoWorkEventArgs args)
-            {
-                if (sender is not BackgroundWorker bgWorker)
-                    return;
-
-                ConsoleLogger.Log("Save File: Saving art file to " + path);
-                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Exporting as .aaf file...", true));
-
-                AAFASCIIArt aafASCIIArt = new(art, path);
-
-                bool exportSuccess = aafASCIIArt.Export(bgWorker);
-
-                if (bgWorker.CancellationPending && !exportSuccess)
-                {
-                    args.Cancel = true;
-                    return;
-                }
-
-                args.Result = new FileInfo(path);
-            }
-
-            void SaveWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
-            {
-                if (e.Error != null)
-                {
-                    ConsoleLogger.Error("Save File: ", e.Error);
-                    art.UnsavedChanges = true;
-                }
-                else if (e.Cancelled)
-                {
-                    ConsoleLogger.Inform("Save File: Art file save cancelled");
-                    art.UnsavedChanges = true;
-                }
-                else
-                {
-                    if (e.Result is not FileInfo fileInfo)
-                        ConsoleLogger.Warn("Save File: Art file save was successful, but result is not file info");
-                    else
-                        ConsoleLogger.Log("Save File: Art file saved to " + fileInfo.FullName + "!");
-
-                    art.UnsavedChanges = false;
-                }
-            }
-
-
-            return new($"Saving to {new FileInfo(path).Name}...", bgWorker);
+            
+            CurrentArtFile.SavePath = path;
+            return CurrentArtFile.SaveAsync();
         }
 
         public static BackgroundTask? ExportArtFileToPathAsync(string path)
@@ -813,7 +775,7 @@ namespace AAP
                 return;
 
             ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
-            currentArtLayer.Merge(CurrentArt.ArtLayers[CurrentLayerID + 1]);
+            currentArtLayer.MergeDown(CurrentArt.ArtLayers[CurrentLayerID + 1]);
 
             CurrentArt.ArtLayers.RemoveAt(CurrentLayerID + 1);
 

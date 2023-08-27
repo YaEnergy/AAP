@@ -207,4 +207,8 @@
     </Page>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ASCIIArtFile\" />
+  </ItemGroup>
+
 </Project>

@@ -58,8 +58,6 @@ namespace AAP
             }
 
             FileObject.ArtLayers.Add(txtArtLayer);
-
-            FileObject.UnsavedChanges = true;
         }
 
         public bool Export(BackgroundWorker? bgWorker = null)
@@ -141,8 +139,6 @@ namespace AAP
 
             bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting decompressed path...", true));
             File.Delete(tempFilePath);
-
-            FileObject.UnsavedChanges = false;
         }
 
         public bool Export(BackgroundWorker? bgWorker = null)

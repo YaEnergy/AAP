@@ -17,32 +17,18 @@ namespace AAP.UI.ViewModels
 {
     public class ArtFileViewModel : INotifyPropertyChanged
     {
-        private ASCIIArt? currentArt = null;
-        public ASCIIArt? CurrentArt
+        private ASCIIArtFile? currentArtFile = null;
+        public ASCIIArtFile? CurrentArtFile
         {
-            get => currentArt;
+            get => currentArtFile;
             set
             {
-                if (currentArt == value)
+                if (currentArtFile == value)
                     return;
 
-                currentArt = value;
+                currentArtFile = value;
                 HasArtOpen = value != null;
-                PropertyChanged?.Invoke(this, new(nameof(CurrentArt)));
-            }
-        }
-
-        private ObjectTimeline? currentArtTimeline = null;
-        public ObjectTimeline? CurrentArtTimeline
-        {
-            get => currentArtTimeline;
-            set
-            {
-                if (currentArtTimeline == value)
-                    return;
-
-                currentArtTimeline = value;
-                PropertyChanged?.Invoke(this, new(nameof(CurrentArtTimeline)));
+                PropertyChanged?.Invoke(this, new(nameof(CurrentArtFile)));
             }
         }
 
@@ -164,8 +150,8 @@ namespace AAP.UI.ViewModels
 
             FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
 
-            UndoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollback());
-            RedoCommand = new ActionCommand((parameter) => App.CurrentArtTimeline?.Rollforward());
+            UndoCommand = new ActionCommand((parameter) => CurrentArtFile?.ArtTimeline.Rollback());
+            RedoCommand = new ActionCommand((parameter) => CurrentArtFile?.ArtTimeline.Rollforward());
 
             CutCommand = new ActionCommand((parameter) => App.CutSelectedArt());
             CopyCommand = new ActionCommand((parameter) => App.CopySelectedArtToClipboard());
@@ -215,7 +201,7 @@ namespace AAP.UI.ViewModels
 
         private BackgroundTask? SaveFileAsync(string? savePath)
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return null;
 
             if (CurrentBackgroundTask != null)
@@ -262,7 +248,7 @@ namespace AAP.UI.ViewModels
 
         private BackgroundTask? ExportFileAsync()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return null;
 
             if (CurrentBackgroundTask != null)
@@ -384,9 +370,9 @@ namespace AAP.UI.ViewModels
                 return; 
             }
 
-            if (CurrentArt != null)
+            if (CurrentArtFile != null)
             {
-                if (CurrentArt.UnsavedChanges)
+                if (CurrentArtFile.UnsavedChanges)
                 {
                     MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
@@ -423,9 +409,9 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            if (CurrentArt != null)
+            if (CurrentArtFile != null)
             {
-                if (CurrentArt.UnsavedChanges)
+                if (CurrentArtFile.UnsavedChanges)
                 {
                     MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
@@ -454,7 +440,7 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            SaveFileAsync(App.CurrentFilePath);
+            SaveFileAsync(App.CurrentArtFile?.SavePath);
         }
 
         public void SaveAsFile()
@@ -481,10 +467,10 @@ namespace AAP.UI.ViewModels
 
         public void CopyArtToClipboard()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
-            string artString = CurrentArt.GetArtString();
+            string artString = CurrentArtFile.Art.GetArtString();
             Clipboard.SetText(artString);
         }
 
@@ -501,10 +487,10 @@ namespace AAP.UI.ViewModels
 
         public void EditFile()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
-            ASCIIArtWindow artWindow = new(CurrentArt);
+            ASCIIArtWindow artWindow = new(CurrentArtFile.Art);
             artWindow.ShowDialog();
         }
     }

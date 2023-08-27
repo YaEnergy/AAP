@@ -32,7 +32,7 @@ namespace AAP
 
         public TextTool()
         {
-            App.OnCurrentArtChanged += OnArtFileChanged;
+            App.OnCurrentArtFileChanged += OnArtFileChanged;
             App.OnCurrentToolChanged += OnToolChanged;
 
             timeline = App.CurrentArtTimeline;
@@ -157,7 +157,7 @@ namespace AAP
                 StartArtPos = new((int)App.SelectedArt.X, StartArtPos.Y);
         }
 
-        private void OnArtFileChanged(ASCIIArt? art, ASCIIArtDraw? artDraw, ObjectTimeline? artTimeline)
+        private void OnArtFileChanged(ASCIIArtFile? artFile)
         {
             if (IsTyping)
                 IsTyping = false;
@@ -168,7 +168,7 @@ namespace AAP
                 timeline.Rolledforward -= OnArtTimelineTimeTravel;
             }
 
-            timeline = artTimeline;
+            timeline = artFile?.ArtTimeline;
 
             if (timeline != null)
             {
