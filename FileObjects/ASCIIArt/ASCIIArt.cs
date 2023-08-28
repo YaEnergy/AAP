@@ -48,6 +48,7 @@ namespace AAP
                 PropertyChanged?.Invoke(this, new(nameof(Width)));
             }
         }
+
         private int height = -1;
         public int Height 
         { 

@@ -31,6 +31,12 @@ namespace AAP
         public static readonly string CharacterPaletteDirectoryPath = $@"{ApplicationDataFolderPath}\CharacterPalettes";
         public static readonly string AutoSaveDirectoryPath = $@"{ApplicationDataFolderPath}\Autosaves";
 
+        private static readonly ObservableCollection<ASCIIArtFile> openArtFiles = new();
+        public static ObservableCollection<ASCIIArtFile> OpenArtFiles
+        {
+            get => openArtFiles;
+        }
+
         private static ASCIIArtFile? currentArtFile;
         public static ASCIIArtFile? CurrentArtFile
         {
@@ -39,9 +45,7 @@ namespace AAP
             {
                 if (currentArtFile == value)
                     return;
-
-                currentArtFile?.Dispose();
-
+                
                 currentArtFile = value;
 
                 OnCurrentArtFileChanged?.Invoke(currentArtFile);
@@ -389,13 +393,17 @@ namespace AAP
 
         public static void SetArtAsNewFile(ASCIIArt? art)
         {
-            CurrentArtFile = art != null ? new(art) : null;
-
-            if (CurrentArtFile != null)
+            if (art != null)
             {
-                CurrentArtFile.SavePath = null;
-                CurrentArtFile.UnsavedChanges = true;
+                ASCIIArtFile artFile = new(art);
+                artFile.SavePath = null;
+                artFile.UnsavedChanges = true;
+                OpenArtFiles.Add(artFile);
+
+                CurrentArtFile = artFile;
             }
+            else
+                CurrentArtFile = null;
 
             CurrentLayerID = -1;
         }
@@ -466,10 +474,13 @@ namespace AAP
                 {
                     if (e.Result is not ASCIIArt art)
                         throw new Exception("Open File: BackgroundWorker Result is not of type ASCIIArt!");
-                    
-                    CurrentArtFile = new(art);
-                    CurrentArtFile.SavePath = file.Extension == ".aaf" ? file.FullName : null;
-                    CurrentArtFile.UnsavedChanges = false;
+
+                    ASCIIArtFile artFile = new(art);
+                    artFile.SavePath = file.Extension == ".aaf" ? file.FullName : null;
+                    artFile.UnsavedChanges = false;
+                    OpenArtFiles.Add(artFile);
+
+                    CurrentArtFile = artFile;
                     CurrentLayerID = -1;
                     ConsoleLogger.Log($"Open File Path: opened file!");
                 }

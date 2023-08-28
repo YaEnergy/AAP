@@ -4,11 +4,11 @@ using AAP.UI.Windows;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.RightsManagement;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -17,6 +17,21 @@ namespace AAP.UI.ViewModels
 {
     public class ArtFileViewModel : INotifyPropertyChanged
     {
+        private ObservableCollection<ASCIIArtFile> openArtFiles = new();
+        public ObservableCollection<ASCIIArtFile> OpenArtFiles
+        {
+            get => openArtFiles;
+            set
+            {
+                if (openArtFiles == value)
+                    return;
+
+                openArtFiles = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(OpenArtFiles)));
+            }
+        }
+
         private ASCIIArtFile? currentArtFile = null;
         public ASCIIArtFile? CurrentArtFile
         {
@@ -110,6 +125,7 @@ namespace AAP.UI.ViewModels
         public ICommand ExportFileCommand { get; set; }
         public ICommand CopyArtToClipboardCommand { get; set; }
         public ICommand EditFileCommand { get; set; }
+        public ICommand CloseOpenFileCommand { get; set; }
 
         public ICommand DeleteSelectedCommand { get; private set; }
         public ICommand SelectArtCommand { get; private set; }
@@ -134,11 +150,12 @@ namespace AAP.UI.ViewModels
         {
             NewFileCommand = new ActionCommand((parameter) => NewFile());
             OpenFileCommand = new ActionCommand((parameter) => OpenFile());
-            SaveFileCommand = new ActionCommand((parameter) => SaveFile());
-            SaveAsFileCommand = new ActionCommand((parameter) => SaveAsFile());
-            ExportFileCommand = new ActionCommand((parameter) => ExportFile());
-            CopyArtToClipboardCommand = new ActionCommand((parameter) => CopyArtToClipboard());
+            SaveFileCommand = new ActionCommand((parameter) => { if (CurrentArtFile != null) SaveFile(CurrentArtFile); });
+            SaveAsFileCommand = new ActionCommand((parameter) => { if (CurrentArtFile != null) SaveAsFile(CurrentArtFile); });
+            ExportFileCommand = new ActionCommand((parameter) => ExportCurrentFile());
+            CopyArtToClipboardCommand = new ActionCommand((parameter) => CopyCurrentArtToClipboard());
             EditFileCommand = new ActionCommand((parameter) => EditFile());
+            CloseOpenFileCommand = new ActionCommand(CloseOpenFile);
 
             DeleteSelectedCommand = new ActionCommand((parameter) => App.FillSelectedWith(null));
             SelectArtCommand = new ActionCommand((parameter) => App.SelectArt());
@@ -199,11 +216,8 @@ namespace AAP.UI.ViewModels
             return null;
         }
 
-        private BackgroundTask? SaveFileAsync(string? savePath)
+        private BackgroundTask? SaveFileAsync(ASCIIArtFile artFile, string? savePath)
         {
-            if (CurrentArtFile == null)
-                return null;
-
             if (CurrentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save file.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -232,7 +246,8 @@ namespace AAP.UI.ViewModels
                     return null;
             }
 
-            BackgroundTask? bgTask = App.SaveArtFileToPathAsync(savePath);
+            artFile.SavePath = savePath;
+            BackgroundTask? bgTask = artFile.SaveAsync();
 
             if (bgTask == null)
                 return bgTask;
@@ -370,26 +385,6 @@ namespace AAP.UI.ViewModels
                 return; 
             }
 
-            if (CurrentArtFile != null)
-            {
-                if (CurrentArtFile.UnsavedChanges)
-                {
-                    MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        SaveFile();
-
-                        if (CurrentBackgroundTask == null)
-                            return;
-
-                        CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => NewFile();
-
-                        return;
-                    }
-                }
-            }
-
             ASCIIArtWindow newASCIIArtWindow = new();
             bool? windowResult = newASCIIArtWindow.ShowDialog();
 
@@ -409,30 +404,10 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            if (CurrentArtFile != null)
-            {
-                if (CurrentArtFile.UnsavedChanges)
-                {
-                    MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                    if (result == MessageBoxResult.Yes)
-                    {
-                        SaveFile();
-
-                        if (CurrentBackgroundTask == null)
-                            return;
-
-                        CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => OpenFileAsync();
-
-                        return;
-                    }
-                }
-            }
-
             OpenFileAsync();
         }
 
-        public void SaveFile()
+        public void SaveFile(ASCIIArtFile file)
         {
             if (CurrentBackgroundTask != null)
             {
@@ -440,10 +415,10 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            SaveFileAsync(App.CurrentArtFile?.SavePath);
+            SaveFileAsync(file, file.SavePath);
         }
 
-        public void SaveAsFile()
+        public void SaveAsFile(ASCIIArtFile file)
         {
             if (CurrentBackgroundTask != null)
             {
@@ -451,10 +426,10 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            SaveFileAsync(null);
+            SaveFileAsync(file, null);
         }
 
-        public void ExportFile()
+        public void ExportCurrentFile()
         {
             if (CurrentBackgroundTask != null)
             {
@@ -465,7 +440,7 @@ namespace AAP.UI.ViewModels
             ExportFileAsync();
         }
 
-        public void CopyArtToClipboard()
+        public void CopyCurrentArtToClipboard()
         {
             if (CurrentArtFile == null)
                 return;
@@ -492,6 +467,42 @@ namespace AAP.UI.ViewModels
 
             ASCIIArtWindow artWindow = new(CurrentArtFile.Art);
             artWindow.ShowDialog();
+        }
+
+        public void CloseOpenFile(object? parameter)
+        {
+            if (parameter is not ASCIIArtFile file)
+                throw new Exception("parameter is not ASCIIArtFile!");
+
+            if (CurrentBackgroundTask != null)
+            {
+                MessageBox.Show("Current background task must be cancelled in order to close a file.", "Close File", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            if (CurrentArtFile == file)
+                CurrentArtFile = null;
+
+            OpenArtFiles.Remove(file);
+
+            if (file.UnsavedChanges)
+            {
+                MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    SaveFile(file);
+
+                    if (CurrentBackgroundTask == null)
+                        return;
+
+                    CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => file.Dispose();
+
+                    return;
+                }
+            }
+
+            file.Dispose();
         }
     }
 }

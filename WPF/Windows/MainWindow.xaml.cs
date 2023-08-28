@@ -31,6 +31,7 @@ namespace AAP.UI.Windows
             CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
             LayerManagementViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
+            ArtFileViewModel.OpenArtFiles = App.OpenArtFiles;
             ArtFileViewModel.CurrentTool = App.CurrentTool;
             ToolOptionsViewModel.CharacterPaletteSelectionViewModel = CharacterPaletteSelectionViewModel;
 
@@ -54,11 +55,11 @@ namespace AAP.UI.Windows
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, new((sender, e) => ArtFileViewModel.NewFile())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, new((sender, e) => ArtFileViewModel.OpenFile())));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new((sender, e) => ArtFileViewModel.SaveFile())));
-            CommandBindings.Add(new CommandBinding(FileShortcutCommands.SaveAsShortcut, new((sender, e) => ArtFileViewModel.SaveAsFile())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new((sender, e) => { if (App.CurrentArtFile != null) ArtFileViewModel.SaveFile(App.CurrentArtFile); })));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.SaveAsShortcut, new((sender, e) => { if (App.CurrentArtFile != null) ArtFileViewModel.SaveAsFile(App.CurrentArtFile); })));
 
-            CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new((sender, e) => ArtFileViewModel.ExportFile())));
-            CommandBindings.Add(new CommandBinding(FileShortcutCommands.CopyToClipboardShortcut, new((sender, e) => ArtFileViewModel.CopyArtToClipboard())));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new((sender, e) => ArtFileViewModel.ExportCurrentFile())));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.CopyToClipboardShortcut, new((sender, e) => ArtFileViewModel.CopyCurrentArtToClipboard())));
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => Application.Current.Shutdown())));
 
@@ -95,9 +96,6 @@ namespace AAP.UI.Windows
 
         private void OnClosing(object? sender, CancelEventArgs e)
         {
-            if (App.CurrentArtFile == null)
-                return;
-
             if (ArtFileViewModel.CurrentBackgroundTask != null)
             {
                 e.Cancel = true;
@@ -111,24 +109,16 @@ namespace AAP.UI.Windows
                 return;
             }
 
-            if (App.CurrentArtFile.UnsavedChanges)
-            {
-                MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                if (result == MessageBoxResult.Yes)
+            foreach (ASCIIArtFile artFile in App.OpenArtFiles)
+                if (artFile.UnsavedChanges)
                 {
+                    MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nAre you sure you want to exit? (All changes will be discarded)", "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
-                    ArtFileViewModel.SaveFile();
+                    if (result == MessageBoxResult.No)
+                        e.Cancel = true;
 
-                    if (ArtFileViewModel.CurrentBackgroundTask == null)
-                        return;
-
-                    ArtFileViewModel.CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => Close();
-                    e.Cancel = true;
-
-                    return;
+                    break;
                 }
-            }
 
         }
 
@@ -168,8 +158,6 @@ namespace AAP.UI.Windows
             }
 
             ArtFileViewModel.CurrentArtFile = artFile;
-            
-            ArtCanvasViewModel.CurrentArtDraw = artFile?.ArtDraw;
 
             //Add new listeners
             if (artFile != null)
@@ -248,8 +236,8 @@ namespace AAP.UI.Windows
             switch (e.PropertyName)
             {
                 case nameof(vm.CurrentArtFile):
+                    App.CurrentArtFile = vm.CurrentArtFile;
                     ArtCanvasViewModel.CurrentArt = vm.CurrentArtFile?.Art;
-                    ArtCanvasViewModel.CurrentArtDraw = vm.CurrentArtFile?.ArtDraw;
                     LayerManagementViewModel.Art = vm.CurrentArtFile?.Art;
                     break;
                 case nameof(vm.CurrentTool):

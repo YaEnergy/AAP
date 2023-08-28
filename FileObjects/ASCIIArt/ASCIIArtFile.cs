@@ -6,17 +6,16 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Shapes;
 
 namespace AAP
 {
     public class ASCIIArtFile: INotifyPropertyChanged, IDisposable
     {
-        public readonly ASCIIArt Art;
-        public readonly ASCIIArtDraw ArtDraw;
-        public readonly ObjectTimeline ArtTimeline;
+        public ASCIIArt Art { get; }
+        public ASCIIArtDraw ArtDraw { get; }
+        public ObjectTimeline ArtTimeline { get; }
 
-        private string? savePath = "";
+        private string? savePath;
         public string? SavePath
         {
             get => savePath;
@@ -29,6 +28,18 @@ namespace AAP
 
                 OnSavePathChanged?.Invoke(savePath);
                 PropertyChanged?.Invoke(this, new(nameof(SavePath)));
+                PropertyChanged?.Invoke(this, new(nameof(FileName)));
+            }
+        }
+
+        public string FileName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(SavePath))
+                    return "*.*";
+
+                return Path.GetFileName(SavePath);
             }
         }
 
@@ -87,8 +98,8 @@ namespace AAP
 
         public BackgroundTask? SaveAsync()
         {
-            if (string.IsNullOrEmpty(SavePath))
-                throw new NullReferenceException("SavePath is null or empty!");
+            if (string.IsNullOrWhiteSpace(SavePath))
+                throw new NullReferenceException("SavePath is null or white space!");
 
             BackgroundWorker bgWorker = new();
             bgWorker.WorkerSupportsCancellation = true;

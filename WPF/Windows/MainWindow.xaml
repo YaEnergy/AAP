@@ -15,6 +15,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Resources/Styles/CheckBoxStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -55,25 +56,25 @@
                             <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
                         </MenuItem>
                         <MenuItem Header="View">
-                            <MenuItem Header="Dark Mode" IsChecked="{Binding DataContext.IsDarkModeOn, ElementName=window}" IsCheckable="True"></MenuItem>
+                            <MenuItem Header="Dark Mode" IsChecked="{Binding IsDarkModeOn, ElementName=MainWindowViewModel}" IsCheckable="True"></MenuItem>
                             <MenuItem Header="Toolbox">
-                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding DataContext.IsToolboxVisible, ElementName=window}"></MenuItem>
+                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding IsToolboxVisible, ElementName=MainWindowViewModel}"></MenuItem>
                             </MenuItem>
-                            <MenuItem Header="Canvas" DataContext="{Binding DataContext, ElementName=artCanvas}">
-                                <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding DataContext.TextSize, ElementName=artCanvas}"/>
-                                <MenuItem Header="Enlarge text size" Command="{Binding DataContext.EnlargeTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+I"/>
-                                <MenuItem Header="Shrink text size" Command="{Binding DataContext.ShrinkTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+O"></MenuItem>
-                                <MenuItem Header="Reset text zize" Command="{Binding DataContext.ResetTextSizeCommand, ElementName=artCanvas}" InputGestureText="Alt+P"></MenuItem>
+                            <MenuItem Header="Canvas">
+                                <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding TextSize, ElementName=ArtCanvasViewModel}"/>
+                                <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+I"/>
+                                <MenuItem Header="Shrink text size" Command="{Binding ShrinkTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+O"></MenuItem>
+                                <MenuItem Header="Reset text zize" Command="{Binding ResetTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+P"></MenuItem>
                                 <Separator></Separator>
-                                <MenuItem Header="{Binding DataContext.HighlightThickness, ElementName=artCanvas}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
-                                <MenuItem Header="Increase thickness" Command="{Binding DataContext.IncreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
-                                <MenuItem Header="Decrease thickness" Command="{Binding DataContext.DecreaseHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
-                                <MenuItem Header="Reset thickness" Command="{Binding DataContext.ResetHighlightThicknessCommand, ElementName=artCanvas}"></MenuItem>
+                                <MenuItem Header="{Binding HighlightThickness, ElementName=ArtCanvasViewModel}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
+                                <MenuItem Header="Increase thickness" Command="{Binding IncreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
+                                <MenuItem Header="Decrease thickness" Command="{Binding DecreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
+                                <MenuItem Header="Reset thickness" Command="{Binding ResetHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
                                 <Separator></Separator>
-                                <MenuItem Header="Show Grid" IsChecked="{Binding DataContext.ShowGrid, ElementName=artCanvas}" IsCheckable="True"></MenuItem>
+                                <MenuItem Header="Show Grid" IsChecked="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" IsCheckable="True"></MenuItem>
                             </MenuItem>
                             <MenuItem Header="Layer Management">
-                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding DataContext.IsLayerManagementVisible, ElementName=window}"></MenuItem>
+                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}"></MenuItem>
                             </MenuItem>
                         </MenuItem>
                         <MenuItem Header="Filters">
@@ -200,18 +201,39 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}"/>
-            <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Visibility="{Binding DataContext.BackgroundTaskVisibility, ElementName=window}">
-                <Label HorizontalAlignment="Left" Margin="5,5,5,5" Content="{Binding DataContext.CurrentBackgroundTask.Name, ElementName=window, FallbackValue=BackgroundTaskName}" Padding="5,5,5,5" Grid.IsSharedSizeScope="True"/>
-                <ProgressBar IsIndeterminate="{Binding CurrentBackgroundTask.IsDeterminate}" HorizontalContentAlignment="Stretch" Value="{Binding DataContext.CurrentBackgroundTask.ProgressPercentage,ElementName=window}" Margin="5,5,5,5"/>
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding LayerManagementVisibility, ElementName=MainWindowViewModel}"/>
+            <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Visibility="{Binding BackgroundTaskVisibility, ElementName=MainWindowViewModel}">
+                <Label HorizontalAlignment="Left" Margin="5,5,5,5" Content="{Binding CurrentBackgroundTask.Name, ElementName=MainWindowViewModel, FallbackValue=BackgroundTaskName}" Padding="5,5,5,5" Grid.IsSharedSizeScope="True"/>
+                <ProgressBar IsIndeterminate="{Binding CurrentBackgroundTask.IsDeterminate}" HorizontalContentAlignment="Stretch" Value="{Binding CurrentBackgroundTask.ProgressPercentage,ElementName=MainWindowViewModel}" Margin="5,5,5,5"/>
             </DockPanel>
-            <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Bottom" Visibility="{Binding DataContext.BackgroundTaskVisibility, ElementName=window}"/>
-            <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LightAccent}" Focusable="False">
-                <ScrollViewer.DataContext>
+            <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Bottom" Visibility="{Binding BackgroundTaskVisibility, ElementName=MainWindowViewModel}"/>
+            <DockPanel>
+                <DockPanel.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>
-                </ScrollViewer.DataContext>
-                <controls:ASCIIArtCanvasVisual x:Name="artCanvas" Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding CurrentArt}" DisplayArtDraw="{Binding CurrentArtDraw}" SelectionHighlightRect="{Binding Selected}" TextSize="{Binding TextSize}" Tool="{Binding CurrentTool}" CanUseTool="{Binding CanUseTool}" HighlightRectThickness="{Binding HighlightThickness}" DisplayLayer="{Binding SelectedLayer}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen" ShowGrid="{Binding ShowGrid}"/>
-            </ScrollViewer>
+                </DockPanel.DataContext>
+                <TabControl DockPanel.Dock="Top" ItemsSource="{Binding OpenArtFiles, ElementName=ArtFileViewModel}" SelectedItem="{Binding CurrentArtFile, ElementName=ArtFileViewModel}" SelectedValue="{Binding CurrentArtFile, ElementName=ArtFileViewModel}" Background="{DynamicResource Background}" BorderBrush="{DynamicResource Border}" Foreground="{DynamicResource Text}">
+                    <TabControl.ContentTemplate>
+                        <DataTemplate>
+                            <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LightAccent}" Focusable="False">
+                                <controls:ASCIIArtCanvasVisual Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding Art}" DisplayArtDraw="{Binding ArtDraw}" SelectionHighlightRect="{Binding Selected, ElementName=ArtCanvasViewModel}" TextSize="{Binding TextSize, ElementName=ArtCanvasViewModel}" Tool="{Binding CurrentTool, ElementName=ArtCanvasViewModel}" CanUseTool="{Binding CanUseTool, ElementName=ArtCanvasViewModel}" HighlightRectThickness="{Binding HighlightThickness, ElementName=ArtCanvasViewModel}" DisplayLayer="{Binding SelectedLayer, ElementName=ArtCanvasViewModel}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen" ShowGrid="{Binding ShowGrid, ElementName=ArtCanvasViewModel}"/>
+                            </ScrollViewer>
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                    <TabControl.ItemTemplate>
+                        <DataTemplate>
+                            <WrapPanel>
+                                <TextBlock Text="{Binding FileName, FallbackValue=*.*}"/>
+                                <TextBlock Text="*" Visibility="{Binding UnsavedChanges, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                <TextBlock Text=" - "/>
+                                <TextBlock Text="{Binding Art.Width, FallbackValue=*}"/>
+                                <TextBlock Text="x"/>
+                                <TextBlock Text="{Binding Art.Height, FallbackValue=*}"/>
+                                <Button Content="X" Margin="5,0,5,0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" FontSize="9" Command="{Binding CloseOpenFileCommand, ElementName=ArtFileViewModel}" CommandParameter="{Binding Mode=OneWay}"/>
+                            </WrapPanel>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                </TabControl>
+            </DockPanel>
         </DockPanel>
     </Grid>
 </Window>

@@ -86,20 +86,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private ASCIIArtDraw? currentArtDraw = null;
-        public ASCIIArtDraw? CurrentArtDraw
-        {
-            get => currentArtDraw;
-            set
-            {
-                if (currentArtDraw == value)
-                    return;
-
-                currentArtDraw = value;
-                PropertyChanged?.Invoke(this, new(nameof(CurrentArtDraw)));
-            }
-        }
-
         private Tool? currentTool = null;
         public Tool? CurrentTool
         {
