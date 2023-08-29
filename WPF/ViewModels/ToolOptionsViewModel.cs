@@ -57,24 +57,8 @@ namespace AAP.UI.ViewModels
                     return;
 
                 isCharacterOptionVisible = value;
-                CharacterOptionVisibility = value ? Visibility.Visible : Visibility.Collapsed;
 
                 PropertyChanged?.Invoke(this, new(nameof(IsCharacterOptionVisible)));
-            }
-        }
-
-        private Visibility characterOptionVisibility = Visibility.Collapsed;
-        public Visibility CharacterOptionVisibility
-        {
-            get => characterOptionVisibility;
-            private set
-            {
-                if (characterOptionVisibility == value)
-                    return;
-
-                characterOptionVisibility = value;
-
-                PropertyChanged?.Invoke(this, new(nameof(CharacterOptionVisibility)));
             }
         }
 
@@ -106,23 +90,8 @@ namespace AAP.UI.ViewModels
                     return;
 
                 isSizeOptionVisible = value;
-                SizeOptionVisibility = value ? Visibility.Visible : Visibility.Collapsed;
 
                 PropertyChanged?.Invoke(this, new(nameof(IsSizeOptionVisible)));
-            }
-        }
-
-        private Visibility sizeOptionVisibility = Visibility.Collapsed;
-        public Visibility SizeOptionVisibility
-        {
-            get => sizeOptionVisibility;
-            private set
-            {
-                if (sizeOptionVisibility == value)
-                    return;
-
-                sizeOptionVisibility = value;
-                PropertyChanged?.Invoke(this, new(nameof(SizeOptionVisibility)));
             }
         }
 
@@ -154,23 +123,8 @@ namespace AAP.UI.ViewModels
                     return;
 
                 isEightDirectionalOptionVisible = value;
-                EightDirectionalOptionVisibility = value ? Visibility.Visible : Visibility.Collapsed;
 
                 PropertyChanged?.Invoke(this, new(nameof(IsEightDirectionalOptionVisible)));
-            }
-        }
-
-        private Visibility eightDirectionalOptionVisibility = Visibility.Collapsed;
-        public Visibility EightDirectionalOptionVisibility
-        {
-            get => eightDirectionalOptionVisibility;
-            private set
-            {
-                if (eightDirectionalOptionVisibility == value)
-                    return;
-
-                eightDirectionalOptionVisibility = value;
-                PropertyChanged?.Invoke(this, new(nameof(EightDirectionalOptionVisibility)));
             }
         }
 
@@ -202,23 +156,8 @@ namespace AAP.UI.ViewModels
                     return;
 
                 isStayInsideSelectionOptionVisible = value;
-                StayInsideSelectionOptionVisibility = value ? Visibility.Visible : Visibility.Collapsed;
 
                 PropertyChanged?.Invoke(this, new(nameof(IsStayInsideSelectionOptionVisible)));
-            }
-        }
-
-        private Visibility stayInsideSelectionOptionVisibility = Visibility.Collapsed;
-        public Visibility StayInsideSelectionOptionVisibility
-        {
-            get => stayInsideSelectionOptionVisibility;
-            private set
-            {
-                if (stayInsideSelectionOptionVisibility == value)
-                    return;
-
-                stayInsideSelectionOptionVisibility = value;
-                PropertyChanged?.Invoke(this, new(nameof(StayInsideSelectionOptionVisibility)));
             }
         }
 

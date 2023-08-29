@@ -37,7 +37,7 @@
                             <Separator></Separator>
                             <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding DataContext.ExitCommand, ElementName=window}"></MenuItem>
+                            <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand, ElementName=MainWindowViewModel}"></MenuItem>
                         </MenuItem>
                         <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen}">
                             <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
@@ -86,7 +86,7 @@
                     </Menu>
                 </ToolBar>
             </ToolBarTray>
-            <DockPanel HorizontalAlignment="Left" Margin="0,0,0,0" Width="200" ClipToBounds="True" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}">
+            <DockPanel HorizontalAlignment="Left" Margin="0,0,0,0" Width="200" ClipToBounds="True" Visibility="{Binding IsToolboxVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainWindowViewModel}">
                 <Grid x:Name="ToolBox" VerticalAlignment="Top" Height="150" Background="{DynamicResource LightAccent}" DockPanel.Dock="Top" Margin="0,0,0,5">
                     <Grid.DataContext>
                         <viewmodels:ToolSelectionViewModel x:Name="ToolSelectionViewModel"/>
@@ -116,53 +116,51 @@
                         <viewmodels:ToolOptionsViewModel x:Name="ToolOptionsViewModel"/>
                     </ScrollViewer.DataContext>
                     <StackPanel>
-                        <WrapPanel Visibility="{Binding CharacterOptionVisibility}">
-                            <DockPanel Background="{DynamicResource LightAccent}">
-                                <DockPanel.DataContext>
-                                    <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
-                                </DockPanel.DataContext>
-                                <DockPanel DockPanel.Dock="Top">
-                                    <Label Content="Palette" HorizontalAlignment="Left"/>
-                                    <ComboBox Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <WrapPanel>
-                                                    <TextBlock Text="{Binding Name}"/>
-                                                </WrapPanel>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </DockPanel>
-                                <Grid DockPanel.Dock="Bottom" Height="40" VerticalAlignment="Top" Background="{DynamicResource LightAccent}">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Plus_Button}" Command="{Binding NewPaletteCommand}"/>
-                                    <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource PaletteEdit_Button}" Grid.Column="1" Command="{Binding EditPaletteCommand}"/>
-                                    <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="2" Command="{Binding RemovePaletteCommand}"/>
-                                </Grid>
-                                <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Characters="{Binding SelectedPalette.Characters, Mode=OneWay}"/>
+                        <WrapPanel Visibility="{Binding IsCharacterOptionVisible, ElementName=ToolOptionsViewModel, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <WrapPanel.DataContext>
+                                <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
+                            </WrapPanel.DataContext>
+                            <DockPanel DockPanel.Dock="Top">
+                                <Label Content="Palette" HorizontalAlignment="Left"/>
+                                <ComboBox Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <WrapPanel>
+                                                <TextBlock Text="{Binding Name}"/>
+                                            </WrapPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
                             </DockPanel>
+                            <Grid DockPanel.Dock="Bottom" Height="40" VerticalAlignment="Top" Background="{DynamicResource LightAccent}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Plus_Button}" Command="{Binding NewPaletteCommand}"/>
+                                <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource PaletteEdit_Button}" Grid.Column="1" Command="{Binding EditPaletteCommand}"/>
+                                <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="2" Command="{Binding RemovePaletteCommand}"/>
+                            </Grid>
+                            <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Characters="{Binding SelectedPalette.Characters, Mode=OneWay}"/>
                         </WrapPanel>
-                        <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding CharacterOptionVisibility}"/>
-                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding SizeOptionVisibility}">
+                        <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsSizeOptionVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Label Content="Size" Height="30" Margin="5,0,0,0"></Label>
                             <Slider Width="100" Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Minimum="1" Value="{Binding Size}" Maximum="64"/>
                             <Label Content="{Binding Size}"/>
                         </WrapPanel>
-                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding EightDirectionalOptionVisibility}">
+                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsEightDirectionalOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <CheckBox Content="Eight Directional" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}" Foreground="{DynamicResource Text}"/>
                         </WrapPanel>
-                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding StayInsideSelectionOptionVisibility}">
+                        <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsStayInsideSelectionOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <CheckBox Content="Stay Inside Selection" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding StayInsideSelection}" Foreground="{DynamicResource Text}"/>
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" Visibility="{Binding DataContext.ToolboxVisibility, ElementName=window}"/>
-            <DockPanel Margin="0,0,0,0" Width="200" ClipToBounds="True" HorizontalAlignment="Right" DockPanel.Dock="Right" Visibility="{Binding DataContext.LayerManagementVisibility, ElementName=window}">
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" Visibility="{Binding IsToolboxVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainWindowViewModel}"/>
+            <DockPanel Margin="0,0,0,0" Width="200" ClipToBounds="True" HorizontalAlignment="Right" DockPanel.Dock="Right" Visibility="{Binding IsLayerManagementVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainWindowViewModel}">
                 <DockPanel.DataContext>
                     <viewmodels:LayerManagementViewModel x:Name="LayerManagementViewModel"/>
                 </DockPanel.DataContext>
@@ -182,7 +180,7 @@
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Merge_Button}" Grid.Column="4" Command="{Binding MergeLayerCommand}"/>
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="5" Command="{Binding RemoveLayerCommand}"/>
                 </Grid>
-                <StackPanel VerticalAlignment="Top" Background="{DynamicResource LightAccent}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding LayerOptionsVisibility}">
+                <StackPanel VerticalAlignment="Top" Background="{DynamicResource LightAccent}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding HasSelectedLayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
                     <WrapPanel Margin="5,0,5,5">
                         <Label Content="Name" HorizontalAlignment="Left"/>
@@ -190,7 +188,7 @@
                     </WrapPanel>
                     <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5" Style="{StaticResource ContentLeftCheckBoxStyle}" Foreground="{DynamicResource Text}"/>
                 </StackPanel>
-                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding LayerOptionsVisibility}"/>
+                <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding HasSelectedLayer,Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
@@ -201,12 +199,12 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
             </DockPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding LayerManagementVisibility, ElementName=MainWindowViewModel}"/>
-            <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Visibility="{Binding BackgroundTaskVisibility, ElementName=MainWindowViewModel}">
+            <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding IsLayerManagementVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainWindowViewModel}"/>
+            <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Visibility="{Binding IsBackgroundTaskVisible, ElementName=MainWindowViewModel, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Label HorizontalAlignment="Left" Margin="5,5,5,5" Content="{Binding CurrentBackgroundTask.Name, ElementName=MainWindowViewModel, FallbackValue=BackgroundTaskName}" Padding="5,5,5,5" Grid.IsSharedSizeScope="True"/>
                 <ProgressBar IsIndeterminate="{Binding CurrentBackgroundTask.IsDeterminate}" HorizontalContentAlignment="Stretch" Value="{Binding CurrentBackgroundTask.ProgressPercentage,ElementName=MainWindowViewModel}" Margin="5,5,5,5"/>
             </DockPanel>
-            <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Bottom" Visibility="{Binding BackgroundTaskVisibility, ElementName=MainWindowViewModel}"/>
+            <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Bottom" Visibility="{Binding IsBackgroundTaskVisible, ElementName=MainWindowViewModel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             <DockPanel>
                 <DockPanel.DataContext>
                     <viewmodels:ArtCanvasViewModel x:Name="ArtCanvasViewModel"/>

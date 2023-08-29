@@ -90,6 +90,27 @@ namespace AAP.UI.Windows
                 return;
             }
 
+            int fullArtArea = Art.GetTotalArtArea();
+
+            if (fullArtArea < width * height)
+                fullArtArea = width * height;
+
+            if (fullArtArea >= App.WarningLargeArtArea)
+            {
+                string message = $"The art you're trying to create/edit has an total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
+
+                if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
+                    message = $"The art you're to trying to create/edit has a total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
+
+                MessageBoxResult result = MessageBox.Show(message, "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.No)
+                {
+                    Close();
+                    return;
+                }
+            }
+
             Art.SetSize(width, height);
 
             DialogResult = true;

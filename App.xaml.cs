@@ -47,6 +47,7 @@ namespace AAP
                     return;
                 
                 currentArtFile = value;
+                CurrentLayerID = -1;
 
                 OnCurrentArtFileChanged?.Invoke(currentArtFile);
             }
@@ -313,29 +314,31 @@ namespace AAP
 
             ConsoleLogger.Log("LOADING WINDOW HIDDEN");
 
+            //This needs to be remade
             if (args.Length == 1)
                 if (File.Exists(args[0]))
                 {
                     FileInfo fileInfo = new(args[0]);
                     try
                     {
-                        Exception? exception = null;
-
-                        switch (fileInfo.Extension)
+                        void BackgroundTaskOpenFinish(object? sender, RunWorkerCompletedEventArgs e)
                         {
-                            case ".aaf":
-                                OpenArtFileAsync(fileInfo);
-                                break;
-                            case ".txt":
-                                OpenArtFileAsync(fileInfo);
-                                break;
-                            default:
-                                ConsoleLogger.Log($"Open File On Start Up: Unknown extension: {fileInfo.Extension}!");
-                                throw new Exception($"Unknown extension: {fileInfo.Extension}");
+                            if (e.Error != null)
+                                throw e.Error;
+                            else if (e.Cancelled)
+                                return;
+                            else if (e.Result is ASCIIArtFile artFile)
+                            {
+                                OpenArtFiles.Add(artFile);
+                                CurrentArtFile = artFile;
+                            }
+                            else
+                                throw new Exception("Result is not ASCIIArtFile!");
                         }
 
-                        if (exception != null)
-                            throw exception;
+                        BackgroundTask? bgTask = ASCIIArtFile.OpenAsync(fileInfo.FullName);
+                        if (bgTask != null)
+                            bgTask.Worker.RunWorkerCompleted += BackgroundTaskOpenFinish;
                     }
                     catch (Exception ex)
                     {
@@ -406,169 +409,6 @@ namespace AAP
                 CurrentArtFile = null;
 
             CurrentLayerID = -1;
-        }
-
-        public static BackgroundTask? OpenArtFileAsync(FileInfo file)
-        {
-            BackgroundWorker bgWorker = new();
-            bgWorker.WorkerSupportsCancellation = true;
-            bgWorker.WorkerReportsProgress = true;
-            bgWorker.DoWork += OpenWork;
-            bgWorker.RunWorkerCompleted += OpenWorkComplete;
-
-            ConsoleLogger.Log("Open File: Running BackgroundWorker");
-            bgWorker.RunWorkerAsync();
-
-            void OpenWork(object? sender, DoWorkEventArgs args)
-            {
-                if (sender is not BackgroundWorker bgWorker)
-                    return;
-
-                ConsoleLogger.Log($"Open File: importing file from path... {file.FullName}");
-
-                bgWorker.ReportProgress(30, new BackgroundTaskUpdateArgs("Importing art...", true));
-
-                if (!file.Exists)
-                    throw new FileNotFoundException("Tried to open non-existant file", file.FullName);
-
-                IAAPFile<ASCIIArt> AAPFile;
-                ASCIIArt art = new();
-
-                switch (file.Extension.ToLower())
-                {
-                    case ".txt":
-                        AAPFile = new TXTASCIIArt(art, file.FullName);
-                        break;
-                    case ".aaf":
-                        AAPFile = new AAFASCIIArt(art, file.FullName);
-                        break;
-                    default:
-                        throw new Exception("Unknown file extension!");
-                }
-
-                ConsoleLogger.Log($"Open File: Imported file!");
-                AAPFile.Import(bgWorker);
-
-                if (bgWorker.CancellationPending)
-                {
-                    args.Cancel = true;
-                    return;
-                }
-
-                if (art.Width * art.Height > MaxArtArea)
-                    throw new Exception($"Art Area is too large! Max: {MaxArtArea} characters ({art.Width * art.Height} characters)");
-
-                ConsoleLogger.Inform($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nVisible Art Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.GetTotalArtArea()}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
-
-                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs("Finishing up art...", true));
-                args.Result = art;
-            }
-
-            void OpenWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
-            {
-                if (e.Error != null)
-                    ConsoleLogger.Error("Open File: ", e.Error);
-                else if (e.Cancelled)
-                    ConsoleLogger.Inform("Open File: Art file open was cancelled");
-                else
-                {
-                    if (e.Result is not ASCIIArt art)
-                        throw new Exception("Open File: BackgroundWorker Result is not of type ASCIIArt!");
-
-                    ASCIIArtFile artFile = new(art);
-                    artFile.SavePath = file.Extension == ".aaf" ? file.FullName : null;
-                    artFile.UnsavedChanges = false;
-                    OpenArtFiles.Add(artFile);
-
-                    CurrentArtFile = artFile;
-                    CurrentLayerID = -1;
-                    ConsoleLogger.Log($"Open File Path: opened file!");
-                }
-            }
-
-            return new($"Opening {file.Name}...", bgWorker);
-        }
-
-        public static BackgroundTask? SaveArtFileToPathAsync(string path)
-        {
-            if (CurrentArtFile == null)
-                return null;
-
-            if (path == null)
-                return null;
-            
-            CurrentArtFile.SavePath = path;
-            return CurrentArtFile.SaveAsync();
-        }
-
-        public static BackgroundTask? ExportArtFileToPathAsync(string path)
-        {
-            if (CurrentArt == null)
-                return null;
-
-            if (path == null)
-                return null;
-
-            ASCIIArt art = CurrentArt;
-            BackgroundWorker bgWorker = new();
-            bgWorker.WorkerSupportsCancellation = true;
-            bgWorker.WorkerReportsProgress = true;
-            bgWorker.DoWork += ExportWork;
-            bgWorker.RunWorkerCompleted += ExportWorkComplete;
-
-            ConsoleLogger.Log("Export File: Running BackgroundWorker");
-            bgWorker.RunWorkerAsync();
-
-            void ExportWork(object? sender, DoWorkEventArgs args)
-            {
-                if (sender is not BackgroundWorker bgWorker)
-                    throw new Exception("Sender is not a background worker!");
-
-                ConsoleLogger.Log("Export File: Exporting art file to " + path);
-
-                FileInfo fileInfo = new(path);
-                bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Exporting as {fileInfo.Extension} file...", true));
-                IAAPFile<ASCIIArt> AAPFile;
-
-                switch (fileInfo.Extension)
-                {
-                    case ".txt":
-                        AAPFile = new TXTASCIIArt(art, fileInfo.FullName);
-                        break;
-                    case ".aaf":
-                        AAPFile = new AAFASCIIArt(art, fileInfo.FullName);
-                        break;
-                    default:
-                        throw new Exception("Unknown file extension!");
-                }
-
-                bool exportSuccess = AAPFile.Export(bgWorker);
-
-                if (bgWorker.CancellationPending && !exportSuccess)
-                {
-                    args.Cancel = true;
-                    return;
-                }
-
-                args.Result = fileInfo;
-            }
-
-            void ExportWorkComplete(object? sender, RunWorkerCompletedEventArgs e)
-            {
-                if (e.Error != null)
-                    ConsoleLogger.Error("Export File: ", e.Error);
-                else if (e.Cancelled)
-                    ConsoleLogger.Inform("Export File: Art file export cancelled");
-                else
-                {
-                    if (e.Result is not FileInfo fileInfo)
-                        ConsoleLogger.Warn("Export File: Art file export was successful, but result is not file info");
-                    else
-                        ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
-                }
-            }
-
-            return new($"Exporting to {new FileInfo(path).Name}...", bgWorker);
         }
 
         public static void CopyArtStringToClipboard()

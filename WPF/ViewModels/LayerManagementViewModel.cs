@@ -137,20 +137,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private Visibility layerOptionsVisibility = Visibility.Collapsed;
-        public Visibility LayerOptionsVisibility
-        {
-            get => layerOptionsVisibility;
-            private set
-            {
-                if (layerOptionsVisibility == value)
-                    return;
-
-                layerOptionsVisibility = value;
-                PropertyChanged?.Invoke(this, new(nameof(LayerOptionsVisibility)));
-            }
-        }
-
         private bool hasSelectedLayer = false;
         public bool HasSelectedLayer
         {
@@ -161,8 +147,6 @@ namespace AAP.UI.ViewModels
                     return;
 
                 hasSelectedLayer = value;
-
-                LayerOptionsVisibility = value ? Visibility.Visible : Visibility.Collapsed;
 
                 PropertyChanged?.Invoke(this, new(nameof(HasSelectedLayer)));
             }

@@ -125,30 +125,6 @@ namespace AAP.UI.Windows
         #region App Events
         private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
         {
-            if (artFile != null)
-            {
-                int fullArtArea = artFile.Art.GetTotalArtArea();
-
-                if (fullArtArea < artFile.Art.Width * artFile.Art.Height)
-                    fullArtArea = artFile.Art.Width * artFile.Art.Height;
-
-                if (fullArtArea >= App.WarningLargeArtArea)
-                {
-                    string message = $"The ASCII Art you're trying to open has an total art area of {fullArtArea} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
-
-                    if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
-                        message = $"The ASCII Art you're trying to open has an total art area of {fullArtArea} (Area * ArtLayers) characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
-
-                    MessageBoxResult result = MessageBox.Show(message, "ASCII Art Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-                    
-                    if (result == MessageBoxResult.No)
-                    {
-                        App.SetArtAsNewFile(null);
-                        return;
-                    }
-                }
-            }
-
             //Remove old listeners
             if (ArtFileViewModel.CurrentArtFile != null)
             {

@@ -26,24 +26,24 @@ namespace AAP.UI.ViewModels
                     return;
 
                 currentBackgroundTask = value;
-                BackgroundTaskVisibility = CurrentBackgroundTask == null ? Visibility.Collapsed : Visibility.Visible;
+                IsBackgroundTaskVisible = value != null;
 
                 PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTask)));
             }
         }
 
-        private Visibility backgroundTaskVisibility = Visibility.Collapsed;
-        public Visibility BackgroundTaskVisibility
+        private bool isBackgroundTaskVisible = false;
+        public bool IsBackgroundTaskVisible
         {
-            get => backgroundTaskVisibility;
+            get => isBackgroundTaskVisible;
             set
             {
-                if (backgroundTaskVisibility == value)
+                if (isBackgroundTaskVisible == value)
                     return;
 
-                backgroundTaskVisibility = value;
+                isBackgroundTaskVisible = value;
 
-                PropertyChanged?.Invoke(this, new(nameof(BackgroundTaskVisibility)));
+                PropertyChanged?.Invoke(this, new(nameof(IsBackgroundTaskVisible)));
             }
         }
 
@@ -73,23 +73,7 @@ namespace AAP.UI.ViewModels
 
                 isToolboxVisible = value;
 
-                ToolboxVisibility = value ? Visibility.Visible : Visibility.Collapsed;
-
                 PropertyChanged?.Invoke(this, new(nameof(IsToolboxVisible)));
-            }
-        }
-
-        private Visibility toolboxVisibility = Visibility.Visible;
-        public Visibility ToolboxVisibility
-        {
-            get => toolboxVisibility;
-            private set
-            {
-                if (toolboxVisibility == value)
-                    return;
-
-                toolboxVisibility = value;
-                PropertyChanged?.Invoke(this, new(nameof(ToolboxVisibility)));
             }
         }
 
@@ -104,23 +88,7 @@ namespace AAP.UI.ViewModels
 
                 isLayerManagementVisible = value;
 
-                LayerManagementVisibility = value ? Visibility.Visible : Visibility.Collapsed;
-
                 PropertyChanged?.Invoke(this, new(nameof(IsLayerManagementVisible)));
-            }
-        }
-
-        private Visibility layerManagementVisibility = Visibility.Visible;
-        public Visibility LayerManagementVisibility
-        {
-            get => layerManagementVisibility;
-            private set
-            {
-                if (layerManagementVisibility == value)
-                    return;
-
-                layerManagementVisibility = value;
-                PropertyChanged?.Invoke(this, new(nameof(LayerManagementVisibility)));
             }
         }
 

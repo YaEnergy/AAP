@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media.Media3D;
 
 namespace AAP.UI.ViewModels
 {
@@ -199,7 +200,7 @@ namespace AAP.UI.ViewModels
 
             if (result == true)
             {
-                BackgroundTask? bgTask = App.OpenArtFileAsync(new(openFileDialog.FileName));
+                BackgroundTask? bgTask = ASCIIArtFile.OpenAsync(openFileDialog.FileName);
 
                 if (bgTask == null)
                     return bgTask;
@@ -292,7 +293,7 @@ namespace AAP.UI.ViewModels
             else
                 return null;
 
-            BackgroundTask? bgTask = App.ExportArtFileToPathAsync(savePath);
+            BackgroundTask? bgTask = CurrentArtFile.ExportAsync(savePath);
 
             if (bgTask == null)
                 return bgTask;
@@ -374,6 +375,31 @@ namespace AAP.UI.ViewModels
                 MessageBox.Show("Cancelled opening art file!", "Open File", MessageBoxButton.OK, MessageBoxImage.Information);
             else if (args.Error != null)
                 MessageBox.Show("An error has occurred while opening art file!\nException: " + args.Error.Message, "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+            else if (args.Result is ASCIIArtFile artFile)
+            {
+                int fullArtArea = artFile.Art.GetTotalArtArea();
+
+                if (fullArtArea < artFile.Art.Width * artFile.Art.Height)
+                    fullArtArea = artFile.Art.Width * artFile.Art.Height;
+
+                if (fullArtArea >= App.WarningLargeArtArea)
+                {
+                    string message = $"The art you're trying to create/edit has an total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
+
+                    if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
+                        message = $"The art you're to trying to create/edit has a total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
+
+                    MessageBoxResult result = MessageBox.Show(message, "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                    if (result == MessageBoxResult.No)
+                        return;
+                }
+
+                OpenArtFiles.Add(artFile);
+                CurrentArtFile = artFile;
+            }
+            else
+                throw new Exception("Result is not ASCIIArtFile!");
         }
         #endregion
 

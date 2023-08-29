@@ -25,10 +25,6 @@
         <Setter Property="Foreground" Value="{StaticResource Text}"/>
     </Style>
 
-    <Style TargetType="MenuItem">
-        <Setter Property="Foreground" Value="{StaticResource Text}"/>
-    </Style>
-
     <Style TargetType="{x:Type controls:ImageButton}">
         <Setter Property="Unhighlighted" Value="{StaticResource UnhighlightedInactive}"/>
         <Setter Property="Highlighted" Value="{StaticResource HighlightedInactive}"/>

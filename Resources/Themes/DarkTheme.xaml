@@ -25,10 +25,6 @@
         <Setter Property="Foreground" Value="{StaticResource Text}"/>
     </Style>
 
-    <Style TargetType="MenuItem">
-        <Setter Property="Foreground" Value="{StaticResource Text}"/>
-    </Style>
-
     <Style TargetType="Menu">
         <Setter Property="Background" Value="{StaticResource Background}"/>
     </Style>
