@@ -279,12 +279,9 @@ namespace AAP
 
                 palette.IsPresetPalette = true;
 
-                AAPPALCharacterPalette aappalCharacterPalette = new(palette, presetCharacterPaletteFilePath);
-                aappalCharacterPalette.Export();
+                characterPalettes.Add(palette);
 
-                FileInfo fileInfo = new(presetCharacterPaletteFilePath);
-
-                ConsoleLogger.Log($"Created Preset Character Palette File: {fileInfo.FullName}");
+                ConsoleLogger.Log($"Imported Preset Character Palette File: {presetCharacterPaletteFilePath}");
             }
 
             //Character Palettes
