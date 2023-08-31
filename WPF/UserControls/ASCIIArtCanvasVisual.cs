@@ -496,7 +496,7 @@ namespace AAP.UI.Controls
 
             double width = artPosX >= columnWidths.Length || artPosX < 0 ? defaultWidth : columnWidths[artPosX];
 
-            return new(canvasPosX - (width / 4), canvasPosY, width, LineHeight);
+            return new(canvasPosX, canvasPosY, width, LineHeight);
         }
 
         public Rect GetArtCanvasRectangle(Rect artMatrixRectangle)
@@ -509,7 +509,7 @@ namespace AAP.UI.Controls
 
             double startX = startRectangle.X < endRectangle.X ? startRectangle.X : endRectangle.X;
             double startY = startRectangle.Y < endRectangle.Y ? startRectangle.Y : endRectangle.Y;
-            double sizeX = startRectangle.X < endRectangle.X ? endRectangle.X - startRectangle.X + endRectangle.Width / 2 : startRectangle.X - endRectangle.X;
+            double sizeX = startRectangle.X < endRectangle.X ? endRectangle.X - startRectangle.X : startRectangle.X - endRectangle.X;
             double sizeY = startRectangle.Y < endRectangle.Y ? endRectangle.Y - startRectangle.Y : startRectangle.Y - endRectangle.Y;
 
             return new(startX, startY, sizeX, sizeY);
