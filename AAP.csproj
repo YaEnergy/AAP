@@ -23,6 +23,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ASCIIArtFile\**" />
+    <EmbeddedResource Remove="ASCIIArtFile\**" />
+    <None Remove="ASCIIArtFile\**" />
+    <Page Remove="ASCIIArtFile\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ApplicationDefinition Remove="App.xaml" />
   </ItemGroup>
 
@@ -213,10 +220,6 @@
     <Page Update="Resources\Themes\LightTheme.xaml">
       <CopyToOutputDirectory></CopyToOutputDirectory>
     </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="ASCIIArtFile\" />
   </ItemGroup>
 
   <ItemGroup>

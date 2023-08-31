@@ -18,7 +18,7 @@ namespace AAP
     public partial class App : Application
     {
         public static readonly DirectoryInfo? ExecutableDirectory = Environment.ProcessPath != null ? Directory.GetParent(Environment.ProcessPath) : null;
-        public static readonly string ProgramTitle = "ASCII Art Program";
+        public static readonly string ProgramTitle = "Kiara's ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
         public static readonly int MaxArtArea = 1600000;

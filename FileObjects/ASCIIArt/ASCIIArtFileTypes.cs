@@ -5,11 +5,14 @@ using System.Buffers.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace AAP
 {
@@ -51,7 +54,7 @@ namespace AAP
 
             for (int y = 0; y < txtHeight; y++)
             {
-                bgWorker?.ReportProgress((int)((double)(y + 1)/txtHeight * 100), new BackgroundTaskUpdateArgs("Creating lines...", false));
+                bgWorker?.ReportProgress((int)((double)(y + 1) / txtHeight * 100), new BackgroundTaskUpdateArgs("Creating lines...", false));
                 char[] chars = txtLines[y].ToCharArray();
                 for (int x = 0; x < txtWidth; x++)
                     txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == ASCIIArt.EMPTYCHARACTER ? null : chars[x];
@@ -89,8 +92,6 @@ namespace AAP
 
     public class AAFASCIIArt : IAAPFile<ASCIIArt>
     {
-        //private static readonly string UncompressedExportPath = @$"{App.ApplicationDataFolderPath}\uncompressedArtExport";
-
         public ASCIIArt FileObject { get; set; }
         public string FilePath { get; set; }
 
@@ -168,11 +169,254 @@ namespace AAP
 
             bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Decompressing uncompressed file to file path...", true));
             using (FileStream fs = File.OpenRead(tempFilePath))
-                using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
-                    fs.CopyTo(output);
+            using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
+                fs.CopyTo(output);
 
             bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting uncompressed path", true));
             File.Delete(tempFilePath);
+
+            return true;
+        }
+    }
+
+    public abstract class ASCIIArtExportOptions
+    {
+        
+    }
+
+    public class ImageASCIIArtExportOptions : ASCIIArtExportOptions, INotifyPropertyChanged
+    {
+        private Brush backgroundBrush = Brushes.White;
+        public Brush BackgroundBrush
+        {
+            get => backgroundBrush;
+            set
+            {
+                if (backgroundBrush == value)
+                    return;
+
+                backgroundBrush = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(BackgroundBrush)));
+            }
+        }
+
+        private Brush textBrush = Brushes.Black;
+        public Brush TextBrush
+        {
+            get => textBrush;
+            set
+            {
+                if (textBrush == value)
+                    return;
+
+                textBrush = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(TextBrush)));
+            }
+        }
+
+        private double textSize = 12;
+        public double TextSize
+        {
+            get => textSize;
+            set
+            {
+                if (textSize == value)
+                    return;
+
+                textSize = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(TextSize)));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ImageASCIIArtExportOptions()
+        {
+
+        }
+
+        public ImageASCIIArtExportOptions(Brush backgroundBrush, Brush textBrush, double textSize)
+        {
+            BackgroundBrush = backgroundBrush;
+            TextBrush = textBrush;
+            TextSize = textSize;
+        }
+    }
+
+    public abstract class ImageASCIIArt : IAAPFile<ASCIIArt>
+    {
+        public ASCIIArt FileObject { get; set; }
+        public string FilePath { get; set; }
+
+        public ImageASCIIArtExportOptions ExportOptions { get; set; } = new();
+
+        public ImageASCIIArt(ASCIIArt art, string filePath, ImageASCIIArtExportOptions exportOptions)
+        {
+            FileObject = art;
+            FilePath = filePath;
+            ExportOptions = exportOptions;
+        }
+
+        public BitmapFrame GetArtBitmapFrame()
+        {
+            DrawingVisual drawingVisual = new();
+
+            Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
+            double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, ExportOptions.TextBrush, 1).Width;
+
+            using (DrawingContext dc = drawingVisual.RenderOpen())
+            {
+                FormattedText[] columnTexts = new FormattedText[FileObject.Width];
+                double[] columnWidths = new double[FileObject.Width];
+                double totalWidth = 0;
+
+                for (int x = 0; x < FileObject.Width; x++)
+                {
+                    string columnString = "";
+                    for (int y = 0; y < FileObject.Height; y++)
+                        columnString += (FileObject.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
+
+                    FormattedText columnText = new(columnString, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, ExportOptions.TextBrush, 1);
+                    columnText.LineHeight = ExportOptions.TextSize * 1.5;
+                    columnTexts[x] = columnText;
+
+                    if (string.IsNullOrWhiteSpace(columnString))
+                    {
+                        columnWidths[x] = defaultWidth;
+                        totalWidth += defaultWidth;
+                    }
+                    else
+                    {
+                        columnWidths[x] = columnText.WidthIncludingTrailingWhitespace;
+                        totalWidth += columnText.WidthIncludingTrailingWhitespace;
+                    }
+                }
+
+                dc.DrawRectangle(ExportOptions.BackgroundBrush, null, new(0, 0, totalWidth, ExportOptions.TextSize * 1.5 * FileObject.Height));
+                
+                double posX = 0;
+                for (int x = 0; x < FileObject.Width; x++)
+                {
+                    dc.DrawText(columnTexts[x], new(posX, 0));
+
+                    posX += columnWidths[x];
+                }
+            }
+
+            int width = (int)drawingVisual.ContentBounds.Width;
+            int height = (int)drawingVisual.ContentBounds.Height;
+
+            RenderTargetBitmap bmp = new(width, height, 96, 96, PixelFormats.Pbgra32);
+            bmp.Render(drawingVisual);
+
+            return BitmapFrame.Create(bmp);
+        }
+
+        public abstract void Import(BackgroundWorker? bgWorker = null);
+
+        public abstract bool Export(BackgroundWorker? bgWorker = null);
+    }
+
+    public class BitmapASCIIArt : ImageASCIIArt
+    {
+        public BitmapASCIIArt(ASCIIArt art, string filePath, ImageASCIIArtExportOptions exportOptions) : base(art, filePath, exportOptions)
+        {
+
+        }
+
+        public override void Import(BackgroundWorker? bgWorker = null)
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
+            throw new NotImplementedException();
+        }
+
+        public override bool Export(BackgroundWorker? bgWorker = null)
+        {
+            if (bgWorker != null)
+                if (bgWorker.CancellationPending)
+                    return false;
+            
+            BitmapFrame bmp = GetArtBitmapFrame();
+
+            BmpBitmapEncoder encoder = new();
+            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            
+            using (FileStream fs = File.Create(FilePath))
+                encoder.Save(fs);
+
+            return true;
+        }
+    }
+
+    public class PngASCIIArt : ImageASCIIArt
+    {
+        public PngASCIIArt(ASCIIArt art, string filePath, ImageASCIIArtExportOptions exportOptions) : base(art, filePath, exportOptions)
+        {
+
+        }
+
+        public override void Import(BackgroundWorker? bgWorker = null)
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
+            throw new NotImplementedException();
+        }
+
+        public override bool Export(BackgroundWorker? bgWorker = null)
+        {
+            if (bgWorker != null)
+                if (bgWorker.CancellationPending)
+                    return false;
+
+            BitmapFrame bmp = GetArtBitmapFrame();
+
+            PngBitmapEncoder encoder = new();
+            encoder.Frames.Add(BitmapFrame.Create(bmp));
+
+            using (FileStream fs = File.Create(FilePath))
+                encoder.Save(fs);
+
+            return true;
+        }
+    }
+
+    public class JpegASCIIArt : ImageASCIIArt
+    {
+        public JpegASCIIArt(ASCIIArt art, string filePath, ImageASCIIArtExportOptions exportOptions) : base(art, filePath, exportOptions)
+        {
+
+        }
+
+        public override void Import(BackgroundWorker? bgWorker = null)
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
+            throw new NotImplementedException();
+        }
+
+        public override bool Export(BackgroundWorker? bgWorker = null)
+        {
+            if (bgWorker != null)
+                if (bgWorker.CancellationPending)
+                    return false;
+
+            BitmapFrame bmp = GetArtBitmapFrame();
+
+            JpegBitmapEncoder encoder = new();
+            encoder.Frames.Add(BitmapFrame.Create(bmp));
+
+            using (FileStream fs = File.Create(FilePath))
+                encoder.Save(fs);
 
             return true;
         }

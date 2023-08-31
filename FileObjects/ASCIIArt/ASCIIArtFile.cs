@@ -245,7 +245,7 @@ namespace AAP
             return new($"Saving to {new FileInfo(SavePath).Name}...", bgWorker);
         }
 
-        public BackgroundTask? ExportAsync(string filePath)
+        public BackgroundTask? ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new NullReferenceException("filePath is null or white space!");
@@ -270,13 +270,31 @@ namespace AAP
                 bgWorker.ReportProgress(90, new BackgroundTaskUpdateArgs($"Exporting as {fileInfo.Extension} file...", true));
                 IAAPFile<ASCIIArt> AAPFile;
 
-                switch (fileInfo.Extension)
+                switch (fileInfo.Extension.ToLower())
                 {
                     case ".txt":
                         AAPFile = new TXTASCIIArt(Art, fileInfo.FullName);
                         break;
                     case ".aaf":
                         AAPFile = new AAFASCIIArt(Art, fileInfo.FullName);
+                        break;
+                    case ".bmp":
+                        if (exportOptions is not ImageASCIIArtExportOptions bmpExportOptions)
+                            throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                        AAPFile = new BitmapASCIIArt(Art, fileInfo.FullName, bmpExportOptions);
+                        break;
+                    case ".png":
+                        if (exportOptions is not ImageASCIIArtExportOptions pngExportOptions)
+                            throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                        AAPFile = new PngASCIIArt(Art, fileInfo.FullName, pngExportOptions);
+                        break;
+                    case ".jpg":
+                        if (exportOptions is not ImageASCIIArtExportOptions jpegExportOptions)
+                            throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                        AAPFile = new JpegASCIIArt(Art, fileInfo.FullName, jpegExportOptions);
                         break;
                     default:
                         throw new Exception("Unknown file extension!");

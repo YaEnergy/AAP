@@ -276,7 +276,7 @@ namespace AAP.UI.ViewModels
             SaveFileDialog saveFileDialog = new()
             {
                 Title = "Export ASCII Art File",
-                Filter = "Text Files (*.txt)|*.txt",
+                Filter = "Text Files (*.txt)|*.txt|Bitmap (*.bmp)|*.bmp|PNG Image (*.png)|*.png|Jpeg Image (*.jpg)|*.jpg",
                 CheckFileExists = false,
                 CheckPathExists = true,
                 CreatePrompt = false,
@@ -293,7 +293,20 @@ namespace AAP.UI.ViewModels
             else
                 return null;
 
-            BackgroundTask? bgTask = CurrentArtFile.ExportAsync(savePath);
+            ASCIIArtExportOptions? exportOptions = null;
+            string extension = Path.GetExtension(savePath).ToLower();
+            if (extension == ".png" || extension == ".bmp" || extension == ".jpg")
+            {
+                ImageASCIIArtExportOptionsWindow exportOptionsWindow = new();
+                bool? optionsResult = exportOptionsWindow.ShowDialog();
+
+                if (optionsResult == true)
+                    exportOptions = exportOptionsWindow.ExportOptions;
+                else
+                    return null;
+            }
+
+            BackgroundTask? bgTask = CurrentArtFile.ExportAsync(savePath, exportOptions);
 
             if (bgTask == null)
                 return bgTask;
