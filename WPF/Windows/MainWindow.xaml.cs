@@ -2,7 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
+using System.Windows.Media;
 using AAP.BackgroundTasks;
+using AAP.Properties;
 using AAP.Timelines;
 using AAP.UI.Themes;
 using AAP.UI.ViewModels;
@@ -36,6 +38,10 @@ namespace AAP.UI.Windows
             ToolOptionsViewModel.CharacterPaletteSelectionViewModel = CharacterPaletteSelectionViewModel;
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
+
+            Settings.Default.PropertyChanged += SettingsPropertyChanged;
+
+            ArtCanvasViewModel.CanvasTypeface = new System.Windows.Media.Typeface(Settings.Default.CanvasTypefaceSource);
 
             OnCurrentArtFileChanged(App.CurrentArtFile);
 
@@ -179,6 +185,24 @@ namespace AAP.UI.Windows
         #endregion
 
         #region ViewModel Property Changed Events
+        private void SettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender == null)
+                return;
+
+            if (sender is not Settings settings)
+                return;
+
+            switch (e.PropertyName)
+            {
+                case nameof(settings.CanvasTypefaceSource):
+                    ArtCanvasViewModel.CanvasTypeface = new(settings.CanvasTypefaceSource);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void MainWindowViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender == null)
@@ -190,7 +214,8 @@ namespace AAP.UI.Windows
             switch (e.PropertyName)
             {
                 case nameof(vm.IsDarkModeOn):
-                    App.AppTheme = vm.IsDarkModeOn ? Theme.Dark : Theme.Light;
+                    App.DarkMode = vm.IsDarkModeOn;
+                    Settings.Default.Save();
                     break;
                 case nameof(vm.CurrentBackgroundTask):
                     ArtFileViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;

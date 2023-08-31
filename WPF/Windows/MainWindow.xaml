@@ -32,10 +32,11 @@
                             <MenuItem Header="Save" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveFileCommand}"></MenuItem>
                             <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveAsFileCommand}"></MenuItem>
                             <MenuItem Header="Export" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}" Command="{Binding ExportFileCommand}"></MenuItem>
+                            <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
                             <Separator></Separator>
                             <MenuItem Header="Edit File" IsEnabled="{Binding HasArtOpen}" Command="{Binding EditFileCommand}"/>
                             <Separator></Separator>
-                            <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
+                            <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand, ElementName=MainWindowViewModel}"/>
                             <Separator></Separator>
                             <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand, ElementName=MainWindowViewModel}"></MenuItem>
                         </MenuItem>
@@ -142,7 +143,7 @@
                                 <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource PaletteEdit_Button}" Grid.Column="1" Command="{Binding EditPaletteCommand}"/>
                                 <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="2" Command="{Binding RemovePaletteCommand}"/>
                             </Grid>
-                            <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" Width="200" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Characters="{Binding SelectedPalette.Characters, Mode=OneWay}"/>
+                            <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Characters="{Binding SelectedPalette.Characters, Mode=OneWay}" StateBoxTypeface="{Binding CanvasTypeface, ElementName=ArtCanvasViewModel}" DockPanel.Dock="Top" Width="200"/>
                         </DockPanel>
                         <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsSizeOptionVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -213,7 +214,7 @@
                     <TabControl.ContentTemplate>
                         <DataTemplate>
                             <ScrollViewer Margin="0,0,0,0" ClipToBounds="True" ScrollViewer.HorizontalScrollBarVisibility="Auto" PanningMode="Both" VerticalScrollBarVisibility="Auto" Background="{DynamicResource LightAccent}" Focusable="False">
-                                <controls:ASCIIArtCanvasVisual Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding Art}" DisplayArtDraw="{Binding ArtDraw}" SelectionHighlightRect="{Binding Selected, ElementName=ArtCanvasViewModel}" TextSize="{Binding TextSize, ElementName=ArtCanvasViewModel}" Tool="{Binding CurrentTool, ElementName=ArtCanvasViewModel}" CanUseTool="{Binding CanUseTool, ElementName=ArtCanvasViewModel}" HighlightRectThickness="{Binding HighlightThickness, ElementName=ArtCanvasViewModel}" DisplayLayer="{Binding SelectedLayer, ElementName=ArtCanvasViewModel}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen" ShowGrid="{Binding ShowGrid, ElementName=ArtCanvasViewModel}"/>
+                                <controls:ASCIIArtCanvasVisual Margin="450,450,450,450" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5" DisplayArt="{Binding Art}" DisplayArtDraw="{Binding ArtDraw}" SelectionHighlightRect="{Binding Selected, ElementName=ArtCanvasViewModel}" TextSize="{Binding TextSize, ElementName=ArtCanvasViewModel}" Tool="{Binding CurrentTool, ElementName=ArtCanvasViewModel}" CanUseTool="{Binding CanUseTool, ElementName=ArtCanvasViewModel}" HighlightRectThickness="{Binding HighlightThickness, ElementName=ArtCanvasViewModel}" DisplayLayer="{Binding SelectedLayer, ElementName=ArtCanvasViewModel}" Background="{DynamicResource Canvas}" Text="{DynamicResource Text}" Border="{DynamicResource Border}" Grid="{DynamicResource DarkAccent}" Focusable="True" AutomationProperties.IsOffscreenBehavior="Onscreen" ShowGrid="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" ArtFont="{Binding CanvasTypeface, ElementName=ArtCanvasViewModel}"/>
                             </ScrollViewer>
                         </DataTemplate>
                     </TabControl.ContentTemplate>

@@ -23,6 +23,44 @@ namespace AAP.UI.Controls
     /// </summary>
     public partial class CharacterPaletteCharacterSelect : UserControl
     {
+        public static readonly DependencyProperty StateBoxTypefaceProperty =
+        DependencyProperty.Register(
+            name: "StateBoxTypeface",
+            propertyType: typeof(Typeface),
+            ownerType: typeof(CharacterPaletteCharacterSelect),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: new Typeface("Consolas"), OnStateBoxTypefacePropertyChangedCallBack));
+
+        public Typeface StateBoxTypeface
+        {
+            get => (Typeface)GetValue(StateBoxTypefaceProperty);
+            set
+            {
+                if (StateBoxTypeface == value)
+                    return;
+
+                SetValue(StateBoxTypefaceProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty StateBoxTextSizeProperty =
+        DependencyProperty.Register(
+            name: "StateBoxTextSize",
+            propertyType: typeof(double),
+            ownerType: typeof(CharacterPaletteCharacterSelect),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: 32d, OnStateBoxTextSizePropertyChangedCallBack));
+
+        public double StateBoxTextSize
+        {
+            get => (double)GetValue(StateBoxTextSizeProperty);
+            set
+            {
+                if (StateBoxTextSize == value)
+                    return;
+
+                SetValue(StateBoxTextSizeProperty, value);
+            }
+        }
+
         private Size gridItemSize = new(60, 60);
         public Size GridItemSize
         {
@@ -75,6 +113,7 @@ namespace AAP.UI.Controls
             }
         }
 
+
         public delegate void SelectedCharacterEvent(char? selectedCharacter);
         public event SelectedCharacterEvent? SelectedCharacterChanged;
 
@@ -108,6 +147,30 @@ namespace AAP.UI.Controls
             }
         }
 
+        private static void OnStateBoxTypefacePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            CharacterPaletteCharacterSelect? characterPaletteCharacterSelect = sender as CharacterPaletteCharacterSelect;
+
+            if (characterPaletteCharacterSelect != null)
+            {
+                foreach (StateBox stateBox in characterPaletteCharacterSelect.stateBoxes.Values)
+                    if (stateBox is LabelStateBox labelStateBox)
+                        labelStateBox.Typeface = characterPaletteCharacterSelect.StateBoxTypeface;
+            }
+        }
+
+        private static void OnStateBoxTextSizePropertyChangedCallBack(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            CharacterPaletteCharacterSelect? characterPaletteCharacterSelect = sender as CharacterPaletteCharacterSelect;
+
+            if (characterPaletteCharacterSelect != null)
+            {
+                foreach (StateBox stateBox in characterPaletteCharacterSelect.stateBoxes.Values)
+                    if (stateBox is LabelStateBox labelStateBox)
+                        labelStateBox.TextSize = characterPaletteCharacterSelect.StateBoxTextSize;
+            }
+        }
+
         public void UpdateDisplay()
         {
             CharacterSelectGrid.Children.Clear();
@@ -135,9 +198,10 @@ namespace AAP.UI.Controls
                 LabelStateBox labelStateBox = new()
                 {
                     Content = stateBoxCharacter.ToString(),
-                    TextSize = 32,
+                    TextSize = StateBoxTextSize,
                     Margin = new(2, 2, 2, 2),
-                    AllowManualDisable = false
+                    AllowManualDisable = false,
+                    Typeface = StateBoxTypeface
                 };
 
                 void OnStateBoxStateChanged(StateBox sender, bool state)

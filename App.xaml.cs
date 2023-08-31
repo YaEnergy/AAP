@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.Properties;
 using AAP.Timelines;
 using AAP.UI.Themes;
 using System;
@@ -7,7 +8,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
 
 namespace AAP
@@ -173,25 +173,24 @@ namespace AAP
         public delegate void OnAvailableCharacterPalettesChangedEvent(ObservableCollection<CharacterPalette> palette);
         public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
 
-        private static Theme appTheme = Theme.Light;
-        public static Theme AppTheme
+        private static bool darkMode = Settings.Default.DarkMode;
+        public static bool DarkMode
         {
-            get => appTheme;
+            get => darkMode;
             set
             {
-                if (appTheme == value) 
+                if (darkMode == value)
                     return;
 
-                appTheme = value;
+                darkMode = value;
+                SetTheme(darkMode);
 
-                SetTheme(value);
-
-                OnThemeChanged?.Invoke(value);
+                OnModeChanged?.Invoke(darkMode);
             }
         }
 
-        public delegate void OnThemeChangedEvent(Theme theme);
-        public static event OnThemeChangedEvent? OnThemeChanged;
+        public delegate void OnModeChangedEvent(bool darkMode);
+        public static event OnModeChangedEvent? OnModeChanged;
 
         public App()
         {
@@ -256,6 +255,8 @@ namespace AAP
                 DirectoryInfo autoSaveDirInfo = Directory.CreateDirectory(AutoSaveDirectoryPath);
                 ConsoleLogger.Log($"Created directory {autoSaveDirInfo.FullName}");
             }
+
+            Settings.Default.Upgrade();
 
             //Tools
             Tools.Add(new PencilTool('|', 1));
@@ -342,8 +343,8 @@ namespace AAP
                         MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
-
-            SetTheme(AppTheme);
+            
+            SetTheme(Settings.Default.DarkMode);
 
             GC.Collect();
 
@@ -935,25 +936,16 @@ namespace AAP
         }
         #endregion
         #region Resources
-        private static void SetTheme(Theme theme)
+        private static void SetTheme(bool darkMode)
         {
             Current.Resources.Clear();
             Current.Resources.MergedDictionaries.Clear();
 
-            Uri themeSource;
-            switch (theme)
-            {
-                case Theme.Light:
-                    themeSource = new("/Resources/Themes/LightTheme.xaml", UriKind.Relative);
-                    break;
-                case Theme.Dark:
-                    themeSource = new("/Resources/Themes/DarkTheme.xaml", UriKind.Relative);
-                    break;
-                default:
-                    throw new Exception("Unknown theme " + theme.ToString());
-            }
+            Uri themeSource = darkMode ? new("/Resources/Themes/DarkTheme.xaml", UriKind.Relative) : new("/Resources/Themes/LightTheme.xaml", UriKind.Relative);
 
             ResourceDictionary resourceDictionary = new() { Source = themeSource };
+
+            Settings.Default.DarkMode = darkMode;
 
             Current.Resources.MergedDictionaries.Add(resourceDictionary);
         }

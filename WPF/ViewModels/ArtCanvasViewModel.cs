@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using AAP.Timelines;
 using AAP.UI.Controls;
 
@@ -15,6 +16,21 @@ namespace AAP.UI.ViewModels
 {
     public class ArtCanvasViewModel : INotifyPropertyChanged
     {
+        private Typeface canvasTypeface = new("Consolas");
+        public Typeface CanvasTypeface
+        {
+            get => canvasTypeface;
+            set
+            {
+                if (canvasTypeface == value)
+                    return;
+
+                canvasTypeface = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(CanvasTypeface)));
+            }
+        }
+
         private double textSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
         public double TextSize
         {

@@ -436,6 +436,8 @@ namespace AAP.UI.Controls
         
         private double[] columnWidths = new double[1];
 
+        private double defaultColumnWidth => new FormattedText("A", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, ArtFont, TextSize, Text, 1).Width;
+
         #region Converting between Art Matrix & Art Canvas
         public Point GetArtMatrixPoint(Point canvasPosition)
         {
@@ -444,7 +446,7 @@ namespace AAP.UI.Controls
 
             Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-            double defaultWidth = nonOffsetCanvasSize.Width / DisplayArt.Width;
+            double defaultWidth = defaultColumnWidth;
 
             int artPosX = 0;
             int artPosY = (int)Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height));
@@ -472,9 +474,7 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 throw new NullReferenceException(nameof(DisplayArt));
 
-            Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
-
-            double defaultWidth = nonOffsetCanvasSize.Width / DisplayArt.Width;
+            double defaultWidth = defaultColumnWidth;
 
             int artPosX = (int)artMatrixPosition.X;
 
@@ -594,9 +594,8 @@ namespace AAP.UI.Controls
             if (DisplayArt != null && ShowGrid)
             {
                 Pen gridLinePen = new(Grid, GridLineThickness);
-                Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-                double defaultWidth = nonOffsetCanvasSize.Width / DisplayArt.Width;
+                double defaultWidth = defaultColumnWidth;
 
                 double posX = ArtOffset.X;
                 for (int x = 0; x <= DisplayArt.Width; x++)
@@ -672,6 +671,7 @@ namespace AAP.UI.Controls
                 }
 
                 double offsetX = ArtOffset.X;
+                double defaultWidth = defaultColumnWidth;
 
                 for (int x = 0; x < DisplayArt.Width; x++)
                 {
@@ -687,7 +687,10 @@ namespace AAP.UI.Controls
                     charText.LineHeight = LineHeight;
                     dc.DrawText(charText, new(0, 0));
 
-                    columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
+                    if (!string.IsNullOrWhiteSpace(columnString))
+                        columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
+                    else
+                        columnWidths[x] = defaultWidth;
 
                     columnVisual.Offset = new(offsetX, ArtOffset.Y);
                     offsetX += columnWidths[x];

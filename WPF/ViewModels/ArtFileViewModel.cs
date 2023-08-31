@@ -477,13 +477,13 @@ namespace AAP.UI.ViewModels
 
         public void FillSelection()
         {
-            if (CurrentTool is not PencilTool drawTool || CurrentTool.Type != ToolType.Draw)
+            if (CurrentTool is not ICharacterSelectable characterSelectableTool)
                 return;
 
             if (!CanUseTool)
                 return;
 
-            App.FillSelectedWith(drawTool.Character);
+            App.FillSelectedWith(characterSelectableTool.Character);
         }
 
         public void EditFile()

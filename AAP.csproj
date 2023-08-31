@@ -172,10 +172,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="System.Configuration" />
     <Using Include="System.Windows" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="App.config">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Update="Resources\Images\ProgramIcons\icon2_color.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -209,6 +217,14 @@
 
   <ItemGroup>
     <Folder Include="ASCIIArtFile\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>
