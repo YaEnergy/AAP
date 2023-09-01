@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
 	<UseWindowsForms>False</UseWindowsForms>
@@ -61,6 +61,10 @@
     <None Remove="Resources\MoveLayerUpIcon.png" />
     <None Remove="Resources\MoveToolIcon.png" />
     <None Remove="Resources\NewLayerIcon.png" />
+    <None Remove="Resources\PresetCharacterPalettes\Alphabet.txt" />
+    <None Remove="Resources\PresetCharacterPalettes\Main ASCII Characters.txt" />
+    <None Remove="Resources\PresetCharacterPalettes\Numbers.txt" />
+    <None Remove="Resources\PresetCharacterPalettes\Shapes.txt" />
     <None Remove="Resources\SelectToolIcon.png" />
     <None Remove="Resources\TextToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\BucketToolIcon.png" />
@@ -85,6 +89,15 @@
     <Content Include="Resources\Images\ProgramIcons\icon2_color.png" />
     <Content Include="Resources\Images\ProgramIcons\Icon_old.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\PresetCharacterPalettes\Main ASCII Characters.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\PresetCharacterPalettes\Numbers.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\PresetCharacterPalettes\Shapes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -176,6 +189,9 @@
     <Resource Include="Resources\Images\ToolIcons\Light\TextToolIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Content Include="Resources\PresetCharacterPalettes\Alphabet.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -198,18 +214,6 @@
     <None Update="Resources\Images\ProgramIcons\Icon_old.ico">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
-    </None>
-    <None Update="Resources\PresetCharacterPalettes\Alphabet.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\PresetCharacterPalettes\Main ASCII Characters.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\PresetCharacterPalettes\Shapes.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Resources\PresetCharacterPalettes\Numbers.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

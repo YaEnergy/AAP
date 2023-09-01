@@ -219,12 +219,19 @@ namespace AAP
             if (!ExecutableDirectory.Exists)
                 throw new Exception(nameof(ExecutableDirectory) + " doesn't exist!");
             
+            if (!Directory.Exists(ApplicationDataFolderPath))
+            {
+                DirectoryInfo applicationDataDirInfo = Directory.CreateDirectory(ApplicationDataFolderPath);
+                ConsoleLogger.Log($"Created directory {applicationDataDirInfo.FullName}");
+            }
+            
             App app = new();
             app.InitializeComponent();
 
             app.Exit += OnApplicationExit;
             app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
             app.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
 
 #if RELEASE
             TextWriter oldOut = Console.Out;
@@ -237,7 +244,7 @@ namespace AAP
             Console.SetError(logSR);
 #endif
 
-            //Folders
+
             if (!Directory.Exists(DefaultArtFilesDirectoryPath))
             {
                 DirectoryInfo defaultArtFilesDirInfo = Directory.CreateDirectory(DefaultArtFilesDirectoryPath);
