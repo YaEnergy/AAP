@@ -61,6 +61,8 @@
     <None Remove="Resources\MoveLayerUpIcon.png" />
     <None Remove="Resources\MoveToolIcon.png" />
     <None Remove="Resources\NewLayerIcon.png" />
+    <None Remove="Resources\PresetCharacterPalettes\6-dot braille.txt" />
+    <None Remove="Resources\PresetCharacterPalettes\8-dot braille.txt" />
     <None Remove="Resources\PresetCharacterPalettes\Alphabet.txt" />
     <None Remove="Resources\PresetCharacterPalettes\Main ASCII Characters.txt" />
     <None Remove="Resources\PresetCharacterPalettes\Numbers.txt" />
@@ -89,6 +91,12 @@
     <Content Include="Resources\Images\ProgramIcons\icon2_color.png" />
     <Content Include="Resources\Images\ProgramIcons\Icon_old.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\PresetCharacterPalettes\8-dot braille.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\PresetCharacterPalettes\6-dot braille.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\PresetCharacterPalettes\Main ASCII Characters.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
