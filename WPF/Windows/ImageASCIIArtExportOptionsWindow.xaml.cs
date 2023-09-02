@@ -64,7 +64,10 @@ namespace AAP.UI.Windows
             }
 
             ExportOptions.TextSize = textSize;
-            
+
+            ExportOptions.TextColor = WindowViewModel.ArtColorBrush.Color;
+            ExportOptions.BackgroundColor = WindowViewModel.BackgroundColorBrush.Color;
+
             DialogResult = true;
             Close();
         }

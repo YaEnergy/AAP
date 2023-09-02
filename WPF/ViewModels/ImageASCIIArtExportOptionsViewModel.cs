@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using AAP.UI.Controls;
 
 namespace AAP.UI.ViewModels
@@ -17,9 +18,42 @@ namespace AAP.UI.ViewModels
             get => textSizeText;
             set 
             {
+                if (textSizeText == value)
+                    return;
+
                 textSizeText = value;
 
                 PropertyChanged?.Invoke(this, new(nameof(TextSizeText)));
+            }
+        }
+
+        private SolidColorBrush artColorBrush = Brushes.Black;
+        public SolidColorBrush ArtColorBrush
+        {
+            get => artColorBrush;
+            set
+            {
+                if (artColorBrush == value) 
+                    return;
+
+                artColorBrush = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(ArtColorBrush)));
+            }
+        }
+
+        private SolidColorBrush backgroundColorBrush = Brushes.White;
+        public SolidColorBrush BackgroundColorBrush
+        {
+            get => backgroundColorBrush;
+            set
+            {
+                if (backgroundColorBrush == value)
+                    return;
+                
+                backgroundColorBrush = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(BackgroundColorBrush)));
             }
         }
 
@@ -57,7 +91,7 @@ namespace AAP.UI.ViewModels
 
         public ImageASCIIArtExportOptionsWindowViewModel()
         {
-
+            
         }
 
     }

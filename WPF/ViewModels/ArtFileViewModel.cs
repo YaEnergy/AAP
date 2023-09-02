@@ -368,7 +368,7 @@ namespace AAP.UI.ViewModels
                     throw new Exception("Background Worker Export Art File did not return file info!");
 
                 MessageBox.Show("Exported art file to " + fileInfo.FullName + "!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
-                Process.Start("explorer.exe", fileInfo.DirectoryName ?? App.DefaultArtFilesDirectoryPath);
+                Process.Start("explorer.exe", fileInfo.FullName);
             }
         }
 

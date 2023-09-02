@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="AAP.UI.Controls.ColorPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:AAP.UI.Controls"
+             xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" d:DataContext="{d:DesignInstance Type=viewmodels:ColorPickerViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="40" d:DesignWidth="300">
+    <DockPanel>
+        <DockPanel.DataContext>
+            <viewmodels:ColorPickerViewModel x:Name="ControlViewModel"/>
+        </DockPanel.DataContext>
+        <Rectangle Fill="{Binding ColorBrush}" Stroke="LightGray" Width="45" Margin="5,5,5,5"/>
+        <Label Content="R" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Width="30" Margin="5,5,5,5" Text="{Binding RedText}"/>
+        <Label Content="G" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Width="30" Margin="5,5,5,5" Text="{Binding GreenText}"/>
+        <Label Content="B" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox Width="30" Margin="5,5,5,5" Text="{Binding BlueText}"/>
+        <Label Content="Hex" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+        <TextBox MaxWidth="120" MinWidth="30" Margin="5,5,5,5" Text="{Binding HexText}"/>
+    </DockPanel>
+</UserControl>

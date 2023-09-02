@@ -25,7 +25,6 @@ namespace AAP.UI.Windows
             App.OnCurrentToolChanged += OnCurrentToolChanged;
             App.OnSelectedArtChanged += OnSelectedArtChanged;
             App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
-            App.OnAvailableCharacterPalettesChanged += (palettes) => CharacterPaletteSelectionViewModel.Palettes = palettes;
 
             MainWindowViewModel.PropertyChanged += MainWindowViewModelPropertyChanged;
             ArtFileViewModel.PropertyChanged += ArtFileViewModelPropertyChanged;

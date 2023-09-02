@@ -170,9 +170,6 @@ namespace AAP
             get => characterPalettes; 
         }
 
-        public delegate void OnAvailableCharacterPalettesChangedEvent(ObservableCollection<CharacterPalette> palette);
-        public static event OnAvailableCharacterPalettesChangedEvent? OnAvailableCharacterPalettesChanged;
-
         private static bool darkMode = Settings.Default.DarkMode;
         public static bool DarkMode
         {
@@ -205,24 +202,12 @@ namespace AAP
         [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "7.0.3.0")]
         public static void Main(string[] args)
         {
-            Mutex mutex = new(false, ProgramTitle + "_" + Environment.UserName);
+            using Mutex mutex = new(false, ProgramTitle + "_" + Environment.UserName);
             if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
             {
-                System.Windows.MessageBox.Show("There is already an instance of AAP running!", ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show($"There is already an instance of {ProgramTitle} running!", ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 mutex.Close();
                 return;
-            }
-
-            if (ExecutableDirectory == null)
-                throw new NullReferenceException(nameof(ExecutableDirectory));
-
-            if (!ExecutableDirectory.Exists)
-                throw new Exception(nameof(ExecutableDirectory) + " doesn't exist!");
-            
-            if (!Directory.Exists(ApplicationDataFolderPath))
-            {
-                DirectoryInfo applicationDataDirInfo = Directory.CreateDirectory(ApplicationDataFolderPath);
-                ConsoleLogger.Log($"Created directory {applicationDataDirInfo.FullName}");
             }
             
             App app = new();
@@ -232,88 +217,109 @@ namespace AAP
             app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
             app.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
+            try
+            {
+                if (ExecutableDirectory == null)
+                    throw new NullReferenceException(nameof(ExecutableDirectory));
+
+                if (!ExecutableDirectory.Exists)
+                    throw new Exception(nameof(ExecutableDirectory) + " doesn't exist!");
+
+                if (!Directory.Exists(ApplicationDataFolderPath))
+                {
+                    DirectoryInfo applicationDataDirInfo = Directory.CreateDirectory(ApplicationDataFolderPath);
+                    ConsoleLogger.Log($"Created directory {applicationDataDirInfo.FullName}");
+                }
 
 #if RELEASE
-            TextWriter oldOut = Console.Out;
-            StreamWriter logSR = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
-            logSR.AutoFlush = true;
+                TextWriter oldOut = Console.Out;
+                StreamWriter logSR = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
+                logSR.AutoFlush = true;
 
-            logSR.WriteLine("--CONSOLE LOG--\n");
+                logSR.WriteLine("--CONSOLE LOG--\n");
 
-            Console.SetOut(logSR);
-            Console.SetError(logSR);
+                Console.SetOut(logSR);
+                Console.SetError(logSR);
 #endif
+                if (!Directory.Exists(DefaultArtFilesDirectoryPath))
+                {
+                    DirectoryInfo defaultArtFilesDirInfo = Directory.CreateDirectory(DefaultArtFilesDirectoryPath);
+                    ConsoleLogger.Log($"Created directory {defaultArtFilesDirInfo.FullName}");
+                }
 
+                if (!Directory.Exists(CharacterPaletteDirectoryPath))
+                {
+                    DirectoryInfo characterPaletteDirInfo = Directory.CreateDirectory(CharacterPaletteDirectoryPath);
+                    ConsoleLogger.Log($"Created directory {characterPaletteDirInfo.FullName}");
+                }
 
-            if (!Directory.Exists(DefaultArtFilesDirectoryPath))
-            {
-                DirectoryInfo defaultArtFilesDirInfo = Directory.CreateDirectory(DefaultArtFilesDirectoryPath);
-                ConsoleLogger.Log($"Created directory {defaultArtFilesDirInfo.FullName}");
+                if (!Directory.Exists(AutoSaveDirectoryPath))
+                {
+                    DirectoryInfo autoSaveDirInfo = Directory.CreateDirectory(AutoSaveDirectoryPath);
+                    ConsoleLogger.Log($"Created directory {autoSaveDirInfo.FullName}");
+                }
+
+                Settings.Default.Upgrade();
+
+                //Tools
+                Tools.Add(new PencilTool('|', 1));
+                Tools.Add(new EraserTool(1));
+                Tools.Add(new SelectTool());
+                Tools.Add(new MoveTool());
+                Tools.Add(new BucketTool('|'));
+                Tools.Add(new TextTool());
+                Tools.Add(new LineTool('|'));
+
+                SelectToolType(ToolType.None);
+
+                //Preset Character Palettes
+                foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
+                {
+                    string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
+
+                    CharacterPalette palette = new();
+                    TXTCharacterPalette presetTxTCharacterPalette = new(palette, presetFileInfo.FullName);
+                    presetTxTCharacterPalette.Import();
+
+                    palette.IsPresetPalette = true;
+
+                    characterPalettes.Add(palette);
+
+                    ConsoleLogger.Log($"Imported Preset Character Palette File: {presetCharacterPaletteFilePath}");
+                }
+
+                //Character Palettes
+                foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
+                    if (fileInfo.Extension.ToLower() == ".aappal")
+                    {
+                        CharacterPalette palette = new();
+
+                        AAPPALCharacterPalette fileCharacterPalette = new(palette, fileInfo.FullName);
+
+                        fileCharacterPalette.Import();
+
+                        characterPalettes.Add(palette);
+
+                        ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
+                    } 
+
+                CurrentCharacterPalette = CharacterPalettes[0];
+
+                OnCurrentArtFileChanged += CurrentArtFileChanged;
+
+                SetTheme(Settings.Default.DarkMode);
             }
-
-            if (!Directory.Exists(CharacterPaletteDirectoryPath))
+            catch (Exception ex)
             {
-                DirectoryInfo characterPaletteDirInfo = Directory.CreateDirectory(CharacterPaletteDirectoryPath);
-                ConsoleLogger.Log($"Created directory {characterPaletteDirInfo.FullName}");
+                ConsoleLogger.Error(ex);
+                MessageBoxResult result = MessageBox.Show($"It seems {ProgramTitle} has run into an exception while starting up, and can't open! If this keeps occuring, please inform the creator of AAP!\nOpen log file?", ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+                if (result == MessageBoxResult.Yes)
+                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
+
+                mutex.Close();
+                return;
             }
-
-            if (!Directory.Exists(AutoSaveDirectoryPath))
-            {
-                DirectoryInfo autoSaveDirInfo = Directory.CreateDirectory(AutoSaveDirectoryPath);
-                ConsoleLogger.Log($"Created directory {autoSaveDirInfo.FullName}");
-            }
-
-            Settings.Default.Upgrade();
-
-            //Tools
-            Tools.Add(new PencilTool('|', 1));
-            Tools.Add(new EraserTool(1));
-            Tools.Add(new SelectTool());
-            Tools.Add(new MoveTool());
-            Tools.Add(new BucketTool('|'));
-            Tools.Add(new TextTool());
-            Tools.Add(new LineTool('|'));
-
-            SelectToolType(ToolType.None);
-
-            //Preset Character Palettes
-            foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
-            {
-                string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
-
-                CharacterPalette palette = new();
-                TXTCharacterPalette presetTxTCharacterPalette = new(palette, presetFileInfo.FullName);
-                presetTxTCharacterPalette.Import();
-
-                palette.IsPresetPalette = true;
-
-                characterPalettes.Add(palette);
-
-                ConsoleLogger.Log($"Imported Preset Character Palette File: {presetCharacterPaletteFilePath}");
-            }
-
-            //Character Palettes
-            foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
-            {
-                if (fileInfo.Extension.ToLower() != ".aappal")
-                    continue;
-
-                CharacterPalette palette = new();
-
-                AAPPALCharacterPalette fileCharacterPalette = new(palette, fileInfo.FullName);
-
-                fileCharacterPalette.Import();
-
-                characterPalettes.Add(palette);
-
-                ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
-            }
-
-            OnAvailableCharacterPalettesChanged?.Invoke(CharacterPalettes);
-
-            CurrentCharacterPalette = CharacterPalettes[0];
-
-            OnCurrentArtFileChanged += CurrentArtFileChanged;
 
             ConsoleLogger.Log("Set up complete!");
 
@@ -350,8 +356,6 @@ namespace AAP
                         MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                 }
-            
-            SetTheme(Settings.Default.DarkMode);
 
             GC.Collect();
 

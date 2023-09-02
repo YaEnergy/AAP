@@ -5,7 +5,6 @@ using System.Buffers.Text;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -186,33 +185,33 @@ namespace AAP
 
     public class ImageASCIIArtExportOptions : ASCIIArtExportOptions, INotifyPropertyChanged
     {
-        private Brush backgroundBrush = Brushes.White;
-        public Brush BackgroundBrush
+        private Color backgroundColor = Colors.White;
+        public Color BackgroundColor
         {
-            get => backgroundBrush;
+            get => backgroundColor;
             set
             {
-                if (backgroundBrush == value)
+                if (backgroundColor == value)
                     return;
 
-                backgroundBrush = value;
+                backgroundColor = value;
 
-                PropertyChanged?.Invoke(this, new(nameof(BackgroundBrush)));
+                PropertyChanged?.Invoke(this, new(nameof(BackgroundColor)));
             }
         }
 
-        private Brush textBrush = Brushes.Black;
-        public Brush TextBrush
+        private Color textColor = Colors.Black;
+        public Color TextColor
         {
-            get => textBrush;
+            get => textColor;
             set
             {
-                if (textBrush == value)
+                if (textColor == value)
                     return;
 
-                textBrush = value;
+                textColor = value;
 
-                PropertyChanged?.Invoke(this, new(nameof(TextBrush)));
+                PropertyChanged?.Invoke(this, new(nameof(TextColor)));
             }
         }
 
@@ -238,10 +237,10 @@ namespace AAP
 
         }
 
-        public ImageASCIIArtExportOptions(Brush backgroundBrush, Brush textBrush, double textSize)
+        public ImageASCIIArtExportOptions(Color backgroundColor, Color textColor, double textSize)
         {
-            BackgroundBrush = backgroundBrush;
-            TextBrush = textBrush;
+            BackgroundColor = backgroundColor;
+            TextColor = textColor;
             TextSize = textSize;
         }
     }
@@ -264,8 +263,9 @@ namespace AAP
         {
             DrawingVisual drawingVisual = new();
 
+            Brush textBrush = new SolidColorBrush(ExportOptions.TextColor);
             Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
-            double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, ExportOptions.TextBrush, 1).Width;
+            double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1).Width;
 
             using (DrawingContext dc = drawingVisual.RenderOpen())
             {
@@ -279,7 +279,7 @@ namespace AAP
                     for (int y = 0; y < FileObject.Height; y++)
                         columnString += (FileObject.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
 
-                    FormattedText columnText = new(columnString, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, ExportOptions.TextBrush, 1);
+                    FormattedText columnText = new(columnString, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1);
                     columnText.LineHeight = ExportOptions.TextSize * 1.5;
                     columnTexts[x] = columnText;
 
@@ -295,7 +295,7 @@ namespace AAP
                     }
                 }
 
-                dc.DrawRectangle(ExportOptions.BackgroundBrush, null, new(0, 0, totalWidth, ExportOptions.TextSize * 1.5 * FileObject.Height));
+                dc.DrawRectangle(new SolidColorBrush(ExportOptions.BackgroundColor), null, new(0, 0, totalWidth, ExportOptions.TextSize * 1.5 * FileObject.Height));
                 
                 double posX = 0;
                 for (int x = 0; x < FileObject.Width; x++)
@@ -345,7 +345,7 @@ namespace AAP
             BitmapFrame bmp = GetArtBitmapFrame();
 
             BmpBitmapEncoder encoder = new();
-            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            encoder.Frames.Add(bmp);
             
             using (FileStream fs = File.Create(FilePath))
                 encoder.Save(fs);
@@ -379,7 +379,7 @@ namespace AAP
             BitmapFrame bmp = GetArtBitmapFrame();
 
             PngBitmapEncoder encoder = new();
-            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            encoder.Frames.Add(bmp);
 
             using (FileStream fs = File.Create(FilePath))
                 encoder.Save(fs);
@@ -413,7 +413,7 @@ namespace AAP
             BitmapFrame bmp = GetArtBitmapFrame();
 
             JpegBitmapEncoder encoder = new();
-            encoder.Frames.Add(BitmapFrame.Create(bmp));
+            encoder.Frames.Add(bmp);
 
             using (FileStream fs = File.Create(FilePath))
                 encoder.Save(fs);
