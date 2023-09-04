@@ -59,11 +59,11 @@ namespace AAP.UI.Windows
             #region Shortcut Commands
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, new((sender, e) => ArtFileViewModel.NewFile())));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, new((sender, e) => ArtFileViewModel.OpenFile())));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new((sender, e) => { if (App.CurrentArtFile != null) ArtFileViewModel.SaveFile(App.CurrentArtFile); })));
-            CommandBindings.Add(new CommandBinding(FileShortcutCommands.SaveAsShortcut, new((sender, e) => { if (App.CurrentArtFile != null) ArtFileViewModel.SaveAsFile(App.CurrentArtFile); })));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, new(async (sender, e) => await ArtFileViewModel.OpenFileAsync())));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.SaveFileAsync(App.CurrentArtFile); })));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.SaveAsShortcut, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.SaveAsFileAsync(App.CurrentArtFile); })));
 
-            CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new((sender, e) => ArtFileViewModel.ExportCurrentFile())));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.ExportFileAsync(App.CurrentArtFile); })));
             CommandBindings.Add(new CommandBinding(FileShortcutCommands.CopyToClipboardShortcut, new((sender, e) => ArtFileViewModel.CopyCurrentArtToClipboard())));
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Close, new((sender, e) => Application.Current.Shutdown())));
@@ -99,21 +99,8 @@ namespace AAP.UI.Windows
                 Title = fullTitle;
         }
 
-        private void OnClosing(object? sender, CancelEventArgs e)
+        private async void OnClosing(object? sender, CancelEventArgs e)
         {
-            if (ArtFileViewModel.CurrentBackgroundTask != null)
-            {
-                e.Cancel = true;
-                
-                ArtFileViewModel.CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => Close();
-
-                BackgroundTaskWindow backgroundTaskWindow = new(new("Waiting for remaining task to finish...", ArtFileViewModel.CurrentBackgroundTask.Worker), true);
-                backgroundTaskWindow.Show();
-                backgroundTaskWindow.Owner = this;
-                
-                return;
-            }
-
             foreach (ASCIIArtFile artFile in App.OpenArtFiles)
                 if (artFile.UnsavedChanges)
                 {
@@ -125,6 +112,14 @@ namespace AAP.UI.Windows
                     break;
                 }
 
+            if (ArtFileViewModel.CurrentBackgroundTask != null)
+            {
+                BackgroundTaskWindow backgroundTaskWindow = new(ArtFileViewModel.CurrentBackgroundTask, true);
+                backgroundTaskWindow.Show();
+                backgroundTaskWindow.Owner = this;
+
+                await ArtFileViewModel.CurrentBackgroundTask.MainTask;
+            }
         }
 
         #region App Events

@@ -96,7 +96,110 @@ namespace AAP
                 layer.PropertyChanged += Layer_PropertyChanged;
         }
 
-        public static BackgroundTask? OpenAsync(string filePath)
+        public static async Task<ASCIIArtFile> OpenAsync(string filePath)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
+
+            FileInfo file = new(filePath);
+
+            IAAPFile<ASCIIArt> AAPFile;
+            ASCIIArt art = new();
+
+            bool saved = false;
+
+            switch (file.Extension.ToLower())
+            {
+                case ".txt":
+                    AAPFile = new TXTASCIIArt(art, file.FullName);
+                    break;
+                case ".aaf":
+                    AAPFile = new AAFASCIIArt(art, file.FullName);
+                    saved = true;
+                    break;
+                default:
+                    throw new Exception("Unknown file extension!");
+            }
+
+            ConsoleLogger.Log($"Open File: Imported file!");
+            await Task.Run(() => AAPFile.Import());
+
+            if (art.Width * art.Height > App.MaxArtArea)
+                throw new Exception($"Art Area is too large! Max: {App.MaxArtArea} characters ({art.Width * art.Height} characters)");
+
+            ConsoleLogger.Inform($"\nOpen File: \nFILE INFO\nFile Path: {file.FullName}\nSize: {art.Width}x{art.Height}\nVisible Art Area: {art.Width * art.Height}\nTotal Art Layers: {art.ArtLayers.Count}\nTotal Area: {art.GetTotalArtArea()}\nCreated In Version: {art.CreatedInVersion}\nFile Size: {file.Length / 1024} kb\nExtension: {file.Extension}\nLast Write Time: {file.LastWriteTime.ToLocalTime().ToLongTimeString()} {file.LastWriteTime.ToLocalTime().ToLongDateString()}");
+
+            ASCIIArtFile artFile = new(art);
+            artFile.UnsavedChanges = !saved;
+            artFile.SavePath = saved ? file.FullName : null;
+
+            return artFile;
+        }
+
+        public async Task SaveAsync()
+        {
+            if (string.IsNullOrWhiteSpace(SavePath))
+                throw new NullReferenceException("SavePath is null or white space!");
+
+            ConsoleLogger.Log("Save File: Saving art file to " + SavePath);
+
+            AAFASCIIArt aafASCIIArt = new(Art, SavePath);
+
+            bool exportSuccess = await Task.Run(() => aafASCIIArt.Export());
+
+            if (exportSuccess)
+                UnsavedChanges = false;
+
+            ConsoleLogger.Log("Save File: Saved art file to " + SavePath);
+        }
+
+        public async Task ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions = null)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new NullReferenceException("filePath is null or white space!");
+
+            ConsoleLogger.Log("Export File: Exporting art file to " + filePath);
+
+            FileInfo fileInfo = new(filePath);
+            IAAPFile<ASCIIArt> AAPFile;
+
+            switch (fileInfo.Extension.ToLower())
+            {
+                case ".txt":
+                    AAPFile = new TXTASCIIArt(Art, fileInfo.FullName);
+                    break;
+                case ".aaf":
+                    AAPFile = new AAFASCIIArt(Art, fileInfo.FullName);
+                    break;
+                case ".bmp":
+                    if (exportOptions is not ImageASCIIArtExportOptions bmpExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                    AAPFile = new BitmapASCIIArt(Art, fileInfo.FullName, bmpExportOptions);
+                    break;
+                case ".png":
+                    if (exportOptions is not ImageASCIIArtExportOptions pngExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                    AAPFile = new PngASCIIArt(Art, fileInfo.FullName, pngExportOptions);
+                    break;
+                case ".jpg":
+                    if (exportOptions is not ImageASCIIArtExportOptions jpegExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                    AAPFile = new JpegASCIIArt(Art, fileInfo.FullName, jpegExportOptions);
+                    break;
+                default:
+                    throw new Exception("Unknown file extension!");
+            }
+
+            bool exportSuccess = await Task.Run(() => AAPFile.Export());
+
+            if (exportSuccess)
+                ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
+        }
+
+        /*public static BackgroundTask? OpenAsync(string filePath)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
@@ -181,9 +284,9 @@ namespace AAP
             }
 
             return new($"Opening {file.Name}...", bgWorker);
-        }
+        }*/
 
-        public BackgroundTask? SaveAsync()
+        /*public BackgroundTask? SaveAsync()
         {
             if (string.IsNullOrWhiteSpace(SavePath))
                 throw new NullReferenceException("SavePath is null or white space!");
@@ -243,9 +346,9 @@ namespace AAP
 
 
             return new($"Saving to {new FileInfo(SavePath).Name}...", bgWorker);
-        }
+        }*/
 
-        public BackgroundTask? ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions)
+        /*public BackgroundTask? ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new NullReferenceException("filePath is null or white space!");
@@ -324,7 +427,7 @@ namespace AAP
             }
 
             return new($"Exporting to {new FileInfo(filePath).Name}...", bgWorker);
-        }
+        }*/
 
         public void Dispose()
         {

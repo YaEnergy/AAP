@@ -83,18 +83,18 @@ namespace AAP.UI.ViewModels
 
         public CharacterPaletteSelectionViewModel()
         {
-            NewPaletteCommand = new ActionCommand((parameter) => NewPaletteAsync());
-            EditPaletteCommand = new ActionCommand((parameter) => EditPaletteAsync());
-            RemovePaletteCommand = new ActionCommand((parameter) => RemovePaletteAsync());
+            NewPaletteCommand = new ActionCommand(async (parameter) => await NewPaletteAsync());
+            EditPaletteCommand = new ActionCommand(async (parameter) => await EditPaletteAsync());
+            RemovePaletteCommand = new ActionCommand((parameter) => RemovePalette());
         }
 
         #region Background Task Work
-        private BackgroundTask? NewPaletteAsync()
+        private async Task NewPaletteAsync()
         {
             if (CurrentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to create a new palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
+                return;
             }
 
             CharacterPaletteWindow characterPaletteWindow = new();
@@ -103,35 +103,37 @@ namespace AAP.UI.ViewModels
 
             if (createdPalette == true)
             {
-                BackgroundTask? bgTask = App.ExportPaletteAsync(characterPaletteWindow.Palette);
+                Task task = App.ExportPaletteAsync(characterPaletteWindow.Palette);
 
-                if (bgTask == null)
-                    return bgTask;
-
-                bgTask.Worker.RunWorkerCompleted += BackgroundNewComplete;
+                BackgroundTask bgTask = new($"Creating palette {characterPaletteWindow.Palette.Name} file...", task);
                 CurrentBackgroundTask = bgTask;
 
-                return bgTask;
-            }
+                await task;
 
-            return null;
+                CurrentBackgroundTask = null;
+
+                //Add exception handling here later
+
+                Palettes.Add(characterPaletteWindow.Palette);
+                SelectedPalette = characterPaletteWindow.Palette;
+            }
         }
 
-        private BackgroundTask? EditPaletteAsync()
+        private async Task EditPaletteAsync()
         {
             if (CurrentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to edit a palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
+                return;
             }
 
             if (SelectedPalette == null)
-                return null;
+                return;
 
             if (SelectedPalette.IsPresetPalette)
             {
                 MessageBox.Show("Can not edit preset palettes.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
+                return;
             }
 
             string originalPaletteName = SelectedPalette.Name;
@@ -142,54 +144,48 @@ namespace AAP.UI.ViewModels
             bool? appliedChanges = characterPaletteWindow.ShowDialog();
             if (appliedChanges == true)
             {
-                BackgroundTask? bgTask = App.EditPaletteFileAsync(originalPaletteName, characterPaletteWindow.Palette);
+                Task task = App.EditPaletteFileAsync(originalPaletteName, characterPaletteWindow.Palette);
 
-                if (bgTask == null)
-                    return bgTask;
-
-                bgTask.Worker.RunWorkerCompleted += BackgroundEditComplete;
+                BackgroundTask bgTask = new($"Editing palette {characterPaletteWindow.Palette.Name} file...", task);
                 CurrentBackgroundTask = bgTask;
 
-                return bgTask;
-            }
+                await task;
 
-            return null;
+                CurrentBackgroundTask = null;
+
+                //Add exception handling here later
+
+                SelectedPalette = characterPaletteWindow.Palette;
+            }
         }
 
-        private BackgroundTask? RemovePaletteAsync()
+        private void RemovePalette()
         {
             if (CurrentBackgroundTask != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to remove a palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
+                return;
             }
 
             if (SelectedPalette == null)
-                return null;
+                return;
 
             if (SelectedPalette.IsPresetPalette)
             {
                 MessageBox.Show("Can not remove preset palettes.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
+                return;
             }
 
             MessageBoxResult questionResult = MessageBox.Show("Are you sure you want to remove palette " + SelectedPalette.Name + "? This can not be undone.", "Palettes", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (questionResult != MessageBoxResult.Yes)
-                return null;
+                return;
 
-            BackgroundTask? bgTask = App.RemovePaletteAsync(SelectedPalette);
-
-            if (bgTask == null)
-                return bgTask;
-
-            bgTask.Worker.RunWorkerCompleted += BackgroundRemoveComplete;
-            CurrentBackgroundTask = bgTask;
-
-            return bgTask;
+            App.RemovePalette(SelectedPalette);
+            SelectedPalette = null;
         }
         #endregion
-        #region Background Task Complete
+        /*#region Background Task Complete
         void BackgroundNewComplete(object? sender, RunWorkerCompletedEventArgs args)
         {
             if (sender is not BackgroundWorker bgWorker)
@@ -253,6 +249,6 @@ namespace AAP.UI.ViewModels
             else
                 SelectedPalette = null;
         }
-        #endregion
+        #endregion*/
     }
 }

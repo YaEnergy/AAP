@@ -22,7 +22,7 @@ namespace AAP.UI.ViewModels
                 if (backgroundTask == value)
                     return;
 
-                if (backgroundTask != null)
+                /*if (backgroundTask != null)
                 {
                     if (backgroundTask.Worker.IsBusy)
                         UpdateTimeTimer.Stop();
@@ -38,7 +38,7 @@ namespace AAP.UI.ViewModels
                         value.Worker.DoWork += Worker_DoWork;
 
                     value.Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-                }
+                }*/
 
                 backgroundTask = value;
                 PropertyChanged?.Invoke(this, new(nameof(BackgroundTask)));

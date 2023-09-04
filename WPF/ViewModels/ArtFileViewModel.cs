@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -150,13 +151,13 @@ namespace AAP.UI.ViewModels
         public ArtFileViewModel() 
         {
             NewFileCommand = new ActionCommand((parameter) => NewFile());
-            OpenFileCommand = new ActionCommand((parameter) => OpenFile());
-            SaveFileCommand = new ActionCommand((parameter) => { if (CurrentArtFile != null) SaveFile(CurrentArtFile); });
-            SaveAsFileCommand = new ActionCommand((parameter) => { if (CurrentArtFile != null) SaveAsFile(CurrentArtFile); });
-            ExportFileCommand = new ActionCommand((parameter) => ExportCurrentFile());
+            OpenFileCommand = new ActionCommand(async (parameter) => await OpenFileAsync());
+            SaveFileCommand = new ActionCommand(async (parameter) => { if (CurrentArtFile != null) await SaveFileAsync(CurrentArtFile); });
+            SaveAsFileCommand = new ActionCommand(async (parameter) => { if (CurrentArtFile != null) await SaveAsFileAsync(CurrentArtFile); });
+            ExportFileCommand = new ActionCommand(async (parameter) => { if (CurrentArtFile != null) await ExportFileAsync(CurrentArtFile); });
             CopyArtToClipboardCommand = new ActionCommand((parameter) => CopyCurrentArtToClipboard());
             EditFileCommand = new ActionCommand((parameter) => EditFile());
-            CloseOpenFileCommand = new ActionCommand(CloseOpenFile);
+            CloseOpenFileCommand = new ActionCommand(async (parameter) => await CloseOpenFileAsync(parameter));
 
             DeleteSelectedCommand = new ActionCommand((parameter) => App.FillSelectedWith(null));
             SelectArtCommand = new ActionCommand((parameter) => App.SelectArt());
@@ -175,246 +176,6 @@ namespace AAP.UI.ViewModels
             CopyCommand = new ActionCommand((parameter) => App.CopySelectedArtToClipboard());
             PasteCommand = new ActionCommand((parameter) => App.PasteLayerFromClipboard());
         }
-
-        #region Background Task Work
-        private BackgroundTask? OpenFileAsync()
-        {
-            if (CurrentBackgroundTask != null)
-            {
-                MessageBox.Show("Current background task must be cancelled in order to open file.", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-
-            OpenFileDialog openFileDialog = new()
-            {
-                Title = "Open ASCII Art File",
-                Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt",
-                Multiselect = false,
-                CheckFileExists = true,
-                CheckPathExists = true,
-                InitialDirectory = App.DefaultArtFilesDirectoryPath,
-                ValidateNames = true
-            };
-
-            bool? result = openFileDialog.ShowDialog();
-
-            if (result == true)
-            {
-                BackgroundTask? bgTask = ASCIIArtFile.OpenAsync(openFileDialog.FileName);
-
-                if (bgTask == null)
-                    return bgTask;
-
-                CanUseTool = false;
-
-                bgTask.Worker.RunWorkerCompleted += BackgroundOpenComplete;
-
-                CurrentBackgroundTask = bgTask;
-
-                return bgTask;
-            }
-
-            return null;
-        }
-
-        private BackgroundTask? SaveFileAsync(ASCIIArtFile artFile, string? savePath)
-        {
-            if (CurrentBackgroundTask != null)
-            {
-                MessageBox.Show("Current background task must be cancelled in order to save file.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-
-            if (savePath == null)
-            {
-                SaveFileDialog saveFileDialog = new()
-                {
-                    Title = "Save ASCII Art File",
-                    Filter = "ASCII Art File (*.aaf)|*.aaf",
-                    CheckFileExists = false,
-                    CheckPathExists = true,
-                    CreatePrompt = false,
-                    OverwritePrompt = true,
-                    InitialDirectory = App.DefaultArtFilesDirectoryPath,
-                    ValidateNames = true
-                };
-
-                bool? result = saveFileDialog.ShowDialog();
-
-                if (result == true)
-                    savePath = saveFileDialog.FileName;
-                else
-                    return null;
-            }
-
-            artFile.SavePath = savePath;
-            BackgroundTask? bgTask = artFile.SaveAsync();
-
-            if (bgTask == null)
-                return bgTask;
-
-            CanUseTool = false;
-
-            bgTask.Worker.RunWorkerCompleted += BackgroundSaveComplete;
-
-            CurrentBackgroundTask = bgTask;
-
-            return bgTask;
-        }
-
-        private BackgroundTask? ExportFileAsync()
-        {
-            if (CurrentArtFile == null)
-                return null;
-
-            if (CurrentBackgroundTask != null)
-            {
-                MessageBox.Show("Current background task must be cancelled in order to export file.", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
-                return null;
-            }
-
-            SaveFileDialog saveFileDialog = new()
-            {
-                Title = "Export ASCII Art File",
-                Filter = "Text Files (*.txt)|*.txt|Bitmap (*.bmp)|*.bmp|PNG Image (*.png)|*.png|Jpeg Image (*.jpg)|*.jpg",
-                CheckFileExists = false,
-                CheckPathExists = true,
-                CreatePrompt = false,
-                OverwritePrompt = true,
-                InitialDirectory = App.DefaultArtFilesDirectoryPath,
-                ValidateNames = true
-            };
-
-            bool? result = saveFileDialog.ShowDialog();
-
-            string savePath;
-            if (result == true)
-                savePath = saveFileDialog.FileName;
-            else
-                return null;
-
-            ASCIIArtExportOptions? exportOptions = null;
-            string extension = Path.GetExtension(savePath).ToLower();
-            if (extension == ".png" || extension == ".bmp" || extension == ".jpg")
-            {
-                ImageASCIIArtExportOptionsWindow exportOptionsWindow = new();
-                bool? optionsResult = exportOptionsWindow.ShowDialog();
-
-                if (optionsResult == true)
-                    exportOptions = exportOptionsWindow.ExportOptions;
-                else
-                    return null;
-            }
-
-            BackgroundTask? bgTask = CurrentArtFile.ExportAsync(savePath, exportOptions);
-
-            if (bgTask == null)
-                return bgTask;
-
-            CanUseTool = false;
-
-            bgTask.Worker.RunWorkerCompleted += BackgroundExportComplete;
-
-            CurrentBackgroundTask = bgTask;
-
-            return bgTask;
-        }
-        #endregion
-        #region Background Task Complete
-        void BackgroundSaveComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                    CanUseTool = true;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled saving art file!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while saving art file!\nException: " + args.Error.Message, "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-            {
-                if (args.Result is not FileInfo fileInfo)
-                    throw new Exception("Background Worker Save Art File did not return file info!");
-
-                MessageBox.Show("Saved art file to " + fileInfo.FullName + "!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
-            }
-        }
-
-        void BackgroundExportComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                    CanUseTool = true;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled exporting art file!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while exporting art file!\nException: " + args.Error.Message, "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-            {
-                if (args.Result is not FileInfo fileInfo)
-                    throw new Exception("Background Worker Export Art File did not return file info!");
-
-                MessageBox.Show("Exported art file to " + fileInfo.FullName + "!", "Export File", MessageBoxButton.OK, MessageBoxImage.Information);
-                Process.Start("explorer.exe", fileInfo.FullName);
-            }
-        }
-
-        void BackgroundOpenComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                    CanUseTool = true;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled opening art file!", "Open File", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while opening art file!\nException: " + args.Error.Message, "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (args.Result is ASCIIArtFile artFile)
-            {
-                int fullArtArea = artFile.Art.GetTotalArtArea();
-
-                if (fullArtArea < artFile.Art.Width * artFile.Art.Height)
-                    fullArtArea = artFile.Art.Width * artFile.Art.Height;
-
-                if (fullArtArea >= App.WarningLargeArtArea)
-                {
-                    string message = $"The art you're trying to create/edit has an total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
-
-                    if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
-                        message = $"The art you're to trying to create/edit has a total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
-
-                    MessageBoxResult result = MessageBox.Show(message, "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-
-                    if (result == MessageBoxResult.No)
-                        return;
-                }
-
-                OpenArtFiles.Add(artFile);
-                CurrentArtFile = artFile;
-            }
-            else
-                throw new Exception("Result is not ASCIIArtFile!");
-        }
-        #endregion
 
         public void NewFile()
         {
@@ -435,18 +196,110 @@ namespace AAP.UI.ViewModels
 
         }
 
-        public void OpenFile()
+        public async Task OpenFileAsync()
         {
             if (CurrentBackgroundTask != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to create a new file.", "New File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Current background task must be cancelled in order to open a file.", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            OpenFileAsync();
+            OpenFileDialog openFileDialog = new()
+            {
+                Title = "Open ASCII Art File",
+                Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt",
+                Multiselect = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result != true)
+                return;
+
+            FileInfo fileInfo = new(openFileDialog.FileName);
+
+            ASCIIArtFile? artFile = null;
+            try
+            {
+                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName);
+
+                BackgroundTask bgTask = new($"Opening {fileInfo.Name}...", task);
+                CurrentBackgroundTask = bgTask;
+
+                CanUseTool = false;
+
+                artFile = await task;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open art file! Exception message: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CurrentBackgroundTask = null;
+
+            CanUseTool = true;
+
+            if (artFile == null)
+                return;
+
+            int fullArtArea = artFile.Art.GetTotalArtArea();
+
+            if (fullArtArea < artFile.Art.Width * artFile.Art.Height)
+                fullArtArea = artFile.Art.Width * artFile.Art.Height;
+
+            if (fullArtArea >= App.WarningLargeArtArea)
+            {
+                string message = $"The art you're trying to create/edit has an total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
+
+                if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
+                    message = $"The art you're to trying to create/edit has a total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
+
+                MessageBoxResult msgBoxResult = MessageBox.Show(message, "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (msgBoxResult == MessageBoxResult.No)
+                    return;
+            }
+
+            OpenArtFiles.Add(artFile);
+            CurrentArtFile = artFile;
         }
 
-        public void SaveFile(ASCIIArtFile file)
+        private async Task SaveFileToPathAsync(ASCIIArtFile artFile, string savePath)
+        {
+            if (CurrentBackgroundTask != null)
+            {
+                MessageBox.Show("Current background task must be cancelled in order to save file.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            artFile.SavePath = savePath;
+
+            try
+            {
+                Task task = artFile.SaveAsync();
+
+                BackgroundTask? bgTask = new($"Saving to {new FileInfo(savePath).Name}...", task);
+                CurrentBackgroundTask = bgTask;
+
+                CanUseTool = false;
+
+                await task;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to save art file! Exception message: {ex.Message}", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CurrentBackgroundTask = null;
+
+            CanUseTool = true;
+        }
+
+        public async Task SaveFileAsync(ASCIIArtFile file)
         {
             if (CurrentBackgroundTask != null)
             {
@@ -454,10 +307,32 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            SaveFileAsync(file, file.SavePath);
+            if (file.SavePath == null)
+            {
+                SaveFileDialog saveFileDialog = new()
+                {
+                    Title = "Save ASCII Art File",
+                    Filter = "ASCII Art File (*.aaf)|*.aaf",
+                    CheckFileExists = false,
+                    CheckPathExists = true,
+                    CreatePrompt = false,
+                    OverwritePrompt = true,
+                    InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                    ValidateNames = true
+                };
+
+                bool? result = saveFileDialog.ShowDialog();
+
+                if (result == true)
+                    file.SavePath = saveFileDialog.FileName;
+                else
+                    return;
+            }
+
+            await SaveFileToPathAsync(file, file.SavePath);
         }
 
-        public void SaveAsFile(ASCIIArtFile file)
+        public async Task SaveAsFileAsync(ASCIIArtFile file)
         {
             if (CurrentBackgroundTask != null)
             {
@@ -465,10 +340,29 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            SaveFileAsync(file, null);
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Save ASCII Art File",
+                Filter = "ASCII Art File (*.aaf)|*.aaf",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                CreatePrompt = false,
+                OverwritePrompt = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = saveFileDialog.ShowDialog();
+
+            if (result == true)
+                file.SavePath = saveFileDialog.FileName;
+            else
+                return;
+
+            await SaveFileToPathAsync(file, file.SavePath);
         }
 
-        public void ExportCurrentFile()
+        public async Task ExportFileAsync(ASCIIArtFile artFile)
         {
             if (CurrentBackgroundTask != null)
             {
@@ -476,7 +370,58 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            ExportFileAsync();
+            SaveFileDialog saveFileDialog = new()
+            {
+                Title = "Export ASCII Art File",
+                Filter = "Text Files (*.txt)|*.txt|Bitmap (*.bmp)|*.bmp|PNG Image (*.png)|*.png|Jpeg Image (*.jpg)|*.jpg",
+                CheckFileExists = false,
+                CheckPathExists = true,
+                CreatePrompt = false,
+                OverwritePrompt = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = saveFileDialog.ShowDialog();
+            if (result != true)
+                return;
+
+            string savePath = saveFileDialog.FileName;
+
+            ASCIIArtExportOptions? exportOptions = null;
+            string extension = Path.GetExtension(savePath).ToLower();
+            if (extension == ".png" || extension == ".bmp" || extension == ".jpg")
+            {
+                ImageASCIIArtExportOptionsWindow exportOptionsWindow = new();
+                bool? optionsResult = exportOptionsWindow.ShowDialog();
+
+                if (optionsResult != true)
+                    return;
+
+                exportOptions = exportOptionsWindow.ExportOptions;
+            }
+
+            artFile.SavePath = savePath;
+
+            try
+            {
+                Task task = artFile.ExportAsync(savePath, exportOptions);
+
+                BackgroundTask? bgTask = new($"Exporting to {new FileInfo(savePath).Name}...", task);
+                CurrentBackgroundTask = bgTask;
+
+                CanUseTool = false;
+
+                await task;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to export art file! Exception message: {ex.Message}", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CurrentBackgroundTask = null;
+
+            CanUseTool = true;
         }
 
         public void CopyCurrentArtToClipboard()
@@ -508,7 +453,7 @@ namespace AAP.UI.ViewModels
             artWindow.ShowDialog();
         }
 
-        public void CloseOpenFile(object? parameter)
+        public async Task CloseOpenFileAsync(object? parameter)
         {
             if (parameter is not ASCIIArtFile file)
                 throw new Exception("parameter is not ASCIIArtFile!");
@@ -529,16 +474,7 @@ namespace AAP.UI.ViewModels
                 MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.Yes)
-                {
-                    SaveFile(file);
-
-                    if (CurrentBackgroundTask == null)
-                        return;
-
-                    CurrentBackgroundTask.Worker.RunWorkerCompleted += (sender, e) => file.Dispose();
-
-                    return;
-                }
+                    await SaveFileAsync(file);
             }
 
             file.Dispose();

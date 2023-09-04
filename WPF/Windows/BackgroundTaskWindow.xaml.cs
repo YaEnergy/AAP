@@ -42,14 +42,14 @@ namespace AAP.UI.Windows
 
             viewModel.BackgroundTask = backgroundTask;
 
-            backgroundTask.Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+            //backgroundTask.Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
 
             Closing += OnClosing;
         }
 
         private void OnClosing(object? sender, CancelEventArgs e)
         {
-            if (DisplayBackgroundTask.Worker.IsBusy)
+            /*if (DisplayBackgroundTask.Worker.IsBusy)
             {
                 if (!DisplayBackgroundTask.Worker.WorkerSupportsCancellation)
                     e.Cancel = true;
@@ -59,7 +59,7 @@ namespace AAP.UI.Windows
                     CloseOnFinish = true;
                     DisplayBackgroundTask.CancelAsync();
                 }
-            }
+            }*/
         }
 
         private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
