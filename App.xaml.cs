@@ -323,39 +323,30 @@ namespace AAP
 
             ConsoleLogger.Log("Set up complete!");
 
-            ConsoleLogger.Log("LOADING WINDOW HIDDEN");
-
-            //This needs to be remade
-            /*if (args.Length == 1)
+            if (args.Length == 1)
+            {
                 if (File.Exists(args[0]))
                 {
                     FileInfo fileInfo = new(args[0]);
+                    ConsoleLogger.Log($"Opening file {fileInfo.FullName}");
+
                     try
                     {
-                        void BackgroundTaskOpenFinish(object? sender, RunWorkerCompletedEventArgs e)
-                        {
-                            if (e.Error != null)
-                                throw e.Error;
-                            else if (e.Cancelled)
-                                return;
-                            else if (e.Result is ASCIIArtFile artFile)
-                            {
-                                OpenArtFiles.Add(artFile);
-                                CurrentArtFile = artFile;
-                            }
-                            else
-                                throw new Exception("Result is not ASCIIArtFile!");
-                        }
+                        ASCIIArtFile artFile = ASCIIArtFile.Open(fileInfo.FullName);
+                        OpenArtFiles.Add(artFile);
+                        CurrentArtFile = artFile;
 
-                        BackgroundTask? bgTask = ASCIIArtFile.OpenAsync(fileInfo.FullName);
-                        if (bgTask != null)
-                            bgTask.Worker.RunWorkerCompleted += BackgroundTaskOpenFinish;
+                        ConsoleLogger.Log($"Opened file {fileInfo.FullName}!");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Failed to open {fileInfo.Name}. Exception : {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        ConsoleLogger.Error(ex);
+                        MessageBox.Show($"Failed to open {fileInfo.Name}. Exception: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                }*/
+                }
+            }
+
+            ConsoleLogger.Log("LOADING WINDOW HIDDEN");
 
             GC.Collect();
 
