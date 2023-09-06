@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AAP.BackgroundTasks;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -16,28 +17,24 @@ namespace AAP
         /// Sets properties of FileObject to the properties of the object imported from FilePath
         /// </summary>
         /// <param name="bgWorker"></param>
-        public abstract void Import(BackgroundWorker? bgWorker = null);
+        public abstract void Import();
 
         /// <summary>
         /// Sets properties of FileObject to the properties of the object imported from FilePath
         /// </summary>
-        public async Task ImportAsync()
-            => await Task.Run(() => Import()); //Not true async!!!!!
+        public abstract Task ImportAsync(BackgroundTaskToken? taskToken = null);
 
         /// <summary>
         /// Writes FileObject to FilePath
         /// </summary>
         /// <param name="bgWorker"></param>
         /// <returns>True if export was a success, false if cancelled.</returns>
-        public abstract bool Export(BackgroundWorker? bgWorker = null);
+        public abstract void Export();
 
         /// <summary>
         /// Sets properties of FileObject to the properties of the object imported from FilePath
         /// </summary>
-        public async Task<bool> ExportAsync()
-        {
-            return await Task.Run(() => Export()); //Also not true async!!!!!!
-        }
+        public abstract Task ExportAsync(BackgroundTaskToken? taskToken = null);
 
     }
 }

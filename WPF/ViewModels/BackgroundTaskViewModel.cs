@@ -13,35 +13,17 @@ namespace AAP.UI.ViewModels
 {
     public class BackgroundTaskViewModel : INotifyPropertyChanged
     {
-        private BackgroundTask? backgroundTask = null;
-        public BackgroundTask? BackgroundTask
+        private BackgroundTaskToken? backgroundTaskToken = null;
+        public BackgroundTaskToken? BackgroundTaskToken
         {
-            get => backgroundTask;
+            get => backgroundTaskToken;
             set
             {
-                if (backgroundTask == value)
+                if (backgroundTaskToken == value)
                     return;
 
-                /*if (backgroundTask != null)
-                {
-                    if (backgroundTask.Worker.IsBusy)
-                        UpdateTimeTimer.Stop();
-
-                    backgroundTask.Worker.DoWork -= Worker_DoWork;
-                }
-
-                if (value != null)
-                {
-                    if (value.Worker.IsBusy)
-                        UpdateTimeTimer.Start();
-                    else
-                        value.Worker.DoWork += Worker_DoWork;
-
-                    value.Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-                }*/
-
-                backgroundTask = value;
-                PropertyChanged?.Invoke(this, new(nameof(BackgroundTask)));
+                backgroundTaskToken = value;
+                PropertyChanged?.Invoke(this, new(nameof(BackgroundTaskToken)));
             }
         }
 
@@ -68,20 +50,10 @@ namespace AAP.UI.ViewModels
 
         private void UpdateTimeTimer_Tick(object? sender, EventArgs e)
         {
-            if (BackgroundTask == null)
+            if (BackgroundTaskToken == null)
                 return;
 
-            TaskElapsedTimeString = BackgroundTask.Time.ToString(@"hh\:mm\:ss");
-        }
-
-        private void Worker_DoWork(object? sender, DoWorkEventArgs e)
-        {
-            UpdateTimeTimer.Start();
-        }
-
-        private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
-        {
-            UpdateTimeTimer.Stop();
+            TaskElapsedTimeString = BackgroundTaskToken.Time.ToString(@"hh\:mm\:ss");
         }
     }
 }

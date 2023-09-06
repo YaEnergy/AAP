@@ -202,8 +202,8 @@
             </DockPanel>
             <Rectangle VerticalAlignment="Stretch" Width="1" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Right" Visibility="{Binding IsLayerManagementVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=MainWindowViewModel}"/>
             <DockPanel DockPanel.Dock="Bottom" VerticalAlignment="Bottom" Visibility="{Binding IsBackgroundTaskVisible, ElementName=MainWindowViewModel, Converter={StaticResource BooleanToVisibilityConverter}}">
-                <Label HorizontalAlignment="Left" Margin="5,5,5,5" Content="{Binding CurrentBackgroundTask.Name, ElementName=MainWindowViewModel, FallbackValue=BackgroundTaskName}" Padding="5,5,5,5" Grid.IsSharedSizeScope="True"/>
-                <ProgressBar IsIndeterminate="{Binding CurrentBackgroundTask.IsDeterminate}" HorizontalContentAlignment="Stretch" Value="{Binding CurrentBackgroundTask.ProgressPercentage,ElementName=MainWindowViewModel}" Margin="5,5,5,5"/>
+                <Label HorizontalAlignment="Left" Margin="5,5,5,5" Content="{Binding CurrentBackgroundTaskToken.Name, ElementName=MainWindowViewModel, FallbackValue=BackgroundTaskName}" Padding="5,5,5,5" Grid.IsSharedSizeScope="True"/>
+                <ProgressBar IsIndeterminate="{Binding CurrentBackgroundTaskToken.IsDeterminate}" HorizontalContentAlignment="Stretch" Value="{Binding CurrentBackgroundTaskToken.ProgressPercentage,ElementName=MainWindowViewModel}" Margin="5,5,5,5"/>
             </DockPanel>
             <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Bottom" Visibility="{Binding IsBackgroundTaskVisible, ElementName=MainWindowViewModel, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             <DockPanel>

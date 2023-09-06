@@ -10,14 +10,14 @@
         <viewmodels:BackgroundTaskViewModel x:Name="ViewModel" x:Key="ViewModel"/>
     </Window.Resources>
     <Window.TaskbarItemInfo>
-        <TaskbarItemInfo ProgressValue="{Binding BackgroundTask.ProgressPercentage, Source={StaticResource ViewModel}}" ProgressState="Normal" Description="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>
+        <TaskbarItemInfo ProgressValue="{Binding BackgroundTaskToken.ProgressPercentage, Source={StaticResource ViewModel}}" ProgressState="Normal" Description="{Binding BackgroundTaskToken.Name, Source={StaticResource ViewModel}}"/>
     </Window.TaskbarItemInfo>
     <Grid Background="{DynamicResource Background}">
         <WrapPanel Orientation="Vertical" Margin="10,10,10,10">
-            <Label VerticalAlignment="Top" Content="{Binding BackgroundTask.Name, Source={StaticResource ViewModel}}"/>
+            <Label VerticalAlignment="Top" Content="{Binding BackgroundTaskToken.Name, Source={StaticResource ViewModel}}"/>
             <Label VerticalAlignment="Top" ContentStringFormat="({0})" Content="{Binding TaskElapsedTimeString, Source={StaticResource ViewModel}}"/>
-            <ProgressBar IsIndeterminate="{Binding BackgroundTask.IsDeterminate, Source={StaticResource ViewModel}}" Value="{Binding BackgroundTask.ProgressPercentage, Source={StaticResource ViewModel}}" VerticalAlignment="Top" Height="20" Margin="5,0,0,0"/>
-            <Label VerticalAlignment="Top" Content="{Binding BackgroundTask.Objective, Source={StaticResource ViewModel}}"/>
+            <ProgressBar IsIndeterminate="{Binding BackgroundTaskToken.IsDeterminate, Source={StaticResource ViewModel}}" Value="{Binding BackgroundTaskToken.ProgressPercentage, Source={StaticResource ViewModel}}" VerticalAlignment="Top" Height="20" Margin="5,0,0,0"/>
+            <Label VerticalAlignment="Top" Content="{Binding BackgroundTaskToken.Objective, Source={StaticResource ViewModel}}"/>
         </WrapPanel>
     </Grid>
 </Window>

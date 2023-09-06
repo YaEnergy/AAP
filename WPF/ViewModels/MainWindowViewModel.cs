@@ -17,19 +17,19 @@ namespace AAP.UI.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
-        private BackgroundTask? currentBackgroundTask = null;
-        public BackgroundTask? CurrentBackgroundTask
+        private BackgroundTaskToken? currentBackgroundTaskToken = null;
+        public BackgroundTaskToken? CurrentBackgroundTaskToken
         {
-            get => currentBackgroundTask;
+            get => currentBackgroundTaskToken;
             set
             {
-                if (currentBackgroundTask == value)
+                if (currentBackgroundTaskToken == value)
                     return;
 
-                currentBackgroundTask = value;
+                currentBackgroundTaskToken = value;
                 IsBackgroundTaskVisible = value != null;
 
-                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTask)));
+                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTaskToken)));
             }
         }
 

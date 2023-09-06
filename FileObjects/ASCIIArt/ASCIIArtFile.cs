@@ -145,10 +145,9 @@ namespace AAP
 
             AAFASCIIArt aafASCIIArt = new(Art, SavePath);
 
-            bool exportSuccess = await Task.Run(() => aafASCIIArt.Export());
+            await aafASCIIArt.ExportAsync();
 
-            if (exportSuccess)
-                UnsavedChanges = false;
+            UnsavedChanges = false;
 
             ConsoleLogger.Log("Save File: Saved art file to " + SavePath);
         }
@@ -193,10 +192,9 @@ namespace AAP
                     throw new Exception("Unknown file extension!");
             }
 
-            bool exportSuccess = await Task.Run(() => AAPFile.Export());
+            await AAPFile.ExportAsync();
 
-            if (exportSuccess)
-                ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
+            ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
         }
 
         /*public static BackgroundTask? OpenAsync(string filePath)

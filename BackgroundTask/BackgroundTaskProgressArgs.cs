@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace AAP.BackgroundTasks
 {
-    public readonly struct BackgroundTaskUpdateArgs
+    public readonly struct BackgroundTaskProgressArgs
     {
         public readonly string CurrentObjective;
         public readonly bool IsDeterminate;
 
-        public BackgroundTaskUpdateArgs(string currentObjective = "", bool isDeterminate = false) 
+        public BackgroundTaskProgressArgs(string currentObjective = "", bool isDeterminate = false) 
         {
             CurrentObjective = currentObjective;
             IsDeterminate = isDeterminate;

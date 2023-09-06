@@ -24,46 +24,35 @@ namespace AAP.UI.Windows
     /// </summary>
     public partial class BackgroundTaskWindow : Window
     {
-        public BackgroundTask DisplayBackgroundTask { get; set; }
+        public BackgroundTaskToken DisplayBackgroundTaskToken { get; set; }
         public bool CloseOnFinish { get; set; } = true;
 
         private BackgroundTaskViewModel viewModel { get; set; }
 
-        public BackgroundTaskWindow(BackgroundTask backgroundTask, bool closeOnFinish = true)
+        public BackgroundTaskWindow(BackgroundTaskToken backgroundTaskToken, bool closeOnFinish = true)
         {
             InitializeComponent();
 
             CloseOnFinish = closeOnFinish;
-            Title = backgroundTask.Name;
+            Title = backgroundTaskToken.Name;
 
             viewModel = (BackgroundTaskViewModel)FindResource("ViewModel");
 
-            DisplayBackgroundTask = backgroundTask;
+            DisplayBackgroundTaskToken = backgroundTaskToken;
 
-            viewModel.BackgroundTask = backgroundTask;
+            viewModel.BackgroundTaskToken = backgroundTaskToken;
 
-            //backgroundTask.Worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-
-            Closing += OnClosing;
+            AwaitTask();
         }
 
-        private void OnClosing(object? sender, CancelEventArgs e)
+        private async void AwaitTask()
         {
-            /*if (DisplayBackgroundTask.Worker.IsBusy)
-            {
-                if (!DisplayBackgroundTask.Worker.WorkerSupportsCancellation)
-                    e.Cancel = true;
-                else
-                {
-                    e.Cancel = true;
-                    CloseOnFinish = true;
-                    DisplayBackgroundTask.CancelAsync();
-                }
-            }*/
-        }
+            viewModel.UpdateTimeTimer.Start();
 
-        private void Worker_RunWorkerCompleted(object? sender, RunWorkerCompletedEventArgs e)
-        {
+            await DisplayBackgroundTaskToken.MainTask;
+
+            viewModel.UpdateTimeTimer.Stop();
+
             if (CloseOnFinish)
                 Close();
             else

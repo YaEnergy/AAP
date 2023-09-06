@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 
 namespace AAP.BackgroundTasks
 {
-    public class BackgroundTask : INotifyPropertyChanged
+    public delegate void BackgroundTaskProgressChangedEvent(BackgroundTaskToken token, int progress, BackgroundTaskProgressArgs? args); 
+
+    public class BackgroundTaskToken : INotifyPropertyChanged
     {
         private readonly Task mainTask;
         public Task MainTask
@@ -44,7 +46,7 @@ namespace AAP.BackgroundTasks
             }
         }
 
-        private bool isDeterminate;
+        private bool isDeterminate = true;
         public bool IsDeterminate
         {
             get => isDeterminate;
@@ -94,12 +96,27 @@ namespace AAP.BackgroundTasks
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public BackgroundTask(string name, Task task)
+        public event BackgroundTaskProgressChangedEvent? ProgressChanged;
+
+        public BackgroundTaskToken(string name, Task startingTask)
         {
             this.name = name;
-            mainTask = task;
+            mainTask = startingTask;
 
             stopwatch.Start();
+        }
+
+        public void ReportProgress(int progressPercentage, BackgroundTaskProgressArgs? updateArgs)
+        {
+            ProgressPercentage = progressPercentage;
+
+            if (updateArgs != null)
+            {
+                Objective = updateArgs.Value.CurrentObjective;
+                IsDeterminate = updateArgs.Value.IsDeterminate;
+            }
+
+            ProgressChanged?.Invoke(this, progressPercentage, updateArgs);
         }
     }
 }

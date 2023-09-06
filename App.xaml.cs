@@ -748,7 +748,7 @@ namespace AAP
         }
         #endregion
         #region Palettes
-        public static async Task ExportPaletteAsync(CharacterPalette palette)
+        public static async Task ExportPaletteFileAsync(CharacterPalette palette)
         {
             if (palette.Name == string.Empty)
                 throw new Exception("Invalid Palette Name! Palette name can not be empty!");
@@ -773,7 +773,7 @@ namespace AAP
 
             IAAPFile<CharacterPalette> paletteFile = new AAPPALCharacterPalette(palette, path);
 
-            Task<bool> exportTask = paletteFile.ExportAsync();
+            Task exportTask = paletteFile.ExportAsync();
 
             await exportTask;
 
@@ -786,17 +786,18 @@ namespace AAP
                 ConsoleLogger.Log("Export Palette: Palette file exported to " + fileInfo.FullName + "!");
         }
 
-        public static void RemovePalette(CharacterPalette palette)
+        public static async Task RemovePaletteFileAsync(CharacterPalette palette)
         {
             string path = $@"{CharacterPaletteDirectoryPath}\{palette.Name}.aappal";
             FileInfo fileInfo = new(path);
 
             if (!fileInfo.Exists)
                 throw new FileNotFoundException("Can not remove unknown file!", fileInfo.FullName);
-            
-            File.Delete(path);
 
-            CharacterPalettes.Remove(palette);
+            Task deleteTask = Task.Run(() => File.Delete(path));
+
+            await deleteTask;
+
             ConsoleLogger.Log("Remove Palette: Palette file removed from " + fileInfo.FullName + "!");
         }
 
@@ -805,7 +806,7 @@ namespace AAP
             if (originalName == palette.Name)
             {
                 ConsoleLogger.Log("Edit Palette: Name has not changed, will export normally...");
-                Task exportPaletteTask = ExportPaletteAsync(palette);
+                Task exportPaletteTask = ExportPaletteFileAsync(palette);
                 await exportPaletteTask;
 
                 if (exportPaletteTask.IsFaulted && exportPaletteTask.Exception != null)
@@ -826,7 +827,9 @@ namespace AAP
                 throw new FileNotFoundException("Can not remove unknown file!", removeFileInfo.FullName);
 
             ConsoleLogger.Log("Edit Palette: Removing palette file at " + removePath);
-            File.Delete(removePath);
+            Task deleteTask = Task.Run(() => File.Delete(removePath));
+
+            await deleteTask;
 
             if (palette.Name == string.Empty)
                 throw new Exception("Invalid Palette Name! Palette name can not be empty!");
@@ -847,16 +850,9 @@ namespace AAP
 
             ConsoleLogger.Log("Export Palette: Exporting palette to " + newPath);
 
-            Task editPaletteTask = ExportPaletteAsync(palette);
-            await editPaletteTask;
+            Task editPaletteTask = ExportPaletteFileAsync(palette);
 
-            if (editPaletteTask.IsFaulted && editPaletteTask.Exception != null)
-            {
-                ConsoleLogger.Error("Edit Palette: ", editPaletteTask.Exception);
-                throw editPaletteTask.Exception;
-            }
-            else
-                ConsoleLogger.Log($"Edit Palette: Palette {palette.Name} file edited!");
+            await editPaletteTask;
 
             return;
         }

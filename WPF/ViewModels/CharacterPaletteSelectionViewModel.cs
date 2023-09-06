@@ -60,18 +60,18 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private BackgroundTask? currentBackgroundTask = null;
-        public BackgroundTask? CurrentBackgroundTask
+        private BackgroundTaskToken? currentBackgroundTaskToken = null;
+        public BackgroundTaskToken? CurrentBackgroundTaskToken
         {
-            get => currentBackgroundTask;
+            get => currentBackgroundTaskToken;
             set
             {
-                if (currentBackgroundTask == value)
+                if (currentBackgroundTaskToken == value)
                     return;
 
-                currentBackgroundTask = value;
+                currentBackgroundTaskToken = value;
 
-                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTask)));
+                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTaskToken)));
             }
         }
 
@@ -85,13 +85,13 @@ namespace AAP.UI.ViewModels
         {
             NewPaletteCommand = new ActionCommand(async (parameter) => await NewPaletteAsync());
             EditPaletteCommand = new ActionCommand(async (parameter) => await EditPaletteAsync());
-            RemovePaletteCommand = new ActionCommand((parameter) => RemovePalette());
+            RemovePaletteCommand = new ActionCommand(async (parameter) => await RemovePaletteAsync());
         }
 
         #region Background Task Work
         private async Task NewPaletteAsync()
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to create a new palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -101,27 +101,33 @@ namespace AAP.UI.ViewModels
             characterPaletteWindow.Owner = Application.Current.MainWindow;
             bool? createdPalette = characterPaletteWindow.ShowDialog();
 
-            if (createdPalette == true)
-            {
-                Task task = App.ExportPaletteAsync(characterPaletteWindow.Palette);
+            if (createdPalette != true)
+                return;
 
-                BackgroundTask bgTask = new($"Creating palette {characterPaletteWindow.Palette.Name} file...", task);
-                CurrentBackgroundTask = bgTask;
+            try
+            {
+                Task task = App.ExportPaletteFileAsync(characterPaletteWindow.Palette);
+
+                BackgroundTaskToken bgTask = new($"Creating palette {characterPaletteWindow.Palette.Name} file...", task);
+                CurrentBackgroundTaskToken = bgTask;
 
                 await task;
-
-                CurrentBackgroundTask = null;
-
-                //Add exception handling here later
 
                 Palettes.Add(characterPaletteWindow.Palette);
                 SelectedPalette = characterPaletteWindow.Palette;
             }
+            catch (Exception ex)
+            {
+                ConsoleLogger.Error(ex);
+                MessageBox.Show($"Failed to create palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CurrentBackgroundTaskToken = null;
         }
 
         private async Task EditPaletteAsync()
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to edit a palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -142,113 +148,74 @@ namespace AAP.UI.ViewModels
             characterPaletteWindow.Owner = Application.Current.MainWindow;
 
             bool? appliedChanges = characterPaletteWindow.ShowDialog();
-            if (appliedChanges == true)
+
+            if (appliedChanges != true)
+                return;
+
+            try
             {
                 Task task = App.EditPaletteFileAsync(originalPaletteName, characterPaletteWindow.Palette);
 
-                BackgroundTask bgTask = new($"Editing palette {characterPaletteWindow.Palette.Name} file...", task);
-                CurrentBackgroundTask = bgTask;
+                BackgroundTaskToken bgTask = new($"Editing palette {characterPaletteWindow.Palette.Name} file...", task);
+                CurrentBackgroundTaskToken = bgTask;
 
                 await task;
 
-                CurrentBackgroundTask = null;
-
-                //Add exception handling here later
-
                 SelectedPalette = characterPaletteWindow.Palette;
             }
+            catch (Exception ex)
+            {
+                ConsoleLogger.Error(ex);
+                MessageBox.Show($"Failed to edit palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CurrentBackgroundTaskToken = null;
         }
 
-        private void RemovePalette()
+        private async Task RemovePaletteAsync()
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to remove a palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            if (SelectedPalette == null)
+            CharacterPalette? palette = SelectedPalette;
+
+            if (palette == null)
                 return;
 
-            if (SelectedPalette.IsPresetPalette)
+            if (palette.IsPresetPalette)
             {
                 MessageBox.Show("Can not remove preset palettes.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            MessageBoxResult questionResult = MessageBox.Show("Are you sure you want to remove palette " + SelectedPalette.Name + "? This can not be undone.", "Palettes", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult questionResult = MessageBox.Show("Are you sure you want to remove palette " + palette.Name + "? This can not be undone.", "Palettes", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (questionResult != MessageBoxResult.Yes)
                 return;
 
-            App.RemovePalette(SelectedPalette);
-            SelectedPalette = null;
+            try
+            {
+                Task task = App.RemovePaletteFileAsync(palette);
+
+                BackgroundTaskToken bgTask = new($"Removing palette {palette.Name} file...", task);
+                CurrentBackgroundTaskToken = bgTask;
+
+                await task;
+
+                SelectedPalette = null;
+                Palettes.Remove(palette); 
+            }
+            catch (Exception ex)
+            {
+                ConsoleLogger.Error(ex);
+                MessageBox.Show($"Failed to remove palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            CurrentBackgroundTaskToken = null;
         }
         #endregion
-        /*#region Background Task Complete
-        void BackgroundNewComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled creating palette!", "Palettes", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while creating palette!\nException: " + args.Error.Message, "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (args.Result is CharacterPalette palette)
-            {
-                Palettes.Add(palette);
-                SelectedPalette = palette;
-            }
-            else
-                MessageBox.Show("Palette Creation was successful, but result is not Character Palette. Palette can not be used.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-
-        void BackgroundEditComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled editing palette!", "Palettes", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while editing palette!\nException: " + args.Error.Message, "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-            else if (args.Result is CharacterPalette palette)
-                SelectedPalette = palette;
-            else
-                MessageBox.Show("Palette Edit was successful, but result is not Character Palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Warning);
-        }
-
-        void BackgroundRemoveComplete(object? sender, RunWorkerCompletedEventArgs args)
-        {
-            if (sender is not BackgroundWorker bgWorker)
-                return;
-
-            if (CurrentBackgroundTask != null)
-                if (bgWorker == CurrentBackgroundTask.Worker)
-                {
-                    CurrentBackgroundTask = null;
-                }
-
-            if (args.Cancelled)
-                MessageBox.Show("Cancelled removing palette!", "Palettes", MessageBoxButton.OK, MessageBoxImage.Information);
-            else if (args.Error != null)
-                MessageBox.Show("An error has occurred while removing palette!\nException: " + args.Error.Message, "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
-            else
-                SelectedPalette = null;
-        }
-        #endregion*/
     }
 }

@@ -105,18 +105,18 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private BackgroundTask? currentBackgroundTask = null;
-        public BackgroundTask? CurrentBackgroundTask
+        private BackgroundTaskToken? currentBackgroundTaskToken = null;
+        public BackgroundTaskToken? CurrentBackgroundTaskToken
         {
-            get => currentBackgroundTask;
+            get => currentBackgroundTaskToken;
             set
             {
-                if (currentBackgroundTask == value)
+                if (currentBackgroundTaskToken == value)
                     return;
 
-                currentBackgroundTask = value;
+                currentBackgroundTaskToken = value;
 
-                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTask)));
+                PropertyChanged?.Invoke(this, new(nameof(CurrentBackgroundTaskToken)));
             }
         }
 
@@ -179,7 +179,7 @@ namespace AAP.UI.ViewModels
 
         public void NewFile()
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to create a new file.", "New File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return; 
@@ -198,7 +198,7 @@ namespace AAP.UI.ViewModels
 
         public async Task OpenFileAsync()
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to open a file.", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -227,8 +227,8 @@ namespace AAP.UI.ViewModels
             {
                 Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName);
 
-                BackgroundTask bgTask = new($"Opening {fileInfo.Name}...", task);
-                CurrentBackgroundTask = bgTask;
+                BackgroundTaskToken bgTask = new($"Opening {fileInfo.Name}...", task);
+                CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
 
@@ -236,10 +236,11 @@ namespace AAP.UI.ViewModels
             }
             catch (Exception ex)
             {
+                ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to open art file! Exception message: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            CurrentBackgroundTask = null;
+            CurrentBackgroundTaskToken = null;
 
             CanUseTool = true;
 
@@ -270,7 +271,7 @@ namespace AAP.UI.ViewModels
 
         private async Task SaveFileToPathAsync(ASCIIArtFile artFile, string savePath)
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save file.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -282,8 +283,8 @@ namespace AAP.UI.ViewModels
             {
                 Task task = artFile.SaveAsync();
 
-                BackgroundTask? bgTask = new($"Saving to {new FileInfo(savePath).Name}...", task);
-                CurrentBackgroundTask = bgTask;
+                BackgroundTaskToken? bgTask = new($"Saving to {new FileInfo(savePath).Name}...", task);
+                CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
 
@@ -291,17 +292,18 @@ namespace AAP.UI.ViewModels
             }
             catch (Exception ex)
             {
+                ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to save art file! Exception message: {ex.Message}", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            CurrentBackgroundTask = null;
+            CurrentBackgroundTaskToken = null;
 
             CanUseTool = true;
         }
 
         public async Task SaveFileAsync(ASCIIArtFile file)
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -334,7 +336,7 @@ namespace AAP.UI.ViewModels
 
         public async Task SaveAsFileAsync(ASCIIArtFile file)
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save as a new file.", "Save As File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -364,7 +366,7 @@ namespace AAP.UI.ViewModels
 
         public async Task ExportFileAsync(ASCIIArtFile artFile)
         {
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to save as a new file.", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -407,8 +409,8 @@ namespace AAP.UI.ViewModels
             {
                 Task task = artFile.ExportAsync(savePath, exportOptions);
 
-                BackgroundTask? bgTask = new($"Exporting to {new FileInfo(savePath).Name}...", task);
-                CurrentBackgroundTask = bgTask;
+                BackgroundTaskToken? bgTask = new($"Exporting to {new FileInfo(savePath).Name}...", task);
+                CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
 
@@ -416,10 +418,11 @@ namespace AAP.UI.ViewModels
             }
             catch (Exception ex)
             {
+                ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to export art file! Exception message: {ex.Message}", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
-            CurrentBackgroundTask = null;
+            CurrentBackgroundTaskToken = null;
 
             CanUseTool = true;
         }
@@ -458,7 +461,7 @@ namespace AAP.UI.ViewModels
             if (parameter is not ASCIIArtFile file)
                 throw new Exception("parameter is not ASCIIArtFile!");
 
-            if (CurrentBackgroundTask != null)
+            if (CurrentBackgroundTaskToken != null)
             {
                 MessageBox.Show("Current background task must be cancelled in order to close a file.", "Close File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;

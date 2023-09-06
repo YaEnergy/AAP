@@ -26,13 +26,12 @@ namespace AAP
             FilePath = filePath;
         }
 
-        public void Import(BackgroundWorker? bgWorker = null)
+        public void Import()
         {
             FileInfo fileInfo = new(FilePath);
             if (!fileInfo.Exists)
                 throw new FileNotFoundException(fileInfo.FullName);
 
-            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Reading text...", true));
             string[] txtLines = File.ReadAllLines(FilePath);
 
             if (txtLines.Length <= 0)
@@ -46,14 +45,12 @@ namespace AAP
                 if (line.Length > txtWidth)
                     txtWidth = line.Length;
 
-            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Creating art...", true));
             FileObject.SetSize(txtWidth, txtHeight);
             FileObject.CreatedInVersion = ASCIIArt.VERSION;
             ArtLayer txtArtLayer = new("Imported Art", FileObject.Width, FileObject.Height);
 
             for (int y = 0; y < txtHeight; y++)
             {
-                bgWorker?.ReportProgress((int)((double)(y + 1) / txtHeight * 100), new BackgroundTaskUpdateArgs("Creating lines...", false));
                 char[] chars = txtLines[y].ToCharArray();
                 for (int x = 0; x < txtWidth; x++)
                     txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == ASCIIArt.EMPTYCHARACTER ? null : chars[x];
@@ -62,30 +59,70 @@ namespace AAP
             FileObject.ArtLayers.Add(txtArtLayer);
         }
 
-        public bool Export(BackgroundWorker? bgWorker = null)
+        public async Task ImportAsync(BackgroundTaskToken? taskToken = null)
         {
-            if (bgWorker != null)
-                if (bgWorker.CancellationPending)
-                    return false;
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
 
-            bgWorker?.ReportProgress(0, new BackgroundTaskUpdateArgs("Getting art string...", true));
+            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Reading text...", true));
+
+            Task<string[]> readLinesTask = File.ReadAllLinesAsync(FilePath);
+            string[] txtLines = await readLinesTask;
+
+            if (txtLines.Length <= 0)
+                throw new Exception($"ASCIIArtFile.ImportFile(path: {FilePath}): txt file contains no lines!");
+
+            int txtWidth = 0;
+            int txtHeight = txtLines.Length;
+
+            //Get total width
+            foreach (string line in txtLines)
+                if (line.Length > txtWidth)
+                    txtWidth = line.Length;
+
+            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Creating art...", true));
+            FileObject.SetSize(txtWidth, txtHeight);
+            FileObject.CreatedInVersion = ASCIIArt.VERSION;
+            ArtLayer txtArtLayer = new("Imported Art", FileObject.Width, FileObject.Height);
+
+            BackgroundTaskProgressArgs progressArgs = new("Creating lines...", false);
+            Task lineCreation = Task.Run(() => 
+            {
+                for (int y = 0; y < txtHeight; y++)
+                {
+                    taskToken?.ReportProgress((int)((double)(y + 1) / txtHeight * 100), progressArgs);
+                    char[] chars = txtLines[y].ToCharArray();
+                    for (int x = 0; x < txtWidth; x++)
+                        txtArtLayer.Data[x][y] = x >= chars.Length ? null : chars[x] == ASCIIArt.EMPTYCHARACTER ? null : chars[x];
+                }
+            });
+
+            FileObject.ArtLayers.Add(txtArtLayer);
+        }
+
+        public void Export()
+        {
             string artString = FileObject.GetArtString();
 
-            if (bgWorker != null)
-            {
-                if (bgWorker.CancellationPending)
-                    return false;
-
-                bgWorker.WorkerSupportsCancellation = false;
-            }
-
-            bgWorker?.ReportProgress(50, new BackgroundTaskUpdateArgs("Writing to file...", true));
             StreamWriter sw = File.CreateText(FilePath);
             sw.Write(artString);
 
             sw.Close();
+        }
 
-            return true;
+        public async Task ExportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Getting art string...", true));
+
+            Task<string> artStringTask = Task.Run(() => FileObject.GetArtString());
+            string artString = await artStringTask;
+
+            taskToken?.ReportProgress(50, new BackgroundTaskProgressArgs("Writing to file...", true));
+            StreamWriter sw = File.CreateText(FilePath);
+            await sw.WriteAsync(artString);
+
+            sw.Close();
         }
     }
 
@@ -100,7 +137,7 @@ namespace AAP
             FilePath = filePath;
         }
 
-        public void Import(BackgroundWorker? bgWorker = null)
+        public void Import()
         {
             FileInfo fileInfo = new(FilePath);
             if (!fileInfo.Exists)
@@ -108,15 +145,12 @@ namespace AAP
 
             string tempFilePath = Path.GetTempFileName();
 
-            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Decompressing art file...", true));
             FileStream fs = File.Create(tempFilePath);
 
             using (GZipStream output = new(File.Open(FilePath, FileMode.Open), CompressionMode.Decompress))
                 output.CopyTo(fs);
 
             fs.Close();
-
-            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Deserializing decompressed art file...", true));
 
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamReader sr = File.OpenText(tempFilePath);
@@ -137,44 +171,97 @@ namespace AAP
             jr.CloseInput = true;
             jr.Close();
 
-            bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting decompressed path...", true));
             File.Delete(tempFilePath);
         }
 
-        public bool Export(BackgroundWorker? bgWorker = null)
+        public async Task ImportAsync(BackgroundTaskToken? taskToken = null)
         {
-            if (bgWorker != null)
-                if (bgWorker.CancellationPending)
-                    return false;
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
 
             string tempFilePath = Path.GetTempFileName();
 
-            bgWorker?.ReportProgress(33, new BackgroundTaskUpdateArgs("Writing as uncompressed file...", true));
+            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Decompressing art file...", true));
+            FileStream fs = File.Create(tempFilePath);
+
+            using (GZipStream output = new(File.Open(FilePath, FileMode.Open), CompressionMode.Decompress))
+                await output.CopyToAsync(fs);
+
+            fs.Close();
+
+            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Deserializing decompressed art file...", true));
+
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamReader sr = File.OpenText(tempFilePath);
+            JsonTextReader jr = new(sr);
+
+            Task<ASCIIArt?> deserializeTask = Task.Run(() => js.Deserialize<ASCIIArt>(jr));
+            ASCIIArt? importedArt = await deserializeTask;
+
+            if (importedArt != null)
+            {
+                FileObject.CreatedInVersion = importedArt.CreatedInVersion;
+                FileObject.SetSize(importedArt.Width, importedArt.Height);
+
+                for (int i = 0; i < importedArt.ArtLayers.Count; i++)
+                    FileObject.ArtLayers.Insert(i, importedArt.ArtLayers[i]);
+            }
+            else
+                throw new Exception("No art could be imported!");
+
+            jr.CloseInput = true;
+            jr.Close();
+
+            taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting decompressed path...", true));
+
+            Task deleteTask = Task.Run(() => File.Delete(tempFilePath));
+
+            await deleteTask;
+        }
+
+        public void Export()
+        {
+            string tempFilePath = Path.GetTempFileName();
+            
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(tempFilePath);
+
             js.Serialize(sw, FileObject);
             sw.Close();
 
-            if (bgWorker != null)
-            {
-                if (bgWorker.CancellationPending)
-                {
-                    File.Delete(tempFilePath);
-                    return false;
-                }
-
-                bgWorker.WorkerSupportsCancellation = false;
-            }
-
-            bgWorker?.ReportProgress(66, new BackgroundTaskUpdateArgs("Decompressing uncompressed file to file path...", true));
             using (FileStream fs = File.OpenRead(tempFilePath))
-            using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
-                fs.CopyTo(output);
+                using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
+                    fs.CopyTo(output);
 
-            bgWorker?.ReportProgress(100, new BackgroundTaskUpdateArgs("Deleting uncompressed path", true));
             File.Delete(tempFilePath);
 
-            return true;
+        }
+
+        public async Task ExportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            string tempFilePath = Path.GetTempFileName();
+
+            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Writing as uncompressed file...", true));
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamWriter sw = File.CreateText(tempFilePath);
+
+            Task serializeTask = Task.Run(() => js.Serialize(sw, FileObject));
+
+            await serializeTask;
+
+            sw.Close();
+
+            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
+            using (FileStream fs = File.OpenRead(tempFilePath))
+                using (GZipStream output = new(File.Create(FilePath), CompressionLevel.SmallestSize))
+                    await fs.CopyToAsync(output);
+
+            taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
+            
+            Task deleteTask = Task.Run(() => File.Delete(tempFilePath));
+
+            await deleteTask;
         }
     }
 
@@ -315,9 +402,13 @@ namespace AAP
             return BitmapFrame.Create(bmp);
         }
 
-        public abstract void Import(BackgroundWorker? bgWorker = null);
+        public abstract void Import();
 
-        public abstract bool Export(BackgroundWorker? bgWorker = null);
+        public abstract void Export();
+
+        public abstract Task ImportAsync(BackgroundTaskToken? taskToken = null);
+
+        public abstract Task ExportAsync(BackgroundTaskToken? taskToken = null);
     }
 
     public class BitmapASCIIArt : ImageASCIIArt
@@ -327,7 +418,7 @@ namespace AAP
 
         }
 
-        public override void Import(BackgroundWorker? bgWorker = null)
+        public override void Import()
         {
             FileInfo fileInfo = new(FilePath);
             if (!fileInfo.Exists)
@@ -336,12 +427,17 @@ namespace AAP
             throw new NotImplementedException();
         }
 
-        public override bool Export(BackgroundWorker? bgWorker = null)
+        public override async Task ImportAsync(BackgroundTaskToken? taskToken = null)
         {
-            if (bgWorker != null)
-                if (bgWorker.CancellationPending)
-                    return false;
-            
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
+            throw new NotImplementedException();
+        }
+
+        public override void Export()
+        {
             BitmapFrame bmp = GetArtBitmapFrame();
 
             BmpBitmapEncoder encoder = new();
@@ -349,8 +445,21 @@ namespace AAP
             
             using (FileStream fs = File.Create(FilePath))
                 encoder.Save(fs);
+        }
 
-            return true;
+        public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
+            BitmapFrame bmp = await getBitmapFrameTask;
+
+            BmpBitmapEncoder encoder = new();
+            encoder.Frames.Add(bmp);
+
+            await Task.Run(() =>
+            {
+                using (FileStream fs = File.Create(FilePath))
+                    encoder.Save(fs);
+            });
         }
     }
 
@@ -361,7 +470,7 @@ namespace AAP
 
         }
 
-        public override void Import(BackgroundWorker? bgWorker = null)
+        public override void Import()
         {
             FileInfo fileInfo = new(FilePath);
             if (!fileInfo.Exists)
@@ -370,12 +479,17 @@ namespace AAP
             throw new NotImplementedException();
         }
 
-        public override bool Export(BackgroundWorker? bgWorker = null)
+        public override async Task ImportAsync(BackgroundTaskToken? taskToken = null)
         {
-            if (bgWorker != null)
-                if (bgWorker.CancellationPending)
-                    return false;
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
 
+            throw new NotImplementedException();
+        }
+
+        public override void Export()
+        {
             BitmapFrame bmp = GetArtBitmapFrame();
 
             PngBitmapEncoder encoder = new();
@@ -383,8 +497,21 @@ namespace AAP
 
             using (FileStream fs = File.Create(FilePath))
                 encoder.Save(fs);
+        }
 
-            return true;
+        public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
+            BitmapFrame bmp = await getBitmapFrameTask;
+
+            PngBitmapEncoder encoder = new();
+            encoder.Frames.Add(bmp);
+
+            await Task.Run(() =>
+            {
+                using (FileStream fs = File.Create(FilePath))
+                    encoder.Save(fs);
+            });
         }
     }
 
@@ -395,7 +522,7 @@ namespace AAP
 
         }
 
-        public override void Import(BackgroundWorker? bgWorker = null)
+        public override void Import()
         {
             FileInfo fileInfo = new(FilePath);
             if (!fileInfo.Exists)
@@ -404,12 +531,17 @@ namespace AAP
             throw new NotImplementedException();
         }
 
-        public override bool Export(BackgroundWorker? bgWorker = null)
+        public override async Task ImportAsync(BackgroundTaskToken? taskToken = null)
         {
-            if (bgWorker != null)
-                if (bgWorker.CancellationPending)
-                    return false;
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
 
+            throw new NotImplementedException();
+        }
+
+        public override void Export()
+        {
             BitmapFrame bmp = GetArtBitmapFrame();
 
             JpegBitmapEncoder encoder = new();
@@ -417,8 +549,21 @@ namespace AAP
 
             using (FileStream fs = File.Create(FilePath))
                 encoder.Save(fs);
+        }
 
-            return true;
+        public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
+            BitmapFrame bmp = await getBitmapFrameTask;
+
+            JpegBitmapEncoder encoder = new();
+            encoder.Frames.Add(bmp);
+
+            await Task.Run(() =>
+            {
+                using (FileStream fs = File.Create(FilePath))
+                    encoder.Save(fs);
+            });
         }
     }
 }

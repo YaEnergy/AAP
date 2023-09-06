@@ -112,13 +112,13 @@ namespace AAP.UI.Windows
                     break;
                 }
 
-            if (ArtFileViewModel.CurrentBackgroundTask != null)
+            if (ArtFileViewModel.CurrentBackgroundTaskToken != null)
             {
-                BackgroundTaskWindow backgroundTaskWindow = new(ArtFileViewModel.CurrentBackgroundTask, true);
+                BackgroundTaskWindow backgroundTaskWindow = new(ArtFileViewModel.CurrentBackgroundTaskToken, true);
                 backgroundTaskWindow.Show();
                 backgroundTaskWindow.Owner = this;
 
-                await ArtFileViewModel.CurrentBackgroundTask.MainTask;
+                await ArtFileViewModel.CurrentBackgroundTaskToken.MainTask;
             }
         }
 
@@ -211,9 +211,9 @@ namespace AAP.UI.Windows
                     App.DarkMode = vm.IsDarkModeOn;
                     Settings.Default.Save();
                     break;
-                case nameof(vm.CurrentBackgroundTask):
-                    ArtFileViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
-                    CharacterPaletteSelectionViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
+                case nameof(vm.CurrentBackgroundTaskToken):
+                    ArtFileViewModel.CurrentBackgroundTaskToken = vm.CurrentBackgroundTaskToken;
+                    CharacterPaletteSelectionViewModel.CurrentBackgroundTaskToken = vm.CurrentBackgroundTaskToken;
                     break;
                 default:
                     break;
@@ -242,8 +242,8 @@ namespace AAP.UI.Windows
                 case nameof(vm.CanUseTool):
                     ArtCanvasViewModel.CanUseTool = vm.CanUseTool;
                     break;
-                case nameof(vm.CurrentBackgroundTask):
-                    MainWindowViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
+                case nameof(vm.CurrentBackgroundTaskToken):
+                    MainWindowViewModel.CurrentBackgroundTaskToken = vm.CurrentBackgroundTaskToken;
                     break;
                 default:
                     break;
@@ -281,8 +281,8 @@ namespace AAP.UI.Windows
                 case nameof(vm.SelectedCharacter):
                     App.SelectCharacterTool(vm.SelectedCharacter);
                     break;
-                case nameof(vm.CurrentBackgroundTask):
-                    MainWindowViewModel.CurrentBackgroundTask = vm.CurrentBackgroundTask;
+                case nameof(vm.CurrentBackgroundTaskToken):
+                    MainWindowViewModel.CurrentBackgroundTaskToken = vm.CurrentBackgroundTaskToken;
                     break;
                 default:
                     break;
