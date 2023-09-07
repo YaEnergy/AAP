@@ -21,6 +21,8 @@ namespace AAP
         public static readonly string ProgramTitle = "Kiara's ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
+        private static readonly TextWriter mainConsoleOut = Console.Out;
+
         public static readonly int MaxArtArea = 1600000;
         public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
@@ -231,16 +233,12 @@ namespace AAP
                     ConsoleLogger.Log($"Created directory {applicationDataDirInfo.FullName}");
                 }
 
-#if RELEASE
-                TextWriter oldOut = Console.Out;
-                StreamWriter logSR = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
-                logSR.AutoFlush = true;
+                ConsoleLogger.LogFileOut = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
+                ConsoleLogger.LogFileOut.WriteLine($"--CONSOLE LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
 
-                logSR.WriteLine("--CONSOLE LOG--\n");
+                ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
+                ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
 
-                Console.SetOut(logSR);
-                Console.SetError(logSR);
-#endif
                 if (!Directory.Exists(DefaultArtFilesDirectoryPath))
                 {
                     DirectoryInfo defaultArtFilesDirInfo = Directory.CreateDirectory(DefaultArtFilesDirectoryPath);
@@ -311,7 +309,16 @@ namespace AAP
             }
             catch (Exception ex)
             {
+                if (ConsoleLogger.LogFileError == null)
+                {
+                    ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
+                    ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.TimeOfDay}--\n");
+                }
+
                 ConsoleLogger.Error(ex);
+
+                ConsoleLogger.LogFileError.Close();
+
                 MessageBoxResult result = MessageBox.Show($"It seems {ProgramTitle} has run into an exception while starting up, and can't open! If this keeps occuring, please inform the creator of AAP!\nOpen log file?", ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
                 if (result == MessageBoxResult.Yes)
@@ -352,30 +359,32 @@ namespace AAP
 
             app.Run();
 
-#if RELEASE
-            Console.SetOut(oldOut);
-            Console.SetError(oldOut);
+            ConsoleLogger.LogFileOut?.Close();
+            ConsoleLogger.LogFileError?.Close();
+            Console.Out.Close();
 
-            logSR.Close();
-#endif
             mutex.Close();
         }
 
         #region Application Events
         private static void OnApplicationExit(object? sender, ExitEventArgs e)
         {
-            Console.WriteLine("\n--APPLICATION EXIT--\n");
+            ConsoleLogger.Log("\n--APPLICATION EXIT--\n");
 
-            ConsoleLogger.Log("Exited with code {0}", e.ApplicationExitCode);
-
-            Console.Out.Close();
+            ConsoleLogger.Log("Application exited with code {0}", e.ApplicationExitCode);
         }
 
         private static void OnThreadException(object? sender, DispatcherUnhandledExceptionEventArgs e)
         {
-            Console.WriteLine($"\n--THREAD EXCEPTION--\n");
+            if (ConsoleLogger.LogFileError == null)
+            {
+                ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
+                ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
+            }
+
+            ConsoleLogger.Log($"\n--THREAD EXCEPTION--\n");
             ConsoleLogger.Error(e.Exception);
-            Console.WriteLine("\n--END THREAD EXCEPTION--\n");
+            ConsoleLogger.Log("\n--END THREAD EXCEPTION--\n");
 
             if (!e.Handled)
             {
@@ -384,7 +393,7 @@ namespace AAP
                 MessageBoxResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP!\nOpen log file?", ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
                 if (result == MessageBoxResult.Yes)
-                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
+                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\threadErrorLog.txt");
 
                 Current.Shutdown(-1);
             }
