@@ -281,14 +281,17 @@ namespace AAP.UI.ViewModels
 
             try
             {
+                FileInfo fileInfo = new FileInfo(savePath);
                 Task task = artFile.SaveAsync();
 
-                BackgroundTaskToken? bgTask = new($"Saving to {new FileInfo(savePath).Name}...", task);
+                BackgroundTaskToken? bgTask = new($"Saving to {fileInfo.Name}...", task);
                 CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
 
                 await task;
+
+                MessageBox.Show($"Saved art file to {fileInfo.Name}!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -368,7 +371,7 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to save as a new file.", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Current background task must be cancelled in order to export file.", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -403,18 +406,21 @@ namespace AAP.UI.ViewModels
                 exportOptions = exportOptionsWindow.ExportOptions;
             }
 
-            artFile.SavePath = savePath;
-
             try
             {
+                FileInfo fileInfo = new FileInfo(savePath);
                 Task task = artFile.ExportAsync(savePath, exportOptions);
 
-                BackgroundTaskToken? bgTask = new($"Exporting to {new FileInfo(savePath).Name}...", task);
+                BackgroundTaskToken? bgTask = new($"Exporting to {fileInfo.Name}...", task);
                 CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
 
                 await task;
+
+                MessageBoxResult msgResult = MessageBox.Show($"Exported art file to {fileInfo.Name}! Open file?", "Export File", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                if (msgResult == MessageBoxResult.Yes)
+                    Process.Start("explorer.exe", savePath);
             }
             catch (Exception ex)
             {
@@ -467,10 +473,6 @@ namespace AAP.UI.ViewModels
                 return;
             }
 
-            if (CurrentArtFile == file)
-                CurrentArtFile = null;
-
-            OpenArtFiles.Remove(file);
 
             if (file.UnsavedChanges)
             {
@@ -479,6 +481,11 @@ namespace AAP.UI.ViewModels
                 if (result == MessageBoxResult.Yes)
                     await SaveFileAsync(file);
             }
+
+            if (CurrentArtFile == file)
+                CurrentArtFile = null;
+
+            OpenArtFiles.Remove(file);
 
             file.Dispose();
         }

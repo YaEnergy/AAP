@@ -452,13 +452,12 @@ namespace AAP
             Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
             BitmapFrame bmp = await getBitmapFrameTask;
 
-            BmpBitmapEncoder encoder = new();
-            encoder.Frames.Add(bmp);
-
-            await Task.Run(() =>
-            {
-                using (FileStream fs = File.Create(FilePath))
-                    encoder.Save(fs);
+            await Task.Run(() => 
+            { 
+                BmpBitmapEncoder encoder = new(); 
+                encoder.Frames.Add(bmp); 
+                using (FileStream fs = File.Create(FilePath)) 
+                    encoder.Save(fs); 
             });
         }
     }
@@ -504,11 +503,11 @@ namespace AAP
             Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
             BitmapFrame bmp = await getBitmapFrameTask;
 
-            PngBitmapEncoder encoder = new();
-            encoder.Frames.Add(bmp);
-
             await Task.Run(() =>
             {
+                PngBitmapEncoder encoder = new();
+                encoder.Frames.Add(bmp);
+
                 using (FileStream fs = File.Create(FilePath))
                     encoder.Save(fs);
             });
@@ -556,11 +555,11 @@ namespace AAP
             Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
             BitmapFrame bmp = await getBitmapFrameTask;
 
-            JpegBitmapEncoder encoder = new();
-            encoder.Frames.Add(bmp);
-
             await Task.Run(() =>
             {
+                JpegBitmapEncoder encoder = new();
+                encoder.Frames.Add(bmp);
+
                 using (FileStream fs = File.Create(FilePath))
                     encoder.Save(fs);
             });
