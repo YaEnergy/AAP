@@ -317,7 +317,11 @@ namespace AAP
 
                 ConsoleLogger.Error(ex);
 
-                ConsoleLogger.LogFileError.Close();
+                ConsoleLogger.LogFileOut?.Flush();
+                ConsoleLogger.LogFileError?.Flush();
+
+                ConsoleLogger.LogFileOut?.Close();
+                ConsoleLogger.LogFileError?.Close();
 
                 MessageBoxResult result = MessageBox.Show($"It seems {ProgramTitle} has run into an exception while starting up, and can't open! If this keeps occuring, please inform the creator of AAP!\nOpen log file?", ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
@@ -358,6 +362,9 @@ namespace AAP
             GC.Collect();
 
             app.Run();
+
+            ConsoleLogger.LogFileOut?.Flush();
+            ConsoleLogger.LogFileError?.Flush();
 
             ConsoleLogger.LogFileOut?.Close();
             ConsoleLogger.LogFileError?.Close();
