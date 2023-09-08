@@ -106,9 +106,10 @@ namespace AAP.UI.ViewModels
 
             try
             {
+                BackgroundTaskToken bgTask = new($"Creating palette {characterPaletteWindow.Palette.Name} file...");
                 Task task = App.ExportPaletteFileAsync(characterPaletteWindow.Palette);
+                bgTask.MainTask = task;
 
-                BackgroundTaskToken bgTask = new($"Creating palette {characterPaletteWindow.Palette.Name} file...", task);
                 CurrentBackgroundTaskToken = bgTask;
 
                 await task;
@@ -154,9 +155,10 @@ namespace AAP.UI.ViewModels
 
             try
             {
+                BackgroundTaskToken bgTask = new($"Editing palette {characterPaletteWindow.Palette.Name} file...");
                 Task task = App.EditPaletteFileAsync(originalPaletteName, characterPaletteWindow.Palette);
+                bgTask.MainTask = task;
 
-                BackgroundTaskToken bgTask = new($"Editing palette {characterPaletteWindow.Palette.Name} file...", task);
                 CurrentBackgroundTaskToken = bgTask;
 
                 await task;
@@ -198,9 +200,10 @@ namespace AAP.UI.ViewModels
 
             try
             {
+                BackgroundTaskToken bgTask = new($"Removing palette {palette.Name} file...");
                 Task task = App.RemovePaletteFileAsync(palette);
+                bgTask.MainTask = task;
 
-                BackgroundTaskToken bgTask = new($"Removing palette {palette.Name} file...", task);
                 CurrentBackgroundTaskToken = bgTask;
 
                 await task;

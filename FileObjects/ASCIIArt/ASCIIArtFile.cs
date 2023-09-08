@@ -139,7 +139,7 @@ namespace AAP
             return artFile;
         }
 
-        public static async Task<ASCIIArtFile> OpenAsync(string filePath)
+        public static async Task<ASCIIArtFile> OpenAsync(string filePath, BackgroundTaskToken? taskToken = null)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
@@ -166,7 +166,7 @@ namespace AAP
                     throw new Exception("Unknown file extension!");
             }
 
-            await AAPFile.ImportAsync();
+            await AAPFile.ImportAsync(taskToken);
             ConsoleLogger.Log($"Open File: Imported file!");
 
             if (art.Width * art.Height > App.MaxArtArea)
@@ -197,7 +197,7 @@ namespace AAP
             ConsoleLogger.Log("Save File: Saved art file to " + SavePath);
         }
 
-        public async Task SaveAsync()
+        public async Task SaveAsync(BackgroundTaskToken? taskToken = null)
         {
             if (string.IsNullOrWhiteSpace(SavePath))
                 throw new NullReferenceException("SavePath is null or white space!");
@@ -206,7 +206,7 @@ namespace AAP
 
             AAFASCIIArt aafASCIIArt = new(Art, SavePath);
 
-            await aafASCIIArt.ExportAsync();
+            await aafASCIIArt.ExportAsync(taskToken);
 
             UnsavedChanges = false;
 
@@ -249,6 +249,12 @@ namespace AAP
 
                     AAPFile = new JpegASCIIArt(Art, fileInfo.FullName, jpegExportOptions);
                     break;
+                case ".gif":
+                    if (exportOptions is not ImageASCIIArtExportOptions gifExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                    AAPFile = new GifASCIIArt(Art, fileInfo.FullName, gifExportOptions);
+                    break;
                 default:
                     throw new Exception("Unknown file extension!");
             }
@@ -258,7 +264,7 @@ namespace AAP
             ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
         }
 
-        public async Task ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions = null)
+        public async Task ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions = null, BackgroundTaskToken? taskToken = null)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new NullReferenceException("filePath is null or white space!");
@@ -294,11 +300,17 @@ namespace AAP
 
                     AAPFile = new JpegASCIIArt(Art, fileInfo.FullName, jpegExportOptions);
                     break;
+                case ".gif":
+                    if (exportOptions is not ImageASCIIArtExportOptions gifExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+
+                    AAPFile = new GifASCIIArt(Art, fileInfo.FullName, gifExportOptions);
+                    break;
                 default:
                     throw new Exception("Unknown file extension!");
             }
 
-            await AAPFile.ExportAsync();
+            await AAPFile.ExportAsync(taskToken);
 
             ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
         }

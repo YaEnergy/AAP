@@ -8,14 +8,23 @@ using System.Threading.Tasks;
 
 namespace AAP.BackgroundTasks
 {
-    public delegate void BackgroundTaskProgressChangedEvent(BackgroundTaskToken token, int progress, BackgroundTaskProgressArgs? args); 
+    public delegate void BackgroundTaskProgressChangedEvent(BackgroundTaskToken token, int progress, BackgroundTaskProgressArgs? args);
 
     public class BackgroundTaskToken : INotifyPropertyChanged
     {
-        private readonly Task mainTask;
-        public Task MainTask
+        private Task? mainTask;
+        public Task? MainTask
         {
             get => mainTask;
+            set
+            {
+                if (mainTask == value)
+                    return;
+
+                mainTask = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(MainTask)));
+            }
         }
 
         private string name;
@@ -98,10 +107,9 @@ namespace AAP.BackgroundTasks
 
         public event BackgroundTaskProgressChangedEvent? ProgressChanged;
 
-        public BackgroundTaskToken(string name, Task startingTask)
+        public BackgroundTaskToken(string name)
         {
             this.name = name;
-            mainTask = startingTask;
 
             stopwatch.Start();
         }

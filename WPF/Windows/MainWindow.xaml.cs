@@ -114,11 +114,14 @@ namespace AAP.UI.Windows
 
             if (ArtFileViewModel.CurrentBackgroundTaskToken != null)
             {
-                BackgroundTaskWindow backgroundTaskWindow = new(ArtFileViewModel.CurrentBackgroundTaskToken, true);
-                backgroundTaskWindow.Show();
-                backgroundTaskWindow.Owner = this;
+                if (ArtFileViewModel.CurrentBackgroundTaskToken.MainTask != null)
+                {
+                    BackgroundTaskWindow backgroundTaskWindow = new(ArtFileViewModel.CurrentBackgroundTaskToken, true);
+                    backgroundTaskWindow.Show();
+                    backgroundTaskWindow.Owner = this;
 
-                await ArtFileViewModel.CurrentBackgroundTaskToken.MainTask;
+                    await ArtFileViewModel.CurrentBackgroundTaskToken.MainTask;
+                }
             }
         }
 

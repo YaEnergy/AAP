@@ -399,7 +399,10 @@ namespace AAP
             RenderTargetBitmap bmp = new(width, height, 96, 96, PixelFormats.Pbgra32);
             bmp.Render(drawingVisual);
 
-            return BitmapFrame.Create(bmp);
+            BitmapFrame frame = BitmapFrame.Create(bmp);
+            frame.Freeze();
+
+            return frame;
         }
 
         public abstract void Import();
@@ -562,6 +565,154 @@ namespace AAP
 
                 using (FileStream fs = File.Create(FilePath))
                     encoder.Save(fs);
+            });
+        }
+    }
+
+    public class GifASCIIArt : ImageASCIIArt
+    {
+        public GifASCIIArt(ASCIIArt art, string filePath, ImageASCIIArtExportOptions exportOptions) : base(art, filePath, exportOptions)
+        {
+
+        }
+
+        public BitmapFrame GetCanvasArtLayerBitmapFrame(int layerIndex)
+        {
+            DrawingVisual drawingVisual = new();
+
+            Brush textBrush = new SolidColorBrush(ExportOptions.TextColor);
+            Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
+            double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1).Width;
+            ConsoleLogger.Log(defaultWidth.ToString());
+
+            ArtLayer layer = FileObject.ArtLayers[layerIndex];
+
+            using (DrawingContext dc = drawingVisual.RenderOpen())
+            {
+                FormattedText[] columnTexts = new FormattedText[FileObject.Width];
+                double[] columnWidths = new double[FileObject.Width];
+                double totalWidth = 0;
+
+                for (int x = 0; x < FileObject.Width; x++)
+                {
+                    string columnString = "";
+                    for (int y = 0; y < FileObject.Height; y++)
+                    {
+                        if (layer.IsPointVisible(x, y))
+                            columnString += (layer.GetCharacter(x - layer.OffsetX, y - layer.OffsetY) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
+                        else
+                            columnString += ASCIIArt.EMPTYCHARACTER + "\n";
+                    }
+
+
+                    FormattedText columnText = new(columnString, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1);
+                    columnText.LineHeight = ExportOptions.TextSize * 1.5;
+                    columnTexts[x] = columnText;
+
+                    if (string.IsNullOrWhiteSpace(columnString))
+                    {
+                        columnWidths[x] = defaultWidth;
+                        totalWidth += defaultWidth;
+                    }
+                    else
+                    {
+                        columnWidths[x] = columnText.WidthIncludingTrailingWhitespace;
+                        totalWidth += columnText.WidthIncludingTrailingWhitespace;
+                    }
+                }
+
+                dc.DrawRectangle(new SolidColorBrush(ExportOptions.BackgroundColor), null, new(0, 0, totalWidth, ExportOptions.TextSize * 1.5 * FileObject.Height));
+
+                double posX = 0;
+                for (int x = 0; x < FileObject.Width; x++)
+                {
+                    dc.DrawText(columnTexts[x], new(posX, 0));
+
+                    posX += columnWidths[x];
+                }
+            }
+
+            int width = (int)drawingVisual.ContentBounds.Width;
+            int height = (int)drawingVisual.ContentBounds.Height;
+
+            RenderTargetBitmap bmp = new(width, height, 96, 96, PixelFormats.Pbgra32);
+            bmp.Render(drawingVisual);
+
+            BitmapFrame frame = BitmapFrame.Create(bmp);
+            frame.Freeze();
+
+            return frame;
+        }
+
+        public override void Import()
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
+            throw new NotImplementedException();
+        }
+
+        public override async Task ImportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            FileInfo fileInfo = new(FilePath);
+            if (!fileInfo.Exists)
+                throw new FileNotFoundException(fileInfo.FullName);
+
+            throw new NotImplementedException();
+        }
+
+        public override void Export()
+        {
+            GifBitmapEncoder encoder = new();
+            for (int i = 0; i < FileObject.ArtLayers.Count; i++)
+            {
+                BitmapFrame bmp = GetCanvasArtLayerBitmapFrame(i);
+                encoder.Frames.Add(bmp);
+            }
+
+            using (FileStream fs = File.Create(FilePath))
+                encoder.Save(fs);
+        }
+
+        public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
+        {
+            List<BitmapFrame> frames = new();
+
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            for (int i = 0; i < FileObject.ArtLayers.Count; i++)
+            {
+                stopwatch.Restart();
+                taskToken?.ReportProgress((int)((double)i / FileObject.ArtLayers.Count * 100), new($"Drawing frames... ({i}/{FileObject.ArtLayers.Count})", false));
+
+                Task<BitmapFrame> getBitmapFrameTask = Task.Run(() => GetCanvasArtLayerBitmapFrame(i));
+                frames.Add(await getBitmapFrameTask);
+
+                stopwatch.Stop();
+
+                ConsoleLogger.Log($"Drew gif frame {i + 1} in {stopwatch.ElapsedMilliseconds} ms!");
+            }
+
+            taskToken?.ReportProgress(100, new($"Writing to file...", true));
+
+            await Task.Run(async () =>
+            {
+                GifBitmapEncoder encoder = new();
+                encoder.Frames = frames;
+
+                using (MemoryStream ms = new())
+                {
+                    encoder.Save(ms);
+
+                    var fileBytes = ms.ToArray();
+                    // This is the NETSCAPE2.0 Application Extension.
+                    var applicationExtension = new byte[] { 33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0 };
+                    var newBytes = new List<byte>();
+                    newBytes.AddRange(fileBytes.Take(13));
+                    newBytes.AddRange(applicationExtension);
+                    newBytes.AddRange(fileBytes.Skip(13));
+                    await File.WriteAllBytesAsync(FilePath, newBytes.ToArray());
+                }
             });
         }
     }

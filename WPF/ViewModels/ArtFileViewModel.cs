@@ -225,9 +225,10 @@ namespace AAP.UI.ViewModels
             ASCIIArtFile? artFile = null;
             try
             {
-                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName);
+                BackgroundTaskToken bgTask = new($"Opening {fileInfo.Name}...");
+                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName, bgTask);
+                bgTask.MainTask = task;
 
-                BackgroundTaskToken bgTask = new($"Opening {fileInfo.Name}...", task);
                 CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
@@ -281,10 +282,12 @@ namespace AAP.UI.ViewModels
 
             try
             {
-                FileInfo fileInfo = new FileInfo(savePath);
-                Task task = artFile.SaveAsync();
+                FileInfo fileInfo = new(savePath);
 
-                BackgroundTaskToken? bgTask = new($"Saving to {fileInfo.Name}...", task);
+                BackgroundTaskToken? bgTask = new($"Saving to {fileInfo.Name}...");
+                Task task = artFile.SaveAsync(bgTask);
+                bgTask.MainTask = task;
+
                 CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
@@ -378,7 +381,7 @@ namespace AAP.UI.ViewModels
             SaveFileDialog saveFileDialog = new()
             {
                 Title = "Export ASCII Art File",
-                Filter = "Text Files (*.txt)|*.txt|Bitmap (*.bmp)|*.bmp|PNG Image (*.png)|*.png|Jpeg Image (*.jpg)|*.jpg",
+                Filter = "Text Files (*.txt)|*.txt|Bitmap (*.bmp)|*.bmp|PNG Image (*.png)|*.png|Jpeg Image (*.jpg)|*.jpg|Graphics Interchange Format (*.gif)|*.gif",
                 CheckFileExists = false,
                 CheckPathExists = true,
                 CreatePrompt = false,
@@ -395,7 +398,7 @@ namespace AAP.UI.ViewModels
 
             ASCIIArtExportOptions? exportOptions = null;
             string extension = Path.GetExtension(savePath).ToLower();
-            if (extension == ".png" || extension == ".bmp" || extension == ".jpg")
+            if (extension == ".png" || extension == ".bmp" || extension == ".jpg" || extension == ".gif")
             {
                 ImageASCIIArtExportOptionsWindow exportOptionsWindow = new();
                 bool? optionsResult = exportOptionsWindow.ShowDialog();
@@ -409,9 +412,11 @@ namespace AAP.UI.ViewModels
             try
             {
                 FileInfo fileInfo = new FileInfo(savePath);
-                Task task = artFile.ExportAsync(savePath, exportOptions);
 
-                BackgroundTaskToken? bgTask = new($"Exporting to {fileInfo.Name}...", task);
+                BackgroundTaskToken bgTask = new($"Exporting to {fileInfo.Name}...");
+                Task task = artFile.ExportAsync(savePath, exportOptions, bgTask);
+                bgTask.MainTask = task;
+
                 CurrentBackgroundTaskToken = bgTask;
 
                 CanUseTool = false;
