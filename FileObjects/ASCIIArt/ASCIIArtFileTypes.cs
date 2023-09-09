@@ -351,53 +351,70 @@ namespace AAP
             DrawingVisual drawingVisual = new();
 
             Brush textBrush = new SolidColorBrush(ExportOptions.TextColor);
+            textBrush.Freeze();
+
+            Brush backgroundBrush = new SolidColorBrush(ExportOptions.BackgroundColor);
+            backgroundBrush.Freeze();
+
             Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
             double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1).Width;
 
-            using (DrawingContext dc = drawingVisual.RenderOpen())
+            FormattedText[] columnTexts = new FormattedText[FileObject.Width];
+            double[] columnWidths = new double[FileObject.Width];
+            double totalWidth = 0;
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            for (int x = 0; x < FileObject.Width; x++)
             {
-                FormattedText[] columnTexts = new FormattedText[FileObject.Width];
-                double[] columnWidths = new double[FileObject.Width];
-                double totalWidth = 0;
+                string columnString = "";
+                for (int y = 0; y < FileObject.Height; y++)
+                    columnString += (FileObject.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
 
-                for (int x = 0; x < FileObject.Width; x++)
+                FormattedText columnText = new(columnString, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1);
+                columnText.LineHeight = ExportOptions.TextSize * 1.5;
+                columnTexts[x] = columnText;
+
+                if (string.IsNullOrWhiteSpace(columnString))
                 {
-                    string columnString = "";
-                    for (int y = 0; y < FileObject.Height; y++)
-                        columnString += (FileObject.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
-
-                    FormattedText columnText = new(columnString, System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1);
-                    columnText.LineHeight = ExportOptions.TextSize * 1.5;
-                    columnTexts[x] = columnText;
-
-                    if (string.IsNullOrWhiteSpace(columnString))
-                    {
-                        columnWidths[x] = defaultWidth;
-                        totalWidth += defaultWidth;
-                    }
-                    else
-                    {
-                        columnWidths[x] = columnText.WidthIncludingTrailingWhitespace;
-                        totalWidth += columnText.WidthIncludingTrailingWhitespace;
-                    }
+                    columnWidths[x] = defaultWidth;
+                    totalWidth += defaultWidth;
                 }
-
-                dc.DrawRectangle(new SolidColorBrush(ExportOptions.BackgroundColor), null, new(0, 0, totalWidth, ExportOptions.TextSize * 1.5 * FileObject.Height));
-                
-                double posX = 0;
-                for (int x = 0; x < FileObject.Width; x++)
+                else
                 {
-                    dc.DrawText(columnTexts[x], new(posX, 0));
-
-                    posX += columnWidths[x];
+                    columnWidths[x] = columnText.WidthIncludingTrailingWhitespace;
+                    totalWidth += columnText.WidthIncludingTrailingWhitespace;
                 }
             }
+
+            DrawingContext dc = drawingVisual.RenderOpen();
+
+            dc.DrawRectangle(backgroundBrush, null, new(0, 0, totalWidth, ExportOptions.TextSize * 1.5 * FileObject.Height));
+
+            double posX = 0;
+            for (int x = 0; x < FileObject.Width; x++)
+            {
+                dc.DrawText(columnTexts[x], new(posX, 0));
+
+                posX += columnWidths[x];
+            }
+
+            dc.Close();
+
+            sw.Stop();
+            ConsoleLogger.Log($"Drew frame columns in {sw.ElapsedMilliseconds} ms");
 
             int width = (int)drawingVisual.ContentBounds.Width;
             int height = (int)drawingVisual.ContentBounds.Height;
 
+            sw.Restart();
+
             RenderTargetBitmap bmp = new(width, height, 96, 96, PixelFormats.Pbgra32);
             bmp.Render(drawingVisual);
+            bmp.Freeze();
+
+            sw.Stop();
+            ConsoleLogger.Log($"Rendered frame in {sw.ElapsedMilliseconds} ms");
 
             BitmapFrame frame = BitmapFrame.Create(bmp);
             frame.Freeze();
@@ -441,7 +458,12 @@ namespace AAP
 
         public override void Export()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             BitmapFrame bmp = GetArtBitmapFrame();
+
+            stopwatch.Stop();
+            ConsoleLogger.Log($"Drew frame in {stopwatch.ElapsedMilliseconds} ms!");
 
             BmpBitmapEncoder encoder = new();
             encoder.Frames.Add(bmp);
@@ -452,8 +474,13 @@ namespace AAP
 
         public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
             BitmapFrame bmp = await getBitmapFrameTask;
+
+            stopwatch.Stop();
+            ConsoleLogger.Log($"Drew frame in {stopwatch.ElapsedMilliseconds} ms!");
 
             await Task.Run(() => 
             { 
@@ -492,7 +519,12 @@ namespace AAP
 
         public override void Export()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             BitmapFrame bmp = GetArtBitmapFrame();
+
+            stopwatch.Stop();
+            ConsoleLogger.Log($"Drew frame in {stopwatch.ElapsedMilliseconds} ms!");
 
             PngBitmapEncoder encoder = new();
             encoder.Frames.Add(bmp);
@@ -503,8 +535,13 @@ namespace AAP
 
         public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
             BitmapFrame bmp = await getBitmapFrameTask;
+
+            stopwatch.Stop();
+            ConsoleLogger.Log($"Drew frame in {stopwatch.ElapsedMilliseconds} ms!");
 
             await Task.Run(() =>
             {
@@ -544,7 +581,12 @@ namespace AAP
 
         public override void Export()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             BitmapFrame bmp = GetArtBitmapFrame();
+
+            stopwatch.Stop();
+            ConsoleLogger.Log($"Drew frame in {stopwatch.ElapsedMilliseconds} ms!");
 
             JpegBitmapEncoder encoder = new();
             encoder.Frames.Add(bmp);
@@ -555,8 +597,13 @@ namespace AAP
 
         public override async Task ExportAsync(BackgroundTaskToken? taskToken = null)
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+
             Task<BitmapFrame> getBitmapFrameTask = Task.Run(GetArtBitmapFrame);
             BitmapFrame bmp = await getBitmapFrameTask;
+
+            stopwatch.Stop();
+            ConsoleLogger.Log($"Drew frame in {stopwatch.ElapsedMilliseconds} ms!");
 
             await Task.Run(() =>
             {
@@ -583,7 +630,6 @@ namespace AAP
             Brush textBrush = new SolidColorBrush(ExportOptions.TextColor);
             Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
             double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, ExportOptions.TextSize, textBrush, 1).Width;
-            ConsoleLogger.Log(defaultWidth.ToString());
 
             ArtLayer layer = FileObject.ArtLayers[layerIndex];
 
@@ -665,10 +711,16 @@ namespace AAP
         public override void Export()
         {
             GifBitmapEncoder encoder = new();
+            Stopwatch stopwatch = Stopwatch.StartNew();
             for (int i = 0; i < FileObject.ArtLayers.Count; i++)
             {
+                stopwatch.Restart();
                 BitmapFrame bmp = GetCanvasArtLayerBitmapFrame(i);
                 encoder.Frames.Add(bmp);
+
+                stopwatch.Stop();
+
+                ConsoleLogger.Log($"Drew gif frame {i + 1} in {stopwatch.ElapsedMilliseconds} ms!");
             }
 
             using (FileStream fs = File.Create(FilePath))

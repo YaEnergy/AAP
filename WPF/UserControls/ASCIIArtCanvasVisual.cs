@@ -660,6 +660,8 @@ namespace AAP.UI.Controls
                 dc.Close();
 
                 UpdateBackground();
+                DrawSelectionHighlights();
+                DrawDisplayLayerHighlight();
             }
             else
             {
@@ -677,7 +679,7 @@ namespace AAP.UI.Controls
                 {
                     DrawingVisual columnVisual = displayArtVisuals[x];
 
-                    using DrawingContext dc = columnVisual.RenderOpen();
+                    DrawingContext dc = columnVisual.RenderOpen();
 
                     string columnString = "";
                     for (int y = 0; y < DisplayArt.Height; y++)
@@ -694,6 +696,8 @@ namespace AAP.UI.Controls
 
                     columnVisual.Offset = new(offsetX, ArtOffset.Y);
                     offsetX += columnWidths[x];
+
+                    dc.Close();
                 }
 
                 UpdateBackground();
@@ -719,17 +723,19 @@ namespace AAP.UI.Controls
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
+            Brush TextBrush = (Brush)Text.GetCurrentValueAsFrozen();
+
             int lowestColumnNumWidthChanged = -1;
             foreach (int x in changedColumns)
             {
                 DrawingVisual columnVisual = displayArtVisuals[x];
-                using DrawingContext dc = columnVisual.RenderOpen();
+                DrawingContext dc = columnVisual.RenderOpen();
 
                 string columnString = "";
                 for (int y = 0; y < DisplayArt.Height; y++)
                     columnString += (DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
 
-                FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
+                FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, TextBrush, 1);
                 charText.LineHeight = LineHeight;
                 dc.DrawText(charText, new(0, 0));
 
@@ -740,6 +746,8 @@ namespace AAP.UI.Controls
                     if (lowestColumnNumWidthChanged > x || lowestColumnNumWidthChanged == -1)
                         lowestColumnNumWidthChanged = x;
                 }
+
+                dc.Close();
             }
 
             if (lowestColumnNumWidthChanged != -1) //Update background and art column visual offsets if a column width has changed
@@ -772,6 +780,9 @@ namespace AAP.UI.Controls
         {
             using DrawingContext dc = selectionHighlightsVisual.RenderOpen();
 
+            if (DisplayArt == null)
+                return;
+
             //Selection Highlight
             if (SelectionHighlightRect != Rect.Empty)
                 dc.DrawRectangle(null, new(ArtSelectionHighlight, HighlightRectThickness), GetArtCanvasRectangle(SelectionHighlightRect));
@@ -788,11 +799,16 @@ namespace AAP.UI.Controls
         {
             using DrawingContext dc = displayLayerHighlightVisual.RenderOpen();
 
+            if (DisplayArt == null)
+                return;
+
             //Display Layer Size Highlight
             if (DisplayLayer != null)
             {
                 Pen rectPen = new(DisplayLayerHighlight, HighlightRectThickness);
                 rectPen.DashStyle = DisplayLayer.Visible ? DashStyles.Dash : DashStyles.Dot;
+                rectPen.Freeze();
+
                 dc.DrawRectangle(null, rectPen, GetArtCanvasRectangle(new(DisplayLayer.Offset, DisplayLayer.Size)));
             }
         }
@@ -1213,7 +1229,6 @@ namespace AAP.UI.Controls
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
 
-            canvas.UpdateBackground();
             canvas.DrawDisplayArt();
             canvas.DrawSelectionHighlights();
             canvas.DrawDisplayLayerHighlight();
@@ -1224,7 +1239,6 @@ namespace AAP.UI.Controls
             if (sender is not ASCIIArtCanvasVisual canvas)
                 return;
 
-            canvas.UpdateBackground();
             canvas.DrawDisplayArt();
             canvas.DrawSelectionHighlights();
             canvas.DrawDisplayLayerHighlight();
@@ -1269,6 +1283,8 @@ namespace AAP.UI.Controls
                 return;
 
             keyInputTool.OnPressedKey(e.Key, e.KeyboardDevice.Modifiers);
+
+            e.Handled = true;
         }
 
         private void OnSizeChanged(object? sender, SizeChangedEventArgs e)

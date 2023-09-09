@@ -17,6 +17,8 @@ namespace AAP.UI.Windows
     /// </summary>
     public partial class MainWindow : Window
     {
+        private bool willCloseSoon = false;
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -40,7 +42,7 @@ namespace AAP.UI.Windows
 
             Settings.Default.PropertyChanged += SettingsPropertyChanged;
 
-            ArtCanvasViewModel.CanvasTypeface = new System.Windows.Media.Typeface(Settings.Default.CanvasTypefaceSource);
+            ArtCanvasViewModel.CanvasTypeface = new(Settings.Default.CanvasTypefaceSource);
 
             OnCurrentArtFileChanged(App.CurrentArtFile);
 
@@ -99,28 +101,58 @@ namespace AAP.UI.Windows
                 Title = fullTitle;
         }
 
-        private async void OnClosing(object? sender, CancelEventArgs e)
+        private void OnClosing(object? sender, CancelEventArgs e)
         {
+            if (willCloseSoon)
+            {
+                e.Cancel = true;
+                return;
+            }    
+
             foreach (ASCIIArtFile artFile in App.OpenArtFiles)
                 if (artFile.UnsavedChanges)
                 {
                     MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nAre you sure you want to exit? (All changes will be discarded)", "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                     if (result == MessageBoxResult.No)
+                    {
                         e.Cancel = true;
+                    }
 
                     break;
                 }
 
-            if (ArtFileViewModel.CurrentBackgroundTaskToken != null)
-            {
-                if (ArtFileViewModel.CurrentBackgroundTaskToken.MainTask != null)
-                {
-                    BackgroundTaskWindow backgroundTaskWindow = new(ArtFileViewModel.CurrentBackgroundTaskToken, true);
-                    backgroundTaskWindow.Show();
-                    backgroundTaskWindow.Owner = this;
+            BackgroundTaskToken? taskToken = MainWindowViewModel.CurrentBackgroundTaskToken;
 
-                    await ArtFileViewModel.CurrentBackgroundTaskToken.MainTask;
+            if (taskToken != null)
+            {
+                if (taskToken.MainTask != null)
+                {
+                    if (!taskToken.MainTask.IsCompleted)
+                    {
+                        MessageBox.Show(this, "Application will automatically close when the current background task has finished after this message.", App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+
+                        if (MainWindowViewModel.CurrentBackgroundTaskToken != null) //If task hasn't finished after message box
+                        {
+                            willCloseSoon = true;
+                            e.Cancel = true;
+                            taskToken.Completed += (token, ex) =>
+                            {
+                                willCloseSoon = false;
+
+                                if (ex == null)
+                                    Close();
+                                else
+                                    MessageBox.Show("An error occurred while completing background task, exit of application cancelled.", App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                            };
+                        }
+                        else if (taskToken.Exception != null)
+                        {
+                            e.Cancel = true;
+                            MessageBox.Show("An error occurred while completing background task, exit of application cancelled.", App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+
+                    }
                 }
             }
         }

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace AAP.BackgroundTasks
 {
     public delegate void BackgroundTaskProgressChangedEvent(BackgroundTaskToken token, int progress, BackgroundTaskProgressArgs? args);
+    public delegate void BackgroundTaskCompletedEvent(BackgroundTaskToken token, Exception? ex);
 
     public class BackgroundTaskToken : INotifyPropertyChanged
     {
@@ -97,6 +98,20 @@ namespace AAP.BackgroundTasks
             }
         }
 
+        private Exception? exception = null;
+        public Exception? Exception
+        {
+            get => exception;
+            set
+            {
+                if (exception == value)
+                    return;
+
+                exception = value;
+                PropertyChanged?.Invoke(this, new(nameof(Exception)));
+            }
+        }
+
         private readonly Stopwatch stopwatch = new();
         public TimeSpan Time
         {
@@ -106,6 +121,7 @@ namespace AAP.BackgroundTasks
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public event BackgroundTaskProgressChangedEvent? ProgressChanged;
+        public event BackgroundTaskCompletedEvent? Completed;
 
         public BackgroundTaskToken(string name)
         {
@@ -125,6 +141,12 @@ namespace AAP.BackgroundTasks
             }
 
             ProgressChanged?.Invoke(this, progressPercentage, updateArgs);
+        }
+
+        public void Complete(Exception? ex = null)
+        {
+            Exception = ex;
+            Completed?.Invoke(this, ex);
         }
     }
 }

@@ -239,8 +239,12 @@ namespace AAP.UI.ViewModels
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to open art file! Exception message: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
             }
 
+            CurrentBackgroundTaskToken?.Complete();
             CurrentBackgroundTaskToken = null;
 
             CanUseTool = true;
@@ -300,8 +304,12 @@ namespace AAP.UI.ViewModels
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to save art file! Exception message: {ex.Message}", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
             }
 
+            CurrentBackgroundTaskToken?.Complete();
             CurrentBackgroundTaskToken = null;
 
             CanUseTool = true;
@@ -431,8 +439,12 @@ namespace AAP.UI.ViewModels
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to export art file! Exception message: {ex.Message}", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+                
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
             }
 
+            CurrentBackgroundTaskToken?.Complete();
             CurrentBackgroundTaskToken = null;
 
             CanUseTool = true;

@@ -121,8 +121,12 @@ namespace AAP.UI.ViewModels
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to create palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
             }
 
+            CurrentBackgroundTaskToken?.Complete();
             CurrentBackgroundTaskToken = null;
         }
 
@@ -169,8 +173,12 @@ namespace AAP.UI.ViewModels
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to edit palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
             }
 
+            CurrentBackgroundTaskToken?.Complete();
             CurrentBackgroundTaskToken = null;
         }
 
@@ -215,8 +223,12 @@ namespace AAP.UI.ViewModels
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show($"Failed to remove palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
             }
 
+            CurrentBackgroundTaskToken?.Complete();
             CurrentBackgroundTaskToken = null;
         }
         #endregion

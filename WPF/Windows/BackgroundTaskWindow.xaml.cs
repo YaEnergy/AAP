@@ -42,15 +42,12 @@ namespace AAP.UI.Windows
 
             viewModel.BackgroundTaskToken = backgroundTaskToken;
 
-            AwaitTask();
+            viewModel.UpdateTimeTimer.Start();
+            DisplayBackgroundTaskToken.Completed += DisplayBackgroundTaskToken_Completed;
         }
 
-        private async void AwaitTask()
+        private void DisplayBackgroundTaskToken_Completed(BackgroundTaskToken token, Exception? ex)
         {
-            viewModel.UpdateTimeTimer.Start();
-
-            await DisplayBackgroundTaskToken.MainTask;
-
             viewModel.UpdateTimeTimer.Stop();
 
             if (CloseOnFinish)
