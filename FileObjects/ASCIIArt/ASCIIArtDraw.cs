@@ -63,10 +63,11 @@ namespace AAP
             if (!CanDrawOn(layerIndex, x, y, stayInsideSelection))
                 return;
 
-            if (Art.ArtLayers[layerIndex].GetCharacter(x, y) == character)
+            ArtLayer layer = Art.ArtLayers[layerIndex];
+            if (layer.GetCharacter(x - layer.OffsetX, y - layer.OffsetY) == character)
                 return;
 
-            Art.SetCharacter(layerIndex, x, y, character);
+            layer.SetCharacter(x - layer.OffsetX, y - layer.OffsetY, character);
 
             DrewCharacter?.Invoke(layerIndex, character, x, y);
         }

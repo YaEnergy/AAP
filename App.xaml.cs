@@ -556,6 +556,8 @@ namespace AAP
             CurrentArtDraw?.DrawFilledRectangle(CurrentLayerID, character, SelectedArt);
 
             CurrentArtTimeline?.NewTimePoint();
+
+            CurrentArt?.Update();
         }
         #endregion
         #region Art Selection
