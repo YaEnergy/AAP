@@ -67,6 +67,8 @@ namespace AAP
         {
             FillArea(startArtPos);
             App.CurrentArtTimeline?.NewTimePoint();
+
+            App.CurrentArtFile?.Art.Update();
         }
 
         public void FillArea(Point artPos)

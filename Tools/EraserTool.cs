@@ -50,12 +50,16 @@ namespace AAP
 
         protected override void UseStart(Point startArtPos)
         {
-            EraseCharacter(startArtPos);
+            DrawCircle(startArtPos);
+
+            App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
-            EraseCharacter(currentArtPos);
+            DrawCircle(currentArtPos);
+
+            App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
@@ -63,7 +67,7 @@ namespace AAP
             App.CurrentArtTimeline?.NewTimePoint();
         }
 
-        public void EraseCharacter(Point artPos)
-           => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, null, artPos, StayInsideSelection);
+        public void DrawCircle(Point artPos)
+            => App.CurrentArtDraw?.DrawFilledCircle(App.CurrentLayerID, null, artPos, Size - 1, StayInsideSelection);
     }
 }

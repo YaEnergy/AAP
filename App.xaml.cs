@@ -21,8 +21,6 @@ namespace AAP
         public static readonly string ProgramTitle = "Kiara's ASCII Art Program";
         public static readonly string Version = "v0.0.1";
 
-        private static readonly TextWriter mainConsoleOut = Console.Out;
-
         public static readonly int MaxArtArea = 1600000;
         public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
@@ -555,7 +553,7 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            CurrentArtDraw?.DrawRectangle(CurrentLayerID, character, SelectedArt);
+            CurrentArtDraw?.DrawFilledRectangle(CurrentLayerID, character, SelectedArt);
 
             CurrentArtTimeline?.NewTimePoint();
         }

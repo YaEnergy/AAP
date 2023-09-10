@@ -148,7 +148,7 @@
                         <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsSizeOptionVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Label Content="Size" Height="30" Margin="5,0,0,0"></Label>
-                            <Slider Width="100" Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Minimum="1" Value="{Binding Size}" Maximum="64"/>
+                            <Slider Width="100" Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Minimum="1" Value="{Binding Size}" Maximum="16"/>
                             <Label Content="{Binding Size}"/>
                         </WrapPanel>
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsEightDirectionalOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">

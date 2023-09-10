@@ -65,19 +65,23 @@ namespace AAP
 
         protected override void UseStart(Point startArtPos)
         {
-            DrawCharacter(startArtPos);
+            DrawCircle(startArtPos);
+
+            App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
         {
             DrawLine(startArtPos, endArtPos);
             App.CurrentArtTimeline?.NewTimePoint();
+
+            App.CurrentArtFile?.Art.Update();
         }
 
-        public void DrawCharacter(Point artPos)
-            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artPos, StayInsideSelection);
+        public void DrawCircle(Point artPos)
+            => App.CurrentArtDraw?.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1, StayInsideSelection);
 
         public void DrawLine(Point startArtPos, Point endArtPos)
-            => App.CurrentArtDraw?.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos, StayInsideSelection);
+            => App.CurrentArtDraw?.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos, Size - 1, StayInsideSelection);
     }
 }

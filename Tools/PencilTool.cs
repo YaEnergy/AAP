@@ -66,12 +66,16 @@ namespace AAP
 
         protected override void UseStart(Point startArtPos)
         {
-            DrawCharacter(startArtPos);
+            DrawCircle(startArtPos);
+
+            App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
-            DrawCharacter(currentArtPos);
+            DrawCircle(currentArtPos);
+
+            App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
@@ -79,7 +83,7 @@ namespace AAP
             App.CurrentArtTimeline?.NewTimePoint();
         }
 
-        public void DrawCharacter(Point artPos)
-            => App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, Character, artPos, StayInsideSelection);
+        public void DrawCircle(Point artPos)
+            => App.CurrentArtDraw?.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1, StayInsideSelection);
     }
 }

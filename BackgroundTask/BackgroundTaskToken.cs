@@ -145,7 +145,9 @@ namespace AAP.BackgroundTasks
 
         public void Complete(Exception? ex = null)
         {
-            Exception = ex;
+            if (ex != null)
+                Exception = ex;
+
             Completed?.Invoke(this, ex);
         }
     }

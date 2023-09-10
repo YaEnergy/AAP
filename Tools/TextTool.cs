@@ -61,6 +61,8 @@ namespace AAP
 
         public void TypeKeyCharacter(char character)
         {
+            ConsoleLogger.Log("Text Tool: Typing character " + character);
+
             if (App.CurrentArt == null)
                 return;
 
@@ -80,6 +82,7 @@ namespace AAP
 
             Point drawPoint = new(Math.Clamp(App.SelectedArt.Location.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(App.SelectedArt.Location.Y, layer.OffsetY, layer.OffsetY + layer.Height - 1));
             App.CurrentArtDraw.DrawCharacter(App.CurrentLayerID, character == ' ' ? null : character, drawPoint);
+            App.CurrentArtFile?.Art.Update();
 
             if (drawPoint.X < layer.OffsetX + layer.Width - 1)
                 App.SelectedArt = new(drawPoint.X + 1, drawPoint.Y, 1, 1);
@@ -93,6 +96,7 @@ namespace AAP
 
         public void OnTextInput(string text)
         {
+            ConsoleLogger.Log("Received Text: " + text);
             char[] chars = text.ToCharArray();
 
             for (int i = 0; i < chars.Length; i++)
@@ -147,6 +151,7 @@ namespace AAP
                             App.SelectedArt = new(layer.OffsetX + layer.Width - 1, drawPoint.Y - 1, 1, 1);
                     
                     App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, null, App.SelectedArt.Location);
+                    App.CurrentArtFile?.Art.Update();
                     isTyping = true;
                     break;
                 default:

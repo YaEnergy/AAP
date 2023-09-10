@@ -87,7 +87,7 @@ namespace AAP
             Art.OnSizeChanged += Art_OnSizeChanged;
             Art.OnCropped += Art_OnCropped;
 
-            ArtDraw.OnDrawArt += ArtDraw_OnDrawArt;
+            ArtDraw.DrewCharacter += ArtDraw_OnDrewCharacter;
 
             ArtTimeline.Rolledback += ArtTimeline_TimeTravelled;
             ArtTimeline.Rolledforward += ArtTimeline_TimeTravelled;
@@ -325,7 +325,7 @@ namespace AAP
             Art.OnSizeChanged -= Art_OnSizeChanged;
             Art.OnCropped -= Art_OnCropped;
 
-            ArtDraw.OnDrawArt -= ArtDraw_OnDrawArt;
+            ArtDraw.DrewCharacter -= ArtDraw_OnDrewCharacter;
 
             ArtTimeline.Rolledback -= ArtTimeline_TimeTravelled;
             ArtTimeline.Rolledforward -= ArtTimeline_TimeTravelled;
@@ -375,7 +375,7 @@ namespace AAP
             UnsavedChanges = true;
         }
 
-        private void ArtDraw_OnDrawArt(int layerIndex, char? character, Point[] positions)
+        private void ArtDraw_OnDrewCharacter(int layerIndex, char? character, int x, int y)
         {
             UnsavedChanges = true;
         }

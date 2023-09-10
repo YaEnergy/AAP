@@ -852,17 +852,13 @@ namespace AAP.UI.Controls
             UpdateDisplayArt();
         }
 
-        private void OnArtDraw(int layerIndex, char? character, Point[] positions)
+        private void OnArtDrawDrewCharacter(int layerIndex, char? character, int x, int y)
         {
             if (DisplayArt == null)
                 return;
 
-            foreach(Point point in positions)
-            {
-                int x = (int)point.X;
-                if (!changedColumns.Contains(x) && x >= 0 && x < DisplayArt.Width)
-                    changedColumns.Add(x);
-            }
+            if (!changedColumns.Contains(x) && x >= 0 && x < DisplayArt.Width)
+                changedColumns.Add(x);
         }
 
         private void DisplayArtArtLayerAdded(int index, ArtLayer artLayer)
@@ -1124,12 +1120,12 @@ namespace AAP.UI.Controls
 
             if (oldDisplayArtDraw != null)
             {
-                oldDisplayArtDraw.OnDrawArt -= canvas.OnArtDraw;
+                oldDisplayArtDraw.DrewCharacter -= canvas.OnArtDrawDrewCharacter;
             }
 
             if (newDisplayArtDraw != null)
             {
-                newDisplayArtDraw.OnDrawArt += canvas.OnArtDraw;
+                newDisplayArtDraw.DrewCharacter += canvas.OnArtDrawDrewCharacter;
             }
         }
 
@@ -1283,8 +1279,6 @@ namespace AAP.UI.Controls
                 return;
 
             keyInputTool.OnPressedKey(e.Key, e.KeyboardDevice.Modifiers);
-
-            e.Handled = true;
         }
 
         private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
