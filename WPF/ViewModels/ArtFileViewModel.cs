@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.Files;
 using AAP.Timelines;
 using AAP.UI.Windows;
 using Microsoft.Win32;
@@ -207,7 +208,7 @@ namespace AAP.UI.ViewModels
             OpenFileDialog openFileDialog = new()
             {
                 Title = "Open ASCII Art File",
-                Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt",
+                Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.gif)|*.png;*.bmp;*.jpg;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -404,7 +405,7 @@ namespace AAP.UI.ViewModels
 
             string savePath = saveFileDialog.FileName;
 
-            ASCIIArtExportOptions? exportOptions = null;
+            ASCIIArtEncodeOptions? exportOptions = null;
             string extension = Path.GetExtension(savePath).ToLower();
             if (extension == ".png" || extension == ".bmp" || extension == ".jpg" || extension == ".gif")
             {
@@ -419,7 +420,7 @@ namespace AAP.UI.ViewModels
 
             try
             {
-                FileInfo fileInfo = new FileInfo(savePath);
+                FileInfo fileInfo = new(savePath);
 
                 BackgroundTaskToken bgTask = new($"Exporting to {fileInfo.Name}...");
                 Task task = artFile.ExportAsync(savePath, exportOptions, bgTask);

@@ -12,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using AAP.Files;
 using AAP.UI.ViewModels;
 using Newtonsoft.Json.Linq;
 
@@ -22,8 +23,8 @@ namespace AAP.UI.Windows
     /// </summary>
     public partial class ImageASCIIArtExportOptionsWindow : Window
     {
-        private ImageASCIIArtExportOptions exportOptions = new();
-        public ImageASCIIArtExportOptions ExportOptions
+        private ImageASCIIArtEncodeOptions exportOptions = new();
+        public ImageASCIIArtEncodeOptions ExportOptions
         {
             get => exportOptions;
             set

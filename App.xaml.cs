@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.Files;
 using AAP.Properties;
 using AAP.Timelines;
 using AAP.UI.Themes;
@@ -271,28 +272,26 @@ namespace AAP
                 //Preset Character Palettes
                 foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
                 {
-                    string presetCharacterPaletteFilePath = @$"{CharacterPaletteDirectoryPath}\{presetFileInfo.Name.Replace(".txt", ".aappal")}";
+                    TextCharacterPaletteDecoder presetTxTCharacterPalette = new(new FileStream(presetFileInfo.FullName, FileMode.Open, FileAccess.Read));
+                    CharacterPalette palette = presetTxTCharacterPalette.Decode();
+                    presetTxTCharacterPalette.Close();
 
-                    CharacterPalette palette = new();
-                    TXTCharacterPalette presetTxTCharacterPalette = new(palette, presetFileInfo.FullName);
-                    presetTxTCharacterPalette.Import();
-
+                    palette.Name = Path.GetFileNameWithoutExtension(presetFileInfo.FullName);
                     palette.IsPresetPalette = true;
 
                     characterPalettes.Add(palette);
 
-                    ConsoleLogger.Log($"Imported Preset Character Palette File: {presetCharacterPaletteFilePath}");
+                    ConsoleLogger.Log($"Imported Preset Character Palette File: {presetFileInfo.FullName}");
                 }
 
                 //Character Palettes
                 foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
                     if (fileInfo.Extension.ToLower() == ".aappal")
                     {
-                        CharacterPalette palette = new();
+                        AAPPALCharacterPaletteDecoder fileCharacterPalette = new(new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read));
+                        CharacterPalette palette = fileCharacterPalette.Decode();
 
-                        AAPPALCharacterPalette fileCharacterPalette = new(palette, fileInfo.FullName);
-
-                        fileCharacterPalette.Import();
+                        fileCharacterPalette.Close();
 
                         characterPalettes.Add(palette);
 
@@ -778,11 +777,13 @@ namespace AAP
 
             ConsoleLogger.Log("Export Palette: Exporting art file to " + path);
 
-            IAAPFile<CharacterPalette> paletteFile = new AAPPALCharacterPalette(palette, path);
+            FileObjectEncoder<CharacterPalette> paletteFile = new AAPPALCharacterPaletteEncoder(palette, File.Create(fileInfo.FullName));
 
-            Task exportTask = paletteFile.ExportAsync();
+            Task exportTask = paletteFile.EncodeAsync();
 
             await exportTask;
+
+            paletteFile.Close();
 
             if (exportTask.IsFaulted && exportTask.Exception != null)
             {

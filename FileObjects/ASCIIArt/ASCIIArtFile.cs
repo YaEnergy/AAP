@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.Files;
 using AAP.Timelines;
 using System;
 using System.Collections.Generic;
@@ -106,25 +107,41 @@ namespace AAP
 
             FileInfo file = new(filePath);
 
-            IAAPFile<ASCIIArt> AAPFile;
-            ASCIIArt art = new();
+            FileObjectDecoder<ASCIIArt> AAPFile;
+
+            FileStream stream = new(filePath, FileMode.Open, FileAccess.Read);
 
             bool saved = false;
 
             switch (file.Extension.ToLower())
             {
                 case ".txt":
-                    AAPFile = new TXTASCIIArt(art, file.FullName);
+                    AAPFile = new TextASCIIArtDecoder(stream);
                     break;
                 case ".aaf":
-                    AAPFile = new AAFASCIIArt(art, file.FullName);
+                    AAPFile = new AAFASCIIArtDecoder(stream);
                     saved = true;
                     break;
+                case ".bmp":
+                    AAPFile = new BitmapASCIIArtDecoder(new(), stream);
+                    break;
+                case ".png":
+                    AAPFile = new PngASCIIArtDecoder(new(), stream);
+                    break;
+                case ".jpg":
+                    AAPFile = new JpegASCIIArtDecoder(new(), stream);
+                    break;
+                case ".gif":
+                    AAPFile = new GifASCIIArtDecoder(new(), stream);
+                    break;
                 default:
+                    stream.Close();
                     throw new Exception("Unknown file extension!");
             }
 
-            AAPFile.Import();
+            ASCIIArt art = AAPFile.Decode();
+
+            AAPFile.Close();
             ConsoleLogger.Log($"Open File: Imported file!");
 
             if (art.Width * art.Height > App.MaxArtArea)
@@ -148,25 +165,41 @@ namespace AAP
 
             FileInfo file = new(filePath);
 
-            IAAPFile<ASCIIArt> AAPFile;
-            ASCIIArt art = new();
+            FileObjectDecoder<ASCIIArt> AAPFile;
+
+            FileStream stream = new(filePath, FileMode.Open, FileAccess.Read);
 
             bool saved = false;
 
             switch (file.Extension.ToLower())
             {
                 case ".txt":
-                    AAPFile = new TXTASCIIArt(art, file.FullName);
+                    AAPFile = new TextASCIIArtDecoder(stream);
                     break;
                 case ".aaf":
-                    AAPFile = new AAFASCIIArt(art, file.FullName);
+                    AAPFile = new AAFASCIIArtDecoder(stream);
                     saved = true;
                     break;
+                case ".bmp":
+                    AAPFile = new BitmapASCIIArtDecoder(new(), stream);
+                    break;
+                case ".png":
+                    AAPFile = new PngASCIIArtDecoder(new(), stream);
+                    break;
+                case ".jpg":
+                    AAPFile = new JpegASCIIArtDecoder(new(), stream);
+                    break;
+                case ".gif":
+                    AAPFile = new GifASCIIArtDecoder(new(), stream);
+                    break;
                 default:
+                    stream.Close();
                     throw new Exception("Unknown file extension!");
             }
 
-            await AAPFile.ImportAsync(taskToken);
+            ASCIIArt art = await AAPFile.DecodeAsync(taskToken);
+
+            AAPFile.Close();
             ConsoleLogger.Log($"Open File: Imported file!");
 
             if (art.Width * art.Height > App.MaxArtArea)
@@ -188,9 +221,11 @@ namespace AAP
 
             ConsoleLogger.Log("Save File: Saving art file to " + SavePath);
 
-            AAFASCIIArt aafASCIIArt = new(Art, SavePath);
+            FileStream stream = File.Create(SavePath);
+            AAFASCIIArtEncoder aafASCIIArt = new(Art, stream);
 
-            aafASCIIArt.Export();
+            aafASCIIArt.Encode();
+            aafASCIIArt.Close();
 
             UnsavedChanges = false;
 
@@ -204,16 +239,18 @@ namespace AAP
 
             ConsoleLogger.Log("Save File: Saving art file to " + SavePath);
 
-            AAFASCIIArt aafASCIIArt = new(Art, SavePath);
+            FileStream stream = File.Create(SavePath);
+            AAFASCIIArtEncoder aafASCIIArt = new(Art, stream);
 
-            await aafASCIIArt.ExportAsync(taskToken);
+            await aafASCIIArt.EncodeAsync(taskToken);
+            aafASCIIArt.Close();
 
             UnsavedChanges = false;
 
             ConsoleLogger.Log("Save File: Saved art file to " + SavePath);
         }
 
-        public void Export(string filePath, ASCIIArtExportOptions? exportOptions = null)
+        public void Export(string filePath, ASCIIArtEncodeOptions? exportOptions = null)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new NullReferenceException("filePath is null or white space!");
@@ -221,50 +258,53 @@ namespace AAP
             ConsoleLogger.Log("Export File: Exporting art file to " + filePath);
 
             FileInfo fileInfo = new(filePath);
-            IAAPFile<ASCIIArt> AAPFile;
+            FileObjectEncoder<ASCIIArt> AAPFile;
+            FileStream stream = File.Create(filePath);
 
             switch (fileInfo.Extension.ToLower())
             {
                 case ".txt":
-                    AAPFile = new TXTASCIIArt(Art, fileInfo.FullName);
+                    AAPFile = new TextASCIIArtEncoder(Art, stream);
                     break;
                 case ".aaf":
-                    AAPFile = new AAFASCIIArt(Art, fileInfo.FullName);
+                    AAPFile = new AAFASCIIArtEncoder(Art, stream);
                     break;
                 case ".bmp":
-                    if (exportOptions is not ImageASCIIArtExportOptions bmpExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions bmpExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new BitmapASCIIArt(Art, fileInfo.FullName, bmpExportOptions);
+                    AAPFile = new BitmapASCIIArtEncoder(Art, stream) { EncodeOptions = bmpExportOptions };
                     break;
                 case ".png":
-                    if (exportOptions is not ImageASCIIArtExportOptions pngExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions pngExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new PngASCIIArt(Art, fileInfo.FullName, pngExportOptions);
+                    AAPFile = new PngASCIIArtEncoder(Art, stream) { EncodeOptions = pngExportOptions };
                     break;
                 case ".jpg":
-                    if (exportOptions is not ImageASCIIArtExportOptions jpegExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions jpegExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new JpegASCIIArt(Art, fileInfo.FullName, jpegExportOptions);
+                    AAPFile = new JpegASCIIArtEncoder(Art, stream) { EncodeOptions = jpegExportOptions };
                     break;
                 case ".gif":
-                    if (exportOptions is not ImageASCIIArtExportOptions gifExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions gifExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new GifASCIIArt(Art, fileInfo.FullName, gifExportOptions);
+                    AAPFile = new GifASCIIArtEncoder(Art, stream) { EncodeOptions = gifExportOptions };
                     break;
                 default:
+                    stream.Close();
                     throw new Exception("Unknown file extension!");
             }
 
-            AAPFile.Export();
+            AAPFile.Encode();
+            AAPFile.Close();
 
             ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
         }
 
-        public async Task ExportAsync(string filePath, ASCIIArtExportOptions? exportOptions = null, BackgroundTaskToken? taskToken = null)
+        public async Task ExportAsync(string filePath, ASCIIArtEncodeOptions? exportOptions = null, BackgroundTaskToken? taskToken = null)
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new NullReferenceException("filePath is null or white space!");
@@ -272,45 +312,48 @@ namespace AAP
             ConsoleLogger.Log("Export File: Exporting art file to " + filePath);
 
             FileInfo fileInfo = new(filePath);
-            IAAPFile<ASCIIArt> AAPFile;
+            FileObjectEncoder<ASCIIArt> AAPFile;
+            FileStream stream = File.Create(filePath);
 
             switch (fileInfo.Extension.ToLower())
             {
                 case ".txt":
-                    AAPFile = new TXTASCIIArt(Art, fileInfo.FullName);
+                    AAPFile = new TextASCIIArtEncoder(Art, stream);
                     break;
                 case ".aaf":
-                    AAPFile = new AAFASCIIArt(Art, fileInfo.FullName);
+                    AAPFile = new AAFASCIIArtEncoder(Art, stream);
                     break;
                 case ".bmp":
-                    if (exportOptions is not ImageASCIIArtExportOptions bmpExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions bmpExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new BitmapASCIIArt(Art, fileInfo.FullName, bmpExportOptions);
+                    AAPFile = new BitmapASCIIArtEncoder(Art, stream) { EncodeOptions = bmpExportOptions };
                     break;
                 case ".png":
-                    if (exportOptions is not ImageASCIIArtExportOptions pngExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions pngExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new PngASCIIArt(Art, fileInfo.FullName, pngExportOptions);
+                    AAPFile = new PngASCIIArtEncoder(Art, stream) { EncodeOptions = pngExportOptions };
                     break;
                 case ".jpg":
-                    if (exportOptions is not ImageASCIIArtExportOptions jpegExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions jpegExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new JpegASCIIArt(Art, fileInfo.FullName, jpegExportOptions);
+                    AAPFile = new JpegASCIIArtEncoder(Art, stream) { EncodeOptions = jpegExportOptions };
                     break;
                 case ".gif":
-                    if (exportOptions is not ImageASCIIArtExportOptions gifExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtExportOptions!");
+                    if (exportOptions is not ImageASCIIArtEncodeOptions gifExportOptions)
+                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
 
-                    AAPFile = new GifASCIIArt(Art, fileInfo.FullName, gifExportOptions);
+                    AAPFile = new GifASCIIArtEncoder(Art, stream) { EncodeOptions = gifExportOptions };
                     break;
                 default:
+                    stream.Close();
                     throw new Exception("Unknown file extension!");
             }
 
-            await AAPFile.ExportAsync(taskToken);
+            await AAPFile.EncodeAsync(taskToken);
+            AAPFile.Close();
 
             ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
         }
