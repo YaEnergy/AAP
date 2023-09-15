@@ -11,7 +11,7 @@ namespace AAP.UI.ViewModels
 {
     public class CharacterPaletteWindowViewModel : INotifyPropertyChanged
     {
-        private string paletteName = "";
+        private string paletteName = "New Palette";
         public string PaletteName
         {
             get => paletteName;
@@ -20,13 +20,31 @@ namespace AAP.UI.ViewModels
                 if (paletteName == value)
                     return;
 
-                paletteName = value;
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    char[] invalidFileNameChars = System.IO.Path.GetInvalidFileNameChars();
+
+                    foreach (char fileNameChar in value.ToCharArray())
+                        if (invalidFileNameChars.Contains(fileNameChar))
+                        {
+                            string invalidFileNameCharsString = "";
+                            foreach (char invalidFileNameChar in invalidFileNameChars)
+                                invalidFileNameCharsString += invalidFileNameChar.ToString();
+
+                            MessageBox.Show($"Palette Name can not contain any of these characters: {invalidFileNameCharsString}", "Invalid Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                            return;
+                        }
+
+                    paletteName = value;
+                }
+                else
+                    MessageBox.Show("Palette Name can not be null or just white spaces!", "Character Palette", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 PropertyChanged?.Invoke(this, new(nameof(PaletteName)));
             }
         }
 
-        private string paletteString = "";
+        private string paletteString = $@"|\/*-_";
         public string PaletteString
         {
             get => paletteString;

@@ -261,42 +261,10 @@ namespace AAP
             FileObjectEncoder<ASCIIArt> AAPFile;
             FileStream stream = File.Create(filePath);
 
-            switch (fileInfo.Extension.ToLower())
-            {
-                case ".txt":
-                    AAPFile = new TextASCIIArtEncoder(Art, stream);
-                    break;
-                case ".aaf":
-                    AAPFile = new AAFASCIIArtEncoder(Art, stream);
-                    break;
-                case ".bmp":
-                    if (exportOptions is not ImageASCIIArtEncodeOptions bmpExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
-
-                    AAPFile = new BitmapASCIIArtEncoder(Art, stream) { EncodeOptions = bmpExportOptions };
-                    break;
-                case ".png":
-                    if (exportOptions is not ImageASCIIArtEncodeOptions pngExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
-
-                    AAPFile = new PngASCIIArtEncoder(Art, stream) { EncodeOptions = pngExportOptions };
-                    break;
-                case ".jpg":
-                    if (exportOptions is not ImageASCIIArtEncodeOptions jpegExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
-
-                    AAPFile = new JpegASCIIArtEncoder(Art, stream) { EncodeOptions = jpegExportOptions };
-                    break;
-                case ".gif":
-                    if (exportOptions is not ImageASCIIArtEncodeOptions gifExportOptions)
-                        throw new Exception("Export Options is not ImageASCIIArtEncodeOptions!");
-
-                    AAPFile = new GifASCIIArtEncoder(Art, stream) { EncodeOptions = gifExportOptions };
-                    break;
-                default:
-                    stream.Close();
-                    throw new Exception("Unknown file extension!");
-            }
+            if (exportOptions is ImageASCIIArtEncodeOptions imageEncodeOptions)
+                AAPFile = ASCIIArtEncoderFactory.New(fileInfo.Extension, Art, stream, imageEncodeOptions);
+            else
+                AAPFile = ASCIIArtEncoderFactory.New(fileInfo.Extension, Art, stream);
 
             AAPFile.Encode();
             AAPFile.Close();

@@ -21,7 +21,10 @@ namespace AAP.UI.ViewModels
                 if (textSizeText == value)
                     return;
 
-                textSizeText = value;
+                if (int.TryParse(value, out int size) && size > 0 && size <= 256)
+                    textSizeText = value;
+                else
+                    MessageBox.Show("Text size must be between 1 & 256 and a natural number!", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 PropertyChanged?.Invoke(this, new(nameof(TextSizeText)));
             }
