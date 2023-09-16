@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace AAP.UI.ViewModels
 {
-    public class ObjectPropertiesWindowViewModel : INotifyPropertyChanged
+    public class PropertiesWindowViewModel : INotifyPropertyChanged
     {
         private string closeButtonContent = "Apply changes";
         public string CloseButtonContent
@@ -43,10 +43,9 @@ namespace AAP.UI.ViewModels
             }
         }
 
-
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public ObjectPropertiesWindowViewModel()
+        public PropertiesWindowViewModel()
         {
             
         }

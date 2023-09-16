@@ -14,6 +14,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Media3D;
 
 namespace AAP.UI.ViewModels
