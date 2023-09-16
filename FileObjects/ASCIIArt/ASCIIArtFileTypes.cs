@@ -185,14 +185,11 @@ namespace AAP.Files
 
     public abstract class ImageASCIIArtDecoder : FileObjectDecoder<ASCIIArt>
     {
-        /// <summary>
-        /// Converter used to convert Images into Art Layers.
-        /// </summary>
-        public ImageArtLayerConverter Converter { get; set; }
+        public ImageASCIIArtDecodeOptions DecodeOptions { get; set; }
 
-        public ImageASCIIArtDecoder(ImageArtLayerConverter converter, Stream stream) : base(stream)
+        public ImageASCIIArtDecoder(ImageASCIIArtDecodeOptions options, Stream stream) : base(stream)
         {
-            Converter = converter;
+            DecodeOptions = options;
         }
 
         public override abstract ASCIIArt Decode();
@@ -244,14 +241,14 @@ namespace AAP.Files
 
     public class BitmapASCIIArtDecoder : ImageASCIIArtDecoder
     {
-        public BitmapASCIIArtDecoder(ImageArtLayerConverter converter, Stream stream) : base(converter, stream)
+        public BitmapASCIIArtDecoder(ImageASCIIArtDecodeOptions options, Stream stream) : base(options, stream)
         {
 
         }
 
         public override ASCIIArt Decode()
         {
-            BitmapArtLayerDecoder layerDecoder = new(Converter, DecodeStream);
+            BitmapArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer layer = layerDecoder.Decode();
 
@@ -267,7 +264,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            BitmapArtLayerDecoder layerDecoder = new(Converter, DecodeStream);
+            BitmapArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer layer = await layerDecoder.DecodeAsync(taskToken);
 
@@ -328,14 +325,14 @@ namespace AAP.Files
 
     public class PngASCIIArtDecoder : ImageASCIIArtDecoder
     {
-        public PngASCIIArtDecoder(ImageArtLayerConverter converter, Stream stream) : base(converter, stream)
+        public PngASCIIArtDecoder(ImageASCIIArtDecodeOptions options, Stream stream) : base(options, stream)
         {
 
         }
 
         public override ASCIIArt Decode()
         {
-            PngArtLayerDecoder layerDecoder = new(Converter, DecodeStream);
+            PngArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer layer = layerDecoder.Decode();
 
@@ -351,7 +348,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            PngArtLayerDecoder layerDecoder = new(Converter, DecodeStream);
+            PngArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer layer = await layerDecoder.DecodeAsync(taskToken);
 
@@ -412,14 +409,14 @@ namespace AAP.Files
 
     public class JpegASCIIArtDecoder : ImageASCIIArtDecoder
     {
-        public JpegASCIIArtDecoder(ImageArtLayerConverter converter, Stream stream) : base(converter, stream)
+        public JpegASCIIArtDecoder(ImageASCIIArtDecodeOptions options, Stream stream) : base(options, stream)
         {
 
         }
 
         public override ASCIIArt Decode()
         {
-            JpegArtLayerDecoder layerDecoder = new(Converter, DecodeStream);
+            JpegArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer layer = layerDecoder.Decode();
 
@@ -435,7 +432,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            JpegArtLayerDecoder layerDecoder = new(Converter, DecodeStream);
+            JpegArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer layer = await layerDecoder.DecodeAsync(taskToken);
 
@@ -607,19 +604,16 @@ namespace AAP.Files
 
     public class GifASCIIArtDecoder : FileObjectDecoder<ASCIIArt>
     {
-        /// <summary>
-        /// Converter used to convert Images into Art Layers.
-        /// </summary>
-        public ImageArtLayerConverter Converter { get; set; }
+        public ImageASCIIArtDecodeOptions DecodeOptions { get; set; }
 
-        public GifASCIIArtDecoder(ImageArtLayerConverter converter, Stream stream) : base(stream)
+        public GifASCIIArtDecoder(ImageASCIIArtDecodeOptions options, Stream stream) : base(stream)
         {
-            Converter = converter;
+            DecodeOptions = options;
         }
 
         public override ASCIIArt Decode()
         {
-            GifArtLayerArrayDecoder layerDecoder = new(Converter, DecodeStream);
+            GifArtLayerArrayDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer[] layers = layerDecoder.Decode();
 
@@ -639,7 +633,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            GifArtLayerArrayDecoder layerDecoder = new(Converter, DecodeStream);
+            GifArtLayerArrayDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
 
             ArtLayer[] layers = await layerDecoder.DecodeAsync(taskToken);
 
@@ -682,6 +676,8 @@ namespace AAP.Files
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 fs.CopyTo(output);
+
+                output.Dispose();
             }
 
             File.Delete(tempFilePath);
@@ -706,6 +702,8 @@ namespace AAP.Files
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 await fs.CopyToAsync(output);
+
+                output.Dispose();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
@@ -845,6 +843,41 @@ namespace AAP.Files
             BackgroundColor = backgroundColor;
             TextColor = textColor;
             TextSize = textSize;
+        }
+    }
+
+    public abstract class ASCIIArtDecodeOptions
+    {
+
+    }
+
+    public class ImageASCIIArtDecodeOptions : ASCIIArtDecodeOptions, INotifyPropertyChanged
+    {
+        private ImageArtLayerConverter imageArtLayerConverter = new();
+        public ImageArtLayerConverter ImageArtLayerConverter
+        {
+            get => imageArtLayerConverter;
+            set
+            {
+                if (imageArtLayerConverter == value)
+                    return;
+
+                imageArtLayerConverter = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(ImageArtLayerConverter)));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        public ImageASCIIArtDecodeOptions()
+        {
+
+        }
+
+        public ImageASCIIArtDecodeOptions(ImageArtLayerConverter imageLayerConverter)
+        {
+            imageArtLayerConverter = imageLayerConverter;
         }
     }
 }

@@ -116,6 +116,8 @@ namespace AAP.Files
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 fs.CopyTo(output);
+
+                output.Dispose();
             }
 
             File.Delete(tempFilePath);
@@ -140,6 +142,8 @@ namespace AAP.Files
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 await fs.CopyToAsync(output);
+
+                output.Dispose();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));

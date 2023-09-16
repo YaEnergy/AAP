@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace AAP
@@ -98,7 +99,7 @@ namespace AAP
         }
 
         #region Main File Methods
-        public static ASCIIArtFile Open(string filePath)
+        public static ASCIIArtFile Open(string filePath, ASCIIArtDecodeOptions? importOptions = null)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
@@ -156,7 +157,7 @@ namespace AAP
             return artFile;
         }
 
-        public static async Task<ASCIIArtFile> OpenAsync(string filePath, BackgroundTaskToken? taskToken = null)
+        public static async Task<ASCIIArtFile> OpenAsync(string filePath, ASCIIArtDecodeOptions? importOptions = null, BackgroundTaskToken? taskToken = null)
         {
             if (!File.Exists(filePath))
                 throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
@@ -181,16 +182,28 @@ namespace AAP
                     saved = true;
                     break;
                 case ".bmp":
-                    AAPFile = new BitmapASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions bmpImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new BitmapASCIIArtDecoder(bmpImportOptions, stream);
                     break;
                 case ".png":
-                    AAPFile = new PngASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions pngImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new PngASCIIArtDecoder(pngImportOptions, stream);
                     break;
                 case ".jpg":
-                    AAPFile = new JpegASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new JpegASCIIArtDecoder(jpegImportOptions, stream);
                     break;
                 case ".gif":
-                    AAPFile = new GifASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions gifImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new GifASCIIArtDecoder(gifImportOptions, stream);
                     break;
                 default:
                     stream.Close();

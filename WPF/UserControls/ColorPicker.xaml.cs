@@ -41,6 +41,9 @@ namespace AAP.UI.Controls
             }
         }
 
+        public delegate void ColorChangedEvent(ColorPicker colorPicker, SolidColorBrush color);
+        public event ColorChangedEvent? ColorChanged;
+
         public ColorPicker()
         {
             InitializeComponent();
@@ -54,6 +57,7 @@ namespace AAP.UI.Controls
                 return;
 
             colorPicker.ControlViewModel.PickedColor = colorPicker.PickedColor.Color;
+            colorPicker.ColorChanged?.Invoke(colorPicker, colorPicker.PickedColor);
         }
 
         private void OnControlViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)

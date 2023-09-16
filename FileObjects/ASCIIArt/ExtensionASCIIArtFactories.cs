@@ -87,16 +87,16 @@ namespace AAP.Files
         /// <param name="imageLayerConverter"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static FileObjectDecoder<ASCIIArt> New(string ext, Stream stream, ImageArtLayerConverter imageLayerConverter)
+        public static FileObjectDecoder<ASCIIArt> New(string ext, Stream stream, ImageASCIIArtDecodeOptions decodeOptions)
         {
             return ext.ToLower() switch
             {
                 ".txt" => new TextASCIIArtDecoder(stream),
                 ".aaf" => new AAFASCIIArtDecoder(stream),
-                ".bmp" => new BitmapASCIIArtDecoder(imageLayerConverter, stream),
-                ".png" => new PngASCIIArtDecoder(imageLayerConverter, stream),
-                ".jpg" => new JpegASCIIArtDecoder(imageLayerConverter, stream),
-                ".gif" => new GifASCIIArtDecoder(imageLayerConverter, stream),
+                ".bmp" => new BitmapASCIIArtDecoder(decodeOptions, stream),
+                ".png" => new PngASCIIArtDecoder(decodeOptions, stream),
+                ".jpg" => new JpegASCIIArtDecoder(decodeOptions, stream),
+                ".gif" => new GifASCIIArtDecoder(decodeOptions, stream),
                 _ => throw new Exception($"No ASCII Art decoder exists for extension {ext}!"),
             };
         }

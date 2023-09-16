@@ -223,11 +223,23 @@ namespace AAP.UI.ViewModels
 
             FileInfo fileInfo = new(openFileDialog.FileName);
 
+            ASCIIArtDecodeOptions? importOptions = null;
+            if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".gif")
+            {
+                ImageASCIIArtImportOptionsWindow importOptionsWindow = new();
+                bool? optionsResult = importOptionsWindow.ShowDialog();
+
+                if (optionsResult != true)
+                    return;
+
+                importOptions = importOptionsWindow.ImportOptions;
+            }
+
             ASCIIArtFile? artFile = null;
             try
             {
                 BackgroundTaskToken bgTask = new($"Opening {fileInfo.Name}...");
-                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName, bgTask);
+                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName, importOptions, bgTask);
                 bgTask.MainTask = task;
 
                 CurrentBackgroundTaskToken = bgTask;
