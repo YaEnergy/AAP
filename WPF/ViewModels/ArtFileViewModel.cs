@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -179,6 +180,136 @@ namespace AAP.UI.ViewModels
             PasteCommand = new ActionCommand((parameter) => App.PasteLayerFromClipboard());
         }
 
+        /// <summary>
+        /// Displays a ASCIIArt Dialog that can update a ASCIIArt object.
+        /// </summary>
+        /// <returns>The result of the dialog</returns>
+        public static bool? ShowASCIIArtDialog(ASCIIArt art, string closeMessage)
+        {
+            bool successful = false;
+
+            while (!successful)
+            {
+                PropertiesWindow artWindow = new("ASCII Art", closeMessage);
+                artWindow.AddSizeIntProperty("Size", new(art.Width, art.Height));
+                bool? result = artWindow.ShowDialog();
+
+                if (result != true)
+                    return result;
+
+                if (artWindow.GetProperty("Size") is not Size size)
+                {
+                    MessageBox.Show($"Invalid size!", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                if (size.Width % 1 != 0 && size.Height % 1 != 0)
+                {
+                    MessageBox.Show($"Width & height must be above 0 and natural numbers!", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                int width = (int)size.Width;
+                int height = (int)size.Height;
+
+                if (width * height > App.MaxArtArea)
+                    MessageBox.Show($"Canvas is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                else if (width == 0 || height == 0)
+                    MessageBox.Show($"Width & height must be above 0 and natural numbers!", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                else
+                {
+                    art.SetSize(width, height);
+
+                    successful = true;
+                }
+            }
+
+            return successful;
+        }
+
+        /// <summary>
+        /// Displays a Image ASCII Art Import Options Dialog that can update a ImageASCIIArtDecodeOptions object.
+        /// </summary>
+        /// <returns>The result of the dialog</returns>
+        public static bool? ShowImageASCIIArtImportOptionsDialog(ImageASCIIArtDecodeOptions options)
+        {
+            bool successful = false;
+
+            while (!successful)
+            {
+                PropertiesWindow artWindow = new("Image ASCII Art Import Options", "Import");
+                artWindow.AddBoolProperty("Invert Brightness", false);
+                bool? result = artWindow.ShowDialog();
+
+                if (result != true)
+                    return result;
+
+                if (artWindow.GetProperty("Invert Brightness") is not bool invert)
+                {
+                    MessageBox.Show($"Invalid Invert Brightness!", "Image ASCII Art Import Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                ImageArtLayerConverter converter = new();
+                converter.Invert = invert;
+
+                options.ImageArtLayerConverter = converter;
+
+                successful = true;
+            }
+
+            return successful;
+        }
+
+        /// <summary>
+        /// Displays a Image ASCII Art Export Options Dialog that can update a ImageASCIIArtEncodeOptions object.
+        /// </summary>
+        /// <returns>The result of the dialog</returns>
+        public static bool? ShowImageASCIIArtExportOptionsDialog(ImageASCIIArtEncodeOptions options)
+        {
+            bool successful = false;
+
+            while (!successful)
+            {
+                PropertiesWindow artWindow = new("Image ASCII Art Export Options", "Export");
+                artWindow.AddDoubleProperty("Text Size", 12);
+                artWindow.AddCategory("Colors");
+                artWindow.AddColorProperty("Background", Colors.White);
+                artWindow.AddColorProperty("Text", Colors.Black);
+
+                bool? result = artWindow.ShowDialog();
+
+                if (result != true)
+                    return result;
+
+                if (artWindow.GetProperty("Text Size") is not double textSize || textSize < 1 || textSize > 256)
+                {
+                    MessageBox.Show($"Invalid Text Size! Text Size must be between 1 and 256", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                if (artWindow.GetProperty("Background") is not Color backgroundColor)
+                {
+                    MessageBox.Show($"Invalid Background Color!", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                if (artWindow.GetProperty("Text") is not Color textColor)
+                {
+                    MessageBox.Show($"Invalid Text Color!", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                options.BackgroundColor = backgroundColor;
+                options.TextColor = textColor;
+                options.TextSize = textSize;
+
+                successful = true;
+            }
+
+            return successful;
+        }
+
         public void NewFile()
         {
             if (CurrentBackgroundTaskToken != null)
@@ -187,15 +318,16 @@ namespace AAP.UI.ViewModels
                 return; 
             }
 
-            ASCIIArtWindow newASCIIArtWindow = new();
-            bool? windowResult = newASCIIArtWindow.ShowDialog();
+            ASCIIArt art = new();
+            art.SetSize(32, 16);
 
-            if (windowResult == true)
-            {
-                newASCIIArtWindow.Art.ArtLayers.Add(new("Background", newASCIIArtWindow.Art.Width, newASCIIArtWindow.Art.Height));
-                App.SetArtAsNewFile(newASCIIArtWindow.Art);
-            }
+            bool? result = ShowASCIIArtDialog(art, "Create");
 
+            if (result != true)
+                return;
+
+            art.ArtLayers.Add(new("Background", art.Width, art.Height));
+            App.SetArtAsNewFile(art);
         }
 
         public async Task OpenFileAsync()
@@ -227,13 +359,13 @@ namespace AAP.UI.ViewModels
             ASCIIArtDecodeOptions? importOptions = null;
             if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".gif")
             {
-                ImageASCIIArtImportOptionsWindow importOptionsWindow = new();
-                bool? optionsResult = importOptionsWindow.ShowDialog();
+                ImageASCIIArtDecodeOptions imageImportOptions = new();
+                bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(imageImportOptions);
 
-                if (optionsResult != true)
+                if (createdImportOptions != true)
                     return;
 
-                importOptions = importOptionsWindow.ImportOptions;
+                importOptions = imageImportOptions;
             }
 
             ASCIIArtFile? artFile = null;
@@ -422,13 +554,13 @@ namespace AAP.UI.ViewModels
             string extension = Path.GetExtension(savePath).ToLower();
             if (extension == ".png" || extension == ".bmp" || extension == ".jpg" || extension == ".gif")
             {
-                ImageASCIIArtExportOptionsWindow exportOptionsWindow = new();
-                bool? optionsResult = exportOptionsWindow.ShowDialog();
+                ImageASCIIArtEncodeOptions imageExportOptions = new();
+                bool? createdExportOptions = ShowImageASCIIArtExportOptionsDialog(imageExportOptions);
 
-                if (optionsResult != true)
+                if (createdExportOptions != true)
                     return;
 
-                exportOptions = exportOptionsWindow.ExportOptions;
+                exportOptions = imageExportOptions;
             }
 
             try
@@ -489,8 +621,7 @@ namespace AAP.UI.ViewModels
             if (CurrentArtFile == null)
                 return;
 
-            ASCIIArtWindow artWindow = new(CurrentArtFile.Art);
-            artWindow.ShowDialog();
+            ShowASCIIArtDialog(CurrentArtFile.Art, "Edit");
         }
 
         public async Task CloseOpenFileAsync(object? parameter)
@@ -503,7 +634,6 @@ namespace AAP.UI.ViewModels
                 MessageBox.Show("Current background task must be cancelled in order to close a file.", "Close File", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
 
             if (file.UnsavedChanges)
             {

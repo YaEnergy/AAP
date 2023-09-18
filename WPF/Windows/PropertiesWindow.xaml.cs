@@ -24,10 +24,12 @@ namespace AAP.UI.Windows
     {
         private readonly Dictionary<string, object?> properties = new();
 
-        public PropertiesWindow()
+        public PropertiesWindow(string title, string closeMessage)
         {
             InitializeComponent();
 
+            Title = title;
+            WindowViewModel.CloseButtonContent = closeMessage;
             WindowViewModel.CloseButtonCommand = new ActionCommand((parameter) => ApplyClose());
         }
 
@@ -43,6 +45,13 @@ namespace AAP.UI.Windows
         public void AddStringProperty(string name, string startingValue)
         {
             PropertyList.Children.Add(CreateStringPropertyUIElement(name, startingValue));
+
+            properties.Add(name, startingValue);
+        }
+
+        public void AddBoolProperty(string name, bool startingValue)
+        {
+            PropertyList.Children.Add(CreateBoolPropertyUIElement(name, startingValue));
 
             properties.Add(name, startingValue);
         }
@@ -82,9 +91,16 @@ namespace AAP.UI.Windows
             properties.Add(name, startingValue);
         }
 
-        public void AddSizeProperty(string name, Size startingValue)
+        public void AddSizeDoubleProperty(string name, Size startingValue)
         {
-            PropertyList.Children.Add(CreateSizePropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateSizeDoublePropertyUIElement(name, startingValue));
+
+            properties.Add(name, startingValue);
+        }
+
+        public void AddSizeIntProperty(string name, Size startingValue)
+        {
+            PropertyList.Children.Add(CreateSizeIntPropertyUIElement(name, startingValue));
 
             properties.Add(name, startingValue);
         }
@@ -108,6 +124,25 @@ namespace AAP.UI.Windows
 
             propertyPanel.Children.Add(label);
             propertyPanel.Children.Add(textBox);
+
+            return propertyPanel;
+        }
+
+        private UIElement CreateBoolPropertyUIElement(string name, bool value)
+        {
+            WrapPanel propertyPanel = new();
+            propertyPanel.Margin = new(5);
+
+            CheckBox checkBox = new();
+            checkBox.Padding = new(5);
+            checkBox.Content = name;
+            checkBox.IsChecked = value;
+            checkBox.SetBinding(CheckBox.StyleProperty, "CheckBoxStyle");
+            checkBox.SetBinding(CheckBox.ForegroundProperty, "CheckBoxForeground");
+
+            checkBox.Checked += (sender, e) => SetProperty(name, checkBox.IsChecked);
+
+            propertyPanel.Children.Add(checkBox);
 
             return propertyPanel;
         }
@@ -220,7 +255,7 @@ namespace AAP.UI.Windows
         private UIElement CreateSliderPropertyUIElement(string name, double min, double max, double value, double step = 1)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(10, 5, 10, 5);
+            propertyPanel.Margin = new(5);
 
             Label label = new();
             label.Content = name;
@@ -278,7 +313,7 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateSizePropertyUIElement(string name, Size value)
+        private UIElement CreateSizeDoublePropertyUIElement(string name, Size value)
         {
             WrapPanel propertyPanel = new();
             propertyPanel.Margin = new(5);
@@ -306,7 +341,7 @@ namespace AAP.UI.Windows
                 if (sender is not TextBox textBoxSender)
                     return;
 
-                if (double.TryParse(textBoxSender.Text, out double newWidth))
+                if (double.TryParse(textBoxSender.Text, out double newWidth) && newWidth >= 0)
                 {
                     value = new(newWidth, value.Height);
                     SetProperty(name, value);
@@ -320,7 +355,7 @@ namespace AAP.UI.Windows
                 if (sender is not TextBox textBoxSender)
                     return;
 
-                if (double.TryParse(textBoxSender.Text, out double newHeight))
+                if (double.TryParse(textBoxSender.Text, out double newHeight) && newHeight >= 0)
                 {
                     value = new(value.Width, newHeight);
                     SetProperty(name, value);
@@ -334,6 +369,65 @@ namespace AAP.UI.Windows
             propertyPanel.Children.Add(xLabel);
             propertyPanel.Children.Add(heightBox);
             
+            return propertyPanel;
+        }
+
+        private UIElement CreateSizeIntPropertyUIElement(string name, Size value)
+        {
+            WrapPanel propertyPanel = new();
+            propertyPanel.Margin = new(5);
+
+            Label label = new();
+            label.Content = name;
+
+            Label xLabel = new();
+            xLabel.Content = "x";
+
+            TextBox widthBox = new();
+            widthBox.Margin = new(5, 0, 5, 0);
+            widthBox.Width = 64;
+            widthBox.Height = 22;
+            widthBox.Text = value.Width.ToString();
+
+            TextBox heightBox = new();
+            heightBox.Margin = new(5, 0, 5, 0);
+            heightBox.Width = 64;
+            heightBox.Height = 22;
+            heightBox.Text = value.Height.ToString();
+
+            widthBox.LostFocus += (sender, e) =>
+            {
+                if (sender is not TextBox textBoxSender)
+                    return;
+
+                if (int.TryParse(textBoxSender.Text, out int newWidth) && newWidth >= 0)
+                {
+                    value = new(newWidth, value.Height);
+                    SetProperty(name, value);
+                }
+                else
+                    textBoxSender.Text = value.Width.ToString();
+            };
+
+            heightBox.LostFocus += (sender, e) =>
+            {
+                if (sender is not TextBox textBoxSender)
+                    return;
+
+                if (int.TryParse(textBoxSender.Text, out int newHeight) && newHeight >= 0)
+                {
+                    value = new(value.Width, newHeight);
+                    SetProperty(name, value);
+                }
+                else
+                    textBoxSender.Text = value.Height.ToString();
+            };
+
+            propertyPanel.Children.Add(label);
+            propertyPanel.Children.Add(widthBox);
+            propertyPanel.Children.Add(xLabel);
+            propertyPanel.Children.Add(heightBox);
+
             return propertyPanel;
         }
         #endregion

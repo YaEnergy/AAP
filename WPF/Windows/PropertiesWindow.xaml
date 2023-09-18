@@ -5,10 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ViewModels="clr-namespace:AAP.UI.ViewModels"
         mc:Ignorable="d"
-        Title="Object Properties" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="350" MaxHeight="400">
+        Title="Object Properties" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="350" MaxHeight="1200">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/Styles/CheckBoxStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <DockPanel Background="{DynamicResource Background}">
         <DockPanel.DataContext>
-            <ViewModels:PropertiesWindowViewModel x:Name="WindowViewModel"/>
+            <ViewModels:PropertiesWindowViewModel x:Name="WindowViewModel" CheckBoxStyle="{StaticResource ContentLeftCheckBoxStyle}" CheckBoxForeground="{StaticResource Text}"/>
         </DockPanel.DataContext>
         <Button Margin="10,0,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="{Binding CloseButtonContent}" Command="{Binding CloseButtonCommand}"/>
         <StackPanel x:Name="PropertyList" DockPanel.Dock="Top" Margin="10, 5, 10, 5"/>

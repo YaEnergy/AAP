@@ -124,16 +124,28 @@ namespace AAP
                     saved = true;
                     break;
                 case ".bmp":
-                    AAPFile = new BitmapASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions bmpImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new BitmapASCIIArtDecoder(bmpImportOptions, stream);
                     break;
                 case ".png":
-                    AAPFile = new PngASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions pngImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new PngASCIIArtDecoder(pngImportOptions, stream);
                     break;
                 case ".jpg":
-                    AAPFile = new JpegASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new JpegASCIIArtDecoder(jpegImportOptions, stream);
                     break;
                 case ".gif":
-                    AAPFile = new GifASCIIArtDecoder(new(), stream);
+                    if (importOptions is not ImageASCIIArtDecodeOptions gifImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    AAPFile = new GifASCIIArtDecoder(gifImportOptions, stream);
                     break;
                 default:
                     stream.Close();
