@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using AAP.BackgroundTasks;
+using AAP.Files;
 using AAP.Timelines;
 using AAP.UI.Controls;
 using AAP.UI.Windows;
@@ -48,7 +49,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private bool isDarkModeOn = App.DarkMode;
+        private bool isDarkModeOn = App.Settings.DarkMode;
         public bool IsDarkModeOn
         {
             get => isDarkModeOn;
@@ -103,7 +104,22 @@ namespace AAP.UI.ViewModels
             OpenSettingsCommand = new ActionCommand((parameter) => OpenSettingsWindow());
             ExitCommand = new ActionCommand((parameter) => Application.Current.Shutdown());
 
-            App.OnModeChanged += (darkMode) => IsDarkModeOn = darkMode;
+            App.Settings.PropertyChanged += Settings_PropertyChanged;
+        }
+
+        private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not AppSettings settings)
+                return;
+
+            switch(e.PropertyName)
+            {
+                case nameof(settings.DarkMode):
+                    IsDarkModeOn = settings.DarkMode;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void OpenSettingsWindow()

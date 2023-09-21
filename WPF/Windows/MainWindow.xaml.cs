@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows.Media;
 using AAP.BackgroundTasks;
+using AAP.Files;
 using AAP.Properties;
 using AAP.Timelines;
 using AAP.UI.Themes;
@@ -40,9 +41,9 @@ namespace AAP.UI.Windows
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
-            Settings.Default.PropertyChanged += SettingsPropertyChanged;
+            App.Settings.PropertyChanged += SettingsPropertyChanged;
 
-            ArtCanvasViewModel.CanvasTypeface = new(Settings.Default.CanvasTypefaceSource);
+            ArtCanvasViewModel.CanvasTypeface = new(App.Settings.CanvasTypefaceSource);
 
             OnCurrentArtFileChanged(App.CurrentArtFile);
 
@@ -219,7 +220,7 @@ namespace AAP.UI.Windows
             if (sender == null)
                 return;
 
-            if (sender is not Settings settings)
+            if (sender is not AppSettings settings)
                 return;
 
             switch (e.PropertyName)
@@ -243,8 +244,8 @@ namespace AAP.UI.Windows
             switch (e.PropertyName)
             {
                 case nameof(vm.IsDarkModeOn):
-                    App.DarkMode = vm.IsDarkModeOn;
-                    Settings.Default.Save();
+                    App.Settings.DarkMode = vm.IsDarkModeOn;
+                    App.SaveSettings();
                     break;
                 case nameof(vm.CurrentBackgroundTaskToken):
                     ArtFileViewModel.CurrentBackgroundTaskToken = vm.CurrentBackgroundTaskToken;

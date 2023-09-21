@@ -17,7 +17,7 @@ namespace AAP.UI.ViewModels
     {
         public string[] TypefaceSources { get; } = new string[] { "Consolas", "Courier New", "Cascadia Code", "Cascadia Mono", "Noto Mono", "Lucida Console" };
 
-        private bool darkMode = Settings.Default.DarkMode;
+        private bool darkMode = App.Settings.DarkMode;
         public bool DarkMode
         {
             get => darkMode;
@@ -33,7 +33,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private string canvasTypefaceSource = Settings.Default.CanvasTypefaceSource;
+        private string canvasTypefaceSource = App.Settings.CanvasTypefaceSource;
         public string CanvasTypefaceSource
         {
             get => canvasTypefaceSource;
@@ -77,13 +77,11 @@ namespace AAP.UI.ViewModels
 
         public void Apply()
         {
-            Settings.Default.DarkMode = DarkMode;
-            Settings.Default.CanvasTypefaceSource = CanvasTypefaceSource;
-            
-            App.DarkMode = Settings.Default.DarkMode;
+            App.Settings.DarkMode = DarkMode;
+            App.Settings.CanvasTypefaceSource = CanvasTypefaceSource;
 
             ChangesMade = false;
-            Settings.Default.Save();
+            App.SaveSettings();
         }
 
         public void Reset()
@@ -92,10 +90,10 @@ namespace AAP.UI.ViewModels
 
             if (result == MessageBoxResult.Yes)
             {
-                Settings.Default.Reset();
+                App.Settings.Reset();
 
-                DarkMode = Settings.Default.DarkMode;
-                CanvasTypefaceSource = Settings.Default.CanvasTypefaceSource;
+                DarkMode = App.Settings.DarkMode;
+                CanvasTypefaceSource = App.Settings.CanvasTypefaceSource;
 
                 Apply();
             }

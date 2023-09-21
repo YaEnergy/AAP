@@ -28,9 +28,23 @@ namespace AAP
 
         public static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
 
+        public static readonly string SettingsPath = $@"{ApplicationDataFolderPath}\settings";
         public static readonly string DefaultArtFilesDirectoryPath = $@"{ApplicationDataFolderPath}\Saves";
         public static readonly string CharacterPaletteDirectoryPath = $@"{ApplicationDataFolderPath}\CharacterPalettes";
         public static readonly string AutoSaveDirectoryPath = $@"{ApplicationDataFolderPath}\Autosaves";
+
+        private static AppSettings settings = AppSettings.Default;
+        public static AppSettings Settings
+        {
+            get => settings;
+            set
+            {
+                if (settings == value)
+                    return;
+
+                settings = value;
+            }
+        }
 
         private static readonly ObservableCollection<ASCIIArtFile> openArtFiles = new();
         public static ObservableCollection<ASCIIArtFile> OpenArtFiles
@@ -171,25 +185,6 @@ namespace AAP
             get => characterPalettes; 
         }
 
-        private static bool darkMode = Settings.Default.DarkMode;
-        public static bool DarkMode
-        {
-            get => darkMode;
-            set
-            {
-                if (darkMode == value)
-                    return;
-
-                darkMode = value;
-                SetTheme(darkMode);
-
-                OnModeChanged?.Invoke(darkMode);
-            }
-        }
-
-        public delegate void OnModeChangedEvent(bool darkMode);
-        public static event OnModeChangedEvent? OnModeChanged;
-
         public App()
         {
             
@@ -256,7 +251,26 @@ namespace AAP
                     ConsoleLogger.Log($"Created directory {autoSaveDirInfo.FullName}");
                 }
 
-                Settings.Default.Upgrade();
+                if (File.Exists(SettingsPath))
+                {
+                    FileStream fs = new FileStream(SettingsPath, FileMode.Open, FileAccess.Read);
+                    try
+                    {
+                        Settings = AppSettings.Decode(fs);
+                        ConsoleLogger.Log("Decoded settings");
+                    }
+                    catch (Exception ex)
+                    {
+                        ConsoleLogger.Error(ex);
+                        MessageBox.Show("Settings failed to load! Defaulted to default settings.", "Settings", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    finally
+                    {
+                        fs.Dispose();
+                    }
+                }
+                else
+                    ConsoleLogger.Log("No settings file found!");
 
                 //Tools
                 Tools.Add(new PencilTool('|', 1));
@@ -302,7 +316,9 @@ namespace AAP
 
                 OnCurrentArtFileChanged += CurrentArtFileChanged;
 
-                SetTheme(Settings.Default.DarkMode);
+                Settings.PropertyChanged += SettingsPropertyChanged;
+
+                SetTheme(Settings.DarkMode);
             }
             catch (Exception ex)
             {
@@ -369,6 +385,7 @@ namespace AAP
 
             mutex.Close();
         }
+
 
         #region Application Events
         private static void OnApplicationExit(object? sender, ExitEventArgs e)
@@ -866,6 +883,33 @@ namespace AAP
         }
         #endregion
         #region Resources
+        public static void SaveSettings()
+        {
+            using FileStream fs = File.Create(SettingsPath);
+            Settings.Encode(fs);
+        }
+
+        public static async Task SaveSettingsAsync()
+        {
+            using FileStream fs = File.Create(SettingsPath);
+            await Settings.EncodeAsync(fs);
+        }
+
+        private static void SettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (sender is not AppSettings changedSettings)
+                return;
+
+            switch(e.PropertyName)
+            {
+                case nameof(changedSettings.DarkMode):
+                    SetTheme(changedSettings.DarkMode);
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private static void SetTheme(bool darkMode)
         {
             Current.Resources.Clear();
@@ -875,7 +919,7 @@ namespace AAP
 
             ResourceDictionary resourceDictionary = new() { Source = themeSource };
 
-            Settings.Default.DarkMode = darkMode;
+            Settings.DarkMode = darkMode;
 
             Current.Resources.MergedDictionaries.Add(resourceDictionary);
         }
