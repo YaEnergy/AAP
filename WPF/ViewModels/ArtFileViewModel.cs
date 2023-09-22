@@ -139,6 +139,7 @@ namespace AAP.UI.ViewModels
 
         public ICommand CropArtCommand { get; private set; }
         public ICommand CropLayerCommand { get; private set; }
+        public ICommand FitAllLayersWithinArtCommand { get; private set; }
 
         public ICommand FillSelectionCommand { get; private set; }
 
@@ -169,6 +170,7 @@ namespace AAP.UI.ViewModels
 
             CropArtCommand = new ActionCommand((parameter) => App.CropArtFileToSelected());
             CropLayerCommand = new ActionCommand((parameter) => App.CropCurrentArtLayerToSelected());
+            FitAllLayersWithinArtCommand = new ActionCommand((parameter) => FitAllLayersWithinArt());
 
             FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
 
@@ -649,6 +651,17 @@ namespace AAP.UI.ViewModels
             OpenArtFiles.Remove(file);
 
             file.Dispose();
+        }
+
+        public void FitAllLayersWithinArt()
+        {
+            if (CurrentArtFile == null)
+                return;
+
+            MessageBoxResult result = MessageBox.Show("This action can remove layers. Are you sure?", "Crop All Layers To Fit Within Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+                App.FitAllLayersWithinArt();
         }
     }
 }

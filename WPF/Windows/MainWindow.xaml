@@ -55,6 +55,8 @@
                             <Separator></Separator>
                             <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand}"></MenuItem>
                             <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
+                            <Separator></Separator>
+                            <MenuItem Header="Crop All Layers To Fit Within Art" Command="{Binding FitAllLayersWithinArtCommand}"></MenuItem>
                         </MenuItem>
                         <MenuItem Header="View">
                             <MenuItem Header="Dark Mode" IsChecked="{Binding IsDarkModeOn, ElementName=MainWindowViewModel}" IsCheckable="True"></MenuItem>

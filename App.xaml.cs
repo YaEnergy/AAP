@@ -558,6 +558,45 @@ namespace AAP
             CurrentArt.Update();
         }
 
+        public static void FitAllLayersWithinArt()
+        {
+            if (CurrentArtFile == null)
+                return;
+
+            CurrentLayerID = -1;
+
+            Stack<ArtLayer> removingLayers = new();
+            foreach (ArtLayer layer in CurrentArtFile.Art.ArtLayers)
+            {
+                if (layer.OffsetX >= CurrentArtFile.Art.Width || layer.OffsetY >= CurrentArtFile.Art.Height || layer.OffsetX + layer.Width < 0 || layer.OffsetY + layer.Height < 0)
+                {
+                    removingLayers.Push(layer);
+                    continue;
+                }
+
+                int offsetX = Math.Clamp(layer.OffsetX, 0, CurrentArtFile.Art.Width - 1);
+                int offsetY = Math.Clamp(layer.OffsetY, 0, CurrentArtFile.Art.Height - 1);
+
+                int width = Math.Clamp(layer.Width - Math.Abs(layer.OffsetX - offsetX), 0, CurrentArtFile.Art.Width - offsetX);
+                int height = Math.Clamp(layer.Height - Math.Abs(layer.OffsetY - offsetY), 0, CurrentArtFile.Art.Height - offsetY);
+
+                if (width <= 0 || height <= 0)
+                {
+                    removingLayers.Push(layer);
+                    continue;
+                }
+
+                layer.Crop(new(offsetX, offsetY, width, height));
+            }
+
+            while (removingLayers.Count > 0)
+                CurrentArtFile.Art.ArtLayers.Remove(removingLayers.Pop());
+
+            CurrentArtTimeline?.NewTimePoint();
+
+            CurrentArtFile.Art.Update();
+        }
+
         public static void FillSelectedWith(char? character)
         {
             if (CurrentArt == null)
