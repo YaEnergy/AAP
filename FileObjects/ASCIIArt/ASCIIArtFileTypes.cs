@@ -458,7 +458,7 @@ namespace AAP.Files
 
         }
 
-        public BitmapFrame GetCanvasArtLayerBitmapFrame(int layerIndex)
+        public BitmapFrame GetCanvasArtLayerBitmapFrame(int layerIndex, double minWidth = 0)
         {
             DrawingVisual drawingVisual = new();
 
@@ -507,7 +507,7 @@ namespace AAP.Files
                     }
                 }
 
-                dc.DrawRectangle(backgroundBrush, null, new(0, 0, totalWidth, EncodeOptions.TextSize * 1.5 * FileObject.Height));
+                dc.DrawRectangle(backgroundBrush, null, new(0, 0, Math.Max(totalWidth, minWidth), EncodeOptions.TextSize * 1.5 * FileObject.Height));
 
                 double posX = 0;
                 for (int x = 0; x < FileObject.Width; x++)
@@ -532,12 +532,17 @@ namespace AAP.Files
 
         public override void Encode()
         {
+            double minWidth = 0;
             GifBitmapEncoder encoder = new();
             Stopwatch stopwatch = Stopwatch.StartNew();
             for (int i = 0; i < FileObject.ArtLayers.Count; i++)
             {
                 stopwatch.Restart();
-                BitmapFrame bmp = GetCanvasArtLayerBitmapFrame(i);
+                BitmapFrame bmp = GetCanvasArtLayerBitmapFrame(i, minWidth);
+
+                if (minWidth < bmp.Width)
+                    minWidth = bmp.Width;
+
                 encoder.Frames.Add(bmp);
 
                 stopwatch.Stop();
@@ -562,6 +567,7 @@ namespace AAP.Files
 
         public override async Task EncodeAsync(BackgroundTaskToken? taskToken = null)
         {
+            double minWidth = 0;
             List<BitmapFrame> frames = new();
 
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -570,8 +576,13 @@ namespace AAP.Files
                 stopwatch.Restart();
                 taskToken?.ReportProgress((int)((double)i / FileObject.ArtLayers.Count * 100), new($"Drawing frames... ({i}/{FileObject.ArtLayers.Count})", false));
 
-                Task<BitmapFrame> getBitmapFrameTask = Task.Run(() => GetCanvasArtLayerBitmapFrame(i));
-                frames.Add(await getBitmapFrameTask);
+                Task<BitmapFrame> getBitmapFrameTask = Task.Run(() => GetCanvasArtLayerBitmapFrame(i, minWidth));
+                BitmapFrame bmp = await getBitmapFrameTask;
+
+                if (minWidth < bmp.Width)
+                    minWidth = bmp.Width;
+
+                frames.Add(bmp);
 
                 stopwatch.Stop();
 
@@ -622,7 +633,19 @@ namespace AAP.Files
 
             ASCIIArt art = new();
 
-            art.SetSize(layers[0].Width, layers[0].Height);
+            int artWidth = 0;
+            int artHeight = 0;
+
+            foreach (ArtLayer layer in layers) 
+            {
+                if (layer.Width > artWidth)
+                    artWidth = layer.Width;
+
+                if (layer.Height > artHeight)
+                    artHeight = layer.Height;
+            }
+
+            art.SetSize(artWidth, artHeight);
             art.CreatedInVersion = ASCIIArt.VERSION;
 
             for (int i = 0; i < layers.Length; i++)
@@ -644,7 +667,19 @@ namespace AAP.Files
 
             ASCIIArt art = new();
 
-            art.SetSize(layers[0].Width, layers[0].Height);
+            int artWidth = 0;
+            int artHeight = 0;
+
+            foreach (ArtLayer layer in layers)
+            {
+                if (layer.Width > artWidth)
+                    artWidth = layer.Width;
+
+                if (layer.Height > artHeight)
+                    artHeight = layer.Height;
+            }
+
+            art.SetSize(artWidth, artHeight);
             art.CreatedInVersion = ASCIIArt.VERSION;
 
             for (int i = 0; i < layers.Length; i++)

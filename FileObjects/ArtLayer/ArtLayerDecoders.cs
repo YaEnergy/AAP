@@ -261,6 +261,7 @@ namespace AAP.Files
                 Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
                 layerFrames[i] = Converter.ToArtLayer(bitmap.PixelWidth, bitmap.PixelHeight, pixelColors);
+                layerFrames[i].Name = $"Frame {i + 1}";
             }
 
             return layerFrames;
@@ -300,6 +301,7 @@ namespace AAP.Files
                 
                 ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(width, height, pixelColorsFrames[i]));
                 layerFrames[i] = importedLayer;
+                layerFrames[i].Name = $"Frame {i + 1}";
             }
 
             return layerFrames;
