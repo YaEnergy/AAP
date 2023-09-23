@@ -35,7 +35,7 @@ namespace AAP
             App.OnCurrentArtFileChanged += OnArtFileChanged;
             App.OnCurrentToolChanged += OnToolChanged;
 
-            timeline = App.CurrentArtTimeline;
+            timeline = App.CurrentArtFile?.ArtTimeline;
 
             if (timeline != null)
             {
@@ -46,15 +46,15 @@ namespace AAP
 
         protected override void UseStart(Point startArtPos)
         {
-            if (App.CurrentArt == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             if (IsTyping)
-                App.CurrentArtTimeline?.NewTimePoint();
+                App.CurrentArtFile.ArtTimeline.NewTimePoint();
 
             isTyping = false;
 
-            ArtLayer layer = App.CurrentArt.ArtLayers[App.CurrentLayerID];
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
 
             App.SelectedArt = new(Math.Clamp(startArtPos.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(startArtPos.Y, layer.OffsetY, layer.OffsetY + layer.Height - 1), 1, 1);
         }
@@ -63,10 +63,7 @@ namespace AAP
         {
             ConsoleLogger.Log("Text Tool: Typing character " + character);
 
-            if (App.CurrentArt == null)
-                return;
-
-            if (App.CurrentArtDraw == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             if (App.SelectedArt == Rect.Empty)
@@ -78,11 +75,11 @@ namespace AAP
             if (char.IsWhiteSpace(character) && character != ' ') 
                 return;
 
-            ArtLayer layer = App.CurrentArt.ArtLayers[App.CurrentLayerID];
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
 
             Point drawPoint = new(Math.Clamp(App.SelectedArt.Location.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(App.SelectedArt.Location.Y, layer.OffsetY, layer.OffsetY + layer.Height - 1));
-            App.CurrentArtDraw.DrawCharacter(App.CurrentLayerID, character == ' ' ? null : character, drawPoint);
-            App.CurrentArtFile?.Art.Update();
+            App.CurrentArtFile.ArtDraw.DrawCharacter(App.CurrentLayerID, character == ' ' ? null : character, drawPoint);
+            App.CurrentArtFile.Art.Update();
 
             if (drawPoint.X < layer.OffsetX + layer.Width - 1)
                 App.SelectedArt = new(drawPoint.X + 1, drawPoint.Y, 1, 1);
@@ -107,7 +104,7 @@ namespace AAP
 
         public void OnPressedKey(Key key, ModifierKeys modifierKeys)
         {
-            if (App.CurrentArt == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             if (App.SelectedArt == Rect.Empty)
@@ -116,7 +113,7 @@ namespace AAP
             if (App.CurrentLayerID == -1)
                 return;
 
-            ArtLayer layer = App.CurrentArt.ArtLayers[App.CurrentLayerID];
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
 
             Point drawPoint = new(Math.Clamp(App.SelectedArt.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(App.SelectedArt.Y, layer.OffsetY, layer.OffsetY + layer.Height - 1));
             
@@ -138,7 +135,7 @@ namespace AAP
                     App.SelectedArt = new(Math.Clamp(StartArtPos.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(drawPoint.Y + 1, layer.OffsetY, layer.OffsetY + layer.Height - 1), 1, 1);
 
                     if (IsTyping)
-                        App.CurrentArtTimeline?.NewTimePoint();
+                        App.CurrentArtFile.ArtTimeline.NewTimePoint();
 
                     isTyping = false;
 
@@ -150,8 +147,8 @@ namespace AAP
                         else if (drawPoint.Y > layer.OffsetY)
                             App.SelectedArt = new(layer.OffsetX + layer.Width - 1, drawPoint.Y - 1, 1, 1);
                     
-                    App.CurrentArtDraw?.DrawCharacter(App.CurrentLayerID, null, App.SelectedArt.Location);
-                    App.CurrentArtFile?.Art.Update();
+                    App.CurrentArtFile.ArtDraw.DrawCharacter(App.CurrentLayerID, null, App.SelectedArt.Location);
+                    App.CurrentArtFile.Art.Update();
                     isTyping = true;
                     break;
                 default:
@@ -190,7 +187,7 @@ namespace AAP
             if (IsTyping)
             {
                 IsTyping = false;
-                App.CurrentArtTimeline?.NewTimePoint();
+                App.CurrentArtFile?.ArtTimeline.NewTimePoint();
             }
         }
     }

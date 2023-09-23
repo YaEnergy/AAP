@@ -80,10 +80,10 @@ namespace AAP
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
         {
-            App.CurrentArtTimeline?.NewTimePoint();
+            App.CurrentArtFile?.ArtTimeline.NewTimePoint();
         }
 
         public void DrawCircle(Point artPos)
-            => App.CurrentArtDraw?.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1, StayInsideSelection);
+            => App.CurrentArtFile?.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1, StayInsideSelection);
     }
 }

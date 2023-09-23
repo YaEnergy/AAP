@@ -17,7 +17,7 @@ namespace AAP
 
         protected override void UseStart(Point startArtPos)
         {
-            if (App.CurrentArt == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             Select(startArtPos, startArtPos);
@@ -25,7 +25,7 @@ namespace AAP
 
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
-            if (App.CurrentArt == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             Select(startArtPos, currentArtPos);
@@ -33,18 +33,18 @@ namespace AAP
 
         public static void Select(Point startArtPos, Point endArtPos)
         {
-            if (App.CurrentArt == null)
+            if (App.CurrentArtFile == null)
                 return;
 
             //Keep points within canvas
-            startArtPos = new(Math.Clamp(startArtPos.X, 0, App.CurrentArt.Width - 1), Math.Clamp(startArtPos.Y, 0, App.CurrentArt.Height - 1));
-            endArtPos = new(Math.Clamp(endArtPos.X, 0, App.CurrentArt.Width - 1), Math.Clamp(endArtPos.Y, 0, App.CurrentArt.Height - 1));
+            startArtPos = new(Math.Clamp(startArtPos.X, 0, App.CurrentArtFile.Art.Width - 1), Math.Clamp(startArtPos.Y, 0, App.CurrentArtFile.Art.Height - 1));
+            endArtPos = new(Math.Clamp(endArtPos.X, 0, App.CurrentArtFile.Art.Width - 1), Math.Clamp(endArtPos.Y, 0, App.CurrentArtFile.Art.Height - 1));
 
-            int startX = (int)Math.Clamp(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X, 0, App.CurrentArt.Width - 1);
-            int startY = (int)Math.Clamp(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y, 0, App.CurrentArt.Height - 1);
+            int startX = (int)Math.Clamp(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X, 0, App.CurrentArtFile.Art.Width - 1);
+            int startY = (int)Math.Clamp(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y, 0, App.CurrentArtFile.Art.Height - 1);
 
-            int sizeX = (int)Math.Clamp(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1, 0, App.CurrentArt.Width - Math.Min(startArtPos.X, endArtPos.X));
-            int sizeY = (int)Math.Clamp(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1, 0, App.CurrentArt.Height - Math.Min(startArtPos.Y, endArtPos.Y));
+            int sizeX = (int)Math.Clamp(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1, 0, App.CurrentArtFile.Art.Width - Math.Min(startArtPos.X, endArtPos.X));
+            int sizeY = (int)Math.Clamp(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1, 0, App.CurrentArtFile.Art.Height - Math.Min(startArtPos.Y, endArtPos.Y));
 
             App.SelectedArt = new(startX, startY, sizeX, sizeY);
         }

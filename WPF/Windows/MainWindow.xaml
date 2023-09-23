@@ -49,7 +49,7 @@
                             <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand}"></MenuItem>
                             <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected}" Command="{Binding DeleteSelectedCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Select Art" InputGestureText="Ctrl+A" Command="{Binding SelectArtCommand}"></MenuItem>
+                            <MenuItem Header="Select Entire Canvas" InputGestureText="Ctrl+A" Command="{Binding SelectCanvasCommand}"></MenuItem>
                             <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand}"></MenuItem>
                             <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand}"></MenuItem>
                             <Separator></Separator>

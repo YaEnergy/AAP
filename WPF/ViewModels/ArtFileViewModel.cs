@@ -133,7 +133,7 @@ namespace AAP.UI.ViewModels
         public ICommand CloseOpenFileCommand { get; set; }
 
         public ICommand DeleteSelectedCommand { get; private set; }
-        public ICommand SelectArtCommand { get; private set; }
+        public ICommand SelectCanvasCommand { get; private set; }
         public ICommand SelectLayerCommand { get; private set; }
         public ICommand CancelSelectionCommand { get; private set; }
 
@@ -164,7 +164,7 @@ namespace AAP.UI.ViewModels
             CloseOpenFileCommand = new ActionCommand(async (parameter) => await CloseOpenFileAsync(parameter));
 
             DeleteSelectedCommand = new ActionCommand((parameter) => App.FillSelectedWith(null));
-            SelectArtCommand = new ActionCommand((parameter) => App.SelectArt());
+            SelectCanvasCommand = new ActionCommand((parameter) => App.SelectCanvas());
             SelectLayerCommand = new ActionCommand((parameter) => App.SelectLayer());
             CancelSelectionCommand = new ActionCommand((parameter) => App.CancelArtSelection());
 

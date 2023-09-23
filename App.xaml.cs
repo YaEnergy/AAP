@@ -67,40 +67,7 @@ namespace AAP
                 OnCurrentArtFileChanged?.Invoke(currentArtFile);
             }
         }
-
-        public static ASCIIArt? CurrentArt
-        {
-            get
-            {
-                if (CurrentArtFile == null)
-                    return null;
-
-                return CurrentArtFile.Art;
-            }
-        }
-
-        public static ASCIIArtDraw? CurrentArtDraw
-        {
-            get
-            {
-                if (CurrentArtFile == null)
-                    return null;
-
-                return CurrentArtFile.ArtDraw;
-            }
-        }
-
-        public static ObjectTimeline? CurrentArtTimeline
-        {
-            get
-            {
-                if (CurrentArtFile == null)
-                    return null;
-
-                return CurrentArtFile.ArtTimeline;
-            }
-        }
-
+        
         public delegate void CurrentArtFileChangedEvent(ASCIIArtFile? artFile);
         public static event CurrentArtFileChangedEvent? OnCurrentArtFileChanged;
 
@@ -443,11 +410,11 @@ namespace AAP
 
         public static void CopyArtStringToClipboard()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             ConsoleLogger.Log("Copy Art String To Clipboard: Copying art string to clipboard...");
-            string artString = CurrentArt.GetArtString();
+            string artString = CurrentArtFile.Art.GetArtString();
 
             Clipboard.SetText(artString);
             ConsoleLogger.Log("Copy Art String To Clipboard: Copied art string to clipboard!");
@@ -455,7 +422,7 @@ namespace AAP
 
         public static void CopySelectedArtToClipboard()
         {
-            if (CurrentArt == null) 
+            if (CurrentArtFile == null) 
                 return;
 
             if (CurrentLayerID == -1)
@@ -465,7 +432,7 @@ namespace AAP
                 return;
 
             ConsoleLogger.Log("Copy Selected Art To Clipboard: Copying selected art to clipboard...");
-            ArtLayer currentLayerClone = (ArtLayer)CurrentArt.ArtLayers[CurrentLayerID].Clone();
+            ArtLayer currentLayerClone = (ArtLayer)CurrentArtFile.Art.ArtLayers[CurrentLayerID].Clone();
 
             currentLayerClone.Name = "Clipboard";
             currentLayerClone.Crop(SelectedArt);
@@ -479,7 +446,7 @@ namespace AAP
 
         public static void PasteLayerFromClipboard()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             IDataObject? dataObject = Clipboard.GetDataObject();
@@ -500,17 +467,18 @@ namespace AAP
                 return;
 
             ConsoleLogger.Log("Paste Layer From Clipboard: Pasting layer from clipboard...");
-            CurrentArt.ArtLayers.Insert(CurrentLayerID + 1, clipboardLayer);
-            CurrentLayerID += 1;
+            int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
+            CurrentArtFile.Art.ArtLayers.Insert(layerID, clipboardLayer);
+            CurrentLayerID = layerID;
 
-            CurrentArtTimeline?.NewTimePoint();
-            CurrentArt.Update();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
+            CurrentArtFile.Art.Update();
             ConsoleLogger.Log("Paste Layer From Clipboard: Pasted layer from clipboard!");
         }
 
         public static void CutSelectedArt()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             if (CurrentLayerID == -1)
@@ -527,22 +495,22 @@ namespace AAP
         #region Art
         public static void CropArtFileToSelected()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             if (SelectedArt == Rect.Empty)
                 return;
 
-            CurrentArt.Crop(SelectedArt);
+            CurrentArtFile.Art.Crop(SelectedArt);
 
             SelectedArt = new(0, 0, SelectedArt.Width, SelectedArt.Height);
 
-            CurrentArtTimeline?.NewTimePoint();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
         }
 
         public static void CropCurrentArtLayerToSelected()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             if (SelectedArt == Rect.Empty)
@@ -551,11 +519,11 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            CurrentArt.ArtLayers[CurrentLayerID].Crop(SelectedArt);
+            CurrentArtFile.Art.ArtLayers[CurrentLayerID].Crop(SelectedArt);
 
-            CurrentArtTimeline?.NewTimePoint();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
 
-            CurrentArt.Update();
+            CurrentArtFile.Art.Update();
         }
 
         public static void FitAllLayersWithinArt()
@@ -592,14 +560,14 @@ namespace AAP
             while (removingLayers.Count > 0)
                 CurrentArtFile.Art.ArtLayers.Remove(removingLayers.Pop());
 
-            CurrentArtTimeline?.NewTimePoint();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
 
             CurrentArtFile.Art.Update();
         }
 
         public static void FillSelectedWith(char? character)
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             if (SelectedArt == Rect.Empty)
@@ -608,28 +576,28 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            CurrentArtDraw?.DrawFilledRectangle(CurrentLayerID, character, SelectedArt);
+            CurrentArtFile.ArtDraw?.DrawFilledRectangle(CurrentLayerID, character, SelectedArt);
 
-            CurrentArtTimeline?.NewTimePoint();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
 
-            CurrentArt?.Update();
+            CurrentArtFile.Art?.Update();
         }
         #endregion
         #region Art Selection
-        public static void SelectArt()
+        public static void SelectCanvas()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
             {
                 SelectedArt = Rect.Empty;
                 return;
             }
 
-            SelectedArt = new(0, 0, CurrentArt.Width, CurrentArt.Height);
+            SelectedArt = new(0, 0, CurrentArtFile.Art.Width, CurrentArtFile.Art.Height);
         }
 
         public static void SelectLayer()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
             {
                 SelectedArt = Rect.Empty;
                 return;
@@ -641,7 +609,7 @@ namespace AAP
                 return;
             }
 
-            ArtLayer layer = CurrentArt.ArtLayers[CurrentLayerID];
+            ArtLayer layer = CurrentArtFile.Art.ArtLayers[CurrentLayerID];
             SelectedArt = new(layer.Offset, layer.Size);
         }
 
@@ -651,66 +619,66 @@ namespace AAP
         #region Layers
         public static void AddArtLayer()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
             int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
-            CurrentArt.ArtLayers.Insert(layerID, new("New Layer", CurrentArt.Width, CurrentArt.Height));
+            CurrentArtFile.Art.ArtLayers.Insert(layerID, new("New Layer", CurrentArtFile.Art.Width, CurrentArtFile.Art.Height));
             CurrentLayerID = layerID;
 
-            CurrentArtTimeline?.NewTimePoint();
-            CurrentArt.Update();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
+            CurrentArtFile.Art.Update();
         }
 
         public static void DuplicateCurrentArtLayer()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
-            if (CurrentArt.ArtLayers.Count == 0)
+            if (CurrentArtFile.Art.ArtLayers.Count == 0)
                 return;
 
             if (CurrentLayerID == -1)
                 return;
 
-            ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
+            ArtLayer currentArtLayer = CurrentArtFile.Art.ArtLayers[CurrentLayerID];
             ArtLayer duplicateArtLayer = (ArtLayer)currentArtLayer.Clone();
             duplicateArtLayer.Name += " copy";
 
             int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
-            CurrentArt.ArtLayers.Insert(layerID, duplicateArtLayer);
+            CurrentArtFile.Art.ArtLayers.Insert(layerID, duplicateArtLayer);
             CurrentLayerID = layerID;
 
-            CurrentArtTimeline?.NewTimePoint();
-            CurrentArt.Update();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
+            CurrentArtFile.Art.Update();
         }
 
         public static void MergeCurrentArtLayerDown()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
-            if (CurrentArt.ArtLayers.Count - CurrentLayerID <= 1)
+            if (CurrentArtFile.Art.ArtLayers.Count - CurrentLayerID <= 1)
                 return;
 
             if (CurrentLayerID == -1)
                 return;
 
-            ArtLayer currentArtLayer = CurrentArt.ArtLayers[CurrentLayerID];
-            currentArtLayer.MergeDown(CurrentArt.ArtLayers[CurrentLayerID + 1]);
+            ArtLayer currentArtLayer = CurrentArtFile.Art.ArtLayers[CurrentLayerID];
+            currentArtLayer.MergeDown(CurrentArtFile.Art.ArtLayers[CurrentLayerID + 1]);
 
-            CurrentArt.ArtLayers.RemoveAt(CurrentLayerID + 1);
+            CurrentArtFile.Art.ArtLayers.RemoveAt(CurrentLayerID + 1);
 
-            CurrentArtTimeline?.NewTimePoint();
-            CurrentArt.Update();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
+            CurrentArtFile.Art.Update();
         }
 
         public static void RemoveCurrentArtLayer()
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
-            if (CurrentArt.ArtLayers.Count == 0)
+            if (CurrentArtFile.Art.ArtLayers.Count == 0)
                 return;
 
             if (CurrentLayerID == -1)
@@ -718,40 +686,39 @@ namespace AAP
 
             int layerID = CurrentLayerID;
 
-            if (CurrentArt.ArtLayers.Count - 1 == 0)
+            if (CurrentArtFile.Art.ArtLayers.Count - 1 == 0)
                 CurrentLayerID = -1;
 
-            CurrentArt.ArtLayers.RemoveAt(layerID);
+            CurrentArtFile.Art.ArtLayers.RemoveAt(layerID);
 
-            if (CurrentArt.ArtLayers.Count != 0)
-                CurrentLayerID = Math.Clamp(layerID, -1, CurrentArt.ArtLayers.Count - 1);
+            if (CurrentArtFile.Art.ArtLayers.Count != 0)
+                CurrentLayerID = Math.Clamp(layerID, -1, CurrentArtFile.Art.ArtLayers.Count - 1);
 
-
-            CurrentArtTimeline?.NewTimePoint();
-            CurrentArt.Update();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
+            CurrentArtFile.Art.Update();
         }
 
         public static void MoveCurrentArtLayer(int amount)
         {
-            if (CurrentArt == null)
+            if (CurrentArtFile == null)
                 return;
 
-            if (CurrentArt.ArtLayers.Count == 0)
+            if (CurrentArtFile.Art.ArtLayers.Count == 0)
                 return;
 
             if (CurrentLayerID == -1)
                 return;
 
-            int newIndex = Math.Clamp(CurrentLayerID + amount, 0, CurrentArt.ArtLayers.Count - 1);
+            int newIndex = Math.Clamp(CurrentLayerID + amount, 0, CurrentArtFile.Art.ArtLayers.Count - 1);
 
             if (newIndex == CurrentLayerID)
                 return; //No changes
 
-            CurrentArt.ArtLayers.Move(CurrentLayerID, newIndex);
+            CurrentArtFile.Art.ArtLayers.Move(CurrentLayerID, newIndex);
             CurrentLayerID = newIndex;
 
-            CurrentArtTimeline?.NewTimePoint();
-            CurrentArt.Update();
+            CurrentArtFile.ArtTimeline?.NewTimePoint();
+            CurrentArtFile.Art.Update();
         }
 
         public static void SetArtLayerName(ArtLayer layer, string name)
@@ -761,7 +728,7 @@ namespace AAP
 
             layer.Name = name;
 
-            CurrentArtTimeline?.NewTimePoint();
+            CurrentArtFile?.ArtTimeline.NewTimePoint();
         }
 
         public static void SetArtLayerVisibility(ArtLayer layer, bool visible)
@@ -771,9 +738,9 @@ namespace AAP
 
             layer.Visible = visible;
 
-            CurrentArtTimeline?.NewTimePoint();
+            CurrentArtFile?.ArtTimeline.NewTimePoint();
 
-            CurrentArt?.Update();
+            CurrentArtFile?.Art.Update();
         }
 
         #endregion

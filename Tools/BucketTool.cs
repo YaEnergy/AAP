@@ -66,13 +66,13 @@ namespace AAP
         protected override void UseStart(Point startArtPos)
         {
             FillArea(startArtPos);
-            App.CurrentArtTimeline?.NewTimePoint();
+            App.CurrentArtFile?.ArtTimeline.NewTimePoint();
 
             App.CurrentArtFile?.Art.Update();
         }
 
         public void FillArea(Point artPos)
-            => App.CurrentArtDraw?.FloodFillArtPosWithCharacter(App.CurrentLayerID, Character, artPos, EightDirectional, StayInsideSelection);
+            => App.CurrentArtFile?.ArtDraw.FloodFillArtPosWithCharacter(App.CurrentLayerID, Character, artPos, EightDirectional, StayInsideSelection);
             
     }
 }
