@@ -59,9 +59,9 @@
                             <MenuItem Header="Crop All Layers To Fit Within Art" Command="{Binding FitAllLayersWithinArtCommand}"></MenuItem>
                         </MenuItem>
                         <MenuItem Header="View">
-                            <MenuItem Header="Dark Mode" IsChecked="{Binding IsDarkModeOn, ElementName=MainWindowViewModel}" IsCheckable="True"></MenuItem>
+                            <CheckBox Content="Dark Mode" IsChecked="{Binding IsDarkModeOn, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             <MenuItem Header="Toolbox">
-                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding IsToolboxVisible, ElementName=MainWindowViewModel}"></MenuItem>
+                                <CheckBox Content="Visible" IsChecked="{Binding IsToolboxVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                             <MenuItem Header="Canvas">
                                 <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding TextSize, ElementName=ArtCanvasViewModel}"/>
@@ -74,10 +74,10 @@
                                 <MenuItem Header="Decrease thickness" Command="{Binding DecreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
                                 <MenuItem Header="Reset thickness" Command="{Binding ResetHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
                                 <Separator></Separator>
-                                <MenuItem Header="Show Grid" IsChecked="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" IsCheckable="True"></MenuItem>
+                                <CheckBox Content="Show Grid" IsChecked="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                             <MenuItem Header="Layer Management">
-                                <MenuItem Header="Visible" IsCheckable="True" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}"></MenuItem>
+                                <CheckBox Content="Visible" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                         </MenuItem>
                         <MenuItem Header="Filters">
