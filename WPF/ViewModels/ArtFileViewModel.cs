@@ -343,7 +343,7 @@ namespace AAP.UI.ViewModels
             OpenFileDialog openFileDialog = new()
             {
                 Title = "Open ASCII Art File",
-                Filter = "ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.gif)|*.png;*.bmp;*.jpg;*.gif",
+                Filter = "Supported Files (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.gif)|*.aaf;*.txt*.png;*.bmp;*.jpg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.gif)|*.png;*.bmp;*.jpg;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
