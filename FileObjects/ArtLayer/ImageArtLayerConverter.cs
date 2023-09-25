@@ -51,8 +51,8 @@ namespace AAP.Files
 
             ArtLayer layer = new("Imported Layer", artWidth, artHeight);
 
-            int stepX = (int)Math.Ceiling((double)ogWidth / artWidth);
-            int stepY = (int)Math.Ceiling((double)ogHeight / artHeight);
+            int stepX = (int)Math.Floor((double)ogWidth / artWidth);
+            int stepY = (int)Math.Floor((double)ogHeight / artHeight);
 
             for (int artX = 0; artX < artWidth; artX++)
             {
