@@ -17,100 +17,112 @@ namespace AAP.Files
         /// </summary>
         public bool Invert { get; set; } = false;
 
+        private double scale = 1;
+        /// <summary>
+        /// A value between 0 and 1 (excluding 0) that determines the scale of the imported layer
+        /// </summary>
+        public double Scale
+        {
+            get => scale;
+            set
+            {
+                if (scale == value)
+                    return;
+
+                if (scale > 1 || scale <= 0)
+                    throw new ArgumentException("Scale must be between 0 and 1 and not equal to 0!");
+
+                scale = value;
+            }
+        }
+
         public ImageArtLayerConverter()
         {
 
         }
 
-        public ArtLayer ToArtLayer(int width, int height, Color[,] pixels)
+        public ArtLayer ToArtLayer(Color[,] pixels)
         {
-            ArtLayer layer = new("Imported Layer", width, height / 2);
-            for (int x = 0; x < width; x++)
-                for (int y = 0; y < height; y += 2)
+            int ogWidth = pixels.GetLength(0);
+            int ogHeight = pixels.GetLength(1);
+
+            int artWidth = (int)(ogWidth * Scale);
+            int artHeight = (int)(ogHeight * Scale / 2);
+
+            ArtLayer layer = new("Imported Layer", artWidth, artHeight);
+
+            int stepX = (int)Math.Ceiling((double)ogWidth / artWidth);
+            int stepY = (int)Math.Ceiling((double)ogHeight / artHeight);
+
+            for (int artX = 0; artX < artWidth; artX++)
+            {
+                for (int artY = 0; artY < artHeight; artY++)
                 {
-                    if (y / 2 >= layer.Height)
-                        continue;
+                    int totalColors = 0;
+                    double totalLuminance = 0;
+                    double totalAlpha = 0;
 
-                    double perceivedLightness;
-                    Color color = pixels[x, y];
+                    for (int ogX = 0; ogX < stepX; ogX++)
+                        for (int ogY = 0; ogY < stepY; ogY++)
+                            if (artX * stepX + ogX < ogWidth && artY * stepY + ogY < ogHeight)
+                            {
+                                Color color = pixels[artX * stepX + ogX, artY * stepY + ogY];
+                                totalColors++;
+                                totalLuminance += Invert ? 100 - Bitmap.GetLuminanceOf(color) * 100 : Bitmap.GetLuminanceOf(color) * 100;
+                                totalAlpha += color.A;
+                            }
 
-                    if (color.A == 0)
+                    double averageAlpha = totalAlpha / totalColors;
+                    if (averageAlpha < 40)
                     {
-                        layer.SetCharacter(x, y / 2, null);
+                        layer.SetCharacter(artX, artY, null);
                         continue;
                     }
 
-                    if (y + 1 < height)
-                    {
-                        Color color2 = pixels[x, y + 1];
+                    double averageLuminance = totalLuminance / totalColors;
 
-                        if (color2.A == 0)
-                        {
-                            layer.SetCharacter(x, y / 2, null);
-                            continue;
-                        }
-
-                        perceivedLightness = Invert ? 100 - (Bitmap.GetLuminanceOf(color) + Bitmap.GetLuminanceOf(color2)) / 2 * 100 : (Bitmap.GetLuminanceOf(color) + Bitmap.GetLuminanceOf(color2)) / 2 * 100;
-                    }
-                    else
-                        perceivedLightness = Invert ? 100 - Bitmap.GetLuminanceOf(color) * 100 : Bitmap.GetLuminanceOf(color) * 100;
-
-                    /*if (perceivedLightness <= 5)
-                        layer.SetCharacter(x, y / 2, '█');
-                    else if (perceivedLightness <= 25)
-                        layer.SetCharacter(x, y / 2, '▓');
-                    else if (perceivedLightness <= 45)
-                        layer.SetCharacter(x, y / 2, '▒');
-                    else if (perceivedLightness <= 65)
-                        layer.SetCharacter(x, y / 2, '░');
-                    else if (perceivedLightness <= 85)
-                        layer.SetCharacter(x, y / 2, '|');
-                    else if (perceivedLightness <= 95)
-                        layer.SetCharacter(x, y / 2, '.');
-                    else if (perceivedLightness <= 100)
-                        layer.SetCharacter(x, y / 2, null);*/
-
-                    if (perceivedLightness < 5)
-                        layer.SetCharacter(x, y / 2, '#');
-                    else if (perceivedLightness < 10)
-                        layer.SetCharacter(x, y / 2, '$');
-                    else if (perceivedLightness < 15)
-                        layer.SetCharacter(x, y / 2, '%');
-                    else if (perceivedLightness < 20)
-                        layer.SetCharacter(x, y / 2, '8');
-                    else if (perceivedLightness < 25)
-                        layer.SetCharacter(x, y / 2, '*');
-                    else if (perceivedLightness < 30)
-                        layer.SetCharacter(x, y / 2, '0');
-                    else if (perceivedLightness < 35)
-                        layer.SetCharacter(x, y / 2, '1');
-                    else if (perceivedLightness < 40)
-                        layer.SetCharacter(x, y / 2, '?');
-                    else if (perceivedLightness < 45)
-                        layer.SetCharacter(x, y / 2, '-');
-                    else if (perceivedLightness < 50)
-                        layer.SetCharacter(x, y / 2, '~');
-                    else if (perceivedLightness < 55)
-                        layer.SetCharacter(x, y / 2, 'i');
-                    else if (perceivedLightness < 60)
-                        layer.SetCharacter(x, y / 2, '!');
-                    else if (perceivedLightness < 65)
-                        layer.SetCharacter(x, y / 2, 'l');
-                    else if (perceivedLightness < 70)
-                        layer.SetCharacter(x, y / 2, 'I');
-                    else if (perceivedLightness < 75)
-                        layer.SetCharacter(x, y / 2, ';');
-                    else if (perceivedLightness < 80)
-                        layer.SetCharacter(x, y / 2, ':');
-                    else if (perceivedLightness < 85)
-                        layer.SetCharacter(x, y / 2, ',');
-                    else if (perceivedLightness < 90)
-                        layer.SetCharacter(x, y / 2, '"');
-                    else if (perceivedLightness < 95)
-                        layer.SetCharacter(x, y / 2, '`');
-                    else if (perceivedLightness <= 100)
-                        layer.SetCharacter(x, y / 2, null);
+                    if (averageLuminance < 5)
+                        layer.SetCharacter(artX, artY, '#');
+                    else if (averageLuminance < 10)
+                        layer.SetCharacter(artX, artY, '$');
+                    else if (averageLuminance < 15)
+                        layer.SetCharacter(artX, artY, '%');
+                    else if (averageLuminance < 20)
+                        layer.SetCharacter(artX, artY, '8');
+                    else if (averageLuminance < 25)
+                        layer.SetCharacter(artX, artY, '*');
+                    else if (averageLuminance < 30)
+                        layer.SetCharacter(artX, artY, '0');
+                    else if (averageLuminance < 35)
+                        layer.SetCharacter(artX, artY, '1');
+                    else if (averageLuminance < 40)
+                        layer.SetCharacter(artX, artY, '?');
+                    else if (averageLuminance < 45)
+                        layer.SetCharacter(artX, artY, '-');
+                    else if (averageLuminance < 50)
+                        layer.SetCharacter(artX, artY, '~');
+                    else if (averageLuminance < 55)
+                        layer.SetCharacter(artX, artY, 'i');
+                    else if (averageLuminance < 60)
+                        layer.SetCharacter(artX, artY, '!');
+                    else if (averageLuminance < 65)
+                        layer.SetCharacter(artX, artY, 'l');
+                    else if (averageLuminance < 70)
+                        layer.SetCharacter(artX, artY, 'I');
+                    else if (averageLuminance < 75)
+                        layer.SetCharacter(artX, artY, ';');
+                    else if (averageLuminance < 80)
+                        layer.SetCharacter(artX, artY, ':');
+                    else if (averageLuminance < 85)
+                        layer.SetCharacter(artX, artY, ',');
+                    else if (averageLuminance < 90)
+                        layer.SetCharacter(artX, artY, '"');
+                    else if (averageLuminance < 95)
+                        layer.SetCharacter(artX, artY, '`');
+                    else if (averageLuminance <= 100)
+                        layer.SetCharacter(artX, artY, null);
                 }
+            }
 
             return layer;
         }

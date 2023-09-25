@@ -241,6 +241,7 @@ namespace AAP.UI.ViewModels
             {
                 PropertiesWindow artWindow = new("Image ASCII Art Import Options", "Import");
                 artWindow.AddBoolProperty("Invert Brightness", false);
+                artWindow.AddSliderDoubleProperty("Scale", 0.01, 1, 1, 0.01);
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
@@ -252,8 +253,17 @@ namespace AAP.UI.ViewModels
                     continue;
                 }
 
+                if (artWindow.GetProperty("Scale") is not double scale)
+                {
+                    MessageBox.Show($"Invalid Scale!", "Image ASCII Art Import Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
                 ImageArtLayerConverter converter = new();
                 converter.Invert = invert;
+                converter.Scale = scale;
+
+                ConsoleLogger.Log(converter.Scale.ToString());
 
                 options.ImageArtLayerConverter = converter;
 
@@ -343,7 +353,7 @@ namespace AAP.UI.ViewModels
             OpenFileDialog openFileDialog = new()
             {
                 Title = "Open ASCII Art File",
-                Filter = "Supported Files (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.gif)|*.aaf;*.txt*.png;*.bmp;*.jpg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.gif)|*.png;*.bmp;*.jpg;*.gif",
+                Filter = "Supported Files (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.gif)|*.png;*.bmp;*.jpg;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,

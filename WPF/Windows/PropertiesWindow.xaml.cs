@@ -274,8 +274,10 @@ namespace AAP.UI.Windows
             Label valueLabel = new();
             valueLabel.Content = value;
 
-            slider.ValueChanged += (sender, e) => valueLabel.Content = e.NewValue;
-            slider.ValueChanged += (sender, e) => SetProperty(name, value);
+            int precision = (int)Math.Abs(Math.Log10(step % 1));
+
+            slider.ValueChanged += (sender, e) => valueLabel.Content = e.NewValue.ToString("N" + precision.ToString());
+            slider.ValueChanged += (sender, e) => SetProperty(name, e.NewValue);
 
             propertyPanel.Children.Add(label);
             propertyPanel.Children.Add(slider);

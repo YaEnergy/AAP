@@ -132,7 +132,7 @@ namespace AAP.Files
             BitmapSource grayscaleBitmap = decoder.Frames[0];
             Color[,] pixelColors = Bitmap.GetPixelColors(grayscaleBitmap);
             
-            return Converter.ToArtLayer(grayscaleBitmap.PixelWidth, grayscaleBitmap.PixelHeight, pixelColors);
+            return Converter.ToArtLayer(pixelColors);
         }
 
         public override async Task<ArtLayer> DecodeAsync(BackgroundTaskToken? taskToken = null)
@@ -149,7 +149,7 @@ namespace AAP.Files
             Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(grayscaleBitmap));
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
-            ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(grayscaleBitmap.PixelWidth, grayscaleBitmap.PixelHeight, pixelColors));
+            ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
 
             return importedLayer;
         }
@@ -172,7 +172,7 @@ namespace AAP.Files
             BitmapSource grayscaleBitmap = decoder.Frames[0];
             Color[,] pixelColors = Bitmap.GetPixelColors(grayscaleBitmap);
 
-            return Converter.ToArtLayer(grayscaleBitmap.PixelWidth, grayscaleBitmap.PixelHeight, pixelColors);
+            return Converter.ToArtLayer(pixelColors);
         }
 
         public override async Task<ArtLayer> DecodeAsync(BackgroundTaskToken? taskToken = null)
@@ -189,7 +189,7 @@ namespace AAP.Files
             Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(grayscaleBitmap));
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
-            ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(grayscaleBitmap.PixelWidth, grayscaleBitmap.PixelHeight, pixelColors));
+            ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
 
             return importedLayer;
         }
@@ -212,7 +212,7 @@ namespace AAP.Files
             BitmapSource grayscaleBitmap = decoder.Frames[0];
             Color[,] pixelColors = Bitmap.GetPixelColors(grayscaleBitmap);
 
-            return Converter.ToArtLayer(grayscaleBitmap.PixelWidth, grayscaleBitmap.PixelHeight, pixelColors);
+            return Converter.ToArtLayer(pixelColors);
         }
 
         public override async Task<ArtLayer> DecodeAsync(BackgroundTaskToken? taskToken = null)
@@ -229,7 +229,7 @@ namespace AAP.Files
             Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(grayscaleBitmap));
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
-            ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(grayscaleBitmap.PixelWidth, grayscaleBitmap.PixelHeight, pixelColors));
+            ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
 
             return importedLayer;
         }
@@ -260,7 +260,7 @@ namespace AAP.Files
                 BitmapSource bitmap = decoder.Frames[i];
                 Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
-                layerFrames[i] = Converter.ToArtLayer(bitmap.PixelWidth, bitmap.PixelHeight, pixelColors);
+                layerFrames[i] = Converter.ToArtLayer(pixelColors);
                 layerFrames[i].Name = $"Frame {i + 1}";
             }
 
@@ -294,12 +294,12 @@ namespace AAP.Files
             ArtLayer[] layerFrames = new ArtLayer[pixelColorsFrames.Count];
             for (int i = 0; i < pixelColorsFrames.Count; i++)
             {
-                int width = pixelColorsFrames[i].GetUpperBound(0) + 1;
-                int height = pixelColorsFrames[i].GetUpperBound(1) + 1;
+                int width = pixelColorsFrames[i].GetLength(0);
+                int height = pixelColorsFrames[i].GetLength(1);
 
                 taskToken?.ReportProgress((int)((double)i / pixelColorsFrames.Count * 100), new($"Creating layer... ({i}/{pixelColorsFrames.Count} frames)", false));
                 
-                ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(width, height, pixelColorsFrames[i]));
+                ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColorsFrames[i]));
                 layerFrames[i] = importedLayer;
                 layerFrames[i].Name = $"Frame {i + 1}";
             }
