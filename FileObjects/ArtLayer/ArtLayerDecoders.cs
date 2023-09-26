@@ -106,9 +106,29 @@ namespace AAP.Files
         /// </summary>
         public ImageArtLayerConverter Converter { get; set; }
 
-        public ImageArtLayerDecoder(ImageArtLayerConverter converter, Stream stream) : base(stream)
+        private double scale = 1;
+        /// <summary>
+        /// A value that determines the scale of the imported layer
+        /// </summary>
+        public double Scale
+        {
+            get => scale;
+            set
+            {
+                if (scale == value)
+                    return;
+
+                if (scale == 0)
+                    throw new ArgumentException("Scale can not be equal to 0!");
+
+                scale = value;
+            }
+        }
+
+        public ImageArtLayerDecoder(ImageArtLayerConverter converter, Stream stream, double scale = 1) : base(stream)
         {
             Converter = converter;
+            this.scale = scale;
         }
 
         public override abstract ArtLayer Decode();
@@ -117,7 +137,7 @@ namespace AAP.Files
 
     public class BitmapArtLayerDecoder : ImageArtLayerDecoder
     {
-        public BitmapArtLayerDecoder(ImageArtLayerConverter converter, Stream stream) : base(converter, stream)
+        public BitmapArtLayerDecoder(ImageArtLayerConverter converter, Stream stream, double scale = 1) : base(converter, stream, scale)
         {
 
         }
@@ -129,8 +149,10 @@ namespace AAP.Files
             if (decoder.Frames.Count != 1)
                 throw new Exception($"Image file must only have 1 frame! ({decoder.Frames.Count} frames)");
 
-            BitmapSource grayscaleBitmap = decoder.Frames[0];
-            Color[,] pixelColors = Bitmap.GetPixelColors(grayscaleBitmap);
+            BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[0], Scale, Scale / 2);
+            bitmap.Freeze();
+
+            Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
             
             return Converter.ToArtLayer(pixelColors);
         }
@@ -143,10 +165,11 @@ namespace AAP.Files
             if (decoder.Frames.Count != 1)
                 throw new Exception($"Image file must only have 1 frame! ({decoder.Frames.Count} frames)");
 
-            BitmapSource grayscaleBitmap = decoder.Frames[0];
+            BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[0], Scale, Scale / 2);
+            bitmap.Freeze();
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Getting colors...", true));
-            Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(grayscaleBitmap));
+            Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(bitmap));
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
             ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
@@ -157,7 +180,7 @@ namespace AAP.Files
 
     public class PngArtLayerDecoder : ImageArtLayerDecoder
     {
-        public PngArtLayerDecoder(ImageArtLayerConverter converter, Stream stream) : base(converter, stream)
+        public PngArtLayerDecoder(ImageArtLayerConverter converter, Stream stream, double scale = 1) : base(converter, stream, scale)
         {
 
         }
@@ -169,8 +192,9 @@ namespace AAP.Files
             if (decoder.Frames.Count != 1)
                 throw new Exception($"Image file must only have 1 frame! ({decoder.Frames.Count} frames)");
 
-            BitmapSource grayscaleBitmap = decoder.Frames[0];
-            Color[,] pixelColors = Bitmap.GetPixelColors(grayscaleBitmap);
+            BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[0], Scale, Scale / 2);
+            bitmap.Freeze();
+            Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
             return Converter.ToArtLayer(pixelColors);
         }
@@ -183,10 +207,11 @@ namespace AAP.Files
             if (decoder.Frames.Count != 1)
                 throw new Exception($"Image file must only have 1 frame! ({decoder.Frames.Count} frames)");
 
-            BitmapSource grayscaleBitmap = decoder.Frames[0];
+            BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[0], Scale, Scale / 2);
+            bitmap.Freeze();
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Getting colors...", true));
-            Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(grayscaleBitmap));
+            Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(bitmap));
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
             ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
@@ -197,7 +222,7 @@ namespace AAP.Files
 
     public class JpegArtLayerDecoder : ImageArtLayerDecoder
     {
-        public JpegArtLayerDecoder(ImageArtLayerConverter converter, Stream stream) : base(converter, stream)
+        public JpegArtLayerDecoder(ImageArtLayerConverter converter, Stream stream, double scale = 1) : base(converter, stream, scale)
         {
 
         }
@@ -209,8 +234,10 @@ namespace AAP.Files
             if (decoder.Frames.Count != 1)
                 throw new Exception($"Image file must only have 1 frame! ({decoder.Frames.Count} frames)");
 
-            BitmapSource grayscaleBitmap = decoder.Frames[0];
-            Color[,] pixelColors = Bitmap.GetPixelColors(grayscaleBitmap);
+            BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[0], Scale, Scale / 2);
+            bitmap.Freeze();
+
+            Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
             return Converter.ToArtLayer(pixelColors);
         }
@@ -223,10 +250,11 @@ namespace AAP.Files
             if (decoder.Frames.Count != 1)
                 throw new Exception($"Image file must only have 1 frame! ({decoder.Frames.Count} frames)");
 
-            BitmapSource grayscaleBitmap = decoder.Frames[0];
+            BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[0], Scale, Scale / 2);
+            bitmap.Freeze();
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Getting colors...", true));
-            Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(grayscaleBitmap));
+            Color[,] pixelColors = await Task.Run(() => Bitmap.GetPixelColors(bitmap));
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
             ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
@@ -242,9 +270,29 @@ namespace AAP.Files
         /// </summary>
         public ImageArtLayerConverter Converter { get; set; }
 
-        public GifArtLayerArrayDecoder(ImageArtLayerConverter converter, Stream stream) : base(stream)
+        private double scale = 1;
+        /// <summary>
+        /// A value between 0 and 1 (excluding 0) that determines the scale of the imported layer
+        /// </summary>
+        public double Scale
+        {
+            get => scale;
+            set
+            {
+                if (scale == value)
+                    return;
+
+                if (scale > 1 || scale <= 0)
+                    throw new ArgumentException("Scale must be between 0 and 1 and not equal to 0!");
+
+                scale = value;
+            }
+        }
+
+        public GifArtLayerArrayDecoder(ImageArtLayerConverter converter, Stream stream, double scale = 1) : base(stream)
         {
             Converter = converter;
+            this.scale = scale;
         }
 
         public override ArtLayer[] Decode()
@@ -257,7 +305,9 @@ namespace AAP.Files
             ArtLayer[] layerFrames = new ArtLayer[decoder.Frames.Count];
             for (int i = 0; i < decoder.Frames.Count; i++)
             {
-                BitmapSource bitmap = decoder.Frames[i];
+                BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[i], Scale, Scale / 2);
+                bitmap.Freeze();
+
                 Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
                 layerFrames[i] = Converter.ToArtLayer(pixelColors);
@@ -281,7 +331,7 @@ namespace AAP.Files
 
                 for (int i = 0; i < decoder.Frames.Count; i++)
                 {
-                    BitmapSource bitmap = decoder.Frames[i];
+                    BitmapSource bitmap = Bitmap.ScaleBitmap(decoder.Frames[i], Scale, Scale / 2);
                     bitmap.Freeze();
 
                     taskToken?.ReportProgress((int)((double)i / decoder.Frames.Count * 100), new($"Getting colors... ({i}/{decoder.Frames.Count} frames)", false));

@@ -241,7 +241,7 @@ namespace AAP.UI.ViewModels
             {
                 PropertiesWindow artWindow = new("Image ASCII Art Import Options", "Import");
                 artWindow.AddBoolProperty("Invert Brightness", false);
-                artWindow.AddSliderDoubleProperty("Scale", 0.01, 1, 1, 0.01);
+                artWindow.AddSliderDoubleProperty("Scale", 0.01, 4, 1, 0.01);
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
@@ -261,11 +261,9 @@ namespace AAP.UI.ViewModels
 
                 ImageArtLayerConverter converter = new();
                 converter.Invert = invert;
-                converter.Scale = scale;
-
-                ConsoleLogger.Log(converter.Scale.ToString());
 
                 options.ImageArtLayerConverter = converter;
+                options.Scale = scale;
 
                 successful = true;
             }

@@ -60,6 +60,9 @@ namespace AAP.Files
             return colors;
         }
 
+        public static TransformedBitmap ScaleBitmap(BitmapSource bitmap, double scaleX, double scaleY)
+            => new(bitmap, new ScaleTransform(scaleX, scaleY));
+
         /// <summary>
         /// Calculate the luminance of a given PixelColor
         /// </summary>

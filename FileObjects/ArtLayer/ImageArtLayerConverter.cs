@@ -17,25 +17,6 @@ namespace AAP.Files
         /// </summary>
         public bool Invert { get; set; } = false;
 
-        private double scale = 1;
-        /// <summary>
-        /// A value between 0 and 1 (excluding 0) that determines the scale of the imported layer
-        /// </summary>
-        public double Scale
-        {
-            get => scale;
-            set
-            {
-                if (scale == value)
-                    return;
-
-                if (scale > 1 || scale <= 0)
-                    throw new ArgumentException("Scale must be between 0 and 1 and not equal to 0!");
-
-                scale = value;
-            }
-        }
-
         public ImageArtLayerConverter()
         {
 
@@ -43,83 +24,63 @@ namespace AAP.Files
 
         public ArtLayer ToArtLayer(Color[,] pixels)
         {
-            int ogWidth = pixels.GetLength(0);
-            int ogHeight = pixels.GetLength(1);
+            int width = pixels.GetLength(0);
+            int height = pixels.GetLength(1);
 
-            int artWidth = (int)(ogWidth * Scale);
-            int artHeight = (int)(ogHeight * Scale / 2);
+            ArtLayer layer = new("Imported Layer", width, height);
 
-            ArtLayer layer = new("Imported Layer", artWidth, artHeight);
-
-            int stepX = (int)Math.Floor((double)ogWidth / artWidth);
-            int stepY = (int)Math.Floor((double)ogHeight / artHeight);
-
-            for (int artX = 0; artX < artWidth; artX++)
+            for (int artX = 0; artX < width; artX++)
             {
-                for (int artY = 0; artY < artHeight; artY++)
+                for (int artY = 0; artY < height; artY++)
                 {
-                    int totalColors = 0;
-                    double totalLuminance = 0;
-                    double totalAlpha = 0;
+                    Color color = pixels[artX, artY];
+                    double luminance = Invert ? 100 - Bitmap.GetLuminanceOf(color) * 100 : Bitmap.GetLuminanceOf(color) * 100;
 
-                    for (int ogX = 0; ogX < stepX; ogX++)
-                        for (int ogY = 0; ogY < stepY; ogY++)
-                            if (artX * stepX + ogX < ogWidth && artY * stepY + ogY < ogHeight)
-                            {
-                                Color color = pixels[artX * stepX + ogX, artY * stepY + ogY];
-                                totalColors++;
-                                totalLuminance += Invert ? 100 - Bitmap.GetLuminanceOf(color) * 100 : Bitmap.GetLuminanceOf(color) * 100;
-                                totalAlpha += color.A;
-                            }
-
-                    double averageAlpha = totalAlpha / totalColors;
-                    if (averageAlpha < 40)
+                    if (color.A < 40)
                     {
                         layer.SetCharacter(artX, artY, null);
                         continue;
                     }
 
-                    double averageLuminance = totalLuminance / totalColors;
-
-                    if (averageLuminance < 5)
+                    if (luminance < 5)
                         layer.SetCharacter(artX, artY, '#');
-                    else if (averageLuminance < 10)
+                    else if (luminance < 10)
                         layer.SetCharacter(artX, artY, '$');
-                    else if (averageLuminance < 15)
+                    else if (luminance < 15)
                         layer.SetCharacter(artX, artY, '%');
-                    else if (averageLuminance < 20)
+                    else if (luminance < 20)
                         layer.SetCharacter(artX, artY, '8');
-                    else if (averageLuminance < 25)
+                    else if (luminance < 25)
                         layer.SetCharacter(artX, artY, '*');
-                    else if (averageLuminance < 30)
+                    else if (luminance < 30)
                         layer.SetCharacter(artX, artY, '0');
-                    else if (averageLuminance < 35)
+                    else if (luminance < 35)
                         layer.SetCharacter(artX, artY, '1');
-                    else if (averageLuminance < 40)
+                    else if (luminance < 40)
                         layer.SetCharacter(artX, artY, '?');
-                    else if (averageLuminance < 45)
+                    else if (luminance < 45)
                         layer.SetCharacter(artX, artY, '-');
-                    else if (averageLuminance < 50)
+                    else if (luminance < 50)
                         layer.SetCharacter(artX, artY, '~');
-                    else if (averageLuminance < 55)
+                    else if (luminance < 55)
                         layer.SetCharacter(artX, artY, 'i');
-                    else if (averageLuminance < 60)
+                    else if (luminance < 60)
                         layer.SetCharacter(artX, artY, '!');
-                    else if (averageLuminance < 65)
+                    else if (luminance < 65)
                         layer.SetCharacter(artX, artY, 'l');
-                    else if (averageLuminance < 70)
+                    else if (luminance < 70)
                         layer.SetCharacter(artX, artY, 'I');
-                    else if (averageLuminance < 75)
+                    else if (luminance < 75)
                         layer.SetCharacter(artX, artY, ';');
-                    else if (averageLuminance < 80)
+                    else if (luminance < 80)
                         layer.SetCharacter(artX, artY, ':');
-                    else if (averageLuminance < 85)
+                    else if (luminance < 85)
                         layer.SetCharacter(artX, artY, ',');
-                    else if (averageLuminance < 90)
+                    else if (luminance < 90)
                         layer.SetCharacter(artX, artY, '"');
-                    else if (averageLuminance < 95)
+                    else if (luminance < 95)
                         layer.SetCharacter(artX, artY, '`');
-                    else if (averageLuminance <= 100)
+                    else if (luminance <= 100)
                         layer.SetCharacter(artX, artY, null);
                 }
             }

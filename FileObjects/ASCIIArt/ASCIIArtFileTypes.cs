@@ -248,7 +248,7 @@ namespace AAP.Files
 
         public override ASCIIArt Decode()
         {
-            BitmapArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            BitmapArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer layer = layerDecoder.Decode();
 
@@ -264,7 +264,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            BitmapArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            BitmapArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer layer = await layerDecoder.DecodeAsync(taskToken);
 
@@ -332,7 +332,7 @@ namespace AAP.Files
 
         public override ASCIIArt Decode()
         {
-            PngArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            PngArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer layer = layerDecoder.Decode();
 
@@ -348,7 +348,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            PngArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            PngArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer layer = await layerDecoder.DecodeAsync(taskToken);
 
@@ -416,7 +416,7 @@ namespace AAP.Files
 
         public override ASCIIArt Decode()
         {
-            JpegArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            JpegArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer layer = layerDecoder.Decode();
 
@@ -432,7 +432,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            JpegArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            JpegArtLayerDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer layer = await layerDecoder.DecodeAsync(taskToken);
 
@@ -607,7 +607,7 @@ namespace AAP.Files
                     newBytes.AddRange(fileBytes.Take(13));
                     newBytes.AddRange(applicationExtension);
                     newBytes.AddRange(fileBytes.Skip(13));
-                    await EncodeStream.WriteAsync(newBytes.ToArray()); //File.WriteAllBytesAsync(EncodeStream, newBytes.ToArray());
+                    await EncodeStream.WriteAsync(newBytes.ToArray());
                 }
             });
         }
@@ -624,7 +624,7 @@ namespace AAP.Files
 
         public override ASCIIArt Decode()
         {
-            GifArtLayerArrayDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            GifArtLayerArrayDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer[] layers = layerDecoder.Decode();
 
@@ -656,7 +656,7 @@ namespace AAP.Files
 
         public override async Task<ASCIIArt> DecodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            GifArtLayerArrayDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream);
+            GifArtLayerArrayDecoder layerDecoder = new(DecodeOptions.ImageArtLayerConverter, DecodeStream, DecodeOptions.Scale);
 
             ArtLayer[] layers = await layerDecoder.DecodeAsync(taskToken);
 
@@ -903,6 +903,27 @@ namespace AAP.Files
             }
         }
 
+        private double scale = 1;
+        /// <summary>
+        /// A value that determines the scale of the imported layer
+        /// </summary>
+        public double Scale
+        {
+            get => scale;
+            set
+            {
+                if (scale == value)
+                    return;
+
+                if (scale == 0)
+                    throw new ArgumentException("Scale can not be equal to 0!");
+
+                scale = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(Scale)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ImageASCIIArtDecodeOptions()
@@ -910,9 +931,10 @@ namespace AAP.Files
 
         }
 
-        public ImageASCIIArtDecodeOptions(ImageArtLayerConverter imageLayerConverter)
+        public ImageASCIIArtDecodeOptions(ImageArtLayerConverter imageLayerConverter, double scale)
         {
             imageArtLayerConverter = imageLayerConverter;
+            this.scale = scale;
         }
     }
 }
