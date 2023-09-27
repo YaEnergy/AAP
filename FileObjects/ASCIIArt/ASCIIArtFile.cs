@@ -135,6 +135,7 @@ namespace AAP
 
                     AAPFile = new PngASCIIArtDecoder(pngImportOptions, stream);
                     break;
+                case ".jpeg":
                 case ".jpg":
                     if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
                         throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
@@ -205,6 +206,7 @@ namespace AAP
 
                     AAPFile = new PngASCIIArtDecoder(pngImportOptions, stream);
                     break;
+                case ".jpeg":
                 case ".jpg":
                     if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
                         throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
@@ -349,6 +351,130 @@ namespace AAP
             AAPFile.Close();
 
             ConsoleLogger.Log("Export File: Art file exported to " + fileInfo.FullName + "!");
+        }
+        
+        public void ImportFile(string filePath, ASCIIArtDecodeOptions? importOptions = null)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
+
+            ConsoleLogger.Log($"Import File: Importing file...");
+
+            FileInfo file = new(filePath);
+
+            FileStream stream = new(filePath, FileMode.Open, FileAccess.Read);
+
+            switch (file.Extension.ToLower())
+            {
+                case ".txt":
+                    FileObjectDecoder<ArtLayer> textDecoder = new TextArtLayerDecoder(stream);
+                    ArtLayer textLayer = textDecoder.Decode();
+                    Art.ArtLayers.Add(textLayer);
+                    break;
+                case ".bmp":
+                    if (importOptions is not ImageASCIIArtDecodeOptions bmpImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer> bmpDecoder = new BitmapArtLayerDecoder(bmpImportOptions.ImageArtLayerConverter, stream, bmpImportOptions.Scale);
+                    ArtLayer bmpLayer = bmpDecoder.Decode();
+                    Art.ArtLayers.Add(bmpLayer);
+                    break;
+                case ".png":
+                    if (importOptions is not ImageASCIIArtDecodeOptions pngImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer> pngDecoder = new PngArtLayerDecoder(pngImportOptions.ImageArtLayerConverter, stream, pngImportOptions.Scale);
+                    ArtLayer pngLayer = pngDecoder.Decode();
+                    Art.ArtLayers.Add(pngLayer);
+                    break;
+                case ".jpeg":
+                case ".jpg":
+                    if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer> jpegDecoder = new JpegArtLayerDecoder(jpegImportOptions.ImageArtLayerConverter, stream, jpegImportOptions.Scale);
+                    ArtLayer jpegLayer = jpegDecoder.Decode();
+                    Art.ArtLayers.Add(jpegLayer);
+                    break;
+                case ".gif":
+                    if (importOptions is not ImageASCIIArtDecodeOptions gifImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer[]> gifDecoder = new GifArtLayerArrayDecoder(gifImportOptions.ImageArtLayerConverter, stream, gifImportOptions.Scale);
+                    ArtLayer[] gifFrameLayers = gifDecoder.Decode();
+
+                    for (int i = 0; i < gifFrameLayers.Length; i++)
+                        Art.ArtLayers.Add(gifFrameLayers[i]);
+
+                    break;
+                default:
+                    stream.Close();
+                    throw new Exception("Unknown file extension!");
+            }
+
+            Art.Update();
+        }
+
+        public async Task ImportFileAsync(string filePath, ASCIIArtDecodeOptions? importOptions = null, BackgroundTaskToken? taskToken = null)
+        {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException(nameof(filePath) + ": " + filePath);
+
+            ConsoleLogger.Log($"Import File: Importing file...");
+
+            FileInfo file = new(filePath);
+
+            FileStream stream = new(filePath, FileMode.Open, FileAccess.Read);
+
+            switch (file.Extension.ToLower())
+            {
+                case ".txt":
+                    FileObjectDecoder<ArtLayer> textDecoder = new TextArtLayerDecoder(stream);
+                    ArtLayer textLayer = await textDecoder.DecodeAsync(taskToken);
+                    Art.ArtLayers.Add(textLayer);
+                    break;
+                case ".bmp":
+                    if (importOptions is not ImageASCIIArtDecodeOptions bmpImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer> bmpDecoder = new BitmapArtLayerDecoder(bmpImportOptions.ImageArtLayerConverter, stream, bmpImportOptions.Scale);
+                    ArtLayer bmpLayer = await bmpDecoder.DecodeAsync(taskToken);
+                    Art.ArtLayers.Add(bmpLayer);
+                    break;
+                case ".png":
+                    if (importOptions is not ImageASCIIArtDecodeOptions pngImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer> pngDecoder = new PngArtLayerDecoder(pngImportOptions.ImageArtLayerConverter, stream, pngImportOptions.Scale);
+                    ArtLayer pngLayer = await pngDecoder.DecodeAsync(taskToken);
+                    Art.ArtLayers.Add(pngLayer);
+                    break;
+                case ".jpeg":
+                case ".jpg":
+                    if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer> jpegDecoder = new JpegArtLayerDecoder(jpegImportOptions.ImageArtLayerConverter, stream, jpegImportOptions.Scale);
+                    ArtLayer jpegLayer = await jpegDecoder.DecodeAsync(taskToken);
+                    Art.ArtLayers.Add(jpegLayer);
+                    break;
+                case ".gif":
+                    if (importOptions is not ImageASCIIArtDecodeOptions gifImportOptions)
+                        throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
+
+                    FileObjectDecoder<ArtLayer[]> gifDecoder = new GifArtLayerArrayDecoder(gifImportOptions.ImageArtLayerConverter, stream, gifImportOptions.Scale);
+                    ArtLayer[] gifFrameLayers = await gifDecoder.DecodeAsync(taskToken);
+
+                    for (int i = 0; i < gifFrameLayers.Length; i++)
+                        Art.ArtLayers.Add(gifFrameLayers[i]);
+
+                    break;
+                default:
+                    stream.Close();
+                    throw new Exception("Unknown file extension!");
+            }
+
+            Art.Update();
         }
         #endregion
 

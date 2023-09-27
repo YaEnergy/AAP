@@ -32,8 +32,9 @@
                             <MenuItem Header="Save" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveFileCommand}"></MenuItem>
                             <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveAsFileCommand}"></MenuItem>
                             <MenuItem Header="Export" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}" Command="{Binding ExportFileCommand}"></MenuItem>
-                            <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
                             <Separator></Separator>
+                            <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
+                            <MenuItem Header="Import as new layer" InputGestureText="Shift+Ctrl+O" IsEnabled="{Binding HasArtOpen}" Command="{Binding ImportFileCommand}"></MenuItem>
                             <MenuItem Header="Edit File" IsEnabled="{Binding HasArtOpen}" Command="{Binding EditFileCommand}"/>
                             <Separator></Separator>
                             <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand, ElementName=MainWindowViewModel}"/>

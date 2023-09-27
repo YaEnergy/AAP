@@ -129,6 +129,7 @@ namespace AAP.UI.ViewModels
         public ICommand SaveAsFileCommand { get; set; }
         public ICommand ExportFileCommand { get; set; }
         public ICommand CopyArtToClipboardCommand { get; set; }
+        public ICommand ImportFileCommand { get; set; }
         public ICommand EditFileCommand { get; set; }
         public ICommand CloseOpenFileCommand { get; set; }
 
@@ -160,6 +161,7 @@ namespace AAP.UI.ViewModels
             SaveAsFileCommand = new ActionCommand(async (parameter) => { if (CurrentArtFile != null) await SaveAsFileAsync(CurrentArtFile); });
             ExportFileCommand = new ActionCommand(async (parameter) => { if (CurrentArtFile != null) await ExportFileAsync(CurrentArtFile); });
             CopyArtToClipboardCommand = new ActionCommand((parameter) => CopyCurrentArtToClipboard());
+            ImportFileCommand = new ActionCommand(async (parameter) => { if (CurrentArtFile != null) await ImportFileAsync(); });
             EditFileCommand = new ActionCommand((parameter) => EditFile());
             CloseOpenFileCommand = new ActionCommand(async (parameter) => await CloseOpenFileAsync(parameter));
 
@@ -351,7 +353,7 @@ namespace AAP.UI.ViewModels
             OpenFileDialog openFileDialog = new()
             {
                 Title = "Open ASCII Art File",
-                Filter = "Supported Files (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.gif)|*.png;*.bmp;*.jpg;*.gif",
+                Filter = "Supported Files (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -367,7 +369,7 @@ namespace AAP.UI.ViewModels
             FileInfo fileInfo = new(openFileDialog.FileName);
 
             ASCIIArtDecodeOptions? importOptions = null;
-            if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".gif")
+            if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".jpeg" || fileInfo.Extension == ".gif")
             {
                 ImageASCIIArtDecodeOptions imageImportOptions = new();
                 bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(imageImportOptions);
@@ -428,6 +430,74 @@ namespace AAP.UI.ViewModels
 
             OpenArtFiles.Add(artFile);
             CurrentArtFile = artFile;
+        }
+
+        public async Task ImportFileAsync()
+        {
+            if (CurrentArtFile == null)
+                return;
+
+            if (CurrentBackgroundTaskToken != null)
+            {
+                MessageBox.Show("Current background task must be cancelled in order to import a file.", "Import File", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            OpenFileDialog openFileDialog = new()
+            {
+                Title = "Import ASCII Art File",
+                Filter = "Supported Files (*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
+                Multiselect = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result != true)
+                return;
+
+            FileInfo fileInfo = new(openFileDialog.FileName);
+
+            ASCIIArtDecodeOptions? importOptions = null;
+            if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".jpeg" || fileInfo.Extension == ".gif")
+            {
+                ImageASCIIArtDecodeOptions imageImportOptions = new();
+                bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(imageImportOptions);
+
+                if (createdImportOptions != true)
+                    return;
+
+                importOptions = imageImportOptions;
+            }
+
+            try
+            {
+                BackgroundTaskToken bgTask = new($"Importing {fileInfo.Name}...");
+                Task task = CurrentArtFile.ImportFileAsync(fileInfo.FullName, importOptions, bgTask);
+                bgTask.MainTask = task;
+
+                CurrentBackgroundTaskToken = bgTask;
+
+                CanUseTool = false;
+
+                await task;
+            }
+            catch (Exception ex)
+            {
+                ConsoleLogger.Error(ex);
+                MessageBox.Show($"Failed to import file! Exception message: {ex.Message}", "Import File", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                if (CurrentBackgroundTaskToken != null)
+                    CurrentBackgroundTaskToken.Exception = ex;
+            }
+
+            CurrentBackgroundTaskToken?.Complete();
+            CurrentBackgroundTaskToken = null;
+
+            CanUseTool = true;
         }
 
         private async Task SaveFileToPathAsync(ASCIIArtFile artFile, string savePath)
