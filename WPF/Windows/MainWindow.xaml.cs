@@ -65,6 +65,7 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, new(async (sender, e) => await ArtFileViewModel.OpenFileAsync())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.SaveFileAsync(App.CurrentArtFile); })));
             CommandBindings.Add(new CommandBinding(FileShortcutCommands.SaveAsShortcut, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.SaveAsFileAsync(App.CurrentArtFile); })));
+            CommandBindings.Add(new CommandBinding(FileShortcutCommands.ImportFileShortcut, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.ImportFileAsync(); })));
 
             CommandBindings.Add(new CommandBinding(FileShortcutCommands.ExportAsShortcut, new(async (sender, e) => { if (App.CurrentArtFile != null) await ArtFileViewModel.ExportFileAsync(App.CurrentArtFile); })));
             CommandBindings.Add(new CommandBinding(FileShortcutCommands.CopyToClipboardShortcut, new((sender, e) => ArtFileViewModel.CopyCurrentArtToClipboard())));

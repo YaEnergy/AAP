@@ -26,6 +26,11 @@ namespace AAP.UI
         {
             InputGestures = { new KeyGesture(Key.C, ModifierKeys.Control | ModifierKeys.Shift) }
         };
+
+        public readonly static RoutedCommand ImportFileShortcut = new()
+        {
+            InputGestures = { new KeyGesture(Key.O, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
     }
 
     public static class EditShortcutCommands
