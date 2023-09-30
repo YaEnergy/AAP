@@ -48,6 +48,7 @@
     <None Remove="Resources\Images\LayerManagementIcons\Dark\MoveLayerUpIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Dark\NewLayerIcon.png" />
     <None Remove="Resources\Images\LayerManagementIcons\Light\MergeLayerIcon.png" />
+    <None Remove="Resources\Images\ProgramIcons\icon2_grayscale.png" />
     <None Remove="Resources\Images\ProgramIcons\Icon_old.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\BucketToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\DrawToolIcon.png" />
@@ -200,6 +201,12 @@
     <Content Include="Resources\PresetCharacterPalettes\Alphabet.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\ProgramIcons\icon2_grayscale.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

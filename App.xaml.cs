@@ -180,6 +180,9 @@ namespace AAP
             app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
             app.ShutdownMode = ShutdownMode.OnMainWindowClose;
 
+            SplashScreen splashScreen = new("/Resources/Images/ProgramIcons/icon2_grayscale.png");
+            splashScreen.Show(true);
+
             try
             {
                 if (ExecutableDirectory == null)
@@ -336,8 +339,6 @@ namespace AAP
                     }
                 }
             }
-
-            ConsoleLogger.Log("LOADING WINDOW HIDDEN");
 
             GC.Collect();
 
