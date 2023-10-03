@@ -45,6 +45,66 @@ namespace AAP.Files
             }
         }
 
+        private bool autosaveFiles = true;
+        public bool AutosaveFiles
+        {
+            get => autosaveFiles;
+            set
+            {
+                if (autosaveFiles == value)
+                    return;
+
+                autosaveFiles = value;
+                
+                PropertyChanged?.Invoke(this, new(nameof(AutosaveFiles)));
+            }
+        }
+
+        private TimeSpan autosaveInterval = new(0, 4, 0);
+        public TimeSpan AutosaveInterval
+        {
+            get => autosaveInterval;
+            set
+            {
+                if (autosaveInterval == value)
+                    return;
+
+                autosaveInterval = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(AutosaveInterval)));
+            }
+        }
+
+        private string languageName = "English";
+        public string LanguageName
+        {
+            get => languageName;
+            set
+            {
+                if (languageName == value)
+                    return;
+
+                languageName = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(LanguageName)));
+            }
+        }
+
+        private List<string> autosaveFilePaths = new();
+        public List<string> AutosaveFilePaths
+        {
+            get => autosaveFilePaths;
+            set
+            {
+                if (autosaveFilePaths == value)
+                    return;
+
+                autosaveFilePaths = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(AutosaveFilePaths)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public AppSettings()
@@ -56,6 +116,9 @@ namespace AAP.Files
         {
             DarkMode = Default.DarkMode;
             CanvasTypefaceSource = Default.CanvasTypefaceSource;
+            AutosaveFiles = Default.AutosaveFiles;
+            AutosaveInterval = Default.AutosaveInterval;
+            LanguageName = Default.LanguageName;
         }
 
         public void Encode(Stream stream)

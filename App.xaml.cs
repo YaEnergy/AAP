@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Timers;
 using System.Windows.Threading;
 
 namespace AAP
@@ -152,6 +153,12 @@ namespace AAP
             get => characterPalettes; 
         }
 
+        private static readonly System.Threading.Timer autosaveTimer = new(OnAutosaveTimerTick, null, Settings.AutosaveInterval, Settings.AutosaveInterval);
+        public static System.Threading.Timer AutosaveTimer
+        {
+            get => autosaveTimer;
+        }
+
         public App()
         {
             
@@ -289,6 +296,9 @@ namespace AAP
                 Settings.PropertyChanged += SettingsPropertyChanged;
 
                 SetTheme(Settings.DarkMode);
+
+                TimeSpan interval = Settings.AutosaveFiles ? Settings.AutosaveInterval : Timeout.InfiniteTimeSpan;
+                AutosaveTimer.Change(interval, interval);
             }
             catch (Exception ex)
             {
@@ -356,6 +366,80 @@ namespace AAP
 
 
         #region Application Events
+        private static async void OnAutosaveTimerTick(object? sender)
+        {
+            if (!Settings.AutosaveFiles)
+                return;
+
+            while (Settings.AutosaveFilePaths.Count > 25)
+            {
+                string filePath = Settings.AutosaveFilePaths[0];
+                Settings.AutosaveFilePaths.RemoveAt(0);
+
+                if (!File.Exists(filePath))
+                {
+                    ConsoleLogger.Log("Filepath: " + filePath + " doesn't exist, skipped but still removed from list. (Could have been moved/renamed/deleted)");
+                    continue;
+                }
+
+                File.Delete(filePath);
+
+                ConsoleLogger.Log("Removed old autosave path: " + filePath);
+            }
+
+            DateTime dateTime = DateTime.Now;
+            string autosaveFilePath = AutoSaveDirectoryPath + $@"\Autosave_{dateTime.Day}-{dateTime.Month}-{dateTime.Year}_{dateTime.Hour}-{dateTime.Minute}-{dateTime.Second}";
+            string ext = ".aaf";
+
+            ConsoleLogger.Log("Autosaving all open files...");
+
+            foreach (ASCIIArtFile artFile in OpenArtFiles)
+            {
+                if (!artFile.UnsavedChanges)
+                {
+                    ConsoleLogger.Log($"File {artFile.FileName} skipped because it has no unsaved changes.");
+                    continue;
+                }
+
+                string finalPath = autosaveFilePath;
+                if (File.Exists(finalPath + ext))
+                {
+                    int saveNumber = 1;
+                    while (File.Exists(finalPath + "+" + saveNumber + ext))
+                        saveNumber++;
+
+                    finalPath += "+" + saveNumber;
+                }
+
+                ConsoleLogger.Log("Autosaving " + artFile.FileName + " to " + finalPath + ext);
+
+                try
+                {
+                    await artFile.ExportAsync(finalPath + ext, null);
+                    Settings.AutosaveFilePaths.Add(finalPath + ext);
+                    ConsoleLogger.Log("Autosaved " + artFile.FileName + " to " + finalPath + ext);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Autosave for {artFile.FileName} failed! Exception message: " + ex.Message);
+                    ConsoleLogger.Error(ex);
+                }
+            }
+
+            ConsoleLogger.Log("Autosaved all open files");
+
+            try
+            {
+                await SaveSettingsAsync();
+                ConsoleLogger.Log("Saved settings");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Settings update while autosaving failed! Exception message: " + ex.Message);
+                ConsoleLogger.Error(ex);
+            }
+        }
+
         private static void OnApplicationExit(object? sender, ExitEventArgs e)
         {
             ConsoleLogger.Log("\n--APPLICATION EXIT--\n");
@@ -368,7 +452,7 @@ namespace AAP
             if (ConsoleLogger.LogFileError == null)
             {
                 ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
-                ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
+                ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow:d}--\n");
             }
 
             ConsoleLogger.Log($"\n--THREAD EXCEPTION--\n");
@@ -911,6 +995,11 @@ namespace AAP
             {
                 case nameof(changedSettings.DarkMode):
                     SetTheme(changedSettings.DarkMode);
+                    break;
+                case nameof(changedSettings.AutosaveInterval):
+                case nameof(changedSettings.AutosaveFiles):
+                    TimeSpan interval = changedSettings.AutosaveFiles ? changedSettings.AutosaveInterval : Timeout.InfiniteTimeSpan;
+                    AutosaveTimer.Change(interval, interval);
                     break;
                 default:
                     break;

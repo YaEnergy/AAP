@@ -10,6 +10,7 @@ using AAP.Properties;
 using System.IO;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace AAP.UI.ViewModels
 {
@@ -49,6 +50,60 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool autosaveFiles = App.Settings.AutosaveFiles;
+        public bool AutosaveFiles
+        {
+            get => autosaveFiles;
+            set
+            {
+                if (autosaveFiles == value)
+                    return;
+
+                autosaveFiles = value;
+                ChangesMade = true;
+
+                PropertyChanged?.Invoke(this, new(nameof(AutosaveFiles)));
+            }
+        }
+
+        private string autosaveIntervalMinutesText = ((int)App.Settings.AutosaveInterval.TotalMinutes).ToString();
+        public string AutosaveIntervalMinutesText
+        {
+            get => autosaveIntervalMinutesText;
+            set
+            {
+                if (autosaveIntervalMinutesText == value)
+                    return;
+
+                if (int.TryParse(value, out int minutes) && minutes > 0 && minutes <= 120)
+                {
+                    autosaveIntervalMinutesText = value;
+                    AutosaveIntervalMinutes = minutes;
+                    ChangesMade = true;
+                }
+                else
+                    MessageBox.Show("Invalid Autosave Save Interval! Time interval must be larger than 0 and less than 120 minutes.", "Settings", MessageBoxButton.OK, MessageBoxImage.Error);
+
+                PropertyChanged?.Invoke(this, new(nameof(AutosaveIntervalMinutesText)));
+            }
+        }
+
+        private int autosaveIntervalMinutes = (int)App.Settings.AutosaveInterval.TotalMinutes;
+        public int AutosaveIntervalMinutes
+        {
+            get => autosaveIntervalMinutes;
+            set
+            {
+                if (autosaveIntervalMinutes == value)
+                    return;
+
+                autosaveIntervalMinutes = value;
+                ChangesMade = true;
+
+                PropertyChanged?.Invoke(this, new(nameof(AutosaveIntervalMinutes)));
+            }
+        }
+
         private bool changesMade = false;
         public bool ChangesMade
         {
@@ -66,6 +121,7 @@ namespace AAP.UI.ViewModels
 
         public ICommand ApplyCommand { get; set; }
         public ICommand ResetCommand { get; set; }
+        public ICommand OpenAutosavesCommand { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -73,12 +129,15 @@ namespace AAP.UI.ViewModels
         {
             ApplyCommand = new ActionCommand((parameter) => Apply());
             ResetCommand = new ActionCommand((parameter) => Reset());
+            OpenAutosavesCommand = new ActionCommand((parameter) => Process.Start("explorer.exe", App.AutoSaveDirectoryPath));
         }
 
         public void Apply()
         {
             App.Settings.DarkMode = DarkMode;
             App.Settings.CanvasTypefaceSource = CanvasTypefaceSource;
+            App.Settings.AutosaveFiles = AutosaveFiles;
+            App.Settings.AutosaveInterval = new(0, AutosaveIntervalMinutes, 0);
 
             ChangesMade = false;
             App.SaveSettings();
@@ -94,6 +153,8 @@ namespace AAP.UI.ViewModels
 
                 DarkMode = App.Settings.DarkMode;
                 CanvasTypefaceSource = App.Settings.CanvasTypefaceSource;
+                AutosaveFiles = App.Settings.AutosaveFiles;
+                AutosaveIntervalMinutes = (int)App.Settings.AutosaveInterval.TotalMinutes;
 
                 Apply();
             }
