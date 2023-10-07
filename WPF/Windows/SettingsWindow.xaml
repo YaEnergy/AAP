@@ -24,6 +24,10 @@
             <Label Content="User Interface"/>
             <StackPanel Margin="10,0,0,0">
                 <DockPanel DockPanel.Dock="Top">
+                    <Label Content="Language" HorizontalAlignment="Left"/>
+                    <ComboBox Height="25" SelectedItem="{Binding LanguageName}" ItemsSource="{Binding TranslatedLanguageNames}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                </DockPanel>
+                <DockPanel DockPanel.Dock="Top">
                     <Label Content="Canvas Font" HorizontalAlignment="Left"/>
                     <ComboBox Height="25" SelectedItem="{Binding CanvasTypefaceSource}" ItemsSource="{Binding TypefaceSources}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
                 </DockPanel>

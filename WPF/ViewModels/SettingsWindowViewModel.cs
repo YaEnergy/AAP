@@ -11,6 +11,8 @@ using System.IO;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using AAP.FileObjects;
+using Newtonsoft.Json;
 
 namespace AAP.UI.ViewModels
 {
@@ -104,6 +106,29 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private readonly Dictionary<string, string> languageNames = new();
+
+        public List<string> TranslatedLanguageNames
+        {
+            get => languageNames.Values.ToList();
+        }
+
+        private string languageName;
+        public string LanguageName
+        {
+            get => languageName;
+            set
+            {
+                if (languageName == value)
+                    return;
+
+                languageName = value;
+                ChangesMade = true;
+
+                PropertyChanged?.Invoke(this, new(nameof(LanguageName)));
+            }
+        }
+
         private bool changesMade = false;
         public bool ChangesMade
         {
@@ -130,6 +155,25 @@ namespace AAP.UI.ViewModels
             ApplyCommand = new ActionCommand((parameter) => Apply());
             ResetCommand = new ActionCommand((parameter) => Reset());
             OpenAutosavesCommand = new ActionCommand((parameter) => Process.Start("explorer.exe", App.AutoSaveDirectoryPath));
+
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamReader sr = new(Application.GetResourceStream(new("/Resources/Languages/Languages.json", UriKind.Relative)).Stream);
+            JsonTextReader jr = new(sr);
+
+            languageNames = js.Deserialize<Dictionary<string, string>>(jr) ?? throw new Exception("Languages.json could not be imported!");
+            jr.CloseInput = true;
+            jr.Close();
+
+            languageName = languageNames[App.Settings.LanguageName];
+        }
+
+        public void UpdateSettings()
+        {
+            LanguageName = languageNames[App.Settings.LanguageName];
+            DarkMode = App.Settings.DarkMode;
+            CanvasTypefaceSource = App.Settings.CanvasTypefaceSource;
+            AutosaveFiles = App.Settings.AutosaveFiles;
+            AutosaveIntervalMinutes = (int)App.Settings.AutosaveInterval.TotalMinutes;
         }
 
         public void Apply()
@@ -139,8 +183,19 @@ namespace AAP.UI.ViewModels
             App.Settings.AutosaveFiles = AutosaveFiles;
             App.Settings.AutosaveInterval = new(0, AutosaveIntervalMinutes, 0);
 
+            foreach (KeyValuePair<string, string> languageNamePair in languageNames)
+            {
+                if (languageNamePair.Value == languageName)
+                {
+                    App.Settings.LanguageName = languageNamePair.Key;
+                    break;
+                }
+            }
+
             ChangesMade = false;
             App.SaveSettings();
+
+            UpdateSettings(); //In case of changes
         }
 
         public void Reset()
@@ -151,10 +206,7 @@ namespace AAP.UI.ViewModels
             {
                 App.Settings.Reset();
 
-                DarkMode = App.Settings.DarkMode;
-                CanvasTypefaceSource = App.Settings.CanvasTypefaceSource;
-                AutosaveFiles = App.Settings.AutosaveFiles;
-                AutosaveIntervalMinutes = (int)App.Settings.AutosaveInterval.TotalMinutes;
+                UpdateSettings();
 
                 Apply();
             }

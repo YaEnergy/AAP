@@ -58,6 +58,9 @@
     <None Remove="Resources\Images\ToolIcons\Dark\SelectToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\TextToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\LineToolIcon.png" />
+    <None Remove="Resources\Languages\Dutch.json" />
+    <None Remove="Resources\Languages\English.json" />
+    <None Remove="Resources\Languages\Languages.json" />
     <None Remove="Resources\MoveLayerDownIcon.png" />
     <None Remove="Resources\MoveLayerUpIcon.png" />
     <None Remove="Resources\MoveToolIcon.png" />
@@ -201,6 +204,18 @@
     <Content Include="Resources\PresetCharacterPalettes\Alphabet.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Languages\Dutch.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Languages\English.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Languages\Languages.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>

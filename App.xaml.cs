@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.FileObjects;
 using AAP.Files;
 using AAP.Properties;
 using AAP.Timelines;
@@ -159,6 +160,23 @@ namespace AAP
             get => autosaveTimer;
         }
 
+        private static Language language = new();
+        public static Language Language
+        {
+            get => language;
+            set
+            {
+                if (language == value)
+                    return;
+
+                language = value;
+                OnLanguageChanged?.Invoke(language);
+            }
+        }
+
+        public delegate void OnLanguageChangedEvent(Language language);
+        public static event OnLanguageChangedEvent? OnLanguageChanged;
+
         public App()
         {
             
@@ -295,10 +313,27 @@ namespace AAP
 
                 Settings.PropertyChanged += SettingsPropertyChanged;
 
+                Stream languageStream;
+                try
+                {
+                    languageStream = GetResourceStream(new($"/Resources/Languages/{Settings.LanguageName}.json", UriKind.Relative)).Stream;
+                }
+                catch (Exception ex)
+                {
+                    Settings.LanguageName = "English";
+                    languageStream = GetResourceStream(new($"/Resources/Languages/{Settings.LanguageName}.json", UriKind.Relative)).Stream;
+
+                    ConsoleLogger.Error(ex);
+                    MessageBox.Show("Failed to get language resource! Defaulted to English!\nException message: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                Language = Language.Decode(languageStream);
+
                 SetTheme(Settings.DarkMode);
 
                 TimeSpan interval = Settings.AutosaveFiles ? Settings.AutosaveInterval : Timeout.InfiniteTimeSpan;
                 AutosaveTimer.Change(interval, interval);
+
             }
             catch (Exception ex)
             {
@@ -1000,6 +1035,24 @@ namespace AAP
                 case nameof(changedSettings.AutosaveFiles):
                     TimeSpan interval = changedSettings.AutosaveFiles ? changedSettings.AutosaveInterval : Timeout.InfiniteTimeSpan;
                     AutosaveTimer.Change(interval, interval);
+                    break;
+                case nameof(changedSettings.LanguageName):
+                    Stream languageStream;
+                    try
+                    {
+                        languageStream = GetResourceStream(new($"/Resources/Languages/{Settings.LanguageName}.json", UriKind.Relative)).Stream;
+                    }
+                    catch (Exception ex)
+                    {
+                        ConsoleLogger.Error(ex);
+                        MessageBox.Show("Failed to get language resource! Defaulted to English!\nException message: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        
+                        changedSettings.LanguageName = "English";
+                        return;
+                    }
+
+                    Language = Language.Decode(languageStream);
+
                     break;
                 default:
                     break;
