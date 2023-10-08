@@ -94,6 +94,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        public ICommand OpenAboutCommand { get; set; }
         public ICommand OpenSettingsCommand { get; set; }
         public ICommand ExitCommand { get; set; }
 
@@ -101,6 +102,7 @@ namespace AAP.UI.ViewModels
 
         public MainWindowViewModel()
         {
+            OpenAboutCommand = new ActionCommand((parameter) => OpenAboutWindow());
             OpenSettingsCommand = new ActionCommand((parameter) => OpenSettingsWindow());
             ExitCommand = new ActionCommand((parameter) => Application.Current.Shutdown());
 
@@ -120,6 +122,13 @@ namespace AAP.UI.ViewModels
                 default:
                     break;
             }
+        }
+
+        public void OpenAboutWindow()
+        {
+            AboutWindow window = new();
+            window.Owner = Application.Current.MainWindow;
+            window.ShowDialog();
         }
 
         public void OpenSettingsWindow()

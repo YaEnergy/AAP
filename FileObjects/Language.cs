@@ -39,9 +39,9 @@ namespace AAP.FileObjects
                 return translationDictionary[key];
             }
 
-            ConsoleLogger.Warn("No string value for language key " + key + " found!");
+            ConsoleLogger.Warn("Language content key " + key + " not found!");
 
-            return "No string value for language key " + key + " found!";
+            return "Language content key " + key + " not found!";
         }
 
         public static Language Decode(Stream stream)
@@ -50,11 +50,11 @@ namespace AAP.FileObjects
             StreamReader sr = new(stream);
             JsonTextReader jr = new(sr);
 
-            Language imported = js.Deserialize<Language>(jr) ?? throw new Exception("No language could be imported!");
+            Dictionary<string, string> importedDict = js.Deserialize<Dictionary<string, string>>(jr) ?? throw new Exception("No translation dictionary could be imported!");
             jr.CloseInput = true;
             jr.Close();
 
-            return imported;
+            return new(importedDict);
         }
     }
 }

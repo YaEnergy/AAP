@@ -264,4 +264,6 @@
     </Compile>
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties resources_4languages_4dutch_1json__JsonSchema="" resources_4languages_4english_1json__JsonSchema="" resources_4languages_4languages_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+
 </Project>

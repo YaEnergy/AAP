@@ -37,6 +37,7 @@
                             <MenuItem Header="Import as new layer" InputGestureText="Shift+Ctrl+O" IsEnabled="{Binding HasArtOpen}" Command="{Binding ImportFileCommand}"></MenuItem>
                             <MenuItem Header="Edit File" IsEnabled="{Binding HasArtOpen}" Command="{Binding EditFileCommand}"/>
                             <Separator></Separator>
+                            <MenuItem Header="About" Command="{Binding OpenAboutCommand, ElementName=MainWindowViewModel}"/>
                             <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand, ElementName=MainWindowViewModel}"/>
                             <Separator></Separator>
                             <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand, ElementName=MainWindowViewModel}"></MenuItem>
