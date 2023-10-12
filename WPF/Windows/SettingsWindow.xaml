@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AAP.UI.Windows" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels"
         mc:Ignorable="d"
-        Title="Settings" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="350" MaxHeight="400">
+        Title="{Binding SettingsTitle, ElementName=WindowViewModel}" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="280" MinHeight="150" MaxWidth="350" MaxHeight="400">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,31 +18,30 @@
             <viewmodels:SettingsWindowViewModel x:Name="WindowViewModel"/>
         </DockPanel.DataContext>
         
-        <Button Margin="10,0,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="Reset all" Command="{Binding ResetCommand}"/>
-        <Button Margin="10,0,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="Apply changes" Command="{Binding ApplyCommand}" IsEnabled="{Binding ChangesMade}"/>
+        <Button Margin="10,0,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="{Binding ResetAllContent, Mode=OneWay}" Command="{Binding ResetCommand}"/>
+        <Button Margin="10,0,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="{Binding ApplyChangesContent, Mode=OneWay}" Command="{Binding ApplyCommand}" IsEnabled="{Binding ChangesMade}"/>
         <StackPanel Margin="10,5,10,5" DockPanel.Dock="Top">
-            <Label Content="User Interface"/>
+            <Label Content="{Binding UserInterfaceSectionContent, Mode=Default}"/>
             <StackPanel Margin="10,0,0,0">
                 <DockPanel DockPanel.Dock="Top">
-                    <Label Content="Language" HorizontalAlignment="Left"/>
-                    <ComboBox Height="25" SelectedItem="{Binding LanguageName}" ItemsSource="{Binding TranslatedLanguageNames}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    <Label Content="{Binding LanguageContent, Mode=OneWay}" HorizontalAlignment="Left"/>
+                    <ComboBox Height="25" MinWidth="100" SelectedItem="{Binding LanguageName}" ItemsSource="{Binding TranslatedLanguageNames}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Right"/>
                 </DockPanel>
                 <DockPanel DockPanel.Dock="Top">
-                    <Label Content="Canvas Font" HorizontalAlignment="Left"/>
-                    <ComboBox Height="25" SelectedItem="{Binding CanvasTypefaceSource}" ItemsSource="{Binding TypefaceSources}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"/>
+                    <Label Content="{Binding CanvasFontContent, Mode=OneWay}" HorizontalAlignment="Left"/>
+                    <ComboBox Height="25" MinWidth="100" SelectedItem="{Binding CanvasTypefaceSource}" ItemsSource="{Binding TypefaceSources}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Right"/>
                 </DockPanel>
-                <CheckBox Content="Dark mode" HorizontalAlignment="Left" Padding="0,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding DarkMode}" Foreground="{DynamicResource Text}"/>
+                <CheckBox Content="{Binding DarkModeContent, Mode=OneWay}" HorizontalAlignment="Left" Padding="0,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding DarkMode}" Foreground="{DynamicResource Text}"/>
             </StackPanel>
             <Separator/>
-            <Label Content="Files"/>
+            <Label Content="{Binding FilesSectionContent, Mode=OneWay}"/>
             <StackPanel Margin="10,0,0,0">
-                <CheckBox Content="Autosave files" Padding="0,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding AutosaveFiles}" Foreground="{DynamicResource Text}"/>
+                <CheckBox Content="{Binding AutosaveFilesContent, Mode=OneWay}" Padding="0,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding AutosaveFiles}" Foreground="{DynamicResource Text}"/>
                 <DockPanel DockPanel.Dock="Top">
-                    <Label Content="Autosave every " HorizontalAlignment="Left"/>
-                    <Label Content="minutes" HorizontalAlignment="Left" DockPanel.Dock="Right"/>
-                    <TextBox Text="{Binding AutosaveIntervalMinutesText}" Margin="0,3,0,3"/>
+                    <Label ContentStringFormat="{Binding AutosaveIntervalContentFormat, Mode=OneWay}" Content="{Binding AutosaveIntervalMinutes}"  HorizontalAlignment="Left"/>
+                    <Slider Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right" Minimum="1" Value="{Binding AutosaveIntervalMinutes}" Maximum="120" Width="100" DockPanel.Dock="Right" HorizontalAlignment="Right"/>
                 </DockPanel>
-                <Button Margin="10,5,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="Open autosaves folder" Command="{Binding OpenAutosavesCommand}"/>
+                <Button Margin="10,5,10,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Content="{Binding OpenAutosavesFolderContent, Mode=OneWay}" Command="{Binding OpenAutosavesCommand}"/>
             </StackPanel>
             
         </StackPanel>

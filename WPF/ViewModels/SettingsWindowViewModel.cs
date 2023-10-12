@@ -68,28 +68,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private string autosaveIntervalMinutesText = ((int)App.Settings.AutosaveInterval.TotalMinutes).ToString();
-        public string AutosaveIntervalMinutesText
-        {
-            get => autosaveIntervalMinutesText;
-            set
-            {
-                if (autosaveIntervalMinutesText == value)
-                    return;
-
-                if (int.TryParse(value, out int minutes) && minutes > 0 && minutes <= 120)
-                {
-                    autosaveIntervalMinutesText = value;
-                    AutosaveIntervalMinutes = minutes;
-                    ChangesMade = true;
-                }
-                else
-                    MessageBox.Show("Invalid Autosave Save Interval! Time interval must be larger than 0 and less than 120 minutes.", "Settings", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                PropertyChanged?.Invoke(this, new(nameof(AutosaveIntervalMinutesText)));
-            }
-        }
-
         private int autosaveIntervalMinutes = (int)App.Settings.AutosaveInterval.TotalMinutes;
         public int AutosaveIntervalMinutes
         {
@@ -165,7 +143,74 @@ namespace AAP.UI.ViewModels
             jr.Close();
 
             languageName = languageNames[App.Settings.LanguageName];
+
+            App.OnLanguageChanged += OnLanguageChanged;
         }
+
+
+        #region Language Content
+
+        private string settingsTitle = App.Language.GetString("Settings");
+        public string SettingsTitle => settingsTitle;
+
+        private string userInterfaceSectionContent = App.Language.GetString("Settings_UserInterface");
+        public string UserInterfaceSectionContent => userInterfaceSectionContent;
+
+        private string languageContent = App.Language.GetString("Settings_Language");
+        public string LanguageContent => languageContent;
+
+        private string canvasFontContent = App.Language.GetString("Settings_CanvasFont");
+        public string CanvasFontContent => canvasFontContent;
+
+        private string darkModeContent = App.Language.GetString("DarkMode");
+        public string DarkModeContent => darkModeContent;
+
+        private string filesSectionContent = App.Language.GetString("Settings_Files");
+        public string FilesSectionContent => filesSectionContent;
+
+        private string autosavesFilesContent = App.Language.GetString("Settings_AutosaveFiles");
+        public string AutosaveFilesContent => autosavesFilesContent;
+
+        private string autosaveIntervalContentFormat = App.Language.GetString("Settings_AutosaveInterval");
+        public string AutosaveIntervalContentFormat => autosaveIntervalContentFormat;
+
+        private string openAutosavesFolderContent = App.Language.GetString("Settings_OpenAutosavesFolder");
+        public string OpenAutosavesFolderContent => openAutosavesFolderContent;
+
+        private string applyChangesContent = App.Language.GetString("Settings_Apply");
+        public string ApplyChangesContent => applyChangesContent;
+
+        private string resetAllContent = App.Language.GetString("Settings_Reset");
+        public string ResetAllContent => resetAllContent;
+
+        private void OnLanguageChanged(Language language)
+        {
+            settingsTitle = App.Language.GetString("Settings");
+            userInterfaceSectionContent = App.Language.GetString("Settings_UserInterface");
+            languageContent = App.Language.GetString("Settings_Language");
+            canvasFontContent = App.Language.GetString("Settings_CanvasFont");
+            darkModeContent = App.Language.GetString("DarkMode");
+            filesSectionContent = App.Language.GetString("Settings_Files");
+            autosavesFilesContent = App.Language.GetString("Settings_AutosaveFiles");
+            autosaveIntervalContentFormat = App.Language.GetString("Settings_AutosaveInterval");
+            openAutosavesFolderContent = App.Language.GetString("Settings_OpenAutosavesFolder");
+            applyChangesContent = App.Language.GetString("Settings_Apply");
+            resetAllContent = App.Language.GetString("Settings_Reset");
+
+            PropertyChanged?.Invoke(this, new(nameof(SettingsTitle)));
+            PropertyChanged?.Invoke(this, new(nameof(UserInterfaceSectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(LanguageContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CanvasFontContent)));
+            PropertyChanged?.Invoke(this, new(nameof(DarkModeContent)));
+            PropertyChanged?.Invoke(this, new(nameof(FilesSectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(AutosaveFilesContent)));
+            PropertyChanged?.Invoke(this, new(nameof(AutosaveIntervalMinutes))); //Content format only updates label if content property changed event is raised
+            PropertyChanged?.Invoke(this, new(nameof(AutosaveIntervalContentFormat)));
+            PropertyChanged?.Invoke(this, new(nameof(OpenAutosavesFolderContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ApplyChangesContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ResetAllContent)));
+        }
+        #endregion
 
         public void UpdateSettings()
         {
@@ -200,7 +245,7 @@ namespace AAP.UI.ViewModels
 
         public void Reset()
         {
-            MessageBoxResult result = MessageBox.Show("Are you sure you want to reset all settings?", "Settings", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult result = MessageBox.Show(App.Language.GetString("Settings_ResetWarningMessage"), SettingsTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
             {

@@ -14,22 +14,48 @@ namespace AAP.UI.ViewModels
 
         public static string VersionContent => App.Version;
 
-        public static string AboutContent => App.Language.GetString("About");
-        public static string CreditsContent => App.Language.GetString("Credits");
-        public static string TranslationSectionContent => App.Language.GetString("Credits_Section_Translation");
-        public static string TranslationCreditsContent => App.Language.GetString("Credits_Translation");
-        public static string DevelopedBySectionContent => App.Language.GetString("Credits_Section_DevelopedBy");
-        public static string DevelopedByCreditsContent => App.Language.GetString("Credits_DevelopedBy");
-        public static string TestersSectionContent => App.Language.GetString("Credits_Section_Testers");
-        public static string TestersCreditsContent => App.Language.GetString("Credits_Testers");
 
         public AboutWindowViewModel() 
         {
             App.OnLanguageChanged += OnLanguageChanged;
         }
 
+        #region Language Content
+        private string aboutContent = App.Language.GetString("About");
+        public string AboutContent => aboutContent;
+
+        private string creditsContent = App.Language.GetString("Credits");
+        public string CreditsContent => creditsContent;
+
+        private string translationSectionContent = App.Language.GetString("Credits_Section_Translation");
+        public string TranslationSectionContent => translationSectionContent;
+
+        private string translationCreditsContent = App.Language.GetString("Credits_Translation");
+        public string TranslationCreditsContent => translationCreditsContent;
+
+        private string developedBySectionContent = App.Language.GetString("Credits_Section_DevelopedBy");
+        public string DevelopedBySectionContent => developedBySectionContent;
+
+        private string developedByCreditsContent = App.Language.GetString("Credits_DevelopedBy");
+        public string DevelopedByCreditsContent => developedByCreditsContent;
+
+        private string testersSectionContent = App.Language.GetString("Credits_Section_Testers");
+        public string TestersSectionContent => testersSectionContent;
+
+        private string testersCreditsContent = App.Language.GetString("Credits_Testers");
+        public string TestersCreditsContent => testersCreditsContent;
+
         private void OnLanguageChanged(Language language)
         {
+            aboutContent = App.Language.GetString("About");
+            creditsContent = App.Language.GetString("Credits");
+            translationSectionContent = App.Language.GetString("Credits_Section_Translation");
+            translationCreditsContent = App.Language.GetString("Credits_Translation");
+            developedBySectionContent = App.Language.GetString("Credits_Section_DevelopedBy");
+            developedByCreditsContent = App.Language.GetString("Credits_DevelopedBy");
+            testersSectionContent = App.Language.GetString("Credits_Section_Testers");
+            testersCreditsContent = App.Language.GetString("Credits_Testers");
+
             PropertyChanged?.Invoke(this, new(nameof(AboutContent)));
             PropertyChanged?.Invoke(this, new(nameof(CreditsContent)));
             PropertyChanged?.Invoke(this, new(nameof(TranslationSectionContent)));
@@ -39,5 +65,6 @@ namespace AAP.UI.ViewModels
             PropertyChanged?.Invoke(this, new(nameof(TestersSectionContent)));
             PropertyChanged?.Invoke(this, new(nameof(TestersCreditsContent)));
         }
+        #endregion
     }
 }
