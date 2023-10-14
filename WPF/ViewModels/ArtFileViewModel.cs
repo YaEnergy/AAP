@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.FileObjects;
 using AAP.Files;
 using AAP.Timelines;
 using AAP.UI.Windows;
@@ -182,7 +183,142 @@ namespace AAP.UI.ViewModels
             CutCommand = new ActionCommand((parameter) => App.CutSelectedArt());
             CopyCommand = new ActionCommand((parameter) => App.CopySelectedArtToClipboard());
             PasteCommand = new ActionCommand((parameter) => App.PasteLayerFromClipboard());
+
+            App.OnLanguageChanged += OnLanguageChanged;
         }
+
+        #region Language Content
+
+        private string fileMenuContent = App.Language.GetString("FileMenu");
+        public string FileMenuContent => fileMenuContent;
+
+        private string newFileContent = App.Language.GetString("NewFile");
+        public string NewFileContent => newFileContent;
+
+        private string openFileContent = App.Language.GetString("OpenFile");
+        public string OpenFileContent => openFileContent;
+
+        private string saveFileContent = App.Language.GetString("SaveFile");
+        public string SaveFileContent => saveFileContent;
+
+        private string saveAsFileContent = App.Language.GetString("SaveAsFile");
+        public string SaveAsFileContent => saveAsFileContent;
+
+        private string exportFileContent = App.Language.GetString("ExportFile");
+        public string ExportFileContent => exportFileContent;
+
+        private string copyArtToClipboardContent = App.Language.GetString("CopyClipboardArt");
+        public string CopyArtToClipboardContent => copyArtToClipboardContent;
+
+        private string importLayerContent = App.Language.GetString("ImportLayer");
+        public string ImportLayerContent => importLayerContent;
+
+        private string editFileContent = App.Language.GetString("EditFile");
+        public string EditFileContent => editFileContent;
+
+        private string editMenuContent = App.Language.GetString("EditMenu");
+        public string EditMenuContent => editMenuContent;
+
+        private string undoContent = App.Language.GetString("Undo");
+        public string UndoContent => undoContent;
+
+        private string redoContent = App.Language.GetString("Redo");
+        public string RedoContent => redoContent;
+
+        private string cutSelectionContent = App.Language.GetString("CutSelection");
+        public string CutSelectionContent => cutSelectionContent;
+
+        private string copySelectionContent = App.Language.GetString("CopySelection");
+        public string CopySelectionContent => copySelectionContent;
+
+        private string pasteLayerContent = App.Language.GetString("PasteLayer");
+        public string PasteLayerContent => pasteLayerContent;
+
+        private string deleteSelectionContent = App.Language.GetString("DeleteSelection");
+        public string DeleteSelectionContent => deleteSelectionContent;
+
+        private string selectCanvasContent = App.Language.GetString("SelectCanvas");
+        public string SelectCanvasContent => selectCanvasContent;
+
+        private string selectLayerContent = App.Language.GetString("SelectLayer");
+        public string SelectLayerContent => selectLayerContent;
+
+        private string cancelSelectionContent = App.Language.GetString("CancelSelection");
+        public string CancelSelectionContent => cancelSelectionContent;
+
+        private string cropCanvasContent = App.Language.GetString("CropCanvas");
+        public string CropCanvasContent => cropCanvasContent;
+
+        private string cropLayerContent = App.Language.GetString("CropLayer");
+        public string CropLayerContent => cropLayerContent;
+
+        private string fitAllLayersContent = App.Language.GetString("FitLayersInCanvas");
+        public string FitAllLayersContent => fitAllLayersContent;
+
+        private string drawMenuContent = App.Language.GetString("DrawMenu");
+        public string DrawMenuContent => drawMenuContent;
+
+        private string fillSelectionContent = App.Language.GetString("FillSelection");
+        public string FillSelectionContent => fillSelectionContent;
+
+        private void OnLanguageChanged(Language language)
+        {
+            fileMenuContent = App.Language.GetString("FileMenu");
+            newFileContent = App.Language.GetString("NewFile");
+            openFileContent = App.Language.GetString("OpenFile");
+            saveFileContent = App.Language.GetString("SaveFile");
+            saveAsFileContent = App.Language.GetString("SaveAsFile");
+            exportFileContent = App.Language.GetString("ExportFile");
+            copyArtToClipboardContent = App.Language.GetString("CopyClipboardArt");
+            importLayerContent = App.Language.GetString("ImportLayer");
+            editFileContent = App.Language.GetString("EditFile");
+            pasteLayerContent = App.Language.GetString("PasteLayer");
+
+            editMenuContent = App.Language.GetString("EditMenu");
+            undoContent = App.Language.GetString("Undo");
+            redoContent = App.Language.GetString("Redo");
+            cutSelectionContent = App.Language.GetString("CutSelection");
+            copySelectionContent = App.Language.GetString("CopySelection");
+            pasteLayerContent = App.Language.GetString("PasteLayer");
+            deleteSelectionContent = App.Language.GetString("DeleteSelection");
+            selectCanvasContent = App.Language.GetString("SelectCanvas");
+            selectLayerContent = App.Language.GetString("SelectLayer");
+            cancelSelectionContent = App.Language.GetString("CancelSelection");
+            cropCanvasContent = App.Language.GetString("CropCanvas");
+            cropLayerContent = App.Language.GetString("CropLayer");
+            fitAllLayersContent = App.Language.GetString("FitLayersInCanvas");
+
+            drawMenuContent = App.Language.GetString("DrawMenu");
+            fillSelectionContent = App.Language.GetString("FillSelection");
+
+            PropertyChanged?.Invoke(this, new(nameof(FileMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(NewFileContent)));
+            PropertyChanged?.Invoke(this, new(nameof(OpenFileContent)));
+            PropertyChanged?.Invoke(this, new(nameof(SaveFileContent)));
+            PropertyChanged?.Invoke(this, new(nameof(SaveAsFileContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ExportFileContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CopyArtToClipboardContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ImportLayerContent)));
+            PropertyChanged?.Invoke(this, new(nameof(EditFileContent)));
+
+            PropertyChanged?.Invoke(this, new(nameof(EditMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(UndoContent)));
+            PropertyChanged?.Invoke(this, new(nameof(RedoContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CutSelectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CopySelectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(PasteLayerContent)));
+            PropertyChanged?.Invoke(this, new(nameof(DeleteSelectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(SelectCanvasContent)));
+            PropertyChanged?.Invoke(this, new(nameof(SelectLayerContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CancelSelectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CropCanvasContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CropLayerContent)));
+            PropertyChanged?.Invoke(this, new(nameof(FitAllLayersContent)));
+
+            PropertyChanged?.Invoke(this, new(nameof(DrawMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(FillSelectionContent)));
+        }
+        #endregion
 
         /// <summary>
         /// Displays a ASCIIArt Dialog that can update a ASCIIArt object.
@@ -190,26 +326,26 @@ namespace AAP.UI.ViewModels
         /// <returns>The result of the dialog</returns>
         public static bool? ShowASCIIArtDialog(ASCIIArt art, string closeMessage)
         {
+            string dialogTitle = App.Language.GetString("ASCIIArt");
+            string sizePropertyName = App.Language.GetString("Size");
+
+            string invalidSizeMessage = App.Language.GetString("InvalidSizeMessage");
+            string tooLargeFileMessage = App.Language.GetString("File_TooLargeMessage");
+
             bool successful = false;
 
             while (!successful)
             {
-                PropertiesWindow artWindow = new("ASCII Art", closeMessage);
-                artWindow.AddSizeIntProperty("Size", new(art.Width, art.Height));
+                PropertiesWindow artWindow = new(dialogTitle, closeMessage);
+                artWindow.AddSizeIntProperty(sizePropertyName, new(art.Width, art.Height));
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
                     return result;
 
-                if (artWindow.GetProperty("Size") is not Size size)
+                if (artWindow.GetProperty(sizePropertyName) is not Size size || size.Width % 1 != 0 && size.Height % 1 != 0)
                 {
-                    MessageBox.Show($"Invalid size!", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
-                    continue;
-                }
-
-                if (size.Width % 1 != 0 && size.Height % 1 != 0)
-                {
-                    MessageBox.Show($"Width & height must be above 0 and natural numbers!", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(invalidSizeMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
@@ -217,9 +353,9 @@ namespace AAP.UI.ViewModels
                 int height = (int)size.Height;
 
                 if (width * height > App.MaxArtArea)
-                    MessageBox.Show($"Canvas is too large! Max: {App.MaxArtArea} characters ({width * height} characters)", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(tooLargeFileMessage, App.MaxArtArea, width * height), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 else if (width == 0 || height == 0)
-                    MessageBox.Show($"Width & height must be above 0 and natural numbers!", "ASCII Art", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(invalidSizeMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 else
                 {
                     art.SetSize(width, height);
@@ -237,27 +373,35 @@ namespace AAP.UI.ViewModels
         /// <returns>The result of the dialog</returns>
         public static bool? ShowImageASCIIArtImportOptionsDialog(ImageASCIIArtDecodeOptions options)
         {
+            string dialogTitle = App.Language.GetString("ImageASCIIArtImportOptions");
+            string importButtonContent = App.Language.GetString("ImportFile");
+
+            string invertBrightnessPropertyName = App.Language.GetString("InvertBrightness");
+            string scalePropertyName = App.Language.GetString("Scale");
+
+            string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+
             bool successful = false;
 
             while (!successful)
             {
-                PropertiesWindow artWindow = new("Image ASCII Art Import Options", "Import");
-                artWindow.AddBoolProperty("Invert Brightness", false);
-                artWindow.AddSliderDoubleProperty("Scale", 0.01, 4, 1, 0.01);
+                PropertiesWindow artWindow = new(dialogTitle, importButtonContent);
+                artWindow.AddBoolProperty(invertBrightnessPropertyName, false);
+                artWindow.AddSliderDoubleProperty(scalePropertyName, 0.01, 4, 1, 0.01);
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
                     return result;
 
-                if (artWindow.GetProperty("Invert Brightness") is not bool invert)
+                if (artWindow.GetProperty(invertBrightnessPropertyName) is not bool invert)
                 {
-                    MessageBox.Show($"Invalid Invert Brightness!", "Image ASCII Art Import Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, invertBrightnessPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty("Scale") is not double scale)
+                if (artWindow.GetProperty(scalePropertyName) is not double scale)
                 {
-                    MessageBox.Show($"Invalid Scale!", "Image ASCII Art Import Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, scalePropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
@@ -279,36 +423,47 @@ namespace AAP.UI.ViewModels
         /// <returns>The result of the dialog</returns>
         public static bool? ShowImageASCIIArtExportOptionsDialog(ImageASCIIArtEncodeOptions options)
         {
+            string dialogTitle = App.Language.GetString("ImageASCIIArtExportOptions");
+            string exportButtonContent = App.Language.GetString("ExportFile");
+
+            string textSizePropertyName = App.Language.GetString("TextSize");
+            string colorsCategoryName = App.Language.GetString("Colors");
+            string backgroundColorPropertyName = App.Language.GetString("BackgroundColor");
+            string textColorPropertyName = App.Language.GetString("TextColor");
+
+            string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+            string invalidTextSizeErrorMessage = App.Language.GetString("Error_InvalidImageExportTextSizeMessage");
+
             bool successful = false;
 
             while (!successful)
             {
-                PropertiesWindow artWindow = new("Image ASCII Art Export Options", "Export");
-                artWindow.AddDoubleProperty("Text Size", 12);
-                artWindow.AddCategory("Colors");
-                artWindow.AddColorProperty("Background", Colors.White);
-                artWindow.AddColorProperty("Text", Colors.Black);
+                PropertiesWindow artWindow = new(dialogTitle, exportButtonContent);
+                artWindow.AddDoubleProperty(textSizePropertyName, 12);
+                artWindow.AddCategory(colorsCategoryName);
+                artWindow.AddColorProperty(backgroundColorPropertyName, Colors.White);
+                artWindow.AddColorProperty(textColorPropertyName, Colors.Black);
 
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
                     return result;
 
-                if (artWindow.GetProperty("Text Size") is not double textSize || textSize < 1 || textSize > 256)
+                if (artWindow.GetProperty(textSizePropertyName) is not double textSize || textSize < 1 || textSize > 256)
                 {
-                    MessageBox.Show($"Invalid Text Size! Text Size must be between 1 and 256", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(invalidTextSizeErrorMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty("Background") is not Color backgroundColor)
+                if (artWindow.GetProperty(backgroundColorPropertyName) is not Color backgroundColor)
                 {
-                    MessageBox.Show($"Invalid Background Color!", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, backgroundColorPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty("Text") is not Color textColor)
+                if (artWindow.GetProperty(textColorPropertyName) is not Color textColor)
                 {
-                    MessageBox.Show($"Invalid Text Color!", "Image ASCII Art Export Options", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, textColorPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
@@ -326,19 +481,19 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to create a new file.", "New File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), NewFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return; 
             }
 
             ASCIIArt art = new();
             art.SetSize(32, 16);
 
-            bool? result = ShowASCIIArtDialog(art, "Create");
+            bool? result = ShowASCIIArtDialog(art, App.Language.GetString("Create"));
 
             if (result != true)
                 return;
 
-            art.ArtLayers.Add(new("Background", art.Width, art.Height));
+            art.ArtLayers.Add(new(App.Language.GetString("Default_BackgroundLayerName"), art.Width, art.Height));
             App.SetArtAsNewFile(art);
         }
 
@@ -346,14 +501,14 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to open a file.", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), OpenFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             OpenFileDialog openFileDialog = new()
             {
-                Title = "Open ASCII Art File",
-                Filter = "Supported Files (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
+                Title = OpenFileContent,
+                Filter = App.Language.GetString("SupportedFiles") + " (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -383,7 +538,7 @@ namespace AAP.UI.ViewModels
             ASCIIArtFile? artFile = null;
             try
             {
-                BackgroundTaskToken bgTask = new($"Opening {fileInfo.Name}...");
+                BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("File_OpenBusy"), fileInfo.Name));
                 Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName, importOptions, bgTask);
                 bgTask.MainTask = task;
 
@@ -396,7 +551,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to open art file! Exception message: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("File_OpenFailedMessage"), ex.Message), OpenFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -417,12 +572,9 @@ namespace AAP.UI.ViewModels
 
             if (fullArtArea >= App.WarningLargeArtArea)
             {
-                string message = $"The art you're trying to create/edit has an total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters.\nThis might take a long time to load and save, and can be performance heavy.\nAre you sure you want to continue?";
+                string message = string.Format(App.Language.GetString("File_LargeFileWarningMessage"), fullArtArea, App.WarningLargeArtArea);
 
-                if (fullArtArea >= App.WarningIncrediblyLargeArtArea)
-                    message = $"The art you're to trying to create/edit has a total art area of {fullArtArea} characters. This is above the recommended area limit of {App.WarningLargeArtArea} characters and above the less recommended area limit of {App.WarningIncrediblyLargeArtArea} characters.\nThis might take a VERY long time to load and save, and can be INCREDIBLY performance heavy.\nAre you SURE you want to continue?";
-
-                MessageBoxResult msgBoxResult = MessageBox.Show(message, "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult msgBoxResult = MessageBox.Show(message, OpenFileContent, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                 if (msgBoxResult == MessageBoxResult.No)
                     return;
@@ -439,14 +591,14 @@ namespace AAP.UI.ViewModels
 
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to import a file.", "Import File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), ImportLayerContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             OpenFileDialog openFileDialog = new()
             {
-                Title = "Import ASCII Art File",
-                Filter = "Supported Files (*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
+                Title = ImportLayerContent,
+                Filter = App.Language.GetString("SupportedFiles") + " (*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -475,7 +627,7 @@ namespace AAP.UI.ViewModels
 
             try
             {
-                BackgroundTaskToken bgTask = new($"Importing {fileInfo.Name}...");
+                BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("File_ImportBusy"), fileInfo.Name));
                 Task task = CurrentArtFile.ImportFileAsync(fileInfo.FullName, importOptions, bgTask);
                 bgTask.MainTask = task;
 
@@ -488,7 +640,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to import file! Exception message: {ex.Message}", "Import File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("File_ImportFailedMessage"), ex.Message), ImportLayerContent, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -504,7 +656,7 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to save file.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), SaveFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -514,7 +666,7 @@ namespace AAP.UI.ViewModels
             {
                 FileInfo fileInfo = new(savePath);
 
-                BackgroundTaskToken? bgTask = new($"Saving to {fileInfo.Name}...");
+                BackgroundTaskToken? bgTask = new(string.Format(App.Language.GetString("File_SaveBusy"), fileInfo.Name));
                 Task task = artFile.SaveAsync(bgTask);
                 bgTask.MainTask = task;
 
@@ -524,12 +676,12 @@ namespace AAP.UI.ViewModels
 
                 await task;
 
-                MessageBox.Show($"Saved art file to {fileInfo.Name}!", "Save File", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(string.Format(App.Language.GetString("File_SaveSuccessMessage"), fileInfo.Name), SaveFileContent, MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to save art file! Exception message: {ex.Message}", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("File_SaveFailedMessage"), ex.Message), SaveFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -545,7 +697,7 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to save.", "Save File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), SaveFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -553,8 +705,8 @@ namespace AAP.UI.ViewModels
             {
                 SaveFileDialog saveFileDialog = new()
                 {
-                    Title = "Save ASCII Art File",
-                    Filter = "ASCII Art File (*.aaf)|*.aaf",
+                    Title = SaveFileContent,
+                    Filter = App.Language.GetString("ASCIIArt") + " (*.aaf)|*.aaf",
                     CheckFileExists = false,
                     CheckPathExists = true,
                     CreatePrompt = false,
@@ -578,14 +730,14 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to save as a new file.", "Save As File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), SaveAsFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             SaveFileDialog saveFileDialog = new()
             {
-                Title = "Save ASCII Art File",
-                Filter = "ASCII Art File (*.aaf)|*.aaf",
+                Title = SaveAsFileContent,
+                Filter = App.Language.GetString("ASCIIArt") + " (*.aaf)|*.aaf",
                 CheckFileExists = false,
                 CheckPathExists = true,
                 CreatePrompt = false,
@@ -608,13 +760,13 @@ namespace AAP.UI.ViewModels
         {
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to export file.", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), ExportFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             SaveFileDialog saveFileDialog = new()
             {
-                Title = "Export ASCII Art File",
+                Title = ExportFileContent,
                 Filter = "Text Files (*.txt)|*.txt|Bitmap (*.bmp)|*.bmp|PNG Image (*.png)|*.png|Jpeg Image (*.jpg)|*.jpg|Graphics Interchange Format (*.gif)|*.gif",
                 CheckFileExists = false,
                 CheckPathExists = true,
@@ -647,7 +799,7 @@ namespace AAP.UI.ViewModels
             {
                 FileInfo fileInfo = new(savePath);
 
-                BackgroundTaskToken bgTask = new($"Exporting to {fileInfo.Name}...");
+                BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("File_ExportBusy"), fileInfo.Name));
                 Task task = artFile.ExportAsync(savePath, exportOptions, bgTask);
                 bgTask.MainTask = task;
 
@@ -657,14 +809,14 @@ namespace AAP.UI.ViewModels
 
                 await task;
 
-                MessageBoxResult msgResult = MessageBox.Show($"Exported art file to {fileInfo.Name}! Open file?", "Export File", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                MessageBoxResult msgResult = MessageBox.Show(string.Format(App.Language.GetString("File_ExportSuccessMessage"), fileInfo.Name), ExportFileContent, MessageBoxButton.YesNo, MessageBoxImage.Information);
                 if (msgResult == MessageBoxResult.Yes)
                     Process.Start("explorer.exe", savePath);
             }
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to export art file! Exception message: {ex.Message}", "Export File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("File_ExportFailedMessage"), ex.Message), ExportFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -683,6 +835,8 @@ namespace AAP.UI.ViewModels
 
             string artString = CurrentArtFile.Art.GetArtString();
             Clipboard.SetText(artString);
+
+            MessageBox.Show(App.Language.GetString("CopyClipboardArt_Message"), CopyArtToClipboardContent, MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         public void FillSelection()
@@ -701,7 +855,7 @@ namespace AAP.UI.ViewModels
             if (CurrentArtFile == null)
                 return;
 
-            ShowASCIIArtDialog(CurrentArtFile.Art, "Edit");
+            ShowASCIIArtDialog(CurrentArtFile.Art, App.Language.GetString("Edit"));
         }
 
         public async Task CloseOpenFileAsync(object? parameter)
@@ -709,15 +863,17 @@ namespace AAP.UI.ViewModels
             if (parameter is not ASCIIArtFile file)
                 throw new Exception("parameter is not ASCIIArtFile!");
 
+            string closeFileTitle = App.Language.GetString("File_Close");
+
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to close a file.", "Close File", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), closeFileTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             if (file.UnsavedChanges)
             {
-                MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nWould you like to save?", "Save ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult result = MessageBox.Show(App.Language.GetString("File_CloseWithoutSavingWarningMessage"), closeFileTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                 if (result == MessageBoxResult.Yes)
                     await SaveFileAsync(file);
@@ -736,7 +892,7 @@ namespace AAP.UI.ViewModels
             if (CurrentArtFile == null)
                 return;
 
-            MessageBoxResult result = MessageBox.Show("This action can remove layers. Are you sure?", "Crop All Layers To Fit Within Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult result = MessageBox.Show(App.Language.GetString("FitLayersInCanvas_WarningMessage"), FitAllLayersContent, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (result == MessageBoxResult.Yes)
                 App.FitAllLayersWithinArt();

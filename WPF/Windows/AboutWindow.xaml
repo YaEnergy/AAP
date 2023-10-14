@@ -7,7 +7,7 @@
         xmlns:ViewModels="clr-namespace:AAP.UI.ViewModels"
         mc:Ignorable="d"
         Background="{DynamicResource Background}"
-        Title="Kiara's ASCII Art Program" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="350" MaxHeight="400">
+        Title="{Binding ProgramTitleContent, ElementName=WindowViewModel}" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="350" MaxHeight="400">
     <DockPanel Background="{DynamicResource Background}" Margin="5,5,5,5">
         <DockPanel.DataContext>
             <ViewModels:AboutWindowViewModel x:Name="WindowViewModel"/>

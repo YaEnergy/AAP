@@ -26,46 +26,46 @@
             <ToolBarTray VerticalAlignment="Top" DockPanel.Dock="Top" >
                 <ToolBar ClipToBounds="True" >
                     <Menu>
-                        <MenuItem Header="File">
-                            <MenuItem Header="New" InputGestureText="Ctrl+N" Command="{Binding NewFileCommand}"></MenuItem>
-                            <MenuItem Header="Open" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"></MenuItem>
-                            <MenuItem Header="Save" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveFileCommand}"></MenuItem>
-                            <MenuItem Header="Save As" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveAsFileCommand}"></MenuItem>
-                            <MenuItem Header="Export" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}" Command="{Binding ExportFileCommand}"></MenuItem>
+                        <MenuItem Header="{Binding FileMenuContent}">
+                            <MenuItem Header="{Binding NewFileContent}" InputGestureText="Ctrl+N" Command="{Binding NewFileCommand}"></MenuItem>
+                            <MenuItem Header="{Binding OpenFileContent}" InputGestureText="Ctrl+O" Command="{Binding OpenFileCommand}"></MenuItem>
+                            <MenuItem Header="{Binding SaveFileContent}" InputGestureText="Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveFileCommand}"></MenuItem>
+                            <MenuItem Header="{Binding SaveAsFileContent}" InputGestureText="Shift+Ctrl+S" IsEnabled="{Binding HasArtOpen}" Command="{Binding SaveAsFileCommand}"></MenuItem>
+                            <MenuItem Header="{Binding ExportFileContent}" InputGestureText="Ctrl+E" IsEnabled="{Binding HasArtOpen}" Command="{Binding ExportFileCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Copy art to clipboard" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
-                            <MenuItem Header="Import as new layer" InputGestureText="Shift+Ctrl+O" IsEnabled="{Binding HasArtOpen}" Command="{Binding ImportFileCommand}"></MenuItem>
-                            <MenuItem Header="Edit File" IsEnabled="{Binding HasArtOpen}" Command="{Binding EditFileCommand}"/>
+                            <MenuItem Header="{Binding CopyArtToClipboardContent}" InputGestureText="Shift+Ctrl+C" IsEnabled="{Binding HasArtOpen}" Command="{Binding CopyArtToClipboardCommand}"></MenuItem>
+                            <MenuItem Header="{Binding ImportLayerContent}" InputGestureText="Shift+Ctrl+O" IsEnabled="{Binding HasArtOpen}" Command="{Binding ImportFileCommand}"></MenuItem>
+                            <MenuItem Header="{Binding EditFileContent}" IsEnabled="{Binding HasArtOpen}" Command="{Binding EditFileCommand}"/>
                             <Separator></Separator>
-                            <MenuItem Header="About" Command="{Binding OpenAboutCommand, ElementName=MainWindowViewModel}"/>
-                            <MenuItem Header="Settings" Command="{Binding OpenSettingsCommand, ElementName=MainWindowViewModel}"/>
+                            <MenuItem Header="{Binding AboutMenuContent, ElementName=MainWindowViewModel}" Command="{Binding OpenAboutCommand, ElementName=MainWindowViewModel}"/>
+                            <MenuItem Header="{Binding SettingsMenuContent, ElementName=MainWindowViewModel}" Command="{Binding OpenSettingsCommand, ElementName=MainWindowViewModel}"/>
                             <Separator></Separator>
-                            <MenuItem Header="Exit" InputGestureText="Alt+F4" Command="{Binding ExitCommand, ElementName=MainWindowViewModel}"></MenuItem>
+                            <MenuItem Header="{Binding ExitContent, ElementName=MainWindowViewModel}" InputGestureText="Alt+F4" Command="{Binding ExitCommand, ElementName=MainWindowViewModel}"></MenuItem>
                         </MenuItem>
-                        <MenuItem Header="Edit" IsEnabled="{Binding HasArtOpen}">
-                            <MenuItem Header="Undo" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
-                            <MenuItem Header="Redo" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"></MenuItem>
+                        <MenuItem Header="{Binding EditMenuContent}" IsEnabled="{Binding HasArtOpen}">
+                            <MenuItem Header="{Binding UndoContent}" InputGestureText="Ctrl+Z" Command="{Binding UndoCommand}"></MenuItem>
+                            <MenuItem Header="{Binding RedoContent}" InputGestureText="Ctrl+Y" Command="{Binding RedoCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Cut Selection" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected}" Command="{Binding CutCommand}"></MenuItem>
-                            <MenuItem Header="Copy Selection" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected}" Command="{Binding CopyCommand}"></MenuItem>
-                            <MenuItem Header="Paste as new layer" InputGestureText="Ctrl+V" Command="{Binding PasteCommand}"></MenuItem>
-                            <MenuItem Header="Delete Selection" InputGestureText="Del" IsEnabled="{Binding HasSelected}" Command="{Binding DeleteSelectedCommand}"></MenuItem>
+                            <MenuItem Header="{Binding CutSelectionContent}" InputGestureText="Ctrl+X" IsEnabled="{Binding HasSelected}" Command="{Binding CutCommand}"></MenuItem>
+                            <MenuItem Header="{Binding CopySelectionContent}" InputGestureText="Ctrl+C" IsEnabled="{Binding HasSelected}" Command="{Binding CopyCommand}"></MenuItem>
+                            <MenuItem Header="{Binding PasteLayerContent}" InputGestureText="Ctrl+V" Command="{Binding PasteCommand}"></MenuItem>
+                            <MenuItem Header="{Binding DeleteSelectionContent}" InputGestureText="Del" IsEnabled="{Binding HasSelected}" Command="{Binding DeleteSelectedCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Select Entire Canvas" InputGestureText="Ctrl+A" Command="{Binding SelectCanvasCommand}"></MenuItem>
-                            <MenuItem Header="Select Layer" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand}"></MenuItem>
-                            <MenuItem Header="Cancel Selection" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand}"></MenuItem>
+                            <MenuItem Header="{Binding SelectCanvasContent}" InputGestureText="Ctrl+A" Command="{Binding SelectCanvasCommand}"></MenuItem>
+                            <MenuItem Header="{Binding SelectLayerContent}" InputGestureText="Alt+Ctrl+A" Command="{Binding SelectLayerCommand}"></MenuItem>
+                            <MenuItem Header="{Binding CancelSelectionContent}" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+A" Command="{Binding CancelSelectionCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Crop Art" IsEnabled="{Binding HasSelected}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand}"></MenuItem>
-                            <MenuItem Header="Crop Layer" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
+                            <MenuItem Header="{Binding CropCanvasContent}" IsEnabled="{Binding HasSelected}" InputGestureText="Ctrl+Enter" Command="{Binding CropArtCommand}"></MenuItem>
+                            <MenuItem Header="{Binding CropLayerContent}" IsEnabled="{Binding HasSelected}" InputGestureText="Shift+Ctrl+Enter" Command="{Binding CropLayerCommand}"></MenuItem>
                             <Separator></Separator>
-                            <MenuItem Header="Crop All Layers To Fit Within Art" Command="{Binding FitAllLayersWithinArtCommand}"></MenuItem>
+                            <MenuItem Header="{Binding FitAllLayersContent}" Command="{Binding FitAllLayersWithinArtCommand}"></MenuItem>
                         </MenuItem>
-                        <MenuItem Header="View">
-                            <CheckBox Content="Dark Mode" IsChecked="{Binding IsDarkModeOn, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
-                            <MenuItem Header="Toolbox">
-                                <CheckBox Content="Visible" IsChecked="{Binding IsToolboxVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
+                        <MenuItem Header="{Binding ViewMenuContent, ElementName=MainWindowViewModel}">
+                            <CheckBox Content="{Binding DarkModeContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsDarkModeOn, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
+                            <MenuItem Header="{Binding ToolboxContent, ElementName=MainWindowViewModel}">
+                                <CheckBox Content="{Binding VisibilityCheckboxContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsToolboxVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
-                            <MenuItem Header="Canvas">
+                            <MenuItem Header="{Binding CanvasContent, ElementName=MainWindowViewModel}">
                                 <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding TextSize, ElementName=ArtCanvasViewModel}"/>
                                 <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+I"/>
                                 <MenuItem Header="Shrink text size" Command="{Binding ShrinkTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+O"></MenuItem>
@@ -78,15 +78,15 @@
                                 <Separator></Separator>
                                 <CheckBox Content="Show Grid" IsChecked="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
-                            <MenuItem Header="Layer Management">
-                                <CheckBox Content="Visible" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
+                            <MenuItem Header="{Binding LayerManagementContent, ElementName=MainWindowViewModel}">
+                                <CheckBox Content="{Binding VisibilityCheckboxContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="Filters">
-                            <MenuItem Header="No filters!"></MenuItem>
+                        <MenuItem Header="{Binding FiltersMenuContent, ElementName=MainWindowViewModel}">
+                            <MenuItem Header="{Binding NoFiltersContent, ElementName=MainWindowViewModel}"></MenuItem>
                         </MenuItem>
-                        <MenuItem Header="Draw" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter},ElementName=ToolOptionsViewModel}">
-                            <MenuItem Header="Fill Selection" IsEnabled="{Binding HasSelected}" Command="{Binding FillSelectionCommand}" InputGestureText="Alt+F"></MenuItem>
+                        <MenuItem Header="{Binding DrawMenuContent}" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter},ElementName=ToolOptionsViewModel}">
+                            <MenuItem Header="{Binding FillSelectionContent}" IsEnabled="{Binding HasSelected}" Command="{Binding FillSelectionCommand}" InputGestureText="Alt+F"></MenuItem>
                         </MenuItem>
                     </Menu>
                 </ToolBar>

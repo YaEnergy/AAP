@@ -60,7 +60,9 @@
     <None Remove="Resources\Images\ToolIcons\LineToolIcon.png" />
     <None Remove="Resources\Languages\Dutch.json" />
     <None Remove="Resources\Languages\English.json" />
+    <None Remove="Resources\Languages\French.json" />
     <None Remove="Resources\Languages\Languages.json" />
+    <None Remove="Resources\Languages\Spanish.json" />
     <None Remove="Resources\MoveLayerDownIcon.png" />
     <None Remove="Resources\MoveLayerUpIcon.png" />
     <None Remove="Resources\MoveToolIcon.png" />
@@ -213,6 +215,9 @@
     <Resource Include="Resources\Languages\English.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\Languages\French.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Languages\Languages.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -220,6 +225,9 @@
 
   <ItemGroup>
     <Resource Include="Resources\Images\ProgramIcons\icon2_grayscale.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Languages\Spanish.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

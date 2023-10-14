@@ -21,6 +21,9 @@ namespace AAP.UI.ViewModels
         }
 
         #region Language Content
+        private string programTitleContent = App.Language.GetString("ProgramName");
+        public string ProgramTitleContent => programTitleContent;
+
         private string aboutContent = App.Language.GetString("About");
         public string AboutContent => aboutContent;
 
@@ -47,6 +50,7 @@ namespace AAP.UI.ViewModels
 
         private void OnLanguageChanged(Language language)
         {
+            programTitleContent = App.Language.GetString("ProgramTitle");
             aboutContent = App.Language.GetString("About");
             creditsContent = App.Language.GetString("Credits");
             translationSectionContent = App.Language.GetString("Credits_Section_Translation");
@@ -56,6 +60,7 @@ namespace AAP.UI.ViewModels
             testersSectionContent = App.Language.GetString("Credits_Section_Testers");
             testersCreditsContent = App.Language.GetString("Credits_Testers");
 
+            PropertyChanged?.Invoke(this, new(nameof(ProgramTitleContent)));
             PropertyChanged?.Invoke(this, new(nameof(AboutContent)));
             PropertyChanged?.Invoke(this, new(nameof(CreditsContent)));
             PropertyChanged?.Invoke(this, new(nameof(TranslationSectionContent)));

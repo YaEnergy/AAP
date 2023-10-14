@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using AAP.BackgroundTasks;
+using AAP.FileObjects;
 using AAP.Files;
 using AAP.Timelines;
 using AAP.UI.Controls;
@@ -107,7 +108,71 @@ namespace AAP.UI.ViewModels
             ExitCommand = new ActionCommand((parameter) => Application.Current.Shutdown());
 
             App.Settings.PropertyChanged += Settings_PropertyChanged;
+            App.OnLanguageChanged += OnLanguageChanged;
         }
+
+        #region Language Content
+
+        private string aboutMenuContent = App.Language.GetString("About");
+        public string AboutMenuContent => aboutMenuContent;
+
+        private string settingsMenuContent = App.Language.GetString("Settings");
+        public string SettingsMenuContent => settingsMenuContent;
+
+        private string exitContent = App.Language.GetString("Exit");
+        public string ExitContent => exitContent;
+
+        private string viewMenuContent = App.Language.GetString("ViewMenu");
+        public string ViewMenuContent => viewMenuContent;
+
+        private string filtersMenuContent = App.Language.GetString("FiltersMenu");
+        public string FiltersMenuContent => filtersMenuContent;
+
+        private string darkModeContent = App.Language.GetString("DarkMode");
+        public string DarkModeContent => darkModeContent;
+
+        private string toolboxContent = App.Language.GetString("Toolbox");
+        public string ToolboxContent => toolboxContent;
+
+        private string canvasContent = App.Language.GetString("Canvas");
+        public string CanvasContent => canvasContent;
+
+        private string layerManagementContent = App.Language.GetString("LayerManagement");
+        public string LayerManagementContent => layerManagementContent;
+
+        private string visibilityCheckboxContent = App.Language.GetString("Visible");
+        public string VisibilityCheckboxContent => visibilityCheckboxContent;
+
+        private string noFiltersContent = App.Language.GetString("NoFilters");
+        public string NoFiltersContent => noFiltersContent;
+
+        private void OnLanguageChanged(Language language)
+        {
+            aboutMenuContent = App.Language.GetString("About");
+            settingsMenuContent = App.Language.GetString("Settings");
+            exitContent = App.Language.GetString("Exit");
+            viewMenuContent = App.Language.GetString("ViewMenu");
+            filtersMenuContent = App.Language.GetString("FiltersMenu");
+            darkModeContent = App.Language.GetString("DarkMode");
+            toolboxContent = App.Language.GetString("Toolbox");
+            canvasContent = App.Language.GetString("Canvas");
+            layerManagementContent = App.Language.GetString("LayerManagement");
+            visibilityCheckboxContent = App.Language.GetString("Visible");
+            noFiltersContent = App.Language.GetString("NoFilters");
+
+            PropertyChanged?.Invoke(this, new(nameof(AboutMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(SettingsMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ExitContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ViewMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(FiltersMenuContent)));
+            PropertyChanged?.Invoke(this, new(nameof(DarkModeContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ToolboxContent)));
+            PropertyChanged?.Invoke(this, new(nameof(CanvasContent)));
+            PropertyChanged?.Invoke(this, new(nameof(LayerManagementContent)));
+            PropertyChanged?.Invoke(this, new(nameof(VisibilityCheckboxContent)));
+            PropertyChanged?.Invoke(this, new(nameof(NoFiltersContent)));
+        }
+        #endregion
 
         private void Settings_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
