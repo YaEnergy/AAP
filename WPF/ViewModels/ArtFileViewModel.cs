@@ -493,7 +493,7 @@ namespace AAP.UI.ViewModels
             if (result != true)
                 return;
 
-            art.ArtLayers.Add(new(App.Language.GetString("Default_BackgroundLayerName"), art.Width, art.Height));
+            art.ArtLayers.Add(new(App.Language.GetString("Default_Layers_Background"), art.Width, art.Height));
             App.SetArtAsNewFile(art);
         }
 

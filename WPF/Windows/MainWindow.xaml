@@ -186,12 +186,12 @@
                     <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="5" Command="{Binding RemoveLayerCommand}"/>
                 </Grid>
                 <StackPanel VerticalAlignment="Top" Background="{DynamicResource LightAccent}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding HasSelectedLayer, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <Label Content="Layer Options" FontSize="14" Height="30" Margin="0,5,0,0"/>
+                    <Label Content="{Binding LayerOptionsContent}" FontSize="14" Height="30" Margin="0,5,0,0"/>
                     <WrapPanel Margin="5,0,5,5">
-                        <Label Content="Name" HorizontalAlignment="Left"/>
+                        <Label Content="{Binding LayerNameContent}" HorizontalAlignment="Left"/>
                         <TextBox TextWrapping="Wrap" Margin="5,3,3,3" Text="{Binding SelectedLayerName, Mode=TwoWay}" UndoLimit="0" MaxHeight="100" MinWidth="100" HorizontalAlignment="Left" MaxWidth="140"/>
                     </WrapPanel>
-                    <CheckBox Content="Visible" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5" Style="{StaticResource ContentLeftCheckBoxStyle}" Foreground="{DynamicResource Text}"/>
+                    <CheckBox Content="{Binding LayerVisibilityContent}" IsChecked="{Binding SelectedLayerVisibility, Mode=TwoWay}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,0,0,5" Style="{StaticResource ContentLeftCheckBoxStyle}" Foreground="{DynamicResource Text}"/>
                 </StackPanel>
                 <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding HasSelectedLayer,Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <ListBox VerticalContentAlignment="Top" DockPanel.Dock="Top" FontSize="14" SelectedIndex="{Binding SelectedLayerID, Mode=TwoWay}" ItemsSource="{Binding Layers}" VerticalAlignment="Top">

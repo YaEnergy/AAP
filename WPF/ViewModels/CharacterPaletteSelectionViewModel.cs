@@ -93,27 +93,38 @@ namespace AAP.UI.ViewModels
 
         public bool? ShowCharacterPaletteDialog(CharacterPalette palette, string closeMessage)
         {
+            string dialogTitle = App.Language.GetString("Palette");
+            string namePropertyName = App.Language.GetString("Name");
+            string charactersPropertyName = App.Language.GetString("Palette_Characters");
+
+            string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+
+            string invalidCharacterInCharactersErrorMessage = App.Language.GetString("Error_Palette_InvalidCharacterMessage");
+            string invalidPaletteNameErrorMessage = App.Language.GetString("Error_Palette_InvalidNameMessage");
+            string invalidFileNameErrorMessage = App.Language.GetString("Error_Palette_InvalidFileNameMessage");
+            string paletteExistsErrorMessage = App.Language.GetString("Error_Palette_AlreadyExistsMessage");
+
             bool successful = false;
 
             while (!successful)
             {
-                PropertiesWindow paletteWindow = new("New Character Palette", closeMessage);
-                paletteWindow.AddStringProperty("Name", palette.Name);
+                PropertiesWindow paletteWindow = new(dialogTitle, closeMessage);
+                paletteWindow.AddStringProperty(namePropertyName, palette.Name);
 
                 string startPaletteCharacterString = "";
                 foreach (char character in palette.Characters)
                     startPaletteCharacterString += character;
 
-                paletteWindow.AddStringProperty("Characters", startPaletteCharacterString);
+                paletteWindow.AddStringProperty(charactersPropertyName, startPaletteCharacterString);
 
                 bool? createdPalette = paletteWindow.ShowDialog();
 
                 if (createdPalette != true)
                     return createdPalette;
 
-                if (paletteWindow.GetProperty("Name") is not string paletteName || string.IsNullOrWhiteSpace(paletteName))
+                if (paletteWindow.GetProperty(namePropertyName) is not string paletteName || string.IsNullOrWhiteSpace(paletteName))
                 {
-                    MessageBox.Show("Invalid name! Palette name can not empty or just white space!", "Character Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(invalidPaletteNameErrorMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
@@ -126,20 +137,20 @@ namespace AAP.UI.ViewModels
                         foreach (char invalidFileNameChar in invalidFileNameChars)
                             invalidFileNameCharsString += invalidFileNameChar.ToString();
 
-                        MessageBox.Show($"Invalid name! Palette name can not contain any of these characters: {invalidFileNameCharsString}", "Character Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(invalidFileNameErrorMessage, invalidFileNameCharsString), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                         continue;
                     }
 
                 foreach (CharacterPalette characterPalette in App.CharacterPalettes)
                     if (characterPalette.Name == paletteName && characterPalette != palette)
                     {
-                        MessageBox.Show("Palette " + paletteName + " already exists!", "Character Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(paletteExistsErrorMessage, paletteName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                         continue;
                     }
 
-                if (paletteWindow.GetProperty("Characters") is not string paletteCharactersString)
+                if (paletteWindow.GetProperty(charactersPropertyName) is not string paletteCharactersString)
                 {
-                    MessageBox.Show("Invalid character string!", "Character Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, charactersPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
@@ -148,7 +159,7 @@ namespace AAP.UI.ViewModels
                 ObservableCollection<char> characters = new();
                 foreach (char character in paletteCharactersString.ToCharArray())
                     if (CharacterPalette.InvalidCharacters.Contains(character))
-                        MessageBox.Show("Palette contains invalid character: " + character, "Character Palette", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(invalidCharacterInCharactersErrorMessage, character), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     else if (!characters.Contains(character))
                         characters.Add(character);
 
@@ -162,9 +173,11 @@ namespace AAP.UI.ViewModels
         #region Background Task Work
         private async Task NewPaletteAsync()
         {
+            string dialogTitle = App.Language.GetString("Palette");
+
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to create a new palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -172,15 +185,15 @@ namespace AAP.UI.ViewModels
             foreach (char character in $@"|\/*-_".ToCharArray())
                 paletteCharacters.Add(character);
 
-            CharacterPalette palette = new("New Palette", paletteCharacters);
-            bool? createdPalette = ShowCharacterPaletteDialog(palette, "Create");
+            CharacterPalette palette = new(App.Language.GetString("Default_Palettes_New"), paletteCharacters);
+            bool? createdPalette = ShowCharacterPaletteDialog(palette, App.Language.GetString("Create"));
 
             if (createdPalette != true)
                 return;
 
             try
             {
-                BackgroundTaskToken bgTask = new($"Creating palette {palette.Name} file...");
+                BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("Palette_CreateBusy"), palette.Name));
                 Task task = App.ExportPaletteFileAsync(palette);
                 bgTask.MainTask = task;
 
@@ -194,7 +207,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to create palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("Palette_CreateFailedMessage"), ex.Message), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using AAP.FileObjects;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -114,6 +115,12 @@ namespace AAP.UI.ViewModels
                 if (selectedLayerName == value)
                     return;
 
+                if (string.IsNullOrEmpty(value))
+                {
+                    PropertyChanged?.Invoke(this, new(nameof(SelectedLayerName)));
+                    return;
+                }
+
                 selectedLayerName = value;
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerName)));
             }
@@ -169,7 +176,32 @@ namespace AAP.UI.ViewModels
             DuplicateLayerCommand = new ActionCommand((parameter) => App.DuplicateCurrentArtLayer());
             MergeLayerCommand = new ActionCommand((parameter) => App.MergeCurrentArtLayerDown());
             RemoveLayerCommand = new ActionCommand((parameter) => App.RemoveCurrentArtLayer());
+
+            App.OnLanguageChanged += OnLanguageChanged;
         }
+
+        #region Language Content
+
+        private string layerOptionsContent = App.Language.GetString("LayerOptions");
+        public string LayerOptionsContent => layerOptionsContent;
+
+        private string layerNameContent = App.Language.GetString("Name");
+        public string LayerNameContent => layerNameContent;
+
+        private string layerVisibilityContent = App.Language.GetString("Visible");
+        public string LayerVisibilityContent => layerVisibilityContent;
+
+        private void OnLanguageChanged(Language language)
+        {
+            layerOptionsContent = App.Language.GetString("LayerOptions");
+            layerNameContent = App.Language.GetString("Name");
+            layerVisibilityContent = App.Language.GetString("Visible");
+
+            PropertyChanged?.Invoke(this, new(nameof(LayerOptionsContent)));
+            PropertyChanged?.Invoke(this, new(nameof(LayerNameContent)));
+            PropertyChanged?.Invoke(this, new(nameof(LayerVisibilityContent)));
+        }
+        #endregion
 
         private void LayerNameChanged(ArtLayer layer, string name)
         {

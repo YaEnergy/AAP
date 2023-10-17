@@ -36,12 +36,12 @@ namespace AAP.FileObjects
         {
             if (translationDictionary.ContainsKey(key))
             {
-                return translationDictionary[key] ?? key;
+                return translationDictionary[key] ?? "[" + key + "]";
             }
 
             ConsoleLogger.Warn("Language content key " + key + " not found!");
 
-            return key;
+            return "[" + key + "]";
         }
 
         public static Language Decode(Stream stream)

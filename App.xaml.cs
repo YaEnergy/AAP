@@ -743,7 +743,7 @@ namespace AAP
                 return;
 
             int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
-            CurrentArtFile.Art.ArtLayers.Insert(layerID, new("New Layer", CurrentArtFile.Art.Width, CurrentArtFile.Art.Height));
+            CurrentArtFile.Art.ArtLayers.Insert(layerID, new(Language.GetString("Default_Layers_NewLayer"), CurrentArtFile.Art.Width, CurrentArtFile.Art.Height));
             CurrentLayerID = layerID;
 
             CurrentArtFile.ArtTimeline?.NewTimePoint();
@@ -763,7 +763,7 @@ namespace AAP
 
             ArtLayer currentArtLayer = CurrentArtFile.Art.ArtLayers[CurrentLayerID];
             ArtLayer duplicateArtLayer = (ArtLayer)currentArtLayer.Clone();
-            duplicateArtLayer.Name += " copy";
+            duplicateArtLayer.Name = string.Format(Language.GetString("Default_Layers_CloneFormat"), duplicateArtLayer.Name);
 
             int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
             CurrentArtFile.Art.ArtLayers.Insert(layerID, duplicateArtLayer);
