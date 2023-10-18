@@ -11,6 +11,10 @@ namespace AAP.UI.ViewModels
 {
     public class ColorPickerViewModel : INotifyPropertyChanged
     {
+        private static string ColorPickerName => App.Language.GetString("ColorPicker");
+        private static string InvalidHexColorMessage => App.Language.GetString("Error_InvalidHexColorMessage");
+        private static string InvalidColorMessage => App.Language.GetString("Error_InvalidColorMessage");
+
         private Color pickedColor = Colors.White;
         public Color PickedColor
         {
@@ -68,7 +72,7 @@ namespace AAP.UI.ViewModels
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Invalid Color!", "Color Picker", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(InvalidColorMessage, ColorPickerName, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 PropertyChanged?.Invoke(this, new(nameof(RedText)));
@@ -92,7 +96,7 @@ namespace AAP.UI.ViewModels
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Invalid Color!", "Color Picker", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(InvalidColorMessage, ColorPickerName, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 PropertyChanged?.Invoke(this, new(nameof(GreenText)));
@@ -116,7 +120,7 @@ namespace AAP.UI.ViewModels
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Invalid Color!", "Color Picker", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(InvalidColorMessage, ColorPickerName, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 PropertyChanged?.Invoke(this, new(nameof(BlueText)));
@@ -146,7 +150,7 @@ namespace AAP.UI.ViewModels
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Invalid Hex Color!", "Color Picker", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(InvalidHexColorMessage, ColorPickerName, MessageBoxButton.OK, MessageBoxImage.Error);
                 }
 
                 PropertyChanged?.Invoke(this, new(nameof(HexText)));

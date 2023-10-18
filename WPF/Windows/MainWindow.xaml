@@ -151,15 +151,15 @@
                         </DockPanel>
                         <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsSizeOptionVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <Label Content="Size" Height="30" Margin="5,0,0,0"></Label>
+                            <Label Content="{Binding SizeContent}" Height="30" Margin="5,0,0,0"></Label>
                             <Slider Width="100" Margin="5,5,5,5" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" Minimum="1" Value="{Binding Size}" Maximum="16"/>
                             <Label Content="{Binding Size}"/>
                         </WrapPanel>
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsEightDirectionalOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <CheckBox Content="Eight Directional" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}" Foreground="{DynamicResource Text}"/>
+                            <CheckBox Content="{Binding EightDirectionalContent}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}" Foreground="{DynamicResource Text}"/>
                         </WrapPanel>
                         <WrapPanel Background="{DynamicResource LightAccent}" Visibility="{Binding IsStayInsideSelectionOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                            <CheckBox Content="Stay Inside Selection" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding StayInsideSelection}" Foreground="{DynamicResource Text}"/>
+                            <CheckBox Content="{Binding StayInsideSelectionContent}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding StayInsideSelection}" Foreground="{DynamicResource Text}"/>
                         </WrapPanel>
                     </StackPanel>
                 </ScrollViewer>
