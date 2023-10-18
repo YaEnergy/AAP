@@ -132,8 +132,8 @@ namespace AAP
         public delegate void CurrentToolChangedEvent(Tool? tool);
         public static event CurrentToolChangedEvent? OnCurrentToolChanged;
 
-        private static CharacterPalette currentCharacterPalette = new();
-        public static CharacterPalette CurrentCharacterPalette 
+        private static CharacterPalette? currentCharacterPalette;
+        public static CharacterPalette? CurrentCharacterPalette 
         { 
             get => currentCharacterPalette;
             set 
@@ -145,7 +145,7 @@ namespace AAP
                 OnCurrentCharacterPaletteChanged?.Invoke(value); 
             } 
         }
-        public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette palette);
+        public delegate void OnCurrentCharacterPaletteChangedEvent(CharacterPalette? palette);
         public static event OnCurrentCharacterPaletteChangedEvent? OnCurrentCharacterPaletteChanged;
 
         private static readonly ObservableCollection<CharacterPalette> characterPalettes = new();
@@ -267,52 +267,6 @@ namespace AAP
                 else
                     ConsoleLogger.Log("No settings file found!");
 
-                //Tools
-                Tools.Add(new PencilTool('|', 1));
-                Tools.Add(new EraserTool(1));
-                Tools.Add(new SelectTool());
-                Tools.Add(new MoveTool());
-                Tools.Add(new BucketTool('|'));
-                Tools.Add(new TextTool());
-                Tools.Add(new LineTool('|'));
-
-                SelectToolType(ToolType.None);
-
-                //Preset Character Palettes
-                foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
-                {
-                    TextCharacterPaletteDecoder presetTxTCharacterPalette = new(new FileStream(presetFileInfo.FullName, FileMode.Open, FileAccess.Read));
-                    CharacterPalette palette = presetTxTCharacterPalette.Decode();
-                    presetTxTCharacterPalette.Close();
-
-                    palette.Name = Path.GetFileNameWithoutExtension(presetFileInfo.FullName);
-                    palette.IsPresetPalette = true;
-
-                    characterPalettes.Add(palette);
-
-                    ConsoleLogger.Log($"Imported Preset Character Palette File: {presetFileInfo.FullName}");
-                }
-
-                //Character Palettes
-                foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
-                    if (fileInfo.Extension.ToLower() == ".aappal")
-                    {
-                        AAPPALCharacterPaletteDecoder fileCharacterPalette = new(new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read));
-                        CharacterPalette palette = fileCharacterPalette.Decode();
-
-                        fileCharacterPalette.Close();
-
-                        characterPalettes.Add(palette);
-
-                        ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
-                    } 
-
-                CurrentCharacterPalette = CharacterPalettes[0];
-
-                OnCurrentArtFileChanged += CurrentArtFileChanged;
-
-                Settings.PropertyChanged += SettingsPropertyChanged;
-
                 Stream languageStream;
                 try
                 {
@@ -333,7 +287,25 @@ namespace AAP
 
                 TimeSpan interval = Settings.AutosaveFiles ? Settings.AutosaveInterval : Timeout.InfiniteTimeSpan;
                 AutosaveTimer.Change(interval, interval);
+                
 
+                //Tools
+                Tools.Add(new PencilTool('|', 1));
+                Tools.Add(new EraserTool(1));
+                Tools.Add(new SelectTool());
+                Tools.Add(new MoveTool());
+                Tools.Add(new BucketTool('|'));
+                Tools.Add(new TextTool());
+                Tools.Add(new LineTool('|'));
+
+                SelectToolType(ToolType.None);
+
+                RefreshPalettes();
+
+                OnCurrentArtFileChanged += CurrentArtFileChanged;
+
+                Settings.PropertyChanged += SettingsPropertyChanged;
+                OnLanguageChanged += (language) => RefreshPalettes();
             }
             catch (Exception ex)
             {
@@ -897,6 +869,45 @@ namespace AAP
         }
         #endregion
         #region Palettes
+        public static void RefreshPalettes()
+        {
+            if (ExecutableDirectory == null)
+                throw new NullReferenceException(nameof(ExecutableDirectory) + " is null!");
+
+            CharacterPalettes.Clear();
+
+            //Preset Character Palettes
+            foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
+            {
+                TextCharacterPaletteDecoder presetTxTCharacterPalette = new(new FileStream(presetFileInfo.FullName, FileMode.Open, FileAccess.Read));
+                CharacterPalette palette = presetTxTCharacterPalette.Decode();
+                presetTxTCharacterPalette.Close();
+
+                palette.Name = Language.GetString("PresetPalette_" + Path.GetFileNameWithoutExtension(presetFileInfo.FullName));
+                palette.IsPresetPalette = true;
+
+                characterPalettes.Add(palette);
+
+                ConsoleLogger.Log($"Imported Preset Character Palette File: {presetFileInfo.FullName}");
+            }
+
+            //Character Palettes
+            foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
+                if (fileInfo.Extension.ToLower() == ".aappal")
+                {
+                    AAPPALCharacterPaletteDecoder fileCharacterPalette = new(new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read));
+                    CharacterPalette palette = fileCharacterPalette.Decode();
+
+                    fileCharacterPalette.Close();
+
+                    characterPalettes.Add(palette);
+
+                    ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
+                }
+
+            CurrentCharacterPalette = CharacterPalettes[0];
+        }
+
         public static async Task ExportPaletteFileAsync(CharacterPalette palette)
         {
             if (palette.Name == string.Empty)

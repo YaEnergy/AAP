@@ -1,4 +1,5 @@
 ﻿using AAP.BackgroundTasks;
+using AAP.FileObjects;
 using AAP.Files;
 using AAP.UI.Windows;
 using Newtonsoft.Json.Linq;
@@ -89,11 +90,26 @@ namespace AAP.UI.ViewModels
             NewPaletteCommand = new ActionCommand(async (parameter) => await NewPaletteAsync());
             EditPaletteCommand = new ActionCommand(async (parameter) => await EditPaletteAsync());
             RemovePaletteCommand = new ActionCommand(async (parameter) => await RemovePaletteAsync());
+
+            App.OnLanguageChanged += OnLanguageChanged;
         }
+
+        #region Language Content
+
+        private string paletteContent = App.Language.GetString("Palette");
+        public string PaletteContent => paletteContent;
+
+        private void OnLanguageChanged(Language language)
+        {
+            paletteContent = App.Language.GetString("Palette");
+
+            PropertyChanged?.Invoke(this, new(nameof(PaletteContent)));
+        }
+
+        #endregion
 
         public bool? ShowCharacterPaletteDialog(CharacterPalette palette, string closeMessage)
         {
-            string dialogTitle = App.Language.GetString("Palette");
             string namePropertyName = App.Language.GetString("Name");
             string charactersPropertyName = App.Language.GetString("Palette_Characters");
 
@@ -108,7 +124,7 @@ namespace AAP.UI.ViewModels
 
             while (!successful)
             {
-                PropertiesWindow paletteWindow = new(dialogTitle, closeMessage);
+                PropertiesWindow paletteWindow = new(PaletteContent, closeMessage);
                 paletteWindow.AddStringProperty(namePropertyName, palette.Name);
 
                 string startPaletteCharacterString = "";
@@ -124,33 +140,38 @@ namespace AAP.UI.ViewModels
 
                 if (paletteWindow.GetProperty(namePropertyName) is not string paletteName || string.IsNullOrWhiteSpace(paletteName))
                 {
-                    MessageBox.Show(invalidPaletteNameErrorMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(invalidPaletteNameErrorMessage, PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
                 char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
+                bool invalidFileName = false;
+                string foundInvalidFileNameCharacters = "";
 
                 foreach (char fileNameChar in paletteName.ToCharArray())
                     if (invalidFileNameChars.Contains(fileNameChar))
                     {
-                        string invalidFileNameCharsString = "";
-                        foreach (char invalidFileNameChar in invalidFileNameChars)
-                            invalidFileNameCharsString += invalidFileNameChar.ToString();
+                        foundInvalidFileNameCharacters += fileNameChar + " ";
 
-                        MessageBox.Show(string.Format(invalidFileNameErrorMessage, invalidFileNameCharsString), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
-                        continue;
+                        invalidFileName = true;
                     }
+
+                if (invalidFileName)
+                {
+                    MessageBox.Show(string.Format(invalidFileNameErrorMessage, foundInvalidFileNameCharacters), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
 
                 foreach (CharacterPalette characterPalette in App.CharacterPalettes)
                     if (characterPalette.Name == paletteName && characterPalette != palette)
                     {
-                        MessageBox.Show(string.Format(paletteExistsErrorMessage, paletteName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(paletteExistsErrorMessage, paletteName), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                         continue;
                     }
 
                 if (paletteWindow.GetProperty(charactersPropertyName) is not string paletteCharactersString)
                 {
-                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, charactersPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, charactersPropertyName), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
@@ -159,7 +180,7 @@ namespace AAP.UI.ViewModels
                 ObservableCollection<char> characters = new();
                 foreach (char character in paletteCharactersString.ToCharArray())
                     if (CharacterPalette.InvalidCharacters.Contains(character))
-                        MessageBox.Show(string.Format(invalidCharacterInCharactersErrorMessage, character), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(invalidCharacterInCharactersErrorMessage, character), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     else if (!characters.Contains(character))
                         characters.Add(character);
 
@@ -173,11 +194,9 @@ namespace AAP.UI.ViewModels
         #region Background Task Work
         private async Task NewPaletteAsync()
         {
-            string dialogTitle = App.Language.GetString("Palette");
-
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -207,7 +226,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show(string.Format(App.Language.GetString("Palette_CreateFailedMessage"), ex.Message), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("Palette_CreateFailedMessage"), ex.Message), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -219,11 +238,9 @@ namespace AAP.UI.ViewModels
 
         private async Task EditPaletteAsync()
         {
-            string dialogTitle = App.Language.GetString("Palette");
-
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -234,7 +251,7 @@ namespace AAP.UI.ViewModels
 
             if (palette.IsPresetPalette)
             {
-                MessageBox.Show(App.Language.GetString("Palette_EditPresetPaletteMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("Palette_EditPresetPaletteMessage"), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -260,7 +277,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show(string.Format(App.Language.GetString("Palette_EditFailedMessage"), palette.Name, ex.Message), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("Palette_EditFailedMessage"), palette.Name, ex.Message), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -272,11 +289,9 @@ namespace AAP.UI.ViewModels
 
         private async Task RemovePaletteAsync()
         {
-            string dialogTitle = App.Language.GetString("Palette");
-
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -287,11 +302,11 @@ namespace AAP.UI.ViewModels
 
             if (palette.IsPresetPalette)
             {
-                MessageBox.Show(App.Language.GetString("Palette_RemovePresetPaletteMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("Palette_RemovePresetPaletteMessage"), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            MessageBoxResult questionResult = MessageBox.Show(string.Format(App.Language.GetString("Palette_RemoveMessage"), palette.Name), dialogTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult questionResult = MessageBox.Show(string.Format(App.Language.GetString("Palette_RemoveMessage"), palette.Name), PaletteContent, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (questionResult != MessageBoxResult.Yes)
                 return;
@@ -312,7 +327,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show(string.Format(App.Language.GetString("Palette_RemoveFailedMessage"), palette.Name, ex.Message), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("Palette_RemoveFailedMessage"), palette.Name, ex.Message), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;

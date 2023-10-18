@@ -126,7 +126,7 @@
                                 <viewmodels:CharacterPaletteSelectionViewModel x:Name="CharacterPaletteSelectionViewModel"/>
                             </DockPanel.DataContext>
                             <DockPanel DockPanel.Dock="Top">
-                                <Label Content="Palette" HorizontalAlignment="Left"/>
+                                <Label Content="{Binding PaletteContent}" HorizontalAlignment="Left"/>
                                 <ComboBox Height="25" SelectedItem="{Binding SelectedPalette}" ItemsSource="{Binding Palettes}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
                                     <ComboBox.ItemTemplate>
                                         <DataTemplate>
