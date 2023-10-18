@@ -219,9 +219,11 @@ namespace AAP.UI.ViewModels
 
         private async Task EditPaletteAsync()
         {
+            string dialogTitle = App.Language.GetString("Palette");
+
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to edit a palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -232,20 +234,20 @@ namespace AAP.UI.ViewModels
 
             if (palette.IsPresetPalette)
             {
-                MessageBox.Show("Can not edit preset palettes.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("Palette_EditPresetPaletteMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             string originalPaletteName = palette.Name;
 
-            bool? appliedChanges = ShowCharacterPaletteDialog(palette, "Edit");
+            bool? appliedChanges = ShowCharacterPaletteDialog(palette, App.Language.GetString("Edit"));
 
             if (appliedChanges != true)
                 return;
 
             try
             {
-                BackgroundTaskToken bgTask = new($"Editing palette {palette.Name} file...");
+                BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("Palette_EditBusy"), palette.Name));
                 Task task = App.EditPaletteFileAsync(originalPaletteName, palette);
                 bgTask.MainTask = task;
 
@@ -258,7 +260,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to edit palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("Palette_EditFailedMessage"), palette.Name, ex.Message), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
@@ -270,9 +272,11 @@ namespace AAP.UI.ViewModels
 
         private async Task RemovePaletteAsync()
         {
+            string dialogTitle = App.Language.GetString("Palette");
+
             if (CurrentBackgroundTaskToken != null)
             {
-                MessageBox.Show("Current background task must be cancelled in order to remove a palette.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -283,18 +287,18 @@ namespace AAP.UI.ViewModels
 
             if (palette.IsPresetPalette)
             {
-                MessageBox.Show("Can not remove preset palettes.", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(App.Language.GetString("Palette_RemovePresetPaletteMessage"), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            MessageBoxResult questionResult = MessageBox.Show("Are you sure you want to remove palette " + palette.Name + "? This can not be undone.", "Palettes", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            MessageBoxResult questionResult = MessageBox.Show(string.Format(App.Language.GetString("Palette_RemoveMessage"), palette.Name), dialogTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
             if (questionResult != MessageBoxResult.Yes)
                 return;
 
             try
             {
-                BackgroundTaskToken bgTask = new($"Removing palette {palette.Name} file...");
+                BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("Palette_RemoveMessage"), palette.Name));
                 Task task = App.RemovePaletteFileAsync(palette);
                 bgTask.MainTask = task;
 
@@ -308,7 +312,7 @@ namespace AAP.UI.ViewModels
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show($"Failed to remove palette file! Exception message: {ex.Message}", "Palettes", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(string.Format(App.Language.GetString("Palette_RemoveFailedMessage"), palette.Name, ex.Message), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (CurrentBackgroundTaskToken != null)
                     CurrentBackgroundTaskToken.Exception = ex;
