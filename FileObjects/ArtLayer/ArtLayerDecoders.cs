@@ -153,7 +153,9 @@ namespace AAP.Files
             bitmap.Freeze();
 
             Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
-            
+
+            DecodeStream.Flush();
+
             return Converter.ToArtLayer(pixelColors);
         }
 
@@ -173,6 +175,8 @@ namespace AAP.Files
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
             ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
+
+            await DecodeStream.FlushAsync();
 
             return importedLayer;
         }
@@ -196,6 +200,8 @@ namespace AAP.Files
             bitmap.Freeze();
             Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
+            DecodeStream.Flush();
+
             return Converter.ToArtLayer(pixelColors);
         }
 
@@ -215,6 +221,8 @@ namespace AAP.Files
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
             ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
+
+            await DecodeStream.FlushAsync();
 
             return importedLayer;
         }
@@ -239,6 +247,8 @@ namespace AAP.Files
 
             Color[,] pixelColors = Bitmap.GetPixelColors(bitmap);
 
+            DecodeStream.Flush();
+
             return Converter.ToArtLayer(pixelColors);
         }
 
@@ -258,6 +268,8 @@ namespace AAP.Files
 
             taskToken?.ReportProgress(0, new BackgroundTaskProgressArgs("Creating layer...", true));
             ArtLayer importedLayer = await Task.Run(() => Converter.ToArtLayer(pixelColors));
+
+            await DecodeStream.FlushAsync();
 
             return importedLayer;
         }
@@ -314,6 +326,8 @@ namespace AAP.Files
                 layerFrames[i].Name = $"Frame {i + 1}";
             }
 
+            DecodeStream.Flush();
+
             return layerFrames;
         }
 
@@ -339,7 +353,6 @@ namespace AAP.Files
                     pixelColorsFrames.Add(Bitmap.GetPixelColors(bitmap));
                 }
             });
-            
 
             ArtLayer[] layerFrames = new ArtLayer[pixelColorsFrames.Count];
             for (int i = 0; i < pixelColorsFrames.Count; i++)
@@ -353,6 +366,8 @@ namespace AAP.Files
                 layerFrames[i] = importedLayer;
                 layerFrames[i].Name = $"Frame {i + 1}";
             }
+
+            await DecodeStream.FlushAsync();
 
             return layerFrames;
         }

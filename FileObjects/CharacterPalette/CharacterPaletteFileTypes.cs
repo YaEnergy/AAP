@@ -30,6 +30,8 @@ namespace AAP.Files
             StreamWriter sw = new(EncodeStream);
 
             sw.Write(charString);
+
+            sw.Flush();
         }
 
         public override async Task EncodeAsync(BackgroundTaskToken? taskToken = null)
@@ -45,6 +47,8 @@ namespace AAP.Files
             StreamWriter sw = new(EncodeStream);
 
             await sw.WriteAsync(charString);
+
+            await sw.FlushAsync();
         }
     }
 
@@ -110,12 +114,17 @@ namespace AAP.Files
             StreamWriter sw = File.CreateText(tempFilePath);
 
             js.Serialize(sw, FileObject);
+            
+            sw.Flush();
             sw.Close();
 
             using (FileStream fs = File.OpenRead(tempFilePath))
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 fs.CopyTo(output);
+
+                fs.Flush();
+                output.Flush();
 
                 output.Dispose();
             }
@@ -135,6 +144,7 @@ namespace AAP.Files
 
             await serializeTask;
 
+            await sw.FlushAsync();
             sw.Close();
 
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
@@ -143,7 +153,10 @@ namespace AAP.Files
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 await fs.CopyToAsync(output);
 
-                output.Dispose();
+                await fs.FlushAsync();
+                await output.FlushAsync();
+
+                await output.DisposeAsync();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
@@ -170,6 +183,8 @@ namespace AAP.Files
             GZipStream output = new(DecodeStream, CompressionMode.Decompress);
             output.CopyTo(fs);
 
+            output.Flush();
+            fs.Flush();
             fs.Close();
 
             JsonSerializer js = JsonSerializer.CreateDefault();
@@ -194,6 +209,9 @@ namespace AAP.Files
 
             GZipStream output = new(DecodeStream, CompressionMode.Decompress);
             await output.CopyToAsync(fs);
+
+            fs.Flush();
+            output.Flush();
 
             fs.Close();
 

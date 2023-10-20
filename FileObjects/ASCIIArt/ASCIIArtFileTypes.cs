@@ -217,6 +217,7 @@ namespace AAP.Files
             encoder.Frames.Add(bmp);
 
             encoder.Save(EncodeStream);
+            EncodeStream.Flush();
         }
 
         public override async Task EncodeAsync(BackgroundTaskToken? taskToken = null)
@@ -236,6 +237,8 @@ namespace AAP.Files
 
                 encoder.Save(EncodeStream);
             });
+
+            await EncodeStream.FlushAsync();
         }
     }
 
@@ -301,6 +304,7 @@ namespace AAP.Files
             encoder.Frames.Add(bmp);
 
             encoder.Save(EncodeStream);
+            EncodeStream.Flush();
         }
 
         public override async Task EncodeAsync(BackgroundTaskToken? taskToken = null)
@@ -320,6 +324,8 @@ namespace AAP.Files
 
                 encoder.Save(EncodeStream);
             });
+
+            await EncodeStream.FlushAsync();
         }
     }
 
@@ -385,6 +391,7 @@ namespace AAP.Files
             encoder.Frames.Add(bmp);
 
             encoder.Save(EncodeStream);
+            EncodeStream.Flush();
         }
 
         public override async Task EncodeAsync(BackgroundTaskToken? taskToken = null)
@@ -404,6 +411,8 @@ namespace AAP.Files
 
                 encoder.Save(EncodeStream);
             });
+
+            await EncodeStream.FlushAsync();
         }
     }
 
@@ -553,7 +562,7 @@ namespace AAP.Files
             using (MemoryStream ms = new())
             {
                 encoder.Save(ms);
-
+                
                 var fileBytes = ms.ToArray();
                 // This is the NETSCAPE2.0 Application Extension.
                 var applicationExtension = new byte[] { 33, 255, 11, 78, 69, 84, 83, 67, 65, 80, 69, 50, 46, 48, 3, 1, 0, 0, 0 };
@@ -562,6 +571,8 @@ namespace AAP.Files
                 newBytes.AddRange(applicationExtension);
                 newBytes.AddRange(fileBytes.Skip(13));
                 EncodeStream.Write(newBytes.ToArray());
+
+                EncodeStream.Flush();
             }
         }
 
@@ -608,6 +619,8 @@ namespace AAP.Files
                     newBytes.AddRange(applicationExtension);
                     newBytes.AddRange(fileBytes.Skip(13));
                     await EncodeStream.WriteAsync(newBytes.ToArray());
+
+                    await EncodeStream.FlushAsync();
                 }
             });
         }
@@ -705,12 +718,17 @@ namespace AAP.Files
             StreamWriter sw = File.CreateText(tempFilePath);
 
             js.Serialize(sw, FileObject);
+
+            sw.Flush();
             sw.Close();
 
             using (FileStream fs = File.OpenRead(tempFilePath))
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 fs.CopyTo(output);
+
+                fs.Flush();
+                output.Flush();
 
                 output.Dispose();
             }
@@ -730,6 +748,7 @@ namespace AAP.Files
 
             await serializeTask;
 
+            await sw.FlushAsync();
             sw.Close();
 
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
@@ -738,7 +757,10 @@ namespace AAP.Files
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
                 await fs.CopyToAsync(output);
 
-                output.Dispose();
+                await fs.FlushAsync();
+                await output.FlushAsync();
+
+                await output.DisposeAsync();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
