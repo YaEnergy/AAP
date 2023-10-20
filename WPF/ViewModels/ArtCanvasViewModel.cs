@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using AAP.FileObjects;
 using AAP.Timelines;
 using AAP.UI.Controls;
 
@@ -206,7 +207,65 @@ namespace AAP.UI.ViewModels
             IncreaseHighlightThicknessCommand = new ActionCommand(IncreaseHighlightThickness);
             DecreaseHighlightThicknessCommand = new ActionCommand(DecreaseHighlightThickness);
             ResetHighlightThicknessCommand = new ActionCommand(ResetHighlightThickness);
+
+            App.OnLanguageChanged += OnLanguageChanged;
         }
+
+        #region Language Content
+
+        private string canvasTextSizeFormat = App.Language.GetString("CanvasTextSize");
+        public string CanvasTextSizeFormat => canvasTextSizeFormat;
+
+        private string increaseTextSizeContent = App.Language.GetString("CanvasIncreaseTextSize");
+        public string IncreaseTextSizeContent => increaseTextSizeContent;
+
+        private string decreaseTextSizeContent = App.Language.GetString("CanvasDecreaseTextSize");
+        public string DecreaseTextSizeContent => decreaseTextSizeContent;
+
+        private string resetTextSizeContent = App.Language.GetString("CanvasResetTextSize");
+        public string ResetTextSizeContent => resetTextSizeContent;
+
+        private string highlightThicknessFormat = App.Language.GetString("CanvasHighlightThickness");
+        public string HighlightThicknessFormat => highlightThicknessFormat;
+
+        private string increaseThicknessContent = App.Language.GetString("CanvasIncreaseHighlightThickness");
+        public string IncreaseThicknessContent => increaseThicknessContent;
+
+        private string decreaseThicknessContent = App.Language.GetString("CanvasDecreaseHighlightThickness");
+        public string DecreaseThicknessContent => decreaseThicknessContent;
+
+        private string resetThicknessContent = App.Language.GetString("CanvasResetHighlightThickness");
+        public string ResetThicknessContent => resetThicknessContent;
+
+        private string showGridContent = App.Language.GetString("CanvasGridVisibility");
+        public string ShowGridContent => showGridContent;
+
+        private void OnLanguageChanged(Language language)
+        {
+            canvasTextSizeFormat = language.GetString("CanvasTextSize");
+            increaseTextSizeContent = language.GetString("CanvasIncreaseTextSize");
+            decreaseTextSizeContent = language.GetString("CanvasDecreaseTextSize");
+            resetTextSizeContent = language.GetString("CanvasResetTextSize");
+            highlightThicknessFormat = language.GetString("CanvasHighlightThickness");
+            increaseThicknessContent = language.GetString("CanvasIncreaseHighlightThickness");
+            decreaseThicknessContent = language.GetString("CanvasDecreaseHighlightThickness");
+            resetThicknessContent = language.GetString("CanvasResetHighlightThickness");
+            showGridContent = language.GetString("CanvasGridVisibility");
+
+            PropertyChanged?.Invoke(this, new(nameof(CanvasTextSizeFormat)));
+            PropertyChanged?.Invoke(this, new(nameof(TextSize)));
+            PropertyChanged?.Invoke(this, new(nameof(IncreaseTextSizeContent)));
+            PropertyChanged?.Invoke(this, new(nameof(DecreaseTextSizeContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ResetTextSizeContent)));
+            PropertyChanged?.Invoke(this, new(nameof(HighlightThicknessFormat)));
+            PropertyChanged?.Invoke(this, new(nameof(HighlightThickness)));
+            PropertyChanged?.Invoke(this, new(nameof(IncreaseThicknessContent)));
+            PropertyChanged?.Invoke(this, new(nameof(DecreaseThicknessContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ResetThicknessContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ShowGridContent)));
+        }
+
+        #endregion
 
         public void EnlargeTextSize(object? parameter = null)
             => TextSize += 1;

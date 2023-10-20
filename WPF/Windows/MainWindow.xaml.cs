@@ -59,6 +59,8 @@ namespace AAP.UI.Windows
 
             Closing += OnClosing;
 
+            App.OnLanguageChanged += (language) => UpdateTitle();
+
             #region Shortcut Commands
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, new((sender, e) => ArtFileViewModel.NewFile())));
@@ -114,7 +116,7 @@ namespace AAP.UI.Windows
             foreach (ASCIIArtFile artFile in App.OpenArtFiles)
                 if (artFile.UnsavedChanges)
                 {
-                    MessageBoxResult result = MessageBox.Show("You've made some changes that haven't been saved.\nAre you sure you want to exit? (All changes will be discarded)", "ASCII Art", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                    MessageBoxResult result = MessageBox.Show(App.Language.GetString("Application_CloseWithoutSavingWarningMessage"), App.ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Warning);
 
                     if (result == MessageBoxResult.No)
                     {
@@ -132,7 +134,7 @@ namespace AAP.UI.Windows
                 {
                     if (!taskToken.MainTask.IsCompleted)
                     {
-                        MessageBox.Show(this, "Application will automatically close when the current background task has finished after this message.", App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Information);
+                        MessageBox.Show(this, App.Language.GetString("Application_AutoCloseMessage"), App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Information);
 
                         if (MainWindowViewModel.CurrentBackgroundTaskToken != null) //If task hasn't finished after message box
                         {
@@ -145,13 +147,13 @@ namespace AAP.UI.Windows
                                 if (ex == null)
                                     Close();
                                 else
-                                    MessageBox.Show("An error occurred while completing background task, exit of application cancelled.", App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                                    MessageBox.Show(string.Format(App.Language.GetString("Application_CloseBackgroundTaskErrorMessage"), ex.Message), App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                             };
                         }
                         else if (taskToken.Exception != null)
                         {
                             e.Cancel = true;
-                            MessageBox.Show("An error occurred while completing background task, exit of application cancelled.", App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                            MessageBox.Show(string.Format(App.Language.GetString("Application_CloseBackgroundTaskErrorMessage"), taskToken.Exception.Message), App.ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                         }
 
                     }

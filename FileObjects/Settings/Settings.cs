@@ -129,12 +129,17 @@ namespace AAP.Files
             StreamWriter sw = File.CreateText(tempFilePath);
 
             js.Serialize(sw, this);
+
+            sw.Flush();
             sw.Close();
 
             using (FileStream fs = File.OpenRead(tempFilePath))
             {
                 GZipStream output = new(stream, CompressionLevel.SmallestSize);
                 fs.CopyTo(output);
+
+                fs.Flush();
+                output.Flush();
 
                 output.Dispose();
             }
@@ -151,8 +156,10 @@ namespace AAP.Files
             GZipStream output = new(stream, CompressionMode.Decompress);
             output.CopyTo(fs);
 
+            output.Flush();
+            fs.Flush();
             fs.Close();
-
+            
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamReader sr = File.OpenText(tempFilePath);
             JsonTextReader jr = new(sr);
@@ -186,6 +193,9 @@ namespace AAP.Files
                 GZipStream output = new(stream, CompressionLevel.SmallestSize);
                 await fs.CopyToAsync(output);
 
+                fs.Flush();
+                output.Flush();
+
                 output.Dispose();
             }
 
@@ -205,6 +215,9 @@ namespace AAP.Files
 
             GZipStream output = new(stream, CompressionMode.Decompress);
             await output.CopyToAsync(fs);
+
+            await fs.FlushAsync();
+            await output.FlushAsync();
 
             fs.Close();
 

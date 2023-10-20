@@ -21,7 +21,7 @@ namespace AAP
     public partial class App : Application
     {
         public static readonly DirectoryInfo? ExecutableDirectory = Environment.ProcessPath != null ? Directory.GetParent(Environment.ProcessPath) : null;
-        public static readonly string ProgramTitle = "Kiara's ASCII Art Program";
+        public static string ProgramTitle => Language.GetString("ProgramName");
         public static readonly string Version = "v0.0.1";
 
         public static readonly int MaxArtArea = 1600000;
@@ -190,14 +190,6 @@ namespace AAP
         [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "7.0.3.0")]
         public static void Main(string[] args)
         {
-            using Mutex mutex = new(false, ProgramTitle + "_" + Environment.UserName);
-            if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
-            {
-                System.Windows.MessageBox.Show($"There is already an instance of {ProgramTitle} running!", ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
-                mutex.Close();
-                return;
-            }
-            
             App app = new();
             app.InitializeComponent();
 
@@ -248,7 +240,7 @@ namespace AAP
 
                 if (File.Exists(SettingsPath))
                 {
-                    FileStream fs = new FileStream(SettingsPath, FileMode.Open, FileAccess.Read);
+                    FileStream fs = File.Open(SettingsPath, FileMode.Open, FileAccess.Read);
                     try
                     {
                         Settings = AppSettings.Decode(fs);
@@ -287,7 +279,6 @@ namespace AAP
 
                 TimeSpan interval = Settings.AutosaveFiles ? Settings.AutosaveInterval : Timeout.InfiniteTimeSpan;
                 AutosaveTimer.Change(interval, interval);
-                
 
                 //Tools
                 Tools.Add(new PencilTool('|', 1));
@@ -328,7 +319,6 @@ namespace AAP
                 if (result == MessageBoxResult.Yes)
                     Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
 
-                mutex.Close();
                 return;
             }
 
@@ -367,8 +357,6 @@ namespace AAP
             ConsoleLogger.LogFileOut?.Close();
             ConsoleLogger.LogFileError?.Close();
             Console.Out.Close();
-
-            mutex.Close();
         }
 
 
@@ -1022,8 +1010,9 @@ namespace AAP
         #region Resources
         public static void SaveSettings()
         {
-            using FileStream fs = File.Create(SettingsPath);
+            FileStream fs = File.Create(SettingsPath);
             Settings.Encode(fs);
+            fs.Close();
         }
 
         public static async Task SaveSettingsAsync()

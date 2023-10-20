@@ -66,17 +66,17 @@
                                 <CheckBox Content="{Binding VisibilityCheckboxContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsToolboxVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                             <MenuItem Header="{Binding CanvasContent, ElementName=MainWindowViewModel}">
-                                <MenuItem HeaderStringFormat="Canvas Text Size: {0}" Header="{Binding TextSize, ElementName=ArtCanvasViewModel}"/>
-                                <MenuItem Header="Enlarge text size" Command="{Binding EnlargeTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+I"/>
-                                <MenuItem Header="Shrink text size" Command="{Binding ShrinkTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+O"></MenuItem>
-                                <MenuItem Header="Reset text zize" Command="{Binding ResetTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+P"></MenuItem>
+                                <MenuItem HeaderStringFormat="{Binding CanvasTextSizeFormat, ElementName=ArtCanvasViewModel}" Header="{Binding TextSize, ElementName=ArtCanvasViewModel}"/>
+                                <MenuItem Header="{Binding IncreaseTextSizeContent, ElementName=ArtCanvasViewModel}" Command="{Binding EnlargeTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+I"/>
+                                <MenuItem Header="{Binding DecreaseTextSizeContent, ElementName=ArtCanvasViewModel}" Command="{Binding ShrinkTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+O"></MenuItem>
+                                <MenuItem Header="{Binding ResetTextSizeContent, ElementName=ArtCanvasViewModel}" Command="{Binding ResetTextSizeCommand, ElementName=ArtCanvasViewModel}" InputGestureText="Alt+P"></MenuItem>
                                 <Separator></Separator>
-                                <MenuItem Header="{Binding HighlightThickness, ElementName=ArtCanvasViewModel}" HeaderStringFormat="Highlight Thickness: {0}"></MenuItem>
-                                <MenuItem Header="Increase thickness" Command="{Binding IncreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
-                                <MenuItem Header="Decrease thickness" Command="{Binding DecreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
-                                <MenuItem Header="Reset thickness" Command="{Binding ResetHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
+                                <MenuItem Header="{Binding HighlightThickness, ElementName=ArtCanvasViewModel}" HeaderStringFormat="{Binding HighlightThicknessFormat, ElementName=ArtCanvasViewModel}"></MenuItem>
+                                <MenuItem Header="{Binding IncreaseThicknessContent, ElementName=ArtCanvasViewModel}" Command="{Binding IncreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
+                                <MenuItem Header="{Binding DecreaseThicknessContent, ElementName=ArtCanvasViewModel}" Command="{Binding DecreaseHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
+                                <MenuItem Header="{Binding ResetThicknessContent, ElementName=ArtCanvasViewModel}" Command="{Binding ResetHighlightThicknessCommand, ElementName=ArtCanvasViewModel}"></MenuItem>
                                 <Separator></Separator>
-                                <CheckBox Content="Show Grid" IsChecked="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
+                                <CheckBox Content="{Binding ShowGridContent, ElementName=ArtCanvasViewModel}" IsChecked="{Binding ShowGrid, ElementName=ArtCanvasViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                             <MenuItem Header="{Binding LayerManagementContent, ElementName=MainWindowViewModel}">
                                 <CheckBox Content="{Binding VisibilityCheckboxContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
