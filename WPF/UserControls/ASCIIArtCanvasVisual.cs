@@ -678,7 +678,7 @@ namespace AAP.UI.Controls
                 for (int x = 0; x < DisplayArt.Width; x++)
                 {
                     DrawingVisual columnVisual = displayArtVisuals[x];
-
+                    
                     DrawingContext dc = columnVisual.RenderOpen();
 
                     string columnString = "";

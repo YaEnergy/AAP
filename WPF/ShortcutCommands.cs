@@ -83,5 +83,41 @@ namespace AAP.UI
         {
             InputGestures = { new KeyGesture(Key.P, ModifierKeys.Alt) }
         };
+
+        public readonly static RoutedCommand DrawToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.D, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand EraserToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.E, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand SelectToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.W, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand MoveToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.M, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand LineToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.L, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand BucketToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.B, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand TextToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
     }
 }

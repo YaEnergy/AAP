@@ -99,11 +99,26 @@ namespace AAP.UI.ViewModels
         private string paletteContent = App.Language.GetString("Palette");
         public string PaletteContent => paletteContent;
 
+        private string addContent = App.Language.GetString("Palette_New");
+        public string AddContent => addContent;
+
+        private string editContent = App.Language.GetString("Palette_Edit");
+        public string EditContent => editContent;
+
+        private string removeContent = App.Language.GetString("Palette_Remove");
+        public string RemoveContent => removeContent;
+
         private void OnLanguageChanged(Language language)
         {
-            paletteContent = App.Language.GetString("Palette");
+            paletteContent = language.GetString("Palette");
+            addContent = language.GetString("Palette_New");
+            editContent = language.GetString("Palette_Edit");
+            removeContent = language.GetString("Palette_Remove");
 
             PropertyChanged?.Invoke(this, new(nameof(PaletteContent)));
+            PropertyChanged?.Invoke(this, new(nameof(AddContent)));
+            PropertyChanged?.Invoke(this, new(nameof(EditContent)));
+            PropertyChanged?.Invoke(this, new(nameof(RemoveContent)));
         }
 
         #endregion
