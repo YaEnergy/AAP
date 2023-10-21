@@ -159,7 +159,7 @@ namespace AAP.Files
             output.Flush();
             fs.Flush();
             fs.Close();
-            
+
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamReader sr = File.OpenText(tempFilePath);
             JsonTextReader jr = new(sr);
@@ -196,7 +196,7 @@ namespace AAP.Files
                 fs.Flush();
                 output.Flush();
 
-                output.Dispose();
+                await output.DisposeAsync();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));

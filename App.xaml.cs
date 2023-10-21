@@ -190,12 +190,9 @@ namespace AAP
         [System.CodeDom.Compiler.GeneratedCodeAttribute("PresentationBuildTasks", "7.0.3.0")]
         public static void Main(string[] args)
         {
-            App app = new();
-            app.InitializeComponent();
+            using Mutex mutex = new(false, "KiarasASCIIArtProgram");
 
-            app.Exit += OnApplicationExit;
-            app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
-            app.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            App app = new();
 
             SplashScreen splashScreen = new("/Resources/Images/ProgramIcons/icon2_grayscale.png");
             splashScreen.Show(true);
@@ -213,12 +210,6 @@ namespace AAP
                     DirectoryInfo applicationDataDirInfo = Directory.CreateDirectory(ApplicationDataFolderPath);
                     ConsoleLogger.Log($"Created directory {applicationDataDirInfo.FullName}");
                 }
-
-                ConsoleLogger.LogFileOut = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
-                ConsoleLogger.LogFileOut.WriteLine($"--CONSOLE LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
-
-                ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
-                ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
 
                 if (!Directory.Exists(DefaultArtFilesDirectoryPath))
                 {
@@ -251,10 +242,9 @@ namespace AAP
                         ConsoleLogger.Error(ex);
                         MessageBox.Show("Settings failed to load! Defaulted to default settings.", "Settings", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                    finally
-                    {
-                        fs.Dispose();
-                    }
+                    
+                    fs.Flush();
+                    fs.Close();
                 }
                 else
                     ConsoleLogger.Log("No settings file found!");
@@ -272,31 +262,25 @@ namespace AAP
                     ConsoleLogger.Error(ex);
                     MessageBox.Show("Failed to get language resource! Defaulted to English!\nException message: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
-
+                
                 Language = Language.Decode(languageStream);
 
-                SetTheme(Settings.DarkMode);
+                languageStream.Dispose();
 
-                TimeSpan interval = Settings.AutosaveFiles ? Settings.AutosaveInterval : Timeout.InfiniteTimeSpan;
-                AutosaveTimer.Change(interval, interval);
+                if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
+                {
+                    MessageBox.Show(string.Format(Language.GetString("Application_AlreadyRunningMessage"), ProgramTitle), ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                    mutex.Close();
+                    return;
+                }
 
-                //Tools
-                Tools.Add(new PencilTool('|', 1));
-                Tools.Add(new EraserTool(1));
-                Tools.Add(new SelectTool());
-                Tools.Add(new MoveTool());
-                Tools.Add(new BucketTool('|'));
-                Tools.Add(new TextTool());
-                Tools.Add(new LineTool('|'));
+                ConsoleLogger.LogFileOut = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
+                ConsoleLogger.LogFileOut.WriteLine($"--CONSOLE LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
 
-                SelectToolType(ToolType.None);
+                ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
+                ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
 
                 RefreshPalettes();
-
-                OnCurrentArtFileChanged += CurrentArtFileChanged;
-
-                Settings.PropertyChanged += SettingsPropertyChanged;
-                OnLanguageChanged += (language) => RefreshPalettes();
             }
             catch (Exception ex)
             {
@@ -324,6 +308,11 @@ namespace AAP
 
             ConsoleLogger.Log("Set up complete!");
 
+            OnCurrentArtFileChanged += CurrentArtFileChanged;
+
+            Settings.PropertyChanged += SettingsPropertyChanged;
+            OnLanguageChanged += (language) => RefreshPalettes();
+
             if (args.Length == 1)
             {
                 if (File.Exists(args[0]))
@@ -342,10 +331,32 @@ namespace AAP
                     catch (Exception ex)
                     {
                         ConsoleLogger.Error(ex);
-                        MessageBox.Show($"Failed to open {fileInfo.Name}. Exception: {ex.Message}", "Open File", MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(Language.GetString("File_OpenFailedMessage"), ex.Message), Language.GetString("OpenFile"), MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
+
+            app.InitializeComponent();
+
+            app.Exit += OnApplicationExit;
+            app.DispatcherUnhandledException += (sender, e) => OnThreadException(sender, e);
+            app.ShutdownMode = ShutdownMode.OnMainWindowClose;
+
+            SetTheme(Settings.DarkMode);
+
+            TimeSpan interval = Settings.AutosaveFiles ? Settings.AutosaveInterval : Timeout.InfiniteTimeSpan;
+            AutosaveTimer.Change(interval, interval);
+
+            //Tools
+            Tools.Add(new PencilTool('|', 1));
+            Tools.Add(new EraserTool(1));
+            Tools.Add(new SelectTool());
+            Tools.Add(new MoveTool());
+            Tools.Add(new BucketTool('|'));
+            Tools.Add(new TextTool());
+            Tools.Add(new LineTool('|'));
+
+            SelectToolType(ToolType.None);
 
             GC.Collect();
 
@@ -416,7 +427,7 @@ namespace AAP
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Autosave for {artFile.FileName} failed! Exception message: " + ex.Message);
+                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_FileSaving"), artFile.FileName, ex.Message), Language.GetString("Autosave"));
                     ConsoleLogger.Error(ex);
                 }
             }
@@ -430,7 +441,7 @@ namespace AAP
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Settings update while autosaving failed! Exception message: " + ex.Message);
+                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_SettingsSaving"), ex.Message), Language.GetString("Autosave"));
                 ConsoleLogger.Error(ex);
             }
         }
@@ -458,7 +469,7 @@ namespace AAP
             {
                 Console.WriteLine("\n--THREAD EXCEPTION UNHANDLED |  SHUTTING DOWN--\n");
 
-                MessageBoxResult result = MessageBox.Show($"It seems AAP has run into an unhandled exception, and must close! If this keeps occuring, please inform the creator of AAP!\nOpen log file?", ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
+                MessageBoxResult result = MessageBox.Show(string.Format(Language.GetString("Error_Application_StartUpErrorMessage"), ProgramTitle), ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
                 if (result == MessageBoxResult.Yes)
                     Process.Start("explorer.exe", ApplicationDataFolderPath + @"\threadErrorLog.txt");
