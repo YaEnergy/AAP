@@ -92,6 +92,9 @@
   "Error_Palette_AlreadyExistsMessage": "Palette {0} already exists!",
   "Palette_EditPresetPaletteMessage": "Can not edit preset palettes.",
   "Palette_RemovePresetPaletteMessage": "Can not remove preset palettes.",
+  "Palette_New": "New Palette",
+  "Palette_Edit": "Edit Palette",
+  "Palette_Remove": "Remove Palette",
   "LayerOptions": "Layer Options",
   "Tool_NoLayerSelectedCaption": "No layer selected",
   "Tool_NoLayerSelectedMessage": "Please select a layer!",
@@ -140,5 +143,12 @@
   "Autosave": "Autosave",
   "Error_Autosave_FileSaving": "Autosave for {0} failed! Exception message: {1}",
   "Error_Autosave_SettingsSaving": "Settings update while autosaving failed! Exception message: {0}",
+  "Tool_PencilToolTip": "Pencil Tool (Shift + Ctrl + D)",
+  "Tool_EraserToolTip": "Eraser Tool (Shift + Ctrl + E)",
+  "Tool_SelectToolTip": "Select Tool (Shift + Ctrl + W)",
+  "Tool_MoveToolTip": "Move Tool (Shift + Ctrl + M)",
+  "Tool_LineToolTip": "Line Tool (Shift + Ctrl + L)",
+  "Tool_BucketToolTip": "Bucket Tool (Shift + Ctrl + B)",
+  "Tool_TextToolTip": "Text Tool (Shift + Ctrl + T)",
   "SupportedFiles": "Supported file types"
 }

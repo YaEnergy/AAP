@@ -49,13 +49,13 @@ namespace AAP.UI.Windows
 
             UpdateTitle();
 
-            ToolSelectionViewModel.ToolStateBoxes.Add(DrawToolStateBox);
-            ToolSelectionViewModel.ToolStateBoxes.Add(EraserToolStateBox);
-            ToolSelectionViewModel.ToolStateBoxes.Add(SelectToolStateBox);
-            ToolSelectionViewModel.ToolStateBoxes.Add(MoveToolStateBox);
-            ToolSelectionViewModel.ToolStateBoxes.Add(BucketToolStateBox);
-            ToolSelectionViewModel.ToolStateBoxes.Add(TextToolStateBox);
-            ToolSelectionViewModel.ToolStateBoxes.Add(LineToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Draw, DrawToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Eraser, EraserToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Select, SelectToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Move, MoveToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Bucket, BucketToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Text, TextToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Line, LineToolStateBox);
 
             Closing += OnClosing;
 
@@ -94,6 +94,14 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropLayerShortcut, new((sender, e) => App.CropCurrentArtLayerToSelected())));
 
             CommandBindings.Add(new CommandBinding(DrawShortcutCommands.FillSelectionShortcut, new((sender, e) => ArtFileViewModel.FillSelection())));
+
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.DrawToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Draw))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EraserToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Eraser))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.SelectToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Select))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.MoveToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Move))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.LineToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Line))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.BucketToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Bucket))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.TextToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Text))));
             #endregion
         }
         
