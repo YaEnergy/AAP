@@ -112,6 +112,19 @@ namespace AAP.Files
 
         }
 
+        public void Log()
+        {
+            ConsoleLogger.Inform("Dark mode: " + this.DarkMode);
+            ConsoleLogger.Inform("Autosave files: " + this.AutosaveFiles);
+            ConsoleLogger.Inform("Autosave interval: " + this.AutosaveInterval);
+            ConsoleLogger.Inform("Canvas family font name: " + this.CanvasTypefaceSource);
+            string files = "";
+            foreach (string filePath in this.AutosaveFilePaths)
+                files += filePath + "\n";
+
+            ConsoleLogger.Inform("Autosave paths: " + files);
+        }
+
         public void Reset()
         {
             DarkMode = Default.DarkMode;
@@ -128,10 +141,15 @@ namespace AAP.Files
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(tempFilePath);
 
+#if DEBUG
+            ConsoleLogger.Inform("--Encode Settings--");
+            Log();
+#endif
+
             js.Serialize(sw, this);
 
             sw.Flush();
-            sw.Close();
+            sw.Dispose();
 
             using (FileStream fs = File.OpenRead(tempFilePath))
             {
@@ -181,11 +199,17 @@ namespace AAP.Files
             JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(tempFilePath);
 
+#if DEBUG
+            ConsoleLogger.Inform("--Encode Async Settings--");
+            Log();
+#endif
+
             Task serializeTask = Task.Run(() => js.Serialize(sw, this));
 
             await serializeTask;
 
-            sw.Close();
+            await sw.FlushAsync();
+            await sw.DisposeAsync();
 
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
             using (FileStream fs = File.OpenRead(tempFilePath))
@@ -193,8 +217,8 @@ namespace AAP.Files
                 GZipStream output = new(stream, CompressionLevel.SmallestSize);
                 await fs.CopyToAsync(output);
 
-                fs.Flush();
-                output.Flush();
+                await fs.FlushAsync();
+                await output.FlushAsync();
 
                 await output.DisposeAsync();
             }
