@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
@@ -16,6 +17,11 @@ namespace AAP.Files
         /// Specifies whether the brightness of the pixels should be inverted or not.
         /// </summary>
         public bool Invert { get; set; } = false;
+
+        /// <summary>
+        /// Palette used to convert images. The further into this array, the less dense the character should be.
+        /// </summary>
+        public char[] Characters { get; set; } = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,\"^`'. ".ToCharArray();
 
         public ImageArtLayerConverter()
         {
@@ -34,54 +40,17 @@ namespace AAP.Files
                 for (int artY = 0; artY < height; artY++)
                 {
                     Color color = pixels[artX, artY];
-                    double luminance = Invert ? 100 - Bitmap.GetLuminanceOf(color) * 100 : Bitmap.GetLuminanceOf(color) * 100;
 
                     if (color.A < 40)
+                        layer.SetCharacter(artX, artY, null);
+                    else
                     {
-                        layer.SetCharacter(artX, artY, null);
-                        continue;
-                    }
+                        double luminance = Invert ? 1 - Bitmap.GetLuminanceOf(color) : Bitmap.GetLuminanceOf(color);
 
-                    if (luminance < 5)
-                        layer.SetCharacter(artX, artY, '#');
-                    else if (luminance < 10)
-                        layer.SetCharacter(artX, artY, '$');
-                    else if (luminance < 15)
-                        layer.SetCharacter(artX, artY, '%');
-                    else if (luminance < 20)
-                        layer.SetCharacter(artX, artY, '8');
-                    else if (luminance < 25)
-                        layer.SetCharacter(artX, artY, '*');
-                    else if (luminance < 30)
-                        layer.SetCharacter(artX, artY, '0');
-                    else if (luminance < 35)
-                        layer.SetCharacter(artX, artY, '1');
-                    else if (luminance < 40)
-                        layer.SetCharacter(artX, artY, '?');
-                    else if (luminance < 45)
-                        layer.SetCharacter(artX, artY, '-');
-                    else if (luminance < 50)
-                        layer.SetCharacter(artX, artY, '~');
-                    else if (luminance < 55)
-                        layer.SetCharacter(artX, artY, 'i');
-                    else if (luminance < 60)
-                        layer.SetCharacter(artX, artY, '!');
-                    else if (luminance < 65)
-                        layer.SetCharacter(artX, artY, 'l');
-                    else if (luminance < 70)
-                        layer.SetCharacter(artX, artY, 'I');
-                    else if (luminance < 75)
-                        layer.SetCharacter(artX, artY, ';');
-                    else if (luminance < 80)
-                        layer.SetCharacter(artX, artY, ':');
-                    else if (luminance < 85)
-                        layer.SetCharacter(artX, artY, ',');
-                    else if (luminance < 90)
-                        layer.SetCharacter(artX, artY, '"');
-                    else if (luminance < 95)
-                        layer.SetCharacter(artX, artY, '`');
-                    else if (luminance <= 100)
-                        layer.SetCharacter(artX, artY, null);
+                        int index = (int)((Characters.Length - 1) * luminance);
+                        char? character = Characters[index] == ASCIIArt.EMPTYCHARACTER ? null : Characters[index];
+                        layer.SetCharacter(artX, artY, character);
+                    }
                 }
             }
 

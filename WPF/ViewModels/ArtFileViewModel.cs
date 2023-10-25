@@ -379,15 +379,27 @@ namespace AAP.UI.ViewModels
             string invertBrightnessPropertyName = App.Language.GetString("InvertBrightness");
             string scalePropertyName = App.Language.GetString("Scale");
 
+            string charactersPropertyName = App.Language.GetString("ImageArtLayerConverter_Characters");
+            string charactersPropertyInfo = App.Language.GetString("ImageArtLayerConverter_Characters_Info");
+
             string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+            string invalidCharactersPropertyErrorMessage = App.Language.GetString("Error_ImageArtLayerConverter_Characters_Invalid");
 
             bool successful = false;
+
+            string defaultCharactersString = "";
+            foreach (char character in options.ImageArtLayerConverter.Characters)
+                defaultCharactersString += character;
 
             while (!successful)
             {
                 PropertiesWindow artWindow = new(dialogTitle, importButtonContent);
-                artWindow.AddBoolProperty(invertBrightnessPropertyName, false);
-                artWindow.AddSliderDoubleProperty(scalePropertyName, 0.01, 4, 1, 0.01);
+                artWindow.AddBoolProperty(invertBrightnessPropertyName, options.ImageArtLayerConverter.Invert);
+                artWindow.AddSliderDoubleProperty(scalePropertyName, 0.01, 4, options.Scale, 0.01);
+
+                artWindow.AddStringProperty(charactersPropertyName, defaultCharactersString);
+                artWindow.AddLabel(charactersPropertyInfo, 12, 2);
+
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
@@ -405,8 +417,15 @@ namespace AAP.UI.ViewModels
                     continue;
                 }
 
+                if (artWindow.GetProperty(charactersPropertyName) is not string charactersString || charactersString.Length < 1)
+                {
+                    MessageBox.Show(invalidCharactersPropertyErrorMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
                 ImageArtLayerConverter converter = new();
                 converter.Invert = invert;
+                converter.Characters = charactersString.ToCharArray();
 
                 options.ImageArtLayerConverter = converter;
                 options.Scale = scale;
@@ -441,8 +460,8 @@ namespace AAP.UI.ViewModels
                 PropertiesWindow artWindow = new(dialogTitle, exportButtonContent);
                 artWindow.AddDoubleProperty(textSizePropertyName, 12);
                 artWindow.AddCategory(colorsCategoryName);
-                artWindow.AddColorProperty(backgroundColorPropertyName, Colors.White);
-                artWindow.AddColorProperty(textColorPropertyName, Colors.Black);
+                artWindow.AddColorProperty(backgroundColorPropertyName, Colors.White, 1);
+                artWindow.AddColorProperty(textColorPropertyName, Colors.Black, 1);
 
                 bool? result = artWindow.ShowDialog();
 

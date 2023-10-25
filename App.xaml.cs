@@ -441,8 +441,8 @@ namespace AAP
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_SettingsSaving"), ex.Message), Language.GetString("Autosave"));
                 ConsoleLogger.Error(ex);
+                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_SettingsSaving"), ex.Message), Language.GetString("Autosave"));
             }
         }
 
@@ -1023,13 +1023,14 @@ namespace AAP
         {
             FileStream fs = File.Create(SettingsPath);
             Settings.Encode(fs);
-            fs.Close();
+            fs.Dispose();
         }
 
         public static async Task SaveSettingsAsync()
         {
-            using FileStream fs = File.Create(SettingsPath);
+            FileStream fs = File.Create(SettingsPath);
             await Settings.EncodeAsync(fs);
+            await fs.DisposeAsync();
         }
 
         private static void SettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)

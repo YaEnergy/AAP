@@ -65,6 +65,8 @@
   "ImageASCIIArtImportOptions": "Image ASCII Art Import Options",
   "InvertBrightness": "Invert brightness",
   "Scale": "Scale",
+  "ImageArtLayerConverter_Characters": "Characters",
+  "ImageArtLayerConverter_Characters_Info": "<= DENSER  =========  SPARSER =>\n(Space is an empty character)",
   "Settings_Language": "Language",
   "Settings_UserInterface": "User interface",
   "Settings_CanvasFont": "Canvas font",

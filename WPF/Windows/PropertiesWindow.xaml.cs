@@ -22,94 +22,102 @@ namespace AAP.UI.Windows
     /// </summary>
     public partial class PropertiesWindow : Window
     {
+        private int LevelOffset { get; set; }
+
         private readonly Dictionary<string, object?> properties = new();
 
-        public PropertiesWindow(string title, string closeMessage)
+        public PropertiesWindow(string title, string closeMessage, int levelOffset = 10)
         {
             InitializeComponent();
 
             Title = title;
+            LevelOffset = levelOffset;
+
             WindowViewModel.CloseButtonContent = closeMessage;
             WindowViewModel.CloseButtonCommand = new ActionCommand((parameter) => ApplyClose());
         }
 
-        public void AddCategory(string name)
+        public void AddCategory(string name, int level = 0)
+            => AddLabel(name, 16 - level);
+
+        public void AddLabel(object content, double fontSize = 12, int level = 0)
         {
             Label label = new();
-            label.Content = name;
-            label.FontSize = 16;
+            label.Content = content;
+            label.FontSize = fontSize;
+            label.Margin = new(5 + level * LevelOffset, 0, 5, 0);
 
             PropertyList.Children.Add(label);
         }
 
-        public void AddStringProperty(string name, string startingValue)
+        public void AddStringProperty(string name, string startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateStringPropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateStringPropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddBoolProperty(string name, bool startingValue)
+        public void AddBoolProperty(string name, bool startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateBoolPropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateBoolPropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddIntProperty(string name, int startingValue)
+        public void AddIntProperty(string name, int startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateIntPropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateIntPropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddFloatProperty(string name, float startingValue)
+        public void AddFloatProperty(string name, float startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateFloatPropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateFloatPropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddDoubleProperty(string name, double startingValue)
+        public void AddDoubleProperty(string name, double startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateDoublePropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateDoublePropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddSliderDoubleProperty(string name, double min, double max, double startingValue, double step = 1)
+        public void AddSliderDoubleProperty(string name, double min, double max, double startingValue, double step = 1, int level = 0)
         {
-            PropertyList.Children.Add(CreateSliderPropertyUIElement(name, min, max, startingValue, step));
+            PropertyList.Children.Add(CreateSliderPropertyUIElement(name, min, max, startingValue, step, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddColorProperty(string name, Color startingValue)
+        public void AddColorProperty(string name, Color startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateColorPropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateColorPropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddSizeDoubleProperty(string name, Size startingValue)
+        public void AddSizeDoubleProperty(string name, Size startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateSizeDoublePropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateSizeDoublePropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
-        public void AddSizeIntProperty(string name, Size startingValue)
+        public void AddSizeIntProperty(string name, Size startingValue, int level = 0)
         {
-            PropertyList.Children.Add(CreateSizeIntPropertyUIElement(name, startingValue));
+            PropertyList.Children.Add(CreateSizeIntPropertyUIElement(name, startingValue, level));
 
             properties.Add(name, startingValue);
         }
 
         #region PropertyUIElement type creations
-        private UIElement CreateStringPropertyUIElement(string name, string value)
+        private UIElement CreateStringPropertyUIElement(string name, string value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -128,10 +136,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateBoolPropertyUIElement(string name, bool value)
+        private UIElement CreateBoolPropertyUIElement(string name, bool value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             CheckBox checkBox = new();
             checkBox.Padding = new(5);
@@ -147,10 +155,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateIntPropertyUIElement(string name, int value)
+        private UIElement CreateIntPropertyUIElement(string name, int value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -182,10 +190,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateFloatPropertyUIElement(string name, float value)
+        private UIElement CreateFloatPropertyUIElement(string name, float value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -217,10 +225,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateDoublePropertyUIElement(string name, double value)
+        private UIElement CreateDoublePropertyUIElement(string name, double value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -252,10 +260,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateSliderPropertyUIElement(string name, double min, double max, double value, double step = 1)
+        private UIElement CreateSliderPropertyUIElement(string name, double min, double max, double value, double step = 1, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -286,10 +294,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateColorPropertyUIElement(string name, Color value)
+        private UIElement CreateColorPropertyUIElement(string name, Color value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -315,10 +323,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateSizeDoublePropertyUIElement(string name, Size value)
+        private UIElement CreateSizeDoublePropertyUIElement(string name, Size value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
@@ -374,10 +382,10 @@ namespace AAP.UI.Windows
             return propertyPanel;
         }
 
-        private UIElement CreateSizeIntPropertyUIElement(string name, Size value)
+        private UIElement CreateSizeIntPropertyUIElement(string name, Size value, int level = 0)
         {
             WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5);
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
             Label label = new();
             label.Content = name;
