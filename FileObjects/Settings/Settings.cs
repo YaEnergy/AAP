@@ -11,9 +11,10 @@ using System.Threading.Tasks;
 
 namespace AAP.Files
 {
+    [Serializable]
     public class AppSettings : INotifyPropertyChanged
     {
-        public static AppSettings Default { get; } = new();
+        public static AppSettings Default { get; } = new() { AutosaveInterval = new TimeSpan(120, 0, 0) };
 
         private bool darkMode = false;
         public bool DarkMode

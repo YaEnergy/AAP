@@ -178,12 +178,12 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Plus_Button}" Command="{Binding CreateNewLayerCommand}"/>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource UpArrow_Button}" Grid.Column="1" Command="{Binding MoveLayerUpCommand}"/>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource DownArrow_Button}" Grid.Column="2" Command="{Binding MoveLayerDownCommand}"/>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Duplicate_Button}" Grid.Column="3" Command="{Binding DuplicateLayerCommand}"/>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Merge_Button}" Grid.Column="4" Command="{Binding MergeLayerCommand}"/>
-                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="5" Command="{Binding RemoveLayerCommand}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Plus_Button}" Command="{Binding CreateNewLayerCommand}" ToolTip="{Binding AddLayerTooltip}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource UpArrow_Button}" Grid.Column="1" Command="{Binding MoveLayerUpCommand}" ToolTip="{Binding MoveLayerUpTooltip}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource DownArrow_Button}" Grid.Column="2" Command="{Binding MoveLayerDownCommand}" ToolTip="{Binding MoveLayerDownTooltip}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Duplicate_Button}" Grid.Column="3" Command="{Binding DuplicateLayerCommand}" ToolTip="{Binding DuplicateLayerTooltip}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Merge_Button}" Grid.Column="4" Command="{Binding MergeLayerCommand}" ToolTip="{Binding MergeLayerDownTooltip}"/>
+                    <controls:ImageButton Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="5" Command="{Binding RemoveLayerCommand}" ToolTip="{Binding RemoveLayerTooltip}"/>
                 </Grid>
                 <StackPanel VerticalAlignment="Top" Background="{DynamicResource LightAccent}" DockPanel.Dock="Top" MaxHeight="500" Visibility="{Binding HasSelectedLayer, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <Label Content="{Binding LayerOptionsContent}" FontSize="14" Height="30" Margin="0,5,0,0"/>

@@ -191,15 +191,47 @@ namespace AAP.UI.ViewModels
         private string layerVisibilityContent = App.Language.GetString("Visible");
         public string LayerVisibilityContent => layerVisibilityContent;
 
+        private string addLayerTooltip = App.Language.GetString("LayerManagement_Tooltip_AddLayer");
+        public string AddLayerTooltip => addLayerTooltip;
+
+        private string moveLayerUpTooltip = App.Language.GetString("LayerManagement_Tooltip_MoveLayerUp");
+        public string MoveLayerUpTooltip => moveLayerUpTooltip;
+
+        private string moveLayerDownTooltip = App.Language.GetString("LayerManagement_Tooltip_MoveLayerDown");
+        public string MoveLayerDownTooltip => moveLayerDownTooltip;
+
+        private string duplicateLayerTooltip = App.Language.GetString("LayerManagement_Tooltip_DuplicateLayer");
+        public string DuplicateLayerTooltip => duplicateLayerTooltip;
+
+        private string mergeLayerDownTooltip = App.Language.GetString("LayerManagement_Tooltip_MergeLayerDown");
+        public string MergeLayerDownTooltip => mergeLayerDownTooltip;
+
+        private string removeLayerTooltip = App.Language.GetString("LayerManagement_Tooltip_RemoveLayer");
+        public string RemoveLayerTooltip => removeLayerTooltip;
+
         private void OnLanguageChanged(Language language)
         {
-            layerOptionsContent = App.Language.GetString("LayerOptions");
-            layerNameContent = App.Language.GetString("Name");
-            layerVisibilityContent = App.Language.GetString("Visible");
+            layerOptionsContent = language.GetString("LayerOptions");
+            layerNameContent = language.GetString("Name");
+            layerVisibilityContent = language.GetString("Visible");
+
+            addLayerTooltip = language.GetString("LayerManagement_Tooltip_AddLayer");
+            moveLayerUpTooltip = language.GetString("LayerManagement_Tooltip_MoveLayerUp");
+            moveLayerDownTooltip = language.GetString("LayerManagement_Tooltip_MoveLayerDown");
+            duplicateLayerTooltip = language.GetString("LayerManagement_Tooltip_DuplicateLayer");
+            mergeLayerDownTooltip = language.GetString("LayerManagement_Tooltip_MergeLayerDown");
+            removeLayerTooltip = language.GetString("LayerManagement_Tooltip_RemoveLayer");
 
             PropertyChanged?.Invoke(this, new(nameof(LayerOptionsContent)));
             PropertyChanged?.Invoke(this, new(nameof(LayerNameContent)));
             PropertyChanged?.Invoke(this, new(nameof(LayerVisibilityContent)));
+
+            PropertyChanged?.Invoke(this, new(nameof(AddLayerTooltip)));
+            PropertyChanged?.Invoke(this, new(nameof(MoveLayerUpTooltip)));
+            PropertyChanged?.Invoke(this, new(nameof(MoveLayerDownTooltip)));
+            PropertyChanged?.Invoke(this, new(nameof(DuplicateLayerTooltip)));
+            PropertyChanged?.Invoke(this, new(nameof(MergeLayerDownTooltip)));
+            PropertyChanged?.Invoke(this, new(nameof(RemoveLayerTooltip)));
         }
         #endregion
 
