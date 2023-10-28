@@ -115,10 +115,12 @@ namespace AAP.Files
 
         public void Log()
         {
+            ConsoleLogger.Inform("Language Name: " + this.LanguageName);
             ConsoleLogger.Inform("Dark mode: " + this.DarkMode);
             ConsoleLogger.Inform("Autosave files: " + this.AutosaveFiles);
             ConsoleLogger.Inform("Autosave interval: " + this.AutosaveInterval);
             ConsoleLogger.Inform("Canvas family font name: " + this.CanvasTypefaceSource);
+
             string files = "";
             foreach (string filePath in this.AutosaveFilePaths)
                 files += filePath + "\n";

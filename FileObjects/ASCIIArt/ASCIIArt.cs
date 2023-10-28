@@ -181,26 +181,6 @@ namespace AAP
                 OnSizeChanged?.Invoke(width, height);
         }
 
-        #region Layers
-        public void SetLayerIndexName(int index, string layerName)
-        {
-            if (ArtLayers.Count <= index)
-                return;
-
-            ArtLayers[index].Name = layerName;
-        }
-
-        public void SetLayerIndexVisibility(int index, bool visible)
-        {
-            if (ArtLayers.Count <= index)
-                return;
-
-            ArtLayers[index].Visible = visible;
-
-            OnArtUpdated?.Invoke(this);
-        }
-        #endregion
-
         /// <summary>
         /// Gets all line strings in the art and adds them together, each line is separated by a linebreak character.
         /// </summary>

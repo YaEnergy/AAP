@@ -13,46 +13,32 @@ namespace AAP.UI.ViewModels
 {
     public class LayerManagementViewModel : INotifyPropertyChanged
     {
-        private ASCIIArt? art = null;
-        public ASCIIArt? Art
+        private ASCIIArtFile? artFile = null;
+        public ASCIIArtFile? ArtFile
         {
-            get => art;
+            get => artFile;
             set
             {
-                if (art == value)
+                if (artFile == value)
                     return;
 
-                if (art != null)
+                if (artFile != null)
                 {
-                    art.OnArtLayerAdded -= ArtLayerAdded;
-                    art.OnArtLayerRemoved -= ArtLayerRemoved;
+                    artFile.Art.OnArtLayerAdded -= ArtLayerAdded;
+                    artFile.Art.OnArtLayerRemoved -= ArtLayerRemoved;
                 }
 
-                art = value;
+                artFile = value;
 
-                if (art != null)
+                if (artFile != null)
                 {
-                    art.OnArtLayerAdded += ArtLayerAdded;
-                    art.OnArtLayerRemoved += ArtLayerRemoved;
+                    artFile.Art.OnArtLayerAdded += ArtLayerAdded;
+                    artFile.Art.OnArtLayerRemoved += ArtLayerRemoved;
                 }
 
-                Layers = art != null ? art.ArtLayers : new();
-                PropertyChanged?.Invoke(this, new(nameof(Art)));
-            }
-        }
-
-        private ObservableCollection<ArtLayer> layers = new();
-        public ObservableCollection<ArtLayer> Layers
-        {
-            get => layers;
-            private set
-            {
-                if (layers == value)
-                    return;
-
-                layers = value;
                 SelectedLayerID = -1;
-                PropertyChanged?.Invoke(this, new(nameof(Layers)));
+
+                PropertyChanged?.Invoke(this, new(nameof(ArtFile)));
             }
         }
         
@@ -62,12 +48,15 @@ namespace AAP.UI.ViewModels
             get => selectedLayerID;
             set
             {
-                SelectedLayer = value != -1 ? Layers[value] : null;
+                SelectedLayer = value != -1 && ArtFile != null ? ArtFile.Art.ArtLayers[value] : null;
 
                 if (selectedLayerID == value)
                     return;
 
                 selectedLayerID = value;
+
+                App.CurrentLayerID = selectedLayerID;
+
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerID)));
             }
         }
@@ -85,6 +74,8 @@ namespace AAP.UI.ViewModels
                 {
                     selectedLayer.NameChanged -= LayerNameChanged;
                     selectedLayer.VisibilityChanged -= LayerVisibilityChanged;
+                    selectedLayer.DataChanged -= LayerDataChanged;
+                    selectedLayer.OffsetChanged -= LayerOffsetChanged;
                 }
 
                 selectedLayer = value;
@@ -94,9 +85,15 @@ namespace AAP.UI.ViewModels
                 {
                     SelectedLayerName = value.Name;
                     SelectedLayerVisibility = value.Visible;
+                    LayerOffsetX = value.OffsetX;
+                    LayerOffsetY = value.OffsetY;
+                    LayerSizeX = value.Width;
+                    LayerSizeY = value.Height;
 
                     value.NameChanged += LayerNameChanged;
                     value.VisibilityChanged += LayerVisibilityChanged;
+                    value.DataChanged += LayerDataChanged;
+                    value.OffsetChanged += LayerOffsetChanged;
                 }
 
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayer)));
@@ -122,6 +119,13 @@ namespace AAP.UI.ViewModels
                 }
 
                 selectedLayerName = value;
+
+                if (selectedLayer != null && selectedLayer.Name != selectedLayerName)
+                {
+                    selectedLayer.Name = selectedLayerName;
+                    ArtFile?.ArtTimeline.NewTimePoint();
+                }
+
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerName)));
             }
         }
@@ -140,6 +144,13 @@ namespace AAP.UI.ViewModels
 
                 selectedLayerVisibility = value;
 
+                if (selectedLayer != null && selectedLayer.Visible != selectedLayerVisibility)
+                {
+                    selectedLayer.Visible = selectedLayerVisibility;
+                    ArtFile?.ArtTimeline.NewTimePoint();
+                    ArtFile?.Art.Update();
+                }
+
                 PropertyChanged?.Invoke(this, new(nameof(SelectedLayerVisibility)));
             }
         }
@@ -156,6 +167,124 @@ namespace AAP.UI.ViewModels
                 hasSelectedLayer = value;
 
                 PropertyChanged?.Invoke(this, new(nameof(HasSelectedLayer)));
+            }
+        }
+
+        private string layerOffsetXText = "-1";
+        public string LayerOffsetXText
+        {
+            get => layerOffsetXText;
+            set
+            {
+                if (layerOffsetXText == value)
+                    return;
+
+                if (!int.TryParse(value, out int x))
+                {
+                    PropertyChanged?.Invoke(this, new(nameof(LayerOffsetXText)));
+                    return;
+                }
+
+                layerOffsetXText = x.ToString();
+                LayerOffsetX = x;
+
+                PropertyChanged?.Invoke(this, new(nameof(LayerOffsetXText)));
+            }
+        }
+
+        private int layerOffsetX = -1;
+        public int LayerOffsetX
+        {
+            get => layerOffsetX;
+            set
+            {
+                if (layerOffsetX == value)
+                    return;
+
+                layerOffsetX = value;
+                LayerOffsetXText = value.ToString();
+
+                if (selectedLayer != null && selectedLayer.OffsetX != layerOffsetX)
+                {
+                    selectedLayer.OffsetX = layerOffsetX;
+                    ArtFile?.ArtTimeline.NewTimePoint();
+                    ArtFile?.Art.Update();
+                }
+
+                PropertyChanged?.Invoke(this, new(nameof(LayerOffsetX)));
+            }
+        }
+
+        private string layerOffsetYText = "-1";
+        public string LayerOffsetYText
+        {
+            get => layerOffsetYText;
+            set
+            {
+                if (layerOffsetYText == value)
+                    return;
+
+                if (!int.TryParse(value, out int y))
+                {
+                    PropertyChanged?.Invoke(this, new(nameof(LayerOffsetYText)));
+                    return;
+                }
+
+                layerOffsetYText = y.ToString();
+                LayerOffsetY = y;
+
+                PropertyChanged?.Invoke(this, new(nameof(LayerOffsetYText)));
+            }
+        }
+
+        private int layerOffsetY = -1;
+        public int LayerOffsetY
+        {
+            get => layerOffsetY;
+            set
+            {
+                if (layerOffsetY == value)
+                    return;
+
+                layerOffsetY = value;
+                LayerOffsetYText = value.ToString();
+
+                if (selectedLayer != null && selectedLayer.OffsetY != layerOffsetY)
+                {
+                    selectedLayer.OffsetY = layerOffsetY;
+                    ArtFile?.ArtTimeline.NewTimePoint();
+                    ArtFile?.Art.Update();
+                }
+
+                PropertyChanged?.Invoke(this, new(nameof(LayerOffsetY)));
+            }
+        }
+
+        private int layerSizeX = -1;
+        public int LayerSizeX
+        {
+            get => layerSizeX;
+            private set
+            {
+                if (layerSizeX == value)
+                    return;
+
+                layerSizeX = value;
+                PropertyChanged?.Invoke(this, new(nameof(LayerSizeX)));
+            }
+        }
+
+        private int layerSizeY = -1;
+        public int LayerSizeY
+        {
+            get => layerSizeY;
+            private set
+            {
+                if (layerSizeY == value)
+                    return;
+
+                layerSizeY = value;
+                PropertyChanged?.Invoke(this, new(nameof(LayerSizeY)));
             }
         }
 
@@ -209,6 +338,12 @@ namespace AAP.UI.ViewModels
         private string removeLayerTooltip = App.Language.GetString("LayerManagement_Tooltip_RemoveLayer");
         public string RemoveLayerTooltip => removeLayerTooltip;
 
+        private string layerOffsetContent = App.Language.GetString("LayerOptions_Offset");
+        public string LayerOffsetContent => layerOffsetContent;
+
+        private string layerSizeContent = App.Language.GetString("Size");
+        public string LayerSizeContent => layerSizeContent;
+
         private void OnLanguageChanged(Language language)
         {
             layerOptionsContent = language.GetString("LayerOptions");
@@ -222,6 +357,9 @@ namespace AAP.UI.ViewModels
             mergeLayerDownTooltip = language.GetString("LayerManagement_Tooltip_MergeLayerDown");
             removeLayerTooltip = language.GetString("LayerManagement_Tooltip_RemoveLayer");
 
+            layerOffsetContent = language.GetString("LayerOptions_Offset");
+            layerSizeContent = language.GetString("Size");
+
             PropertyChanged?.Invoke(this, new(nameof(LayerOptionsContent)));
             PropertyChanged?.Invoke(this, new(nameof(LayerNameContent)));
             PropertyChanged?.Invoke(this, new(nameof(LayerVisibilityContent)));
@@ -232,25 +370,44 @@ namespace AAP.UI.ViewModels
             PropertyChanged?.Invoke(this, new(nameof(DuplicateLayerTooltip)));
             PropertyChanged?.Invoke(this, new(nameof(MergeLayerDownTooltip)));
             PropertyChanged?.Invoke(this, new(nameof(RemoveLayerTooltip)));
+
+            PropertyChanged?.Invoke(this, new(nameof(LayerOffsetContent)));
+            PropertyChanged?.Invoke(this, new(nameof(LayerSizeContent)));
         }
         #endregion
 
         private void LayerNameChanged(ArtLayer layer, string name)
-        {
-            SelectedLayerName = name;
-        }
+            => SelectedLayerName = name;
 
         private void LayerVisibilityChanged(ArtLayer layer, bool visible)
             => SelectedLayerVisibility = visible;
 
+        private void LayerOffsetChanged(ArtLayer layer, Point oldOffset, Point newOffset)
+        {
+            LayerOffsetX = (int)newOffset.X;
+            LayerOffsetY = (int)newOffset.Y;
+        }
+
+        private void LayerDataChanged(ArtLayer layer, char?[][] oldData, char?[][] newData)
+        {
+            LayerSizeX = layer.Width;
+            LayerSizeY = layer.Height;
+        }
+
         private void ArtLayerAdded(int index, ArtLayer layer)
         {
-            SelectedLayer = SelectedLayerID != -1 ? Layers[Math.Clamp(SelectedLayerID, 0, Layers.Count - 1)] : null;
+            if (ArtFile == null)
+                throw new NullReferenceException(nameof(ArtFile) + " is null!");
+
+            SelectedLayer = SelectedLayerID != -1 ? ArtFile.Art.ArtLayers[Math.Clamp(SelectedLayerID, 0, ArtFile.Art.ArtLayers.Count - 1)] : null;
         }
 
         private void ArtLayerRemoved(int index, ArtLayer layer)
         {
-            SelectedLayer = SelectedLayerID != -1 ? Layers[Math.Clamp(SelectedLayerID, 0, Layers.Count - 1)] : null;
+            if (ArtFile == null)
+                throw new NullReferenceException(nameof(ArtFile) + " is null!");
+
+            SelectedLayer = SelectedLayerID != -1 ? ArtFile.Art.ArtLayers[Math.Clamp(SelectedLayerID, 0, ArtFile.Art.ArtLayers.Count - 1)] : null;
         }
     }
 }

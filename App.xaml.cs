@@ -231,7 +231,7 @@ namespace AAP
 
                 if (File.Exists(SettingsPath))
                 {
-                    FileStream fs = File.Open(SettingsPath, FileMode.Open, FileAccess.Read);
+                    FileStream fs = File.OpenRead(SettingsPath);
                     try
                     {
                         Settings = AppSettings.Decode(fs);
@@ -267,12 +267,19 @@ namespace AAP
 
                 languageStream.Dispose();
 
+#if DEBUG
+                Settings.Log();
+#endif
+
                 if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
                 {
                     MessageBox.Show(string.Format(Language.GetString("Application_AlreadyRunningMessage"), ProgramTitle), ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     mutex.Close();
                     return;
                 }
+
+                if (File.Exists(ApplicationDataFolderPath + @"\log.txt"))
+                    File.Move(ApplicationDataFolderPath + @"\log.txt", ApplicationDataFolderPath + @"\prev-log.txt", true);
 
                 ConsoleLogger.LogFileOut = File.CreateText(ApplicationDataFolderPath + @"\log.txt");
                 ConsoleLogger.LogFileOut.WriteLine($"--CONSOLE LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");

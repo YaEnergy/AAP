@@ -33,7 +33,6 @@ namespace AAP.UI.Windows
             ArtFileViewModel.PropertyChanged += ArtFileViewModelPropertyChanged;
             ArtCanvasViewModel.PropertyChanged += ArtCanvasViewModelPropertyChanged;
             CharacterPaletteSelectionViewModel.PropertyChanged += CharacterPaletteSelectionViewModelPropertyChanged;
-            LayerManagementViewModel.PropertyChanged += LayerSelectionViewModelPropertyChanged;
 
             ArtFileViewModel.OpenArtFiles = App.OpenArtFiles;
             ArtFileViewModel.CurrentTool = App.CurrentTool;
@@ -280,7 +279,7 @@ namespace AAP.UI.Windows
                 case nameof(vm.CurrentArtFile):
                     App.CurrentArtFile = vm.CurrentArtFile;
                     ArtCanvasViewModel.CurrentArt = vm.CurrentArtFile?.Art;
-                    LayerManagementViewModel.Art = vm.CurrentArtFile?.Art;
+                    LayerManagementViewModel.ArtFile = vm.CurrentArtFile;
                     break;
                 case nameof(vm.CurrentTool):
                     ArtCanvasViewModel.CurrentTool = vm.CurrentTool;
@@ -336,7 +335,7 @@ namespace AAP.UI.Windows
             }
         }
 
-        private void LayerSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        /*private void LayerSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (sender == null)
                 return;
@@ -367,10 +366,22 @@ namespace AAP.UI.Windows
 
                     App.SetArtLayerVisibility(vm.SelectedLayer, vm.SelectedLayerVisibility);
                     break;
+                case nameof(vm.LayerOffsetX):
+                    if (vm.SelectedLayer == null)
+                        break;
+
+                    vm.SelectedLayer.OffsetX = vm.LayerOffsetX;
+                    break;
+                case nameof(vm.LayerOffsetY):
+                    if (vm.SelectedLayer == null)
+                        break;
+
+                    vm.SelectedLayer.OffsetY = vm.LayerOffsetY;
+                    break;
                 default:
                     break;
             }
-        }
+        }*/
         #endregion
     }
 }
