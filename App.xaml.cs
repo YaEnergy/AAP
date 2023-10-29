@@ -10,7 +10,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Timers;
 using System.Windows.Threading;
 
 namespace AAP
@@ -25,7 +24,6 @@ namespace AAP
         public static readonly string Version = "v0.0.1";
 
         public static readonly int MaxArtArea = 1600000;
-        public static readonly int WarningIncrediblyLargeArtArea = 1000000;
         public static readonly int WarningLargeArtArea = 500000;
 
         public static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
@@ -154,8 +152,8 @@ namespace AAP
             get => characterPalettes; 
         }
 
-        private static readonly System.Threading.Timer autosaveTimer = new(OnAutosaveTimerTick, null, Settings.AutosaveInterval, Settings.AutosaveInterval);
-        public static System.Threading.Timer AutosaveTimer
+        private static readonly Timer autosaveTimer = new(OnAutosaveTimerTick, null, Settings.AutosaveInterval, Settings.AutosaveInterval);
+        public static Timer AutosaveTimer
         {
             get => autosaveTimer;
         }
@@ -176,6 +174,19 @@ namespace AAP
 
         public delegate void OnLanguageChangedEvent(Language language);
         public static event OnLanguageChangedEvent? OnLanguageChanged;
+
+        private static BackgroundTaskToken? autosaveBackgroundTaskToken = null;
+        public static BackgroundTaskToken? AutosaveBackgroundTaskToken
+        {
+            get => autosaveBackgroundTaskToken;
+            set
+            {
+                if (autosaveBackgroundTaskToken == value)
+                    return;
+
+                autosaveBackgroundTaskToken = value;
+            }
+        }
 
         public App()
         {
@@ -244,7 +255,7 @@ namespace AAP
                     }
                     
                     fs.Flush();
-                    fs.Close();
+                    fs.Dispose();
                 }
                 else
                     ConsoleLogger.Log("No settings file found!");
@@ -267,10 +278,6 @@ namespace AAP
 
                 languageStream.Dispose();
 
-#if DEBUG
-                Settings.Log();
-#endif
-
                 if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
                 {
                     MessageBox.Show(string.Format(Language.GetString("Application_AlreadyRunningMessage"), ProgramTitle), ProgramTitle, MessageBoxButton.OK, MessageBoxImage.Error);
@@ -286,6 +293,10 @@ namespace AAP
 
                 ConsoleLogger.LogFileError = File.CreateText(ApplicationDataFolderPath + @"\threadErrorLog.txt");
                 ConsoleLogger.LogFileError.WriteLine($"--ERROR LOG {DateTimeOffset.UtcNow.ToString("d")}--\n");
+
+#if DEBUG
+                Settings.Log();
+#endif
 
                 RefreshPalettes();
             }
@@ -369,6 +380,33 @@ namespace AAP
 
             app.Run();
 
+            //After exit
+
+            AutosaveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
+            if (AutosaveBackgroundTaskToken != null)
+            {
+                ConsoleLogger.Log("Waiting for remaining autosave task to finish execution...");
+                AutosaveBackgroundTaskToken.MainTask?.Wait();
+                ConsoleLogger.Log("Remaining autosave task finished execution");
+                AutosaveBackgroundTaskToken = null;
+            }
+
+            try
+            {
+                ConsoleLogger.Log("Saving settings... (application exit)");
+                SaveSettings();
+            }
+            catch (Exception ex)
+            {
+                ConsoleLogger.Error(ex);
+
+                MessageBoxResult result = MessageBox.Show(string.Format(Language.GetString("Application_Exit_SettingsSaveErrorMessage"), ex.Message), ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
+
+                if (result == MessageBoxResult.Yes)
+                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
+            }
+
             ConsoleLogger.LogFileOut?.Flush();
             ConsoleLogger.LogFileError?.Flush();
 
@@ -406,6 +444,11 @@ namespace AAP
 
             ConsoleLogger.Log("Autosaving all open files...");
 
+            BackgroundTaskToken taskToken = new(Language.GetString("Autosave_Busy"));
+            AutosaveBackgroundTaskToken = taskToken;
+
+            List<Task> saveTasks = new();
+
             foreach (ASCIIArtFile artFile in OpenArtFiles)
             {
                 if (!artFile.UnsavedChanges)
@@ -426,31 +469,32 @@ namespace AAP
 
                 ConsoleLogger.Log("Autosaving " + artFile.FileName + " to " + finalPath + ext);
 
-                try
-                {
-                    await artFile.ExportAsync(finalPath + ext, null);
-                    Settings.AutosaveFilePaths.Add(finalPath + ext);
-                    ConsoleLogger.Log("Autosaved " + artFile.FileName + " to " + finalPath + ext);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_FileSaving"), artFile.FileName, ex.Message), Language.GetString("Autosave"));
-                    ConsoleLogger.Error(ex);
-                }
+                Task saveTask = artFile.ExportAsync(finalPath + ext, null);
+                saveTasks.Add(saveTask);
+                Settings.AutosaveFilePaths.Add(finalPath + ext);
             }
 
-            ConsoleLogger.Log("Autosaved all open files");
+            ConsoleLogger.Log("Saving settings...");
+            Task saveSettingsTask = SaveSettingsAsync();
+            saveTasks.Add(saveSettingsTask);
+
+            Task mainSaveTask = Task.WhenAll(saveTasks);
+            taskToken.MainTask = mainSaveTask;
 
             try
             {
-                await SaveSettingsAsync();
-                ConsoleLogger.Log("Saved settings");
+                await mainSaveTask;
+                ConsoleLogger.Log("Autosaved all open files + saved settings");
+                taskToken.Complete();
             }
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_SettingsSaving"), ex.Message), Language.GetString("Autosave"));
+                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_FileSaving"), ex.Message), Language.GetString("Autosave"));
+                taskToken.Complete(ex);
             }
+
+            AutosaveBackgroundTaskToken = null;
         }
 
         private static void OnApplicationExit(object? sender, ExitEventArgs e)
@@ -479,7 +523,7 @@ namespace AAP
                 MessageBoxResult result = MessageBox.Show(string.Format(Language.GetString("Error_Application_StartUpErrorMessage"), ProgramTitle), ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
 
                 if (result == MessageBoxResult.Yes)
-                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\threadErrorLog.txt");
+                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
 
                 Current.Shutdown(-1);
             }
