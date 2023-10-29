@@ -24,6 +24,30 @@ namespace AAP.UI.ViewModels
                 OnToolSelected(tool);
 
                 PropertyChanged?.Invoke(this, new(nameof(Tool)));
+                PropertyChanged?.Invoke(this, new(nameof(HasToolSelected)));
+
+                if (tool != null)
+                    ToolName = GetToolTypeName(tool.Type);
+            }
+        }
+
+        public bool HasToolSelected
+        {
+            get => tool != null && tool.Type != ToolType.None;
+        }
+
+        private string toolName = "";
+        public string ToolName
+        {
+            get => toolName;
+            set
+            {
+                if (toolName == value)
+                    return;
+
+                toolName = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(ToolName)));
             }
         }
 
@@ -184,12 +208,38 @@ namespace AAP.UI.ViewModels
                 StayInsideSelection = stayInsideSelectionPropertyTool.StayInsideSelection;
         }
 
+        public static string GetToolTypeName(ToolType toolType)
+        {
+            switch (toolType)
+            {
+                case ToolType.Draw:
+                    return App.Language.GetString("Tool_PencilTool");
+                case ToolType.Eraser:
+                    return App.Language.GetString("Tool_EraserTool");
+                case ToolType.Select:
+                    return App.Language.GetString("Tool_SelectTool");
+                case ToolType.Move:
+                    return App.Language.GetString("Tool_MoveTool");
+                case ToolType.Line:
+                    return App.Language.GetString("Tool_LineTool");
+                case ToolType.Bucket:
+                    return App.Language.GetString("Tool_BucketTool");
+                case ToolType.Text:
+                    return App.Language.GetString("Tool_TextTool");
+            }
+
+            throw new ArgumentException(nameof(toolType) + " has no name!");
+        }
+
         public ToolOptionsViewModel()
         {
             App.OnLanguageChanged += OnLanguageChanged;
         }
 
         #region Language Content
+
+        private string toolOptionsContent = App.Language.GetString("Tool_Options");
+        public string ToolOptionsContent => toolOptionsContent;
 
         private string sizeContent = App.Language.GetString("Tool_Size");
         public string SizeContent => sizeContent;
@@ -202,13 +252,18 @@ namespace AAP.UI.ViewModels
 
         private void OnLanguageChanged(Language language)
         {
+            toolOptionsContent = language.GetString("Tool_Options");
             sizeContent = language.GetString("Tool_Size");
             eightDirectionalContent = language.GetString("Tool_EightDirectional");
             stayInsideSelectionContent = language.GetString("Tool_StayInsideSelection");
 
+            PropertyChanged?.Invoke(this, new(nameof(ToolOptionsContent)));
             PropertyChanged?.Invoke(this, new(nameof(SizeContent)));
             PropertyChanged?.Invoke(this, new(nameof(EightDirectionalContent)));
             PropertyChanged?.Invoke(this, new(nameof(StayInsideSelectionContent)));
+
+            if (tool != null && HasToolSelected)
+                ToolName = GetToolTypeName(tool.Type);
         }
 
         #endregion
