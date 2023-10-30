@@ -4,6 +4,7 @@ using AAP.Files;
 using AAP.Properties;
 using AAP.Timelines;
 using AAP.UI.Themes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -926,19 +927,33 @@ namespace AAP
 
             CharacterPalettes.Clear();
 
-            //Preset Character Palettes
-            foreach (FileInfo presetFileInfo in new DirectoryInfo($@"{ExecutableDirectory.FullName}\Resources\PresetCharacterPalettes").GetFiles())
-            {
-                TextCharacterPaletteDecoder presetTxTCharacterPalette = new(new FileStream(presetFileInfo.FullName, FileMode.Open, FileAccess.Read));
-                CharacterPalette palette = presetTxTCharacterPalette.Decode();
-                presetTxTCharacterPalette.Close();
+            Stream presetPaletteFileNamesListStream = GetResourceStream(new($"/Resources/PresetCharacterPalettes/PresetPalettes.json", UriKind.Relative)).Stream;
 
-                palette.Name = Language.GetString("PresetPalette_" + Path.GetFileNameWithoutExtension(presetFileInfo.FullName));
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamReader sr = new(presetPaletteFileNamesListStream);
+            JsonTextReader jr = new(sr);
+
+            List<string> presetPaletteFileNames = js.Deserialize<List<string>>(jr) ?? throw new Exception("Failed to deserialize PresetPalettes.json!");
+            jr.CloseInput = true;
+            jr.Close();
+
+            presetPaletteFileNamesListStream.Dispose();
+
+            //Preset Character Palettes
+            foreach (string presetPaletteFileName in presetPaletteFileNames)
+            {
+                Stream presetPaletteStream = GetResourceStream(new($"/Resources/PresetCharacterPalettes/" + presetPaletteFileName, UriKind.Relative)).Stream;
+
+                TextCharacterPaletteDecoder presetTxTCharacterPalette = new(presetPaletteStream);
+                CharacterPalette palette = presetTxTCharacterPalette.Decode();
+                presetPaletteStream.Dispose();
+
+                palette.Name = Language.GetString("PresetPalette_" + Path.GetFileNameWithoutExtension(presetPaletteFileName));
                 palette.IsPresetPalette = true;
 
                 characterPalettes.Add(palette);
 
-                ConsoleLogger.Log($"Imported Preset Character Palette File: {presetFileInfo.FullName}");
+                ConsoleLogger.Log($"Imported Preset Character Palette File: " + presetPaletteFileName);
             }
 
             //Character Palettes

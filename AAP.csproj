@@ -72,6 +72,7 @@
     <None Remove="Resources\PresetCharacterPalettes\Braille8.txt" />
     <None Remove="Resources\PresetCharacterPalettes\Main.txt" />
     <None Remove="Resources\PresetCharacterPalettes\Numbers.txt" />
+    <None Remove="Resources\PresetCharacterPalettes\PresetPalettes.json" />
     <None Remove="Resources\PresetCharacterPalettes\Shapes.txt" />
     <None Remove="Resources\SelectToolIcon.png" />
     <None Remove="Resources\TextToolIcon.png" />
@@ -98,21 +99,24 @@
     <Content Include="Resources\Images\ProgramIcons\Icon_old.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\PresetCharacterPalettes\Braille8.txt">
+    <Resource Include="Resources\PresetCharacterPalettes\Braille8.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\PresetCharacterPalettes\Braille6.txt">
+    </Resource>
+    <Resource Include="Resources\PresetCharacterPalettes\Braille6.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\PresetCharacterPalettes\Main.txt">
+    </Resource>
+    <Resource Include="Resources\PresetCharacterPalettes\Main.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\PresetCharacterPalettes\Numbers.txt">
+    </Resource>
+    <Resource Include="Resources\PresetCharacterPalettes\Numbers.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\PresetCharacterPalettes\Shapes.txt">
+    </Resource>
+    <Resource Include="Resources\PresetCharacterPalettes\PresetPalettes.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </Resource>
+    <Resource Include="Resources\PresetCharacterPalettes\Shapes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -203,9 +207,9 @@
     <Resource Include="Resources\Images\ToolIcons\Light\TextToolIcon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Content Include="Resources\PresetCharacterPalettes\Alphabet.txt">
+    <Resource Include="Resources\PresetCharacterPalettes\Alphabet.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
