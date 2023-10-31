@@ -713,7 +713,7 @@ namespace AAP
             if (CurrentLayerID == -1)
                 return;
 
-            CurrentArtFile.ArtDraw?.DrawFilledRectangle(CurrentLayerID, character, SelectedArt);
+            CurrentArtFile.ArtDraw?.DrawRectangle(CurrentLayerID, character, SelectedArt, true);
 
             CurrentArtFile.ArtTimeline?.NewTimePoint();
 

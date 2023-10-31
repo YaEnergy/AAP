@@ -12,18 +12,19 @@ namespace AAP
     {
         private ASCIIArt Art { get; }
 
+        public bool StayInsideSelection { get; set; } = false;
+
+        public int BrushThickness { get; set; } = 1;
+
         public delegate void ArtDrawEvent(int layerIndex, char? character, int x, int y);
         public event ArtDrawEvent? DrewCharacter;
 
         public ASCIIArtDraw(ASCIIArt art)
             => Art = art;
 
-        private bool CanDrawOn(int layerIndex, int x, int y, bool stayInsideSelection = false)
+        public bool CanDrawOn(int layerIndex, int x, int y)
         {
-            if (Art.ArtLayers.Count == 0) //No layers
-                return false;
-
-            if (layerIndex < 0) //Invalid Layer index
+            if (layerIndex < 0 || layerIndex >= Art.ArtLayers.Count) //Invalid Layer index
                 return false;
 
             if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
@@ -32,35 +33,18 @@ namespace AAP
             if (!Art.ArtLayers[layerIndex].IsPointVisible(x, y)) //Point out of bounds of layer
                 return false;
 
-            if (App.SelectedArt != Rect.Empty && stayInsideSelection && (x < App.SelectedArt.Left || x >= App.SelectedArt.Right || y < App.SelectedArt.Top || y >= App.SelectedArt.Bottom)) 
+            if (App.SelectedArt != Rect.Empty && StayInsideSelection && (x < App.SelectedArt.Left || x >= App.SelectedArt.Right || y < App.SelectedArt.Top || y >= App.SelectedArt.Bottom)) 
                 return false;
 
             return true; //No issues
         }
 
-        private bool CanDrawOn(int layerIndex, Point position, bool stayInsideSelection = false)
+        public bool CanDrawOn(int layerIndex, Point position)
+            => CanDrawOn(layerIndex, (int)position.X, (int)position.Y);
+
+        public void DrawCharacter(int layerIndex, char? character, int x, int y)
         {
-            if (Art.ArtLayers.Count == 0) //No layers
-                return false;
-
-            if (layerIndex < 0) //Invalid Layer index
-                return false;
-
-            if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
-                return false;
-
-            if (!Art.ArtLayers[layerIndex].IsPointVisible(position)) //Point out of bounds of layer
-                return false;
-
-            if (App.SelectedArt != Rect.Empty && stayInsideSelection && (position.X < App.SelectedArt.Left || position.X >= App.SelectedArt.Right || position.Y < App.SelectedArt.Top || position.Y >= App.SelectedArt.Bottom))
-                return false;
-
-            return true; //No issues
-        }
-
-        public void DrawCharacter(int layerIndex, char? character, int x, int y, bool stayInsideSelection = false)
-        {
-            if (!CanDrawOn(layerIndex, x, y, stayInsideSelection))
+            if (!CanDrawOn(layerIndex, x, y))
                 return;
 
             ArtLayer layer = Art.ArtLayers[layerIndex];
@@ -72,10 +56,10 @@ namespace AAP
             DrewCharacter?.Invoke(layerIndex, character, x, y);
         }
 
-        public void DrawCharacter(int layerIndex, char? character, Point position, bool stayInsideSelection = false)
-            => DrawCharacter(layerIndex, character, (int)position.X, (int)position.Y, stayInsideSelection);
+        public void DrawCharacter(int layerIndex, char? character, Point position)
+            => DrawCharacter(layerIndex, character, (int)position.X, (int)position.Y);
 
-        public void DrawLine(int layerIndex, char? character, int startX, int startY, int endX, int endY, int thickness, bool stayInsideSelection = false)
+        public void DrawLine(int layerIndex, char? character, int startX, int startY, int endX, int endY)
         {
             //Implementation of Bresenham's Line Algorithm
             //Couldn't figure this one out on my own :(
@@ -93,7 +77,7 @@ namespace AAP
 
             while (x != endX || y != endY)
             {
-                DrawFilledCircle(layerIndex, character, x, y, thickness, stayInsideSelection);
+                DrawFilledCircle(layerIndex, character, x, y, BrushThickness);
 
                 if (error * 2 >= dy)
                 {
@@ -112,32 +96,55 @@ namespace AAP
                 }
             }
 
-            DrawFilledCircle(layerIndex, character, x, y, thickness, stayInsideSelection);
+            DrawFilledCircle(layerIndex, character, x, y, BrushThickness);
         }
 
-        public void DrawLine(int layerIndex, char? character, Point point1, Point point2, int thickness, bool stayInsideSelection = false)
+        public void DrawLine(int layerIndex, char? character, Point point1, Point point2)
+            => DrawLine(layerIndex, character, (int)point1.X, (int)point1.Y, (int)point2.X, (int)point2.Y);
+
+        public void DrawRectangle(int layerIndex, char? character, int startX, int startY, int width, int height, bool filled = false)
         {
-            int startX = (int)point1.X;
-            int endX = (int)point2.X;
+            if (width <= 0)
+                throw new ArgumentOutOfRangeException(nameof(width), "Must be larger than 0.");
 
-            int startY = (int)point1.Y;
-            int endY = (int)point2.Y;
+            if (height <= 0)
+                throw new ArgumentOutOfRangeException(nameof(height), "Must be larger than 0.");
 
-            DrawLine(layerIndex, character, startX, startY, endX, endY, thickness, stayInsideSelection);
+            switch(filled)
+            {
+                case false:
+
+                    for (int x = startX; x < startX + width; x++)
+                    {
+                        DrawFilledCircle(layerIndex, character, x, startY, BrushThickness);
+                        DrawFilledCircle(layerIndex, character, x, startY + height - 1, BrushThickness);
+                    }
+
+                    for (int y = startY; y < startY + height; y++)
+                    {
+                        DrawFilledCircle(layerIndex, character, startX, y, BrushThickness);
+                        DrawFilledCircle(layerIndex, character, startX + width - 1, y, BrushThickness);
+                    }
+
+                    break;
+                case true:
+
+                    for (int x = startX; x < startX + width; x++)
+                        for (int y = startY; y < startY + height; y++)
+                            DrawFilledCircle(layerIndex, character, x, y, BrushThickness);
+
+                    break;
+            }
         }
 
-        public void DrawFilledRectangle(int layerIndex, char? character, Rect rectangle, bool stayInsideSelection = false)
-        {
-            for (int x = (int)rectangle.Left; x < (int)rectangle.Right; x++)
-                for (int y = (int)rectangle.Top; y < (int)rectangle.Bottom; y++)
-                    DrawCharacter(layerIndex, character, x, y, stayInsideSelection);
-        }
+        public void DrawRectangle(int layerIndex, char? character, Rect rectangle, bool filled = false)
+            => DrawRectangle(layerIndex, character, (int)rectangle.Left, (int)rectangle.Top, (int)rectangle.Width, (int)rectangle.Height, filled);
 
-        public void DrawCircle(int layerIndex, char? character, int centerX, int centerY, int radius, bool stayInsideSelection = false)
+        public void DrawCircle(int layerIndex, char? character, int centerX, int centerY, int radius)
         {
             if (radius == 0)
             {
-                DrawCharacter(layerIndex, character, centerX, centerY, stayInsideSelection);
+                DrawFilledCircle(layerIndex, character, centerX, centerY, BrushThickness);
                 return;
             }
 
@@ -148,14 +155,14 @@ namespace AAP
 
             void DrawOctants(int x, int y)
             {
-                DrawCharacter(layerIndex, character, centerX + x, centerY + y, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX + y, centerY + x, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX - y, centerY + x, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX - x, centerY + y, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX - x, centerY - y, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX - y, centerY - x, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX + y, centerY - x, stayInsideSelection);
-                DrawCharacter(layerIndex, character, centerX + x, centerY - y, stayInsideSelection);
+                DrawFilledCircle(layerIndex, character, centerX + x, centerY + y, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX + y, centerY + x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - y, centerY + x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - x, centerY + y, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - x, centerY - y, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - y, centerY - x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX + y, centerY - x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX + x, centerY - y, BrushThickness);
             }
 
             DrawOctants(x, y);
@@ -177,111 +184,56 @@ namespace AAP
             }
         }
 
-        public void DrawCircle(int layerIndex, char? character, Point center, int radius, bool stayInsideSelection = false)
-        {
-            int centerX = (int)center.X;
-            int centerY = (int)center.Y;
+        public void DrawCircle(int layerIndex, char? character, Point center, int radius)
+            => DrawCircle(layerIndex, character, (int)center.X, (int)center.Y, radius);
 
-            DrawCircle(layerIndex, character, centerX, centerY, radius, stayInsideSelection);
-        }
-
-        public void DrawFilledCircle(int layerIndex, char? character, int centerX, int centerY, int radius, bool stayInsideSelection = false)
+        public void DrawFilledCircle(int layerIndex, char? character, int centerX, int centerY, int radius)
         {
             switch (radius)
             {
                 case 0:
-                    DrawCharacter(layerIndex, character, centerX, centerY, stayInsideSelection);
+                    DrawCharacter(layerIndex, character, centerX, centerY);
                     break;
                 case 1:
-                    DrawCharacter(layerIndex, character, centerX, centerY, stayInsideSelection);
-                    DrawCharacter(layerIndex, character, centerX + 1, centerY, stayInsideSelection);
-                    DrawCharacter(layerIndex, character, centerX - 1, centerY, stayInsideSelection);
-                    DrawCharacter(layerIndex, character, centerX, centerY + 1, stayInsideSelection);
-                    DrawCharacter(layerIndex, character, centerX, centerY - 1, stayInsideSelection);
+                    DrawCharacter(layerIndex, character, centerX, centerY);
+                    DrawCharacter(layerIndex, character, centerX + 1, centerY);
+                    DrawCharacter(layerIndex, character, centerX - 1, centerY);
+                    DrawCharacter(layerIndex, character, centerX, centerY + 1);
+                    DrawCharacter(layerIndex, character, centerX, centerY - 1);
                     break;
                 default:
                     for (int x = -radius; x <= radius; x++)
                         for (int y = -radius; y <= radius; y++)
                             if (x * x + y * y < radius * radius)
-                                DrawCharacter(layerIndex, character, centerX + x, centerY + y, stayInsideSelection);
+                                DrawCharacter(layerIndex, character, centerX + x, centerY + y);
                     break;
             }
         }
 
-        public void DrawFilledCircle(int layerIndex, char? character, Point center, int radius, bool stayInsideSelection = false)
+        public void DrawFilledCircle(int layerIndex, char? character, Point center, int radius)
+            => DrawFilledCircle(layerIndex, character, (int)center.X, (int)center.Y, radius);
+
+        public void DrawEllipse(int layerIndex, char? character, int centerX, int centerY, int width, int height)
         {
-            int centerX = (int)center.X;
-            int centerY = (int)center.Y;
+            int x = 0;
+            int y = height;
 
-            DrawFilledCircle(layerIndex, character, centerX, centerY, radius, stayInsideSelection);
-        }
-
-        public void FloodFillArtPosWithCharacter(int layerIndex, char? character, Point artPos, bool eightDirectional = false, bool stayInsideSelection = false)
-        {
-            Stack<Point> positionStack = new();
-
-            ArtLayer artLayer = Art.ArtLayers[layerIndex];
-
-            if (!CanDrawOn(layerIndex, artPos, stayInsideSelection))
-                return;
-
-            char? findCharacter = artLayer.GetCharacter(artLayer.GetLayerPoint(artPos));
-            if (findCharacter == character)
-                return; //No changes will be made
-
-            //Flood Fill Algorithm
-            positionStack.Push(artPos);
-
-            while (positionStack.Count > 0)
+            void DrawOctants(int x, int y)
             {
-                Point pos = positionStack.Pop();
-
-                int x = (int)pos.X;
-                int y = (int)pos.Y;
-
-                DrawCharacter(layerIndex, character, x, y);
-
-                if (x + 1 - artLayer.OffsetX < artLayer.Width)
-                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x + 1, y)) == findCharacter && CanDrawOn(layerIndex, x + 1, y, stayInsideSelection))
-                        positionStack.Push(new(x + 1, y));
-
-                if (x - 1 - artLayer.OffsetX >= 0)
-                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x - 1, y)) == findCharacter && CanDrawOn(layerIndex, x - 1, y, stayInsideSelection))
-                        positionStack.Push(new(x - 1, y));
-
-                if (y + 1 - artLayer.OffsetY < artLayer.Height)
-                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x, y + 1)) == findCharacter && CanDrawOn(layerIndex, x, y + 1, stayInsideSelection))
-                        positionStack.Push(new(x, y + 1));
-
-                if (y - 1 - artLayer.OffsetY >= 0)
-                    if (artLayer.GetCharacter(artLayer.GetLayerPoint(x, y - 1)) == findCharacter && CanDrawOn(layerIndex, x, y - 1, stayInsideSelection))
-                        positionStack.Push(new(x, y - 1));
-
-                if (eightDirectional)
-                {
-                    if (x + 1 - artLayer.OffsetX < artLayer.Width)
-                    {
-                        if (y + 1 - artLayer.OffsetY < artLayer.Height)
-                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x + 1, y + 1)) == findCharacter && CanDrawOn(layerIndex, x + 1, y + 1, stayInsideSelection))
-                                positionStack.Push(new(x + 1, y + 1));
-
-                        if (y - 1 - artLayer.OffsetY >= 0)
-                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x + 1, y - 1)) == findCharacter && CanDrawOn(layerIndex, x + 1, y - 1, stayInsideSelection))
-                                positionStack.Push(new(x + 1, y - 1));
-                    }
-
-                    if (x - 1 - artLayer.OffsetX >= 0)
-                    {
-                        if (y + 1 - artLayer.OffsetY < artLayer.Height)
-                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x - 1, y + 1)) == findCharacter && CanDrawOn(layerIndex, x - 1, y + 1, stayInsideSelection))
-                                positionStack.Push(new(x - 1, y + 1));
-
-                        if (y - 1 - artLayer.OffsetY >= 0)
-                            if (artLayer.GetCharacter(artLayer.GetLayerPoint(x - 1, y - 1)) == findCharacter && CanDrawOn(layerIndex, x - 1, y - 1, stayInsideSelection))
-                                positionStack.Push(new(x - 1, y - 1));
-                    }
-                }
+                DrawFilledCircle(layerIndex, character, centerX + x, centerY + y, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX + y, centerY + x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - y, centerY + x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - x, centerY + y, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - x, centerY - y, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX - y, centerY - x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX + y, centerY - x, BrushThickness);
+                DrawFilledCircle(layerIndex, character, centerX + x, centerY - y, BrushThickness);
             }
+
+            throw new NotImplementedException();
         }
+
+        public void DrawEllipse(int layerIndex, char? character, Point center, Size size)
+            => DrawEllipse(layerIndex, character, (int)center.X, (int)center.Y, (int)size.Width, (int)size.Height);
     }
 }

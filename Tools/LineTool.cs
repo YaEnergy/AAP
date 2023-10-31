@@ -79,9 +79,24 @@ namespace AAP
         }
 
         public void DrawCircle(Point artPos)
-            => App.CurrentArtFile?.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1, StayInsideSelection);
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
+
+            App.CurrentArtFile.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1);
+        }
 
         public void DrawLine(Point startArtPos, Point endArtPos)
-            => App.CurrentArtFile?.ArtDraw.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos, Size - 1, StayInsideSelection);
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
+            App.CurrentArtFile.ArtDraw.BrushThickness = Size - 1;
+
+            App.CurrentArtFile.ArtDraw.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos);
+        }
     }
 }

@@ -84,6 +84,13 @@ namespace AAP
         }
 
         public void DrawCircle(Point artPos)
-            => App.CurrentArtFile?.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1, StayInsideSelection);
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
+
+            App.CurrentArtFile.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1);
+        }
     }
 }
