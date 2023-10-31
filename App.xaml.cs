@@ -958,17 +958,24 @@ namespace AAP
 
             //Character Palettes
             foreach (FileInfo fileInfo in new DirectoryInfo(CharacterPaletteDirectoryPath).GetFiles())
-                if (fileInfo.Extension.ToLower() == ".aappal")
+            {
+                try
                 {
-                    AAPPALCharacterPaletteDecoder fileCharacterPalette = new(new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read));
-                    CharacterPalette palette = fileCharacterPalette.Decode();
+                    AAPPALCharacterPaletteDecoder paletteDecoder = new(fileInfo.OpenRead());
+                    CharacterPalette palette = paletteDecoder.Decode();
 
-                    fileCharacterPalette.Close();
+                    paletteDecoder.Close();
 
                     characterPalettes.Add(palette);
 
-                    ConsoleLogger.Log($"Loaded Character Palette File: {fileInfo.FullName}");
+                    ConsoleLogger.Log($"Loaded palette file: {fileInfo.Name}");
                 }
+                catch (Exception ex)
+                {
+                    ConsoleLogger.Error(ex);
+                    ConsoleLogger.Log($"Failed to load palette file: {fileInfo.Name}");
+                }
+            }
 
             CurrentCharacterPalette = CharacterPalettes[0];
         }

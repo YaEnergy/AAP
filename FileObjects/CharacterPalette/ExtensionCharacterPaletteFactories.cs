@@ -43,7 +43,7 @@ namespace AAP.Files
             {
                 ".txt" => new TextCharacterPaletteDecoder(stream),
                 ".aappal" => new AAPPALCharacterPaletteDecoder(stream),
-                _ => throw new Exception($"No Character Palette encoder exists for extension {ext}!"),
+                _ => throw new Exception($"No Character Palette decoder exists for extension {ext}!"),
             };
         }
     }
