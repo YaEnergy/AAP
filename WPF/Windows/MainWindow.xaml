@@ -85,9 +85,6 @@
                         <MenuItem Header="{Binding FiltersMenuContent, ElementName=MainWindowViewModel}">
                             <MenuItem Header="{Binding NoFiltersContent, ElementName=MainWindowViewModel}"></MenuItem>
                         </MenuItem>
-                        <MenuItem Header="{Binding DrawMenuContent}" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter},ElementName=ToolOptionsViewModel}">
-                            <MenuItem Header="{Binding FillSelectionContent}" IsEnabled="{Binding HasSelected}" Command="{Binding FillSelectionCommand}" InputGestureText="Alt+F"></MenuItem>
-                        </MenuItem>
                     </Menu>
                 </ToolBar>
             </ToolBarTray>
@@ -112,8 +109,10 @@
                     <controls:ImageStateBox x:Name="SelectToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column="2" Style="{DynamicResource ResourceKey=Tool_Select}" AllowManualDisable="False" StateCommand="{Binding SetSelectToolCommand}" ToolTip="{Binding SelectToolTip}"/>
                     <controls:ImageStateBox x:Name="MoveToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Column ="3" Grid.Row="0" Style="{DynamicResource ResourceKey=Tool_Move}" AllowManualDisable="False" StateCommand="{Binding SetMoveToolCommand}" ToolTip="{Binding MoveToolTip}"/>
                     <controls:ImageStateBox x:Name="LineToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="0" Style="{DynamicResource ResourceKey=Tool_Line}" AllowManualDisable="False" StateCommand="{Binding SetLineToolCommand}" ToolTip="{Binding LineToolTip}"/>
-                    <controls:ImageStateBox x:Name="BucketToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" Style="{DynamicResource ResourceKey=Tool_Bucket}" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}" ToolTip="{Binding BucketToolTip}"/>
-                    <controls:ImageStateBox x:Name="TextToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" Style="{DynamicResource ResourceKey=Tool_Text}" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}" ToolTip="{Binding TextToolTip}"/>
+                    <controls:ImageStateBox x:Name="RectangleToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="1" Style="{DynamicResource ResourceKey=Tool_Rectangle}" AllowManualDisable="False" StateCommand="{Binding SetRectangleToolCommand}" ToolTip="{Binding RectangleToolTip}"/>
+                    <controls:ImageStateBox x:Name="EllipseToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="2" Style="{DynamicResource ResourceKey=Tool_Ellipse}" AllowManualDisable="False" StateCommand="{Binding SetEllipseToolCommand}" ToolTip="{Binding EllipseToolTip}"/>
+                    <controls:ImageStateBox x:Name="BucketToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="1" Grid.Column="3" Style="{DynamicResource ResourceKey=Tool_Bucket}" AllowManualDisable="False" StateCommand="{Binding SetBucketToolCommand}" ToolTip="{Binding BucketToolTip}"/>
+                    <controls:ImageStateBox x:Name="TextToolStateBox" Margin="2,2,2,2" Height="{Binding ActualWidth, Mode=OneWay, RelativeSource={RelativeSource Self}}" Grid.Row="2" Grid.Column="0" Style="{DynamicResource ResourceKey=Tool_Text}" AllowManualDisable="False" StateCommand="{Binding SetTextToolCommand}" ToolTip="{Binding TextToolTip}"/>
                 </Grid>
                 <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top"/>
                 <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Auto" Margin="0,5,0,0">
@@ -151,7 +150,7 @@
                                 <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource PaletteEdit_Button}" Grid.Column="1" Command="{Binding EditPaletteCommand}" ToolTip="{Binding EditContent}"/>
                                 <controls:ImageButton Margin="2,2,2,2" Width="{Binding ActualHeight, Mode=OneWay, RelativeSource={RelativeSource Self}}" Style="{DynamicResource Remove_Button}" Grid.Column="2" Command="{Binding RemovePaletteCommand}" ToolTip="{Binding RemoveContent}"/>
                             </Grid>
-                            <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" GridItemSize="45,45" MaxHeight="400" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Characters="{Binding SelectedPalette.Characters, Mode=OneWay}" StateBoxTypeface="{Binding CanvasTypeface, ElementName=ArtCanvasViewModel}" DockPanel.Dock="Top" Width="200"/>
+                            <controls:CharacterPaletteCharacterSelect VerticalAlignment="Top" GridItemSize="45,45" MaxHeight="300" Margin="0,0,0,0" SelectedCharacter="{Binding SelectedCharacter, Mode=TwoWay}" Characters="{Binding SelectedPalette.Characters, Mode=OneWay}" StateBoxTypeface="{Binding CanvasTypeface, ElementName=ArtCanvasViewModel}" DockPanel.Dock="Top" Width="200"/>
                         </DockPanel>
                         <Rectangle HorizontalAlignment="Stretch" Margin="2" Stroke="{DynamicResource Border}" DockPanel.Dock="Top" Visibility="{Binding IsCharacterOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <WrapPanel Visibility="{Binding IsSizeOptionVisible,Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -161,6 +160,9 @@
                         </WrapPanel>
                         <WrapPanel Visibility="{Binding IsEightDirectionalOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <CheckBox Content="{Binding EightDirectionalContent}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding EightDirectional}" Foreground="{DynamicResource Text}"/>
+                        </WrapPanel>
+                        <WrapPanel Visibility="{Binding IsFillOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <CheckBox Content="{Binding FillContent}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding Fill}" Foreground="{DynamicResource Text}"/>
                         </WrapPanel>
                         <WrapPanel Visibility="{Binding IsStayInsideSelectionOptionVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <CheckBox Content="{Binding StayInsideSelectionContent}" HorizontalAlignment="Left" Padding="5,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding StayInsideSelection}" Foreground="{DynamicResource Text}"/>

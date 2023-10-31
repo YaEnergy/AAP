@@ -93,6 +93,14 @@
         <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Light/TextToolIcon.png"/>
     </Style>
 
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Rectangle" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Light/RectangleToolIcon.png"/>
+    </Style>
+
+    <Style TargetType="{x:Type controls:ImageStateBox}" x:Key="Tool_Ellipse" BasedOn="{StaticResource ToolStateBox}">
+        <Setter Property="ImageSource" Value="/Resources/Images/ToolIcons/Light/EllipseToolIcon.png"/>
+    </Style>
+
     <!-- Image Buttons -->
 
     <Style TargetType="{x:Type controls:ImageButton}" x:Key="Plus_Button" BasedOn="{StaticResource ImageButton}">

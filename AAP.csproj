@@ -52,11 +52,15 @@
     <None Remove="Resources\Images\ProgramIcons\Icon_old.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\BucketToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\DrawToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\EllipseToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\EraserToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\LineToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\MoveToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Dark\RectangleToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\SelectToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\Dark\TextToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Light\EllipseToolIcon.png" />
+    <None Remove="Resources\Images\ToolIcons\Light\RectangleToolIcon.png" />
     <None Remove="Resources\Images\ToolIcons\LineToolIcon.png" />
     <None Remove="Resources\Languages\Dutch.json" />
     <None Remove="Resources\Languages\English.json" />
@@ -99,6 +103,18 @@
     <Content Include="Resources\Images\ProgramIcons\Icon_old.ico">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Resources\Images\ToolIcons\Dark\EllipseToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Dark\RectangleToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\EllipseToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Images\ToolIcons\Light\RectangleToolIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\PresetCharacterPalettes\Braille8.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

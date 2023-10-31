@@ -186,6 +186,39 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool isFillOptionVisible = false;
+        public bool IsFillOptionVisible
+        {
+            get => isFillOptionVisible;
+            set
+            {
+                if (isFillOptionVisible == value)
+                    return;
+
+                isFillOptionVisible = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(IsFillOptionVisible)));
+            }
+        }
+
+        private bool fill = false;
+        public bool Fill
+        {
+            get => fill;
+            set
+            {
+                if (fill == value)
+                    return;
+
+                fill = value;
+
+                if (tool is IFillProperty propertyTool)
+                    propertyTool.Fill = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(Fill)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public void OnToolSelected(Tool? tool)
@@ -194,6 +227,7 @@ namespace AAP.UI.ViewModels
             IsSizeOptionVisible = tool is ISizeSelectable;
             IsEightDirectionalOptionVisible = tool is IEightDirectionalProperty;
             IsStayInsideSelectionOptionVisible = tool is IStayInsideSelectionProperty;
+            IsFillOptionVisible = tool is IFillProperty;
 
             if (tool is ICharacterSelectable characterSelectableTool && CharacterPaletteSelectionViewModel != null)
                 CharacterPaletteSelectionViewModel.SelectedCharacter = characterSelectableTool.Character;
@@ -206,6 +240,9 @@ namespace AAP.UI.ViewModels
 
             if (tool is IStayInsideSelectionProperty stayInsideSelectionPropertyTool)
                 StayInsideSelection = stayInsideSelectionPropertyTool.StayInsideSelection;
+
+            if (tool is IFillProperty fillPropertyTool)
+                StayInsideSelection = fillPropertyTool.Fill;
         }
 
         public static string GetToolTypeName(ToolType toolType)
@@ -226,6 +263,10 @@ namespace AAP.UI.ViewModels
                     return App.Language.GetString("Tool_BucketTool");
                 case ToolType.Text:
                     return App.Language.GetString("Tool_TextTool");
+                case ToolType.Rectangle:
+                    return App.Language.GetString("Tool_RectangleTool");
+                case ToolType.Ellipse:
+                    return App.Language.GetString("Tool_EllipseTool");
             }
 
             throw new ArgumentException(nameof(toolType) + " has no name!");
@@ -250,17 +291,22 @@ namespace AAP.UI.ViewModels
         private string stayInsideSelectionContent = App.Language.GetString("Tool_StayInsideSelection");
         public string StayInsideSelectionContent => stayInsideSelectionContent;
 
+        private string fillContent = App.Language.GetString("Tool_Fill");
+        public string FillContent => fillContent;
+
         private void OnLanguageChanged(Language language)
         {
             toolOptionsContent = language.GetString("Tool_Options");
             sizeContent = language.GetString("Tool_Size");
             eightDirectionalContent = language.GetString("Tool_EightDirectional");
             stayInsideSelectionContent = language.GetString("Tool_StayInsideSelection");
+            fillContent = language.GetString("Tool_Fill");
 
             PropertyChanged?.Invoke(this, new(nameof(ToolOptionsContent)));
             PropertyChanged?.Invoke(this, new(nameof(SizeContent)));
             PropertyChanged?.Invoke(this, new(nameof(EightDirectionalContent)));
             PropertyChanged?.Invoke(this, new(nameof(StayInsideSelectionContent)));
+            PropertyChanged?.Invoke(this, new(nameof(FillContent)));
 
             if (tool != null && HasToolSelected)
                 ToolName = GetToolTypeName(tool.Type);

@@ -374,6 +374,8 @@ namespace AAP
             Tools.Add(new BucketTool('|'));
             Tools.Add(new TextTool());
             Tools.Add(new LineTool('|'));
+            Tools.Add(new RectangleTool('|', 1));
+            Tools.Add(new EllipseTool('|', 1));
 
             SelectToolType(ToolType.None);
 
@@ -626,7 +628,22 @@ namespace AAP
 
             CopySelectedArtToClipboard();
 
-            FillSelectedWith(null);
+            DeleteSelection();
+        }
+
+        public static void DeleteSelection()
+        {
+            if (CurrentArtFile == null)
+                return;
+
+            if (CurrentLayerID == -1)
+                return;
+
+            if (SelectedArt == Rect.Empty)
+                return;
+
+            CurrentArtFile.ArtDraw.BrushThickness = 0;
+            CurrentArtFile.ArtDraw.DrawRectangle(CurrentLayerID, null, SelectedArt, true);
         }
         #endregion
         #region Art
@@ -700,24 +717,6 @@ namespace AAP
             CurrentArtFile.ArtTimeline?.NewTimePoint();
 
             CurrentArtFile.Art.Update();
-        }
-
-        public static void FillSelectedWith(char? character)
-        {
-            if (CurrentArtFile == null)
-                return;
-
-            if (SelectedArt == Rect.Empty)
-                return;
-
-            if (CurrentLayerID == -1)
-                return;
-
-            CurrentArtFile.ArtDraw?.DrawRectangle(CurrentLayerID, character, SelectedArt, true);
-
-            CurrentArtFile.ArtTimeline?.NewTimePoint();
-
-            CurrentArtFile.Art?.Update();
         }
         #endregion
         #region Art Selection

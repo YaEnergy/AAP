@@ -22,6 +22,8 @@ namespace AAP.UI.ViewModels
         public ICommand SetBucketToolCommand { get; set; }
         public ICommand SetTextToolCommand { get; set; }
         public ICommand SetLineToolCommand { get; set; }
+        public ICommand SetRectangleToolCommand { get; set; }
+        public ICommand SetEllipseToolCommand { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -34,6 +36,8 @@ namespace AAP.UI.ViewModels
             SetTextToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) App.SelectToolType(ToolType.Text); });
             SetBucketToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) App.SelectToolType(ToolType.Bucket); });
             SetLineToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) App.SelectToolType(ToolType.Line); });
+            SetRectangleToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) App.SelectToolType(ToolType.Rectangle); });
+            SetEllipseToolCommand = new EventArgsCommand<bool>((sender, state) => { if (state) App.SelectToolType(ToolType.Ellipse); });
 
             OnToolChanged(App.CurrentTool);
 
@@ -63,15 +67,23 @@ namespace AAP.UI.ViewModels
         private string textToolTip = App.Language.GetString("Tool_TextToolTip");
         public string TextToolTip => textToolTip;
 
+        private string rectangleToolTip = App.Language.GetString("Tool_RectangleToolTip");
+        public string RectangleToolTip => rectangleToolTip;
+
+        private string ellipseToolTip = App.Language.GetString("Tool_EllipseToolTip");
+        public string EllipseToolTip => ellipseToolTip;
+
         private void OnLanguageChanged(Language language)
         {
-            pencilToolTip = App.Language.GetString("Tool_PencilToolTip");
-            eraserToolTip = App.Language.GetString("Tool_EraserToolTip");
-            selectToolTip = App.Language.GetString("Tool_SelectToolTip");
-            moveToolTip = App.Language.GetString("Tool_MoveToolTip");
-            lineToolTip = App.Language.GetString("Tool_LineToolTip");
-            bucketToolTip = App.Language.GetString("Tool_BucketToolTip");
-            textToolTip = App.Language.GetString("Tool_TextToolTip");
+            pencilToolTip = language.GetString("Tool_PencilToolTip");
+            eraserToolTip = language.GetString("Tool_EraserToolTip");
+            selectToolTip = language.GetString("Tool_SelectToolTip");
+            moveToolTip = language.GetString("Tool_MoveToolTip");
+            lineToolTip = language.GetString("Tool_LineToolTip");
+            bucketToolTip = language.GetString("Tool_BucketToolTip");
+            textToolTip = language.GetString("Tool_TextToolTip");
+            rectangleToolTip = language.GetString("Tool_RectangleToolTip");
+            ellipseToolTip = language.GetString("Tool_EllipseToolTip");
 
             PropertyChanged?.Invoke(this, new(nameof(PencilToolTip)));
             PropertyChanged?.Invoke(this, new(nameof(EraserToolTip)));
@@ -80,6 +92,8 @@ namespace AAP.UI.ViewModels
             PropertyChanged?.Invoke(this, new(nameof(LineToolTip)));
             PropertyChanged?.Invoke(this, new(nameof(BucketToolTip)));
             PropertyChanged?.Invoke(this, new(nameof(TextToolTip)));
+            PropertyChanged?.Invoke(this, new(nameof(RectangleToolTip)));
+            PropertyChanged?.Invoke(this, new(nameof(EllipseToolTip)));
         }
         #endregion
 

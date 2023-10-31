@@ -143,8 +143,6 @@ namespace AAP.UI.ViewModels
         public ICommand CropLayerCommand { get; private set; }
         public ICommand FitAllLayersWithinArtCommand { get; private set; }
 
-        public ICommand FillSelectionCommand { get; private set; }
-
         public ICommand UndoCommand { get; private set; }
         public ICommand RedoCommand { get; private set; }
 
@@ -166,7 +164,7 @@ namespace AAP.UI.ViewModels
             EditFileCommand = new ActionCommand((parameter) => EditFile());
             CloseOpenFileCommand = new ActionCommand(async (parameter) => await CloseOpenFileAsync(parameter));
 
-            DeleteSelectedCommand = new ActionCommand((parameter) => App.FillSelectedWith(null));
+            DeleteSelectedCommand = new ActionCommand((parameter) => App.DeleteSelection());
             SelectCanvasCommand = new ActionCommand((parameter) => App.SelectCanvas());
             SelectLayerCommand = new ActionCommand((parameter) => App.SelectLayer());
             CancelSelectionCommand = new ActionCommand((parameter) => App.CancelArtSelection());
@@ -174,8 +172,6 @@ namespace AAP.UI.ViewModels
             CropArtCommand = new ActionCommand((parameter) => App.CropArtFileToSelected());
             CropLayerCommand = new ActionCommand((parameter) => App.CropCurrentArtLayerToSelected());
             FitAllLayersWithinArtCommand = new ActionCommand((parameter) => FitAllLayersWithinArt());
-
-            FillSelectionCommand = new ActionCommand((parameter) => FillSelection());
 
             UndoCommand = new ActionCommand((parameter) => CurrentArtFile?.ArtTimeline.Rollback());
             RedoCommand = new ActionCommand((parameter) => CurrentArtFile?.ArtTimeline.Rollforward());
@@ -255,12 +251,6 @@ namespace AAP.UI.ViewModels
         private string fitAllLayersContent = App.Language.GetString("FitLayersInCanvas");
         public string FitAllLayersContent => fitAllLayersContent;
 
-        private string drawMenuContent = App.Language.GetString("DrawMenu");
-        public string DrawMenuContent => drawMenuContent;
-
-        private string fillSelectionContent = App.Language.GetString("FillSelection");
-        public string FillSelectionContent => fillSelectionContent;
-
         private void OnLanguageChanged(Language language)
         {
             fileMenuContent = App.Language.GetString("FileMenu");
@@ -288,9 +278,6 @@ namespace AAP.UI.ViewModels
             cropLayerContent = App.Language.GetString("CropLayer");
             fitAllLayersContent = App.Language.GetString("FitLayersInCanvas");
 
-            drawMenuContent = App.Language.GetString("DrawMenu");
-            fillSelectionContent = App.Language.GetString("FillSelection");
-
             PropertyChanged?.Invoke(this, new(nameof(FileMenuContent)));
             PropertyChanged?.Invoke(this, new(nameof(NewFileContent)));
             PropertyChanged?.Invoke(this, new(nameof(OpenFileContent)));
@@ -314,9 +301,6 @@ namespace AAP.UI.ViewModels
             PropertyChanged?.Invoke(this, new(nameof(CropCanvasContent)));
             PropertyChanged?.Invoke(this, new(nameof(CropLayerContent)));
             PropertyChanged?.Invoke(this, new(nameof(FitAllLayersContent)));
-
-            PropertyChanged?.Invoke(this, new(nameof(DrawMenuContent)));
-            PropertyChanged?.Invoke(this, new(nameof(FillSelectionContent)));
         }
         #endregion
 
@@ -856,17 +840,6 @@ namespace AAP.UI.ViewModels
             Clipboard.SetText(artString);
 
             MessageBox.Show(App.Language.GetString("CopyClipboardArt_Message"), CopyArtToClipboardContent, MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
-        public void FillSelection()
-        {
-            if (CurrentTool is not ICharacterSelectable characterSelectableTool)
-                return;
-
-            if (!CanUseTool)
-                return;
-
-            App.FillSelectedWith(characterSelectableTool.Character);
         }
 
         public void EditFile()

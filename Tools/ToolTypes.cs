@@ -15,6 +15,8 @@ namespace AAP
         Move = 4,
         Text = 5,
         Bucket = 6,
-        Line = 7
+        Line = 7,
+        Rectangle = 8,
+        Ellipse = 9
     }
 }

@@ -58,15 +58,6 @@ namespace AAP.UI
 
     }
 
-    public static class DrawShortcutCommands
-    {
-        public readonly static RoutedCommand FillSelectionShortcut = new()
-        {
-            InputGestures = { new KeyGesture(Key.F, ModifierKeys.Alt) }
-        };
-
-    }
-
     public static class CanvasShortcutCommands
     {
         public readonly static RoutedCommand EnlargeTextSizeShortcut = new()
@@ -119,5 +110,14 @@ namespace AAP.UI
             InputGestures = { new KeyGesture(Key.T, ModifierKeys.Control | ModifierKeys.Shift) }
         };
 
+        public readonly static RoutedCommand RectangleToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.R, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
+
+        public readonly static RoutedCommand EllipseToolShortCut = new()
+        {
+            InputGestures = { new KeyGesture(Key.G, ModifierKeys.Control | ModifierKeys.Shift) }
+        };
     }
 }

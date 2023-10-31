@@ -104,12 +104,6 @@ namespace AAP
 
         public void DrawRectangle(int layerIndex, char? character, int startX, int startY, int width, int height, bool filled = false)
         {
-            if (width <= 0)
-                throw new ArgumentOutOfRangeException(nameof(width), "Must be larger than 0.");
-
-            if (height <= 0)
-                throw new ArgumentOutOfRangeException(nameof(height), "Must be larger than 0.");
-
             switch(filled)
             {
                 case false:
@@ -213,7 +207,7 @@ namespace AAP
         public void DrawFilledCircle(int layerIndex, char? character, Point center, int radius)
             => DrawFilledCircle(layerIndex, character, (int)center.X, (int)center.Y, radius);
 
-        public void DrawEllipse(int layerIndex, char? character, int centerX, int centerY, int width, int height)
+        public void DrawEllipse(int layerIndex, char? character, int centerX, int centerY, int width, int height, bool filled = false)
         {
             int x = 0;
             int y = height;
@@ -233,7 +227,7 @@ namespace AAP
             throw new NotImplementedException();
         }
 
-        public void DrawEllipse(int layerIndex, char? character, Point center, Size size)
+        public void DrawEllipse(int layerIndex, char? character, Point center, Size size, bool filled = false)
             => DrawEllipse(layerIndex, character, (int)center.X, (int)center.Y, (int)size.Width, (int)size.Height);
     }
 }

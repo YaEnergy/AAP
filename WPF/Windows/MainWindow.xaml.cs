@@ -55,6 +55,8 @@ namespace AAP.UI.Windows
             ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Bucket, BucketToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Text, TextToolStateBox);
             ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Line, LineToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Rectangle, RectangleToolStateBox);
+            ToolSelectionViewModel.ToolStateBoxes.Add(ToolType.Ellipse, EllipseToolStateBox);
 
             Closing += OnClosing;
 
@@ -84,15 +86,13 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Copy, new((sender, e) => App.CopySelectedArtToClipboard())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste, new((sender, e) => App.PasteLayerFromClipboard())));
 
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, new((sender, e) => App.FillSelectedWith(null))));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Delete, new((sender, e) => App.DeleteSelection())));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.SelectAll, new((sender, e) => App.SelectCanvas())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.SelectLayerShortcut, new((sender, e) => App.SelectLayer())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CancelSelectionShortcut, new((sender, e) => App.CancelArtSelection())));
 
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropArtShortcut, new((sender, e) => App.CropArtFileToSelected())));
             CommandBindings.Add(new CommandBinding(EditShortcutCommands.CropLayerShortcut, new((sender, e) => App.CropCurrentArtLayerToSelected())));
-
-            CommandBindings.Add(new CommandBinding(DrawShortcutCommands.FillSelectionShortcut, new((sender, e) => ArtFileViewModel.FillSelection())));
 
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.DrawToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Draw))));
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EraserToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Eraser))));
@@ -101,6 +101,8 @@ namespace AAP.UI.Windows
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.LineToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Line))));
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.BucketToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Bucket))));
             CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.TextToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Text))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.RectangleToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Rectangle))));
+            CommandBindings.Add(new CommandBinding(CanvasShortcutCommands.EllipseToolShortCut, new((sender, e) => App.SelectToolType(ToolType.Ellipse))));
             #endregion
         }
         
