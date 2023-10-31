@@ -450,23 +450,17 @@ namespace AAP
 
             List<Task> saveTasks = new();
 
-            foreach (ASCIIArtFile artFile in OpenArtFiles)
+            for (int i = 0; i < OpenArtFiles.Count; i++) 
             {
+                ASCIIArtFile artFile = OpenArtFiles[i];
+
                 if (!artFile.UnsavedChanges)
                 {
                     ConsoleLogger.Log($"File {artFile.FileName} skipped because it has no unsaved changes.");
                     continue;
                 }
 
-                string finalPath = autosaveFilePath;
-                if (File.Exists(finalPath + ext))
-                {
-                    int saveNumber = 1;
-                    while (File.Exists(finalPath + "+" + saveNumber + ext))
-                        saveNumber++;
-
-                    finalPath += "+" + saveNumber;
-                }
+                string finalPath = i == 0 ? autosaveFilePath : autosaveFilePath + "+" + i;
 
                 ConsoleLogger.Log("Autosaving " + artFile.FileName + " to " + finalPath + ext);
 
