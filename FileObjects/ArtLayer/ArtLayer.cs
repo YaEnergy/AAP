@@ -350,21 +350,39 @@ namespace AAP
             return art;
         }
 
-        public bool IsPointVisible(int x, int y)
-        {
-            if (x - OffsetX < 0 || y - OffsetY < 0 || x - OffsetX >= Width || y - OffsetY >= Height) //Is point outside layer
-                return false;
+        /// <summary>
+        /// Returns true if the canvas point is visible on this art layer
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public bool IsCanvasPointVisible(int x, int y)
+            => x - OffsetX >= 0 && x - OffsetX < Width && y - OffsetY >= 0 && y - OffsetY < Height;
 
-            return true;
-        }
+        /// <summary>
+        /// Returns true if the canvas point is visible on this art layer
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool IsCanvasPointVisible(Point point)
+            => IsCanvasPointVisible((int)point.X, (int)point.Y);
 
-        public bool IsPointVisible(Point point)
-        {
-            if ((int)point.X - OffsetX < 0 || (int)point.Y - OffsetY < 0 || (int)point.X - OffsetX >= Width || (int)point.Y - OffsetY >= Height) //Is point outside layer
-                return false;
+        /// <summary>
+        /// Returns true if the layer point is visible on this art layer
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public bool IsLayerPointVisible(int x, int y)
+            => x >= 0 && x < Width && y >= 0 && y < Height;
 
-            return true;
-        }
+        /// <summary>
+        /// Returns true if the layer point is visible on this art layer
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        public bool IsLayerPointVisible(Point point)
+            => IsCanvasPointVisible((int)point.X, (int)point.Y);
 
         /// <summary>
         /// Converts points on canvas to points on layer.

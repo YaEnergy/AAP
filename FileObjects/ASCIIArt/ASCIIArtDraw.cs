@@ -30,7 +30,7 @@ namespace AAP
             if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
                 return false;
 
-            if (!Art.ArtLayers[layerIndex].IsPointVisible(x, y)) //Point out of bounds of layer
+            if (!Art.ArtLayers[layerIndex].IsCanvasPointVisible(x, y)) //Point out of bounds of layer
                 return false;
 
             if (App.SelectedArt != Rect.Empty && StayInsideSelection && (x < App.SelectedArt.Left || x >= App.SelectedArt.Right || y < App.SelectedArt.Top || y >= App.SelectedArt.Bottom)) 
@@ -125,7 +125,10 @@ namespace AAP
 
                     for (int x = startX; x < startX + width; x++)
                         for (int y = startY; y < startY + height; y++)
-                            DrawFilledCircle(layerIndex, character, x, y, BrushThickness);
+                            if (x == startX || x == startX + width - 1 || y == startY || y == startY + height - 1)
+                                DrawFilledCircle(layerIndex, character, x, y, BrushThickness);
+                            else
+                                DrawCharacter(layerIndex, character, x, y);
 
                     break;
             }

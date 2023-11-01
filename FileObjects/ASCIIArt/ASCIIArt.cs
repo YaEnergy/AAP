@@ -231,7 +231,7 @@ namespace AAP
                 if (!artLayer.Visible)
                     continue;
 
-                if (!artLayer.IsPointVisible(x, y))
+                if (!artLayer.IsCanvasPointVisible(x, y))
                     continue;
 
                 char? character = artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY];
@@ -248,24 +248,7 @@ namespace AAP
         /// <param name="point"></param>
         /// <returns>char?</returns>
         public char? GetCharacter(Point point)
-        {
-            for (int i = 0; i < ArtLayers.Count; i++)
-            {
-                ArtLayer artLayer = ArtLayers[i];
-
-                if (!artLayer.Visible)
-                    continue;
-
-                if (!artLayer.IsPointVisible(point))
-                    continue;
-
-                char? character = artLayer.GetCharacter(point);
-                if (character != null)
-                    return character;
-            }
-
-            return null;
-        }
+            => GetCharacter((int)point.X, (int)point.Y);
 
         public void SetCharacter(int layerIndex, int x, int y, char? character)
         {
@@ -277,13 +260,7 @@ namespace AAP
         }
 
         public void SetCharacter(int layerIndex, Point point, char? character)
-        {
-            if (layerIndex < 0 || layerIndex >= ArtLayers.Count)
-                throw new IndexOutOfRangeException($"{nameof(layerIndex)} index outside of bounds (index: {layerIndex})");
-
-            ArtLayer layer = ArtLayers[layerIndex];
-            layer.SetCharacter((int)point.X - layer.OffsetX, (int)point.Y - layer.OffsetY, character);
-        }
+            => SetCharacter(layerIndex, (int)point.X, (int)point.Y, character);
         #endregion
 
         /// <summary>

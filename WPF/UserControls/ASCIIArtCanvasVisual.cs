@@ -1,21 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
-using System.Windows.Media.Media3D;
-using AAP.UI.ViewModels;
 using System.Windows.Input;
-using System.Windows.Controls;
-using System.Reflection.Emit;
-using System.Windows.Controls.Primitives;
-using System.Runtime.InteropServices;
 
 namespace AAP.UI.Controls
 {
@@ -436,7 +422,7 @@ namespace AAP.UI.Controls
         
         private double[] columnWidths = new double[1];
 
-        private double defaultColumnWidth => new FormattedText("A", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, ArtFont, TextSize, Text, 1).Width;
+        private double DefaultColumnWidth => new FormattedText("A", CultureInfo.InvariantCulture, FlowDirection.LeftToRight, ArtFont, TextSize, Text, 1).Width;
 
         #region Converting between Art Matrix & Art Canvas
         public Point GetArtMatrixPoint(Point canvasPosition)
@@ -446,7 +432,7 @@ namespace AAP.UI.Controls
 
             Size nonOffsetCanvasSize = new(Width - ArtOffset.X * 2, Height - ArtOffset.Y * 2);
 
-            double defaultWidth = defaultColumnWidth;
+            double defaultWidth = DefaultColumnWidth;
 
             int artPosX = 0;
             int artPosY = (int)Math.Floor((canvasPosition.Y - ArtOffset.Y) / (nonOffsetCanvasSize.Height / DisplayArt.Height));
@@ -474,7 +460,7 @@ namespace AAP.UI.Controls
             if (DisplayArt == null)
                 throw new NullReferenceException(nameof(DisplayArt));
 
-            double defaultWidth = defaultColumnWidth;
+            double defaultWidth = DefaultColumnWidth;
 
             int artPosX = (int)artMatrixPosition.X;
 
@@ -595,7 +581,7 @@ namespace AAP.UI.Controls
             {
                 Pen gridLinePen = new(Grid, GridLineThickness);
 
-                double defaultWidth = defaultColumnWidth;
+                double defaultWidth = DefaultColumnWidth;
 
                 double posX = ArtOffset.X;
                 for (int x = 0; x <= DisplayArt.Width; x++)
@@ -673,7 +659,7 @@ namespace AAP.UI.Controls
                 }
 
                 double offsetX = ArtOffset.X;
-                double defaultWidth = defaultColumnWidth;
+                double defaultWidth = DefaultColumnWidth;
 
                 for (int x = 0; x < DisplayArt.Width; x++)
                 {
@@ -723,6 +709,8 @@ namespace AAP.UI.Controls
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
+            ArtLayer? previewLayer = Tool is IPreviewable<ArtLayer?> previewableTool ? previewableTool.Preview : null;
+
             Brush TextBrush = (Brush)Text.GetCurrentValueAsFrozen();
 
             int lowestColumnNumWidthChanged = -1;
@@ -733,7 +721,14 @@ namespace AAP.UI.Controls
 
                 string columnString = "";
                 for (int y = 0; y < DisplayArt.Height; y++)
-                    columnString += (DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
+                {
+                    if (previewLayer != null && x >= previewLayer.OffsetX && x < previewLayer.OffsetX + previewLayer.Width && y >= previewLayer.OffsetY && y < previewLayer.OffsetY + previewLayer.Height)
+                        columnString += previewLayer.GetCharacter(x - previewLayer.OffsetX, y - previewLayer.OffsetY) ?? DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER;
+                    else
+                        columnString += DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER;
+
+                    columnString += "\n";
+                }
 
                 FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, TextBrush, 1);
                 charText.LineHeight = LineHeight;
@@ -768,6 +763,22 @@ namespace AAP.UI.Controls
             }
 
             changedColumns.Clear();
+
+            //Preview layer always changes
+            if (previewLayer != null)
+            {
+                for (int x = previewLayer.OffsetX; x < previewLayer.OffsetX + previewLayer.Width; x++)
+                {
+                    if (x < 0)
+                        continue;
+
+                    if (x >= DisplayArt.Width)
+                        break;
+
+                    if (!changedColumns.Contains(x))
+                        changedColumns.Add(x);
+                }
+            }
 
             stopwatch.Stop();
             ConsoleLogger.Inform("Updated canvas! (" + stopwatch.ElapsedMilliseconds + " ms)");
@@ -829,6 +840,9 @@ namespace AAP.UI.Controls
             MouseMove += ToolActivateUpdate;
             MouseUp += ToolActivateEnd;
             MouseLeave += ToolActivateEnd;
+
+            if (Tool is IPreviewable<ArtLayer?> previewableTool)
+                previewableTool.OnPreviewChanged += OnToolPreviewChanged;
             
             Tool?.ActivateStart(GetArtMatrixPoint(e.GetPosition(this)));
         }
@@ -842,7 +856,36 @@ namespace AAP.UI.Controls
             MouseUp -= ToolActivateEnd;
             MouseLeave -= ToolActivateEnd;
 
+            if (Tool is IPreviewable<ArtLayer?> previewableTool)
+                previewableTool.OnPreviewChanged -= OnToolPreviewChanged;
+
             Tool?.ActivateEnd();
+        }
+
+        private void OnToolPreviewChanged(object? preview)
+        {
+            if (DisplayArt == null)
+                return;
+
+            if (preview == null)
+                UpdateDisplayArt();
+
+            if (preview is not ArtLayer previewLayer)
+                return;
+
+            for (int x = previewLayer.OffsetX; x < previewLayer.OffsetX + previewLayer.Width; x++)
+            {
+                if (x < 0)
+                    continue;
+
+                if (x >= DisplayArt.Width)
+                    break;
+
+                if (!changedColumns.Contains(x))
+                    changedColumns.Add(x);
+            }
+
+            UpdateDisplayArt();
         }
         #endregion
 

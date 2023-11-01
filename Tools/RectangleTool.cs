@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class RectangleTool: Tool, ICharacterSelectable, ISizeSelectable, IStayInsideSelectionProperty, IFillProperty, INotifyPropertyChanged
+    public class RectangleTool: Tool, ICharacterSelectable, ISizeSelectable, IStayInsideSelectionProperty, IFillProperty, IPreviewable<ArtLayer?>, INotifyPropertyChanged
     {
         public override ToolType Type { get; } = ToolType.Rectangle;
 
@@ -71,7 +71,24 @@ namespace AAP
             }
         }
 
+        private ArtLayer? preview = null;
+        public ArtLayer? Preview
+        {
+            get => preview;
+            set
+            {
+                if (preview == value)
+                    return;
+
+                preview = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(Preview)));
+                OnPreviewChanged?.Invoke(preview);
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event PreviewChangedEvent? OnPreviewChanged;
 
         public RectangleTool(char? character, int size)
         {
@@ -81,16 +98,18 @@ namespace AAP
 
         protected override void UseStart(Point startArtPos)
         {
-            return;
+            UpdatePreview(startArtPos, startArtPos);
         }
 
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
-            return;
+            UpdatePreview(startArtPos, currentArtPos);
         }
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
         {
+            Preview = null;
+
             DrawRectangle(startArtPos, endArtPos);
 
             App.CurrentArtFile?.Art.Update();
@@ -112,6 +131,35 @@ namespace AAP
             int height = (int)(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1);
 
             App.CurrentArtFile.ArtDraw.DrawRectangle(App.CurrentLayerID, Character, startX, startY, width, height, Fill);
+        }
+
+        public void UpdatePreview(Point startArtPos, Point endArtPos)
+        {
+            if (App.CurrentArtFile == null)
+            {
+                Preview = null;
+                return;
+            }
+
+            int offset = Size == 1 ? 0 : Math.Max(Size - 2, 1);
+
+            int startX = (int)(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X);
+            int startY = (int)(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y);
+
+            int width = (int)(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1);
+            int height = (int)(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1);
+
+            ArtLayer previewLayer = new("Preview", width + offset * 2, height + offset * 2, startX - offset, startY - offset);
+
+            ArtLayerDraw layerDraw = new(previewLayer)
+            {
+                BrushThickness = Size - 1,
+                StayInsideSelection = StayInsideSelection
+            };
+
+            layerDraw.DrawRectangle(Character, offset, offset, width, height, Fill);
+
+            Preview = previewLayer;
         }
     }
 }

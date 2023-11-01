@@ -493,7 +493,7 @@ namespace AAP.Files
                     string columnString = "";
                     for (int y = 0; y < FileObject.Height; y++)
                     {
-                        if (layer.IsPointVisible(x, y))
+                        if (layer.IsCanvasPointVisible(x, y))
                             columnString += (layer.GetCharacter(x - layer.OffsetX, y - layer.OffsetY) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
                         else
                             columnString += ASCIIArt.EMPTYCHARACTER + "\n";

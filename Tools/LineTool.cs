@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace AAP
 {
-    public class LineTool: Tool, ICharacterSelectable, ISizeSelectable, IStayInsideSelectionProperty, INotifyPropertyChanged
+    public class LineTool: Tool, ICharacterSelectable, ISizeSelectable, IStayInsideSelectionProperty, IPreviewable<ArtLayer?>, INotifyPropertyChanged
     {
         public override ToolType Type { get; } = ToolType.Line;
 
@@ -56,7 +56,24 @@ namespace AAP
             }
         }
 
+        private ArtLayer? preview = null;
+        public ArtLayer? Preview
+        {
+            get => preview;
+            set
+            {
+                if (preview == value) 
+                    return;
+
+                preview = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(Preview)));
+                OnPreviewChanged?.Invoke(preview);
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
+        public event PreviewChangedEvent? OnPreviewChanged;
 
         public LineTool(char? character)
         {
@@ -66,14 +83,22 @@ namespace AAP
         protected override void UseStart(Point startArtPos)
         {
             DrawCircle(startArtPos);
+            UpdatePreview(startArtPos, startArtPos);
 
             App.CurrentArtFile?.Art.Update();
+        }
+
+        protected override void UseUpdate(Point startArtPos, Point currentArtPos)
+        {
+            UpdatePreview(startArtPos, currentArtPos);
         }
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
         {
             DrawLine(startArtPos, endArtPos);
             App.CurrentArtFile?.ArtTimeline.NewTimePoint();
+
+            Preview = null;
 
             App.CurrentArtFile?.Art.Update();
         }
@@ -97,6 +122,50 @@ namespace AAP
             App.CurrentArtFile.ArtDraw.BrushThickness = Size - 1;
 
             App.CurrentArtFile.ArtDraw.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos);
+        }
+
+        public void UpdatePreview(Point start, Point end)
+        {
+            if (App.CurrentArtFile == null)
+            {
+                Preview = null;
+                return;
+            }
+
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
+
+            int offset = Size == 1 ? 0 : Math.Max(Size - 2, 1);
+
+            int left = Math.Max((int)Math.Min(start.X, end.X) - offset, layer.OffsetX);
+            int right = Math.Min((int)Math.Max(start.X, end.X) + offset + 1, layer.OffsetX + layer.Width);
+            int top = Math.Max((int)Math.Min(start.Y, end.Y) - offset, layer.OffsetY);
+            int bottom = Math.Min((int)Math.Max(start.Y, end.Y) + offset + 1, layer.OffsetY + layer.Height);
+
+            if (left >= layer.OffsetX + layer.Width || top >= layer.OffsetY + layer.Height)
+            {
+                Preview = null;
+                return;
+            }
+
+            if (right - left <= 0 || bottom - top <= 0)
+            {
+                Preview = null;
+                return;
+            }
+
+            ArtLayer previewLayer = new("Preview", layer.Width, layer.Height, layer.OffsetX, layer.OffsetY);
+
+            ArtLayerDraw layerDraw = new(previewLayer)
+            {
+                BrushThickness = Size - 1,
+                StayInsideSelection = StayInsideSelection
+            };
+
+            layerDraw.DrawLine(Character, previewLayer.GetLayerPoint(start), previewLayer.GetLayerPoint(end));
+
+            previewLayer.Crop(new(left, top, right - left, bottom - top));
+
+            Preview = previewLayer;
         }
     }
 }
