@@ -833,7 +833,7 @@ namespace AAP.UI.Controls
 
             if (App.CurrentLayerID < 0)
             {
-                MessageBox.Show("Please select a layer!", "No Layer Selected!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(App.Language.GetString("Tool_NoLayerSelectedMessage"), App.Language.GetString("Tool_NoLayerSelectedCaption"), MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 

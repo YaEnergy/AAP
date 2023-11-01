@@ -186,21 +186,6 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private bool isFillOptionVisible = false;
-        public bool IsFillOptionVisible
-        {
-            get => isFillOptionVisible;
-            set
-            {
-                if (isFillOptionVisible == value)
-                    return;
-
-                isFillOptionVisible = value;
-
-                PropertyChanged?.Invoke(this, new(nameof(IsFillOptionVisible)));
-            }
-        }
-
         private bool fill = false;
         public bool Fill
         {
@@ -216,6 +201,21 @@ namespace AAP.UI.ViewModels
                     propertyTool.Fill = value;
 
                 PropertyChanged?.Invoke(this, new(nameof(Fill)));
+            }
+        }
+
+        private bool isFillOptionVisible = false;
+        public bool IsFillOptionVisible
+        {
+            get => isFillOptionVisible;
+            set
+            {
+                if (isFillOptionVisible == value)
+                    return;
+
+                isFillOptionVisible = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(IsFillOptionVisible)));
             }
         }
 
@@ -242,34 +242,24 @@ namespace AAP.UI.ViewModels
                 StayInsideSelection = stayInsideSelectionPropertyTool.StayInsideSelection;
 
             if (tool is IFillProperty fillPropertyTool)
-                StayInsideSelection = fillPropertyTool.Fill;
+                Fill = fillPropertyTool.Fill;
         }
 
         public static string GetToolTypeName(ToolType toolType)
         {
-            switch (toolType)
+            return toolType switch
             {
-                case ToolType.Draw:
-                    return App.Language.GetString("Tool_PencilTool");
-                case ToolType.Eraser:
-                    return App.Language.GetString("Tool_EraserTool");
-                case ToolType.Select:
-                    return App.Language.GetString("Tool_SelectTool");
-                case ToolType.Move:
-                    return App.Language.GetString("Tool_MoveTool");
-                case ToolType.Line:
-                    return App.Language.GetString("Tool_LineTool");
-                case ToolType.Bucket:
-                    return App.Language.GetString("Tool_BucketTool");
-                case ToolType.Text:
-                    return App.Language.GetString("Tool_TextTool");
-                case ToolType.Rectangle:
-                    return App.Language.GetString("Tool_RectangleTool");
-                case ToolType.Ellipse:
-                    return App.Language.GetString("Tool_EllipseTool");
-            }
-
-            throw new ArgumentException(nameof(toolType) + " has no name!");
+                ToolType.Draw => App.Language.GetString("Tool_PencilTool"),
+                ToolType.Eraser => App.Language.GetString("Tool_EraserTool"),
+                ToolType.Select => App.Language.GetString("Tool_SelectTool"),
+                ToolType.Move => App.Language.GetString("Tool_MoveTool"),
+                ToolType.Line => App.Language.GetString("Tool_LineTool"),
+                ToolType.Bucket => App.Language.GetString("Tool_BucketTool"),
+                ToolType.Text => App.Language.GetString("Tool_TextTool"),
+                ToolType.Rectangle => App.Language.GetString("Tool_RectangleTool"),
+                ToolType.Ellipse => App.Language.GetString("Tool_EllipseTool"),
+                _ => throw new ArgumentException(nameof(toolType) + " has no name!"),
+            };
         }
 
         public ToolOptionsViewModel()

@@ -25,7 +25,7 @@ namespace AAP
             if (!Layer.IsLayerPointVisible(x, y)) //Point out of bounds of layer
                 return false;
 
-            if (App.SelectedArt != Rect.Empty && StayInsideSelection && (x < App.SelectedArt.Left || x >= App.SelectedArt.Right || y < App.SelectedArt.Top || y >= App.SelectedArt.Bottom))
+            if (App.SelectedArt != Rect.Empty && StayInsideSelection && (x + Layer.OffsetX < App.SelectedArt.Left || x + Layer.OffsetX >= App.SelectedArt.Right || y + Layer.OffsetY < App.SelectedArt.Top || y + Layer.OffsetY >= App.SelectedArt.Bottom))
                 return false;
 
             return true; //No issues
