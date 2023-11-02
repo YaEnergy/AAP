@@ -90,7 +90,7 @@ namespace AAP
 
             App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
 
-            App.CurrentArtFile.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1);
+            App.CurrentArtFile.ArtDraw.DrawBrush(App.CurrentLayerID, Character, artPos, Size - 1);
         }
     }
 }

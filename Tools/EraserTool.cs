@@ -74,7 +74,7 @@ namespace AAP
 
             App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
 
-            App.CurrentArtFile.ArtDraw.DrawFilledCircle(App.CurrentLayerID, null, artPos, Size - 1);
+            App.CurrentArtFile.ArtDraw.DrawBrush(App.CurrentLayerID, null, artPos, Size - 1);
         }
     }
 }

@@ -95,10 +95,10 @@ namespace AAP
 
         protected override void UseEnd(Point startArtPos, Point endArtPos)
         {
+            Preview = null;
+
             DrawLine(startArtPos, endArtPos);
             App.CurrentArtFile?.ArtTimeline.NewTimePoint();
-
-            Preview = null;
 
             App.CurrentArtFile?.Art.Update();
         }
@@ -110,7 +110,7 @@ namespace AAP
 
             App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
 
-            App.CurrentArtFile.ArtDraw.DrawFilledCircle(App.CurrentLayerID, Character, artPos, Size - 1);
+            App.CurrentArtFile.ArtDraw.DrawBrush(App.CurrentLayerID, Character, artPos, Size - 1);
         }
 
         public void DrawLine(Point startArtPos, Point endArtPos)
@@ -153,7 +153,7 @@ namespace AAP
                 return;
             }
 
-            ArtLayer previewLayer = new("Preview", layer.Width, layer.Height, layer.OffsetX, layer.OffsetY);
+            ArtLayer previewLayer = new("Preview", right - left, bottom - top, left, top);
 
             ArtLayerDraw layerDraw = new(previewLayer)
             {
@@ -162,8 +162,6 @@ namespace AAP
             };
 
             layerDraw.DrawLine(Character, previewLayer.GetLayerPoint(start), previewLayer.GetLayerPoint(end));
-
-            previewLayer.Crop(new(left, top, right - left, bottom - top));
 
             Preview = previewLayer;
         }

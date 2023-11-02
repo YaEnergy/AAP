@@ -141,15 +141,17 @@ namespace AAP
                 return;
             }
 
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
+
             int offset = Size == 1 ? 0 : Math.Max(Size - 2, 1);
 
-            int startX = (int)(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X);
-            int startY = (int)(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y);
+            int startX = (int)Math.Min(startArtPos.X, endArtPos.X);
+            int startY = (int)Math.Min(startArtPos.Y, endArtPos.Y);
 
-            int width = (int)(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1);
-            int height = (int)(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1);
+            int width = (int)Math.Max(endArtPos.X - startArtPos.X, startArtPos.X - endArtPos.X) + 1;
+            int height = (int)Math.Max(endArtPos.Y - startArtPos.Y, startArtPos.Y - endArtPos.Y) + 1;
 
-            ArtLayer previewLayer = new("Preview", width + offset * 2, height + offset * 2, startX - offset, startY - offset);
+            ArtLayer previewLayer = new("Preview", Math.Min(width + offset * 2, layer.Width), Math.Min(height + offset * 2, layer.Height), Math.Max(startX - offset, layer.OffsetX), Math.Max(startY - offset, layer.OffsetY));
 
             ArtLayerDraw layerDraw = new(previewLayer)
             {
@@ -157,7 +159,7 @@ namespace AAP
                 StayInsideSelection = StayInsideSelection
             };
 
-            layerDraw.DrawRectangle(Character, offset, offset, width, height, Fill);
+            layerDraw.DrawRectangle(Character, startX - previewLayer.OffsetX, startY - previewLayer.OffsetY, width, height, Fill);
 
             Preview = previewLayer;
         }
