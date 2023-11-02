@@ -27,9 +27,6 @@ namespace AAP
             if (layerIndex < 0 || layerIndex >= Art.ArtLayers.Count) //Invalid Layer index
                 return false;
 
-            if (!Art.ArtLayers[layerIndex].Visible)  //Layer is hidden
-                return false;
-
             if (!Art.ArtLayers[layerIndex].IsCanvasPointVisible(x, y)) //Point out of bounds of layer
                 return false;
 
@@ -41,8 +38,7 @@ namespace AAP
 
         public bool CanDrawOn(int layerIndex, Point position)
             => CanDrawOn(layerIndex, (int)position.X, (int)position.Y);
-
-
+        
         #region Basics
         public void DrawCharacter(int layerIndex, char? character, int x, int y)
         {

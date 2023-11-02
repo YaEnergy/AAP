@@ -151,7 +151,12 @@ namespace AAP
             int radiusX = (int)Math.Max(endArtPos.X - startArtPos.X, startArtPos.X - endArtPos.X);
             int radiusY = (int)Math.Max(endArtPos.Y - startArtPos.Y, startArtPos.Y - endArtPos.Y);
 
-            ArtLayer previewLayer = new("Preview", Math.Min(radiusX * 2 + offset * 2 + 1, layer.Width), Math.Min(radiusY * 2 + offset * 2 + 1, layer.Height), Math.Max(centerX - radiusX - offset, layer.OffsetX), Math.Max(centerY - radiusY - offset, layer.OffsetY));
+            int left = Math.Max(centerX - radiusX - offset, layer.OffsetX);
+            int right = Math.Min(centerX + radiusX + offset + 1, layer.OffsetX + layer.Width);
+            int top = Math.Max(centerY - radiusY - offset, layer.OffsetY);
+            int bottom = Math.Min(centerY + radiusY + offset + 1, layer.OffsetY + layer.Height);
+
+            ArtLayer previewLayer = new("Preview", right - left, bottom - top, left, top);
 
             ArtLayerDraw layerDraw = new(previewLayer)
             {
