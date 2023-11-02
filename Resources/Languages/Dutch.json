@@ -75,6 +75,7 @@
   "Settings_Language": "Taal",
   "Settings_UserInterface": "Gebruikersomgeving",
   "Settings_CanvasFont": "Canvas-lettertype",
+  "Settings_ToolPreviews": null,
   "Settings_Files": "Bestanden",
   "Settings_AutosaveFiles": "Bestanden automatisch bewaren",
   "Settings_AutosaveInterval": "Bewaar om de {0} minuten",

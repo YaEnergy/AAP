@@ -127,15 +127,15 @@ namespace AAP
             int centerX = (int)startArtPos.X;
             int centerY = (int)startArtPos.Y;
 
-            int radiusX = (int)(endArtPos.X - startArtPos.X);
-            int radiusY = (int)(endArtPos.Y - startArtPos.Y);
+            int radiusX = (int)Math.Max(endArtPos.X - startArtPos.X, startArtPos.X - endArtPos.X);
+            int radiusY = (int)Math.Max(endArtPos.Y - startArtPos.Y, startArtPos.Y - endArtPos.Y);
 
             App.CurrentArtFile.ArtDraw.DrawEllipse(App.CurrentLayerID, Character, centerX, centerY, radiusX, radiusY, Fill);
         }
 
         public void UpdatePreview(Point startArtPos, Point endArtPos)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || !App.Settings.ToolPreviews)
             {
                 Preview = null;
                 return;

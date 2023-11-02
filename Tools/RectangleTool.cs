@@ -135,7 +135,7 @@ namespace AAP
 
         public void UpdatePreview(Point startArtPos, Point endArtPos)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || !App.Settings.ToolPreviews)
             {
                 Preview = null;
                 return;

@@ -74,6 +74,20 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool showToolPreviews = true;
+        public bool ShowToolPreviews
+        {
+            get => showToolPreviews;
+            set
+            {
+                if (showToolPreviews == value)
+                    return;
+
+                showToolPreviews = value;
+                PropertyChanged?.Invoke(this, new(nameof(ShowToolPreviews)));
+            }
+        }
+
         private ASCIIArt? currentArt = null;
         public ASCIIArt? CurrentArt
         {

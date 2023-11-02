@@ -14,7 +14,7 @@ namespace AAP.Files
     [Serializable]
     public class AppSettings : INotifyPropertyChanged
     {
-        public static AppSettings Default { get; } = new() { AutosaveInterval = new TimeSpan(120, 0, 0) };
+        public static AppSettings Default { get; } = new();
 
         private bool darkMode = false;
         public bool DarkMode
@@ -28,6 +28,21 @@ namespace AAP.Files
                 darkMode = value;
 
                 PropertyChanged?.Invoke(this, new(nameof(DarkMode)));
+            }
+        }
+
+        private bool toolPreviews = true;
+        public bool ToolPreviews
+        {
+            get => toolPreviews;
+            set
+            {
+                if (toolPreviews == value)
+                    return;
+
+                toolPreviews = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(ToolPreviews)));
             }
         }
 
@@ -117,6 +132,7 @@ namespace AAP.Files
         {
             ConsoleLogger.Inform("Language Name: " + this.LanguageName);
             ConsoleLogger.Inform("Dark mode: " + this.DarkMode);
+            ConsoleLogger.Inform("Tool previews: " + this.ToolPreviews);
             ConsoleLogger.Inform("Autosave files: " + this.AutosaveFiles);
             ConsoleLogger.Inform("Autosave interval: " + this.AutosaveInterval);
             ConsoleLogger.Inform("Canvas family font name: " + this.CanvasTypefaceSource);
@@ -131,6 +147,7 @@ namespace AAP.Files
         public void Reset()
         {
             DarkMode = Default.DarkMode;
+            ToolPreviews = Default.ToolPreviews;
             CanvasTypefaceSource = Default.CanvasTypefaceSource;
             AutosaveFiles = Default.AutosaveFiles;
             AutosaveInterval = Default.AutosaveInterval;

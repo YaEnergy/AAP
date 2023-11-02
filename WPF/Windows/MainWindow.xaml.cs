@@ -43,6 +43,7 @@ namespace AAP.UI.Windows
             App.Settings.PropertyChanged += SettingsPropertyChanged;
 
             ArtCanvasViewModel.CanvasTypeface = new(App.Settings.CanvasTypefaceSource);
+            ArtCanvasViewModel.ShowToolPreviews = App.Settings.ToolPreviews;
 
             OnCurrentArtFileChanged(App.CurrentArtFile);
 
@@ -239,6 +240,9 @@ namespace AAP.UI.Windows
             {
                 case nameof(settings.CanvasTypefaceSource):
                     ArtCanvasViewModel.CanvasTypeface = new(settings.CanvasTypefaceSource);
+                    break;
+                case nameof(settings.ToolPreviews):
+                    ArtCanvasViewModel.ShowToolPreviews = settings.ToolPreviews;
                     break;
                 default:
                     break;

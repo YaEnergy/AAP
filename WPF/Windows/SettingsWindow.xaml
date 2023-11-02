@@ -32,6 +32,7 @@
                     <ComboBox Height="25" MinWidth="100" SelectedItem="{Binding CanvasTypefaceSource}" ItemsSource="{Binding TypefaceSources}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" HorizontalAlignment="Right"/>
                 </DockPanel>
                 <CheckBox Content="{Binding DarkModeContent, Mode=OneWay}" HorizontalAlignment="Left" Padding="0,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding DarkMode}" Foreground="{DynamicResource Text}"/>
+                <CheckBox Content="{Binding ToolPreviewsContent, Mode=OneWay}" HorizontalAlignment="Left" Padding="0,0,5,0" Margin="5,5,5,5" Style="{StaticResource ContentLeftCheckBoxStyle}" IsChecked="{Binding ToolPreviews}" Foreground="{DynamicResource Text}"/>
             </StackPanel>
             <Separator/>
             <Label Content="{Binding FilesSectionContent, Mode=OneWay}"/>

@@ -36,6 +36,22 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private bool toolPreviews = App.Settings.ToolPreviews;
+        public bool ToolPreviews
+        {
+            get => toolPreviews;
+            set
+            {
+                if (toolPreviews == value)
+                    return;
+
+                toolPreviews = value;
+                ChangesMade = true;
+
+                PropertyChanged?.Invoke(this, new(nameof(ToolPreviews)));
+            }
+        }
+
         private string canvasTypefaceSource = App.Settings.CanvasTypefaceSource;
         public string CanvasTypefaceSource
         {
@@ -162,6 +178,9 @@ namespace AAP.UI.ViewModels
         private string canvasFontContent = App.Language.GetString("Settings_CanvasFont");
         public string CanvasFontContent => canvasFontContent;
 
+        private string toolPreviewsContent = App.Language.GetString("Settings_ToolPreviews");
+        public string ToolPreviewsContent => toolPreviewsContent;
+
         private string darkModeContent = App.Language.GetString("DarkMode");
         public string DarkModeContent => darkModeContent;
 
@@ -185,22 +204,24 @@ namespace AAP.UI.ViewModels
 
         private void OnLanguageChanged(Language language)
         {
-            settingsTitle = App.Language.GetString("Settings");
-            userInterfaceSectionContent = App.Language.GetString("Settings_UserInterface");
-            languageContent = App.Language.GetString("Settings_Language");
-            canvasFontContent = App.Language.GetString("Settings_CanvasFont");
-            darkModeContent = App.Language.GetString("DarkMode");
-            filesSectionContent = App.Language.GetString("Settings_Files");
-            autosavesFilesContent = App.Language.GetString("Settings_AutosaveFiles");
-            autosaveIntervalContentFormat = App.Language.GetString("Settings_AutosaveInterval");
-            openAutosavesFolderContent = App.Language.GetString("Settings_OpenAutosavesFolder");
-            applyChangesContent = App.Language.GetString("Settings_Apply");
-            resetAllContent = App.Language.GetString("Settings_Reset");
+            settingsTitle = language.GetString("Settings");
+            userInterfaceSectionContent = language.GetString("Settings_UserInterface");
+            languageContent = language.GetString("Settings_Language");
+            canvasFontContent = language.GetString("Settings_CanvasFont");
+            toolPreviewsContent = language.GetString("Settings_ToolPreviews");
+            darkModeContent = language.GetString("DarkMode");
+            filesSectionContent = language.GetString("Settings_Files");
+            autosavesFilesContent = language.GetString("Settings_AutosaveFiles");
+            autosaveIntervalContentFormat = language.GetString("Settings_AutosaveInterval");
+            openAutosavesFolderContent = language.GetString("Settings_OpenAutosavesFolder");
+            applyChangesContent = language.GetString("Settings_Apply");
+            resetAllContent = language.GetString("Settings_Reset");
 
             PropertyChanged?.Invoke(this, new(nameof(SettingsTitle)));
             PropertyChanged?.Invoke(this, new(nameof(UserInterfaceSectionContent)));
             PropertyChanged?.Invoke(this, new(nameof(LanguageContent)));
             PropertyChanged?.Invoke(this, new(nameof(CanvasFontContent)));
+            PropertyChanged?.Invoke(this, new(nameof(ToolPreviewsContent)));
             PropertyChanged?.Invoke(this, new(nameof(DarkModeContent)));
             PropertyChanged?.Invoke(this, new(nameof(FilesSectionContent)));
             PropertyChanged?.Invoke(this, new(nameof(AutosaveFilesContent)));
@@ -216,6 +237,7 @@ namespace AAP.UI.ViewModels
         {
             LanguageName = languageNames[App.Settings.LanguageName];
             DarkMode = App.Settings.DarkMode;
+            ToolPreviews = App.Settings.ToolPreviews;
             CanvasTypefaceSource = App.Settings.CanvasTypefaceSource;
             AutosaveFiles = App.Settings.AutosaveFiles;
             AutosaveIntervalMinutes = (int)App.Settings.AutosaveInterval.TotalMinutes;
@@ -224,6 +246,7 @@ namespace AAP.UI.ViewModels
         public void Apply()
         {
             App.Settings.DarkMode = DarkMode;
+            App.Settings.ToolPreviews = ToolPreviews;
             App.Settings.CanvasTypefaceSource = CanvasTypefaceSource;
             App.Settings.AutosaveFiles = AutosaveFiles;
             App.Settings.AutosaveInterval = new(0, AutosaveIntervalMinutes, 0);

@@ -75,6 +75,7 @@
   "Settings_Language": "Language",
   "Settings_UserInterface": "User interface",
   "Settings_CanvasFont": "Canvas font",
+  "Settings_ToolPreviews": "Show tool previews",
   "Settings_Files": "Files",
   "Settings_AutosaveFiles": "Autosave files",
   "Settings_AutosaveInterval": "Save every {0} minutes",

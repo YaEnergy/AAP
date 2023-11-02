@@ -418,6 +418,25 @@ namespace AAP.UI.Controls
             }
         }
 
+        public static readonly DependencyProperty ShowToolPreviewsProperty =
+        DependencyProperty.Register(
+            name: "ShowToolPreviews",
+            propertyType: typeof(bool),
+            ownerType: typeof(ASCIIArtCanvasVisual),
+            typeMetadata: new FrameworkPropertyMetadata(defaultValue: true));
+
+        public bool ShowToolPreviews
+        {
+            get => (bool)GetValue(ShowToolPreviewsProperty);
+            set
+            {
+                if (ShowToolPreviews == value)
+                    return;
+
+                SetValue(ShowToolPreviewsProperty, value);
+            }
+        }
+
         private readonly List<int> changedColumns = new();
         
         private double[] columnWidths = new double[1];
@@ -658,6 +677,8 @@ namespace AAP.UI.Controls
                     CreateDisplayArtVisuals();
                 }
 
+                ArtLayer? previewLayer = Tool is IPreviewable<ArtLayer?> previewableTool && ShowToolPreviews ? previewableTool.Preview : null;
+
                 double offsetX = ArtOffset.X;
                 double defaultWidth = DefaultColumnWidth;
 
@@ -669,7 +690,14 @@ namespace AAP.UI.Controls
 
                     string columnString = "";
                     for (int y = 0; y < DisplayArt.Height; y++)
-                        columnString += (DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER) + "\n";
+                    {
+                        if (previewLayer != null && x >= previewLayer.OffsetX && x < previewLayer.OffsetX + previewLayer.Width && y >= previewLayer.OffsetY && y < previewLayer.OffsetY + previewLayer.Height)
+                            columnString += previewLayer.GetCharacter(x - previewLayer.OffsetX, y - previewLayer.OffsetY) ?? DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER;
+                        else
+                            columnString += DisplayArt.GetCharacter(x, y) ?? ASCIIArt.EMPTYCHARACTER;
+
+                        columnString += "\n";
+                    }
 
                     FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
                     charText.LineHeight = LineHeight;
@@ -709,7 +737,7 @@ namespace AAP.UI.Controls
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            ArtLayer? previewLayer = Tool is IPreviewable<ArtLayer?> previewableTool ? previewableTool.Preview : null;
+            ArtLayer? previewLayer = Tool is IPreviewable<ArtLayer?> previewableTool && ShowToolPreviews ? previewableTool.Preview : null;
 
             Brush TextBrush = (Brush)Text.GetCurrentValueAsFrozen();
 
