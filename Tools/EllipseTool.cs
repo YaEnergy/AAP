@@ -87,6 +87,9 @@ namespace AAP
             }
         }
 
+        private Point lastPreviewStartArtPos = new(-1, -1);
+        private Point lastPreviewEndArtPos = new(-1, -1);
+
         public event PropertyChangedEventHandler? PropertyChanged;
         public event PreviewChangedEvent? OnPreviewChanged;
 
@@ -141,6 +144,12 @@ namespace AAP
                 return;
             }
 
+            if (startArtPos == lastPreviewStartArtPos && endArtPos == lastPreviewEndArtPos)
+                return;
+            
+            lastPreviewStartArtPos = startArtPos;
+            lastPreviewEndArtPos = endArtPos;
+
             ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
 
             int offset = Size == 1 ? 0 : Math.Max(Size - 2, 1);
@@ -155,6 +164,19 @@ namespace AAP
             int right = Math.Min(centerX + radiusX + offset + 1, layer.OffsetX + layer.Width);
             int top = Math.Max(centerY - radiusY - offset, layer.OffsetY);
             int bottom = Math.Min(centerY + radiusY + offset + 1, layer.OffsetY + layer.Height);
+
+            //If preview layer is outside of canvas or layer, no preview is needed
+            if (left >= layer.OffsetX + layer.Width || top >= layer.OffsetY + layer.Height || right < layer.OffsetX || bottom < layer.OffsetY || left >= App.CurrentArtFile.Art.Width || top >= App.CurrentArtFile.Art.Height || right < 0 || bottom < 0)
+            {
+                Preview = null;
+                return;
+            }
+
+            if (right - left <= 0 || bottom - top <= 0)
+            {
+                Preview = null;
+                return;
+            }
 
             ArtLayer previewLayer = new("Preview", right - left, bottom - top, left, top);
 
