@@ -1,5 +1,4 @@
 ﻿using AAP.BackgroundTasks;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace AAP.Files
 {
@@ -158,7 +158,6 @@ namespace AAP.Files
         {
             string tempFilePath = Path.GetTempFileName();
 
-            JsonSerializer js = JsonSerializer.CreateDefault();
             StreamWriter sw = File.CreateText(tempFilePath);
 
 #if DEBUG
@@ -166,7 +165,8 @@ namespace AAP.Files
             Log();
 #endif
 
-            js.Serialize(sw, this);
+            string jsonString = JsonSerializer.Serialize(this);
+            sw.WriteLine(jsonString);
 
             sw.Flush();
             sw.Dispose();
@@ -194,17 +194,11 @@ namespace AAP.Files
             GZipStream output = new(stream, CompressionMode.Decompress);
             output.CopyTo(fs);
 
-            output.Flush();
             fs.Flush();
+            fs.Position = 0;
+
+            AppSettings imported = JsonSerializer.Deserialize<AppSettings>(fs) ?? throw new Exception("No settings could be imported!");
             fs.Close();
-
-            JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamReader sr = File.OpenText(tempFilePath);
-            JsonTextReader jr = new(sr);
-
-            AppSettings imported = js.Deserialize<AppSettings>(jr) ?? throw new Exception("No settings could be imported!");
-            jr.CloseInput = true;
-            jr.Close();
 
             File.Delete(tempFilePath);
 
@@ -216,31 +210,29 @@ namespace AAP.Files
             string tempFilePath = Path.GetTempFileName();
 
             taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Writing as uncompressed file...", true));
-            JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamWriter sw = File.CreateText(tempFilePath);
+            FileStream jfs = File.OpenWrite(tempFilePath);
 
 #if DEBUG
             ConsoleLogger.Inform("--Encode Async Settings--");
             Log();
 #endif
 
-            Task serializeTask = Task.Run(() => js.Serialize(sw, this));
+            await JsonSerializer.SerializeAsync(jfs, this);
 
-            await serializeTask;
-
-            await sw.FlushAsync();
-            await sw.DisposeAsync();
+            await jfs.FlushAsync();
+            jfs.Close();
 
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
-            using (FileStream fs = File.OpenRead(tempFilePath))
+
+            using (FileStream gfs = File.OpenRead(tempFilePath))
             {
                 GZipStream output = new(stream, CompressionLevel.SmallestSize);
-                await fs.CopyToAsync(output);
+                gfs.CopyTo(output);
 
-                await fs.FlushAsync();
-                await output.FlushAsync();
+                gfs.Flush();
+                output.Flush();
 
-                await output.DisposeAsync();
+                output.Dispose();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
@@ -262,20 +254,13 @@ namespace AAP.Files
 
             await fs.FlushAsync();
             await output.FlushAsync();
-
-            fs.Close();
-
+            
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Deserializing decompressed file...", true));
 
-            JsonSerializer js = JsonSerializer.CreateDefault();
-            StreamReader sr = File.OpenText(tempFilePath);
-            JsonTextReader jr = new(sr);
+            fs.Position = 0;
 
-            Task<AppSettings?> deserializeTask = Task.Run(() => js.Deserialize<AppSettings>(jr));
-            AppSettings imported = await deserializeTask ?? throw new Exception("No settings could be imported!");
-
-            jr.CloseInput = true;
-            jr.Close();
+            AppSettings imported = await JsonSerializer.DeserializeAsync<AppSettings>(fs) ?? throw new Exception("No settings could be imported!");
+            fs.Close();
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting decompressed path...", true));
 
