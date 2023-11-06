@@ -84,6 +84,7 @@
                         </MenuItem>
                         <MenuItem Header="{Binding FiltersMenuContent, ElementName=MainWindowViewModel}">
                             <MenuItem Header="{Binding NoFiltersContent, ElementName=MainWindowViewModel}"></MenuItem>
+                            <MenuItem Header="Mirror"/>
                         </MenuItem>
                     </Menu>
                 </ToolBar>
