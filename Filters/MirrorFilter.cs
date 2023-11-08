@@ -61,12 +61,12 @@ namespace AAP.Filters
             else if (Art == null && Layer != null && Affect == Rect.Empty)
                 MirrorLayer(Layer, MirrorAxis);
             else if (Art != null)
-                MirrorCanvas(Art, MirrorAxis);
+                MirrorArt(Art, MirrorAxis);
             else
                 throw new InvalidOperationException();
         }
 
-        public static void MirrorCanvas(ASCIIArt art, Axis2D mirrorAxis)
+        public static void MirrorArt(ASCIIArt art, Axis2D mirrorAxis)
         {
             foreach (ArtLayer layer in art.ArtLayers)
             {
@@ -103,9 +103,6 @@ namespace AAP.Filters
                     for (int x = 0; x < layer.Width; x++)
                         for (int y = 0; y < layer.Height; y++)
                             // If inside mirror region, mirror.
-                            // x-position in mirror region = startX + width - x
-                            // layer x-position = startX + mirrorX
-                            // hopefully correct, haven't checked yet.
                             if (x >= startX && y >= startY && x < startX + width && y < startY + height)
                                 newData[x][y] = layer.Data[startX * 2 + width - x - 1][y];
                             else
