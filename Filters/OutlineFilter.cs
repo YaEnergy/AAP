@@ -82,7 +82,17 @@ namespace AAP.Filters
 
         public static void OutlineLayerRect(ArtLayer layer, int startX, int startY, int width, int height, char character)
         {
-            //add error clauses if outline region is invalid
+            if (startX < 0 || startX >= layer.Width)
+                throw new ArgumentOutOfRangeException(nameof(startX), "must be larger than 0 and smaller than layer width!");
+
+            if (startY < 0 || startY >= layer.Height)
+                throw new ArgumentOutOfRangeException(nameof(startY), "must be larger than 0 and smaller than layer height!");
+
+            if (startX + width > layer.Width)
+                throw new ArgumentOutOfRangeException(nameof(width), "goes outside of layer");
+
+            if (startY + height > layer.Height)
+                throw new ArgumentOutOfRangeException(nameof(height), "goes outside of layer");
 
             char?[][] newData = new char?[layer.Width][];
 
@@ -94,7 +104,7 @@ namespace AAP.Filters
                 {
                     //If this is inside outline region and current character can be an outline
                     if (layer.Data[x][y] == null && x < startX + width && x >= 0 && y < startY + height && y >= 0 && 
-                        (x + 1 < layer.Width || layer.Data[x + 1][y] != null || x - 1 >= 0 || layer.Data[x - 1][y] != null || (y + 1 < layer.Height || layer.Data[x][y + 1] != null) || y + 1 < layer.Height || layer.Data[x][y + 1] != null || y + 1 < layer.Height || layer.Data[x][y + 1] != null || y - 1 >= 0 || layer.Data[x][y - 1] != null))
+                        (x + 1 >= layer.Width || layer.Data[x + 1][y] != null || x - 1 < 0 || layer.Data[x - 1][y] != null || y + 1 >= layer.Height || layer.Data[x][y + 1] != null || y - 1 < 0|| layer.Data[x][y - 1] != null))
                     {
                         newData[x][y] = character;
                     }

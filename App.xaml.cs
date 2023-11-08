@@ -243,10 +243,13 @@ namespace AAP
 
                 if (File.Exists(SettingsPath))
                 {
-                    FileStream fs = File.OpenRead(SettingsPath);
                     try
                     {
-                        Settings = AppSettings.Decode(fs);
+                        AppSettingsDecoder settingsDecoder = new(File.OpenRead(SettingsPath));
+                        Settings = settingsDecoder.Decode();
+
+                        settingsDecoder.Close();
+
                         ConsoleLogger.Log("Decoded settings");
                     }
                     catch (Exception ex)
@@ -254,9 +257,6 @@ namespace AAP
                         ConsoleLogger.Error(ex);
                         MessageBox.Show("Settings failed to load! Defaulted to default settings.", "Settings", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                    
-                    fs.Flush();
-                    fs.Dispose();
                 }
                 else
                     ConsoleLogger.Log("No settings file found!");
@@ -1087,16 +1087,18 @@ namespace AAP
         #region Resources
         public static void SaveSettings()
         {
-            FileStream fs = File.Create(SettingsPath);
-            Settings.Encode(fs);
-            fs.Dispose();
+            AppSettingsEncoder settingsEncoder = new(Settings, File.Create(SettingsPath));
+            settingsEncoder.Encode();
+
+            settingsEncoder.Close();
         }
 
         public static async Task SaveSettingsAsync()
         {
-            FileStream fs = File.Create(SettingsPath);
-            await Settings.EncodeAsync(fs);
-            await fs.DisposeAsync();
+            AppSettingsEncoder settingsEncoder = new(Settings, File.Create(SettingsPath));
+            await settingsEncoder.EncodeAsync();
+
+            settingsEncoder.Close();
         }
 
         private static void SettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)

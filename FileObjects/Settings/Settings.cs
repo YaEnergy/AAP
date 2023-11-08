@@ -8,12 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AAP.Files
 {
     [Serializable]
     public class AppSettings : INotifyPropertyChanged
     {
+        [JsonIgnore]
         public static AppSettings Default { get; } = new();
 
         private bool darkMode = false;
@@ -123,6 +125,7 @@ namespace AAP.Files
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        [JsonConstructor]
         public AppSettings()
         {
 
@@ -152,123 +155,6 @@ namespace AAP.Files
             AutosaveFiles = Default.AutosaveFiles;
             AutosaveInterval = Default.AutosaveInterval;
             LanguageName = Default.LanguageName;
-        }
-
-        public void Encode(Stream stream)
-        {
-            string tempFilePath = Path.GetTempFileName();
-
-            StreamWriter sw = File.CreateText(tempFilePath);
-
-#if DEBUG
-            ConsoleLogger.Inform("--Encode Settings--");
-            Log();
-#endif
-
-            string jsonString = JsonSerializer.Serialize(this);
-            sw.WriteLine(jsonString);
-
-            sw.Flush();
-            sw.Dispose();
-
-            using (FileStream fs = File.OpenRead(tempFilePath))
-            {
-                GZipStream output = new(stream, CompressionLevel.SmallestSize);
-                fs.CopyTo(output);
-
-                fs.Flush();
-                output.Flush();
-
-                output.Dispose();
-            }
-
-            File.Delete(tempFilePath);
-        }
-
-        public static AppSettings Decode(Stream stream)
-        {
-            string tempFilePath = Path.GetTempFileName();
-
-            FileStream fs = File.Create(tempFilePath);
-
-            GZipStream output = new(stream, CompressionMode.Decompress);
-            output.CopyTo(fs);
-
-            fs.Flush();
-            fs.Position = 0;
-
-            AppSettings imported = JsonSerializer.Deserialize<AppSettings>(fs) ?? throw new Exception("No settings could be imported!");
-            fs.Close();
-
-            File.Delete(tempFilePath);
-
-            return imported;
-        }
-
-        public async Task EncodeAsync(Stream stream, BackgroundTaskToken? taskToken = null)
-        {
-            string tempFilePath = Path.GetTempFileName();
-
-            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Writing as uncompressed file...", true));
-            FileStream jfs = File.OpenWrite(tempFilePath);
-
-#if DEBUG
-            ConsoleLogger.Inform("--Encode Async Settings--");
-            Log();
-#endif
-
-            await JsonSerializer.SerializeAsync(jfs, this);
-
-            await jfs.FlushAsync();
-            jfs.Close();
-
-            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
-
-            using (FileStream gfs = File.OpenRead(tempFilePath))
-            {
-                GZipStream output = new(stream, CompressionLevel.SmallestSize);
-                gfs.CopyTo(output);
-
-                gfs.Flush();
-                output.Flush();
-
-                output.Dispose();
-            }
-
-            taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
-
-            Task deleteTask = Task.Run(() => File.Delete(tempFilePath));
-
-            await deleteTask;
-        }
-
-        public static async Task<AppSettings> DecodeAsync(Stream stream, BackgroundTaskToken? taskToken = null)
-        {
-            string tempFilePath = Path.GetTempFileName();
-
-            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Decompressing file...", true));
-            FileStream fs = File.Create(tempFilePath);
-
-            GZipStream output = new(stream, CompressionMode.Decompress);
-            await output.CopyToAsync(fs);
-
-            await fs.FlushAsync();
-            await output.FlushAsync();
-            
-            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Deserializing decompressed file...", true));
-
-            fs.Position = 0;
-
-            AppSettings imported = await JsonSerializer.DeserializeAsync<AppSettings>(fs) ?? throw new Exception("No settings could be imported!");
-            fs.Close();
-
-            taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting decompressed path...", true));
-
-            Task deleteTask = Task.Run(() => File.Delete(tempFilePath));
-
-            await deleteTask;
-
-            return imported;
         }
     }
 }
