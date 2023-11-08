@@ -60,7 +60,7 @@ namespace AAP.Files
             FileObject.Log();
 #endif
 
-            await JsonSerializer.SerializeAsync(jfs, this);
+            await JsonSerializer.SerializeAsync(jfs, FileObject);
 
             await jfs.FlushAsync();
             jfs.Close();
