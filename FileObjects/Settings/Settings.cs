@@ -15,7 +15,6 @@ namespace AAP.Files
     [Serializable]
     public class AppSettings : INotifyPropertyChanged
     {
-        [JsonIgnore]
         public static AppSettings Default { get; } = new();
 
         private bool darkMode = false;

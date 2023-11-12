@@ -415,6 +415,9 @@ namespace AAP
 
             ConsoleLogger.LogFileOut?.Close();
             ConsoleLogger.LogFileError?.Close();
+
+            ConsoleLogger.LogFileOut?.Dispose();
+            ConsoleLogger.LogFileError?.Dispose();
             Console.Out.Close();
         }
 
@@ -424,6 +427,15 @@ namespace AAP
         {
             if (!Settings.AutosaveFiles)
                 return;
+
+            if (AutosaveBackgroundTaskToken != null)
+            {
+                ConsoleLogger.Log("Still busy autosaving, skipped.");
+                return;
+            }
+
+            BackgroundTaskToken taskToken = new(Language.GetString("Autosave_Busy"));
+            AutosaveBackgroundTaskToken = taskToken;
 
             while (Settings.AutosaveFilePaths.Count > 25)
             {
@@ -446,9 +458,6 @@ namespace AAP
             string ext = ".aaf";
 
             ConsoleLogger.Log("Autosaving all open files...");
-
-            BackgroundTaskToken taskToken = new(Language.GetString("Autosave_Busy"));
-            AutosaveBackgroundTaskToken = taskToken;
 
             List<Task> saveTasks = new();
 

@@ -24,10 +24,10 @@ namespace AAP.Files
         public abstract Task EncodeAsync(BackgroundTaskToken? taskToken = null);
 
         /// <summary>
-        /// Closes the FileObjectEncoder Stream!
+        /// Disposes the FileObjectEncoder Stream!
         /// </summary>
         public void Close()
-            => EncodeStream.Close();
+            => EncodeStream.Dispose();
     }
 
     public abstract class FileObjectDecoder<T>
@@ -44,9 +44,9 @@ namespace AAP.Files
         public abstract Task<T> DecodeAsync(BackgroundTaskToken? taskToken = null);
 
         /// <summary>
-        /// Closes the FileObjectDecoder Stream!
+        /// Disposes the FileObjectDecoder Stream!
         /// </summary>
         public void Close()
-            => DecodeStream.Close();
+            => DecodeStream.Dispose();
     }
 }

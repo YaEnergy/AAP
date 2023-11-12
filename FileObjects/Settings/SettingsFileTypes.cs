@@ -31,6 +31,8 @@ namespace AAP.Files
             string jsonString = JsonSerializer.Serialize(FileObject);
             sw.WriteLine(jsonString);
 
+            ConsoleLogger.Log(jsonString);
+
             sw.Flush();
             sw.Dispose();
 
@@ -63,19 +65,24 @@ namespace AAP.Files
             await JsonSerializer.SerializeAsync(jfs, FileObject);
 
             await jfs.FlushAsync();
-            jfs.Close();
+            await jfs.DisposeAsync();
 
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
+
+            using(StreamReader sr = File.OpenText(tempFilePath))
+            {
+                ConsoleLogger.Log(sr.ReadToEnd());
+            }
 
             using (FileStream gfs = File.OpenRead(tempFilePath))
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
-                gfs.CopyTo(output);
+                await gfs.CopyToAsync(output);
 
-                gfs.Flush();
-                output.Flush();
+                await gfs.FlushAsync();
+                await output.FlushAsync();
 
-                output.Dispose();
+                await output.DisposeAsync();
             }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting uncompressed path", true));
@@ -108,7 +115,12 @@ namespace AAP.Files
             fs.Position = 0;
 
             AppSettings imported = JsonSerializer.Deserialize<AppSettings>(fs)!;
-            fs.Close();
+            fs.Dispose();
+
+            using (StreamReader sr = File.OpenText(tempFilePath))
+            {
+                ConsoleLogger.Log(sr.ReadToEnd());
+            }
 
             File.Delete(tempFilePath);
 
@@ -127,14 +139,19 @@ namespace AAP.Files
 
             await fs.FlushAsync();
 
-            output.Close();
+            await output.DisposeAsync();
 
             taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Deserializing decompressed file...", true));
 
             fs.Position = 0;
 
             AppSettings imported = (await JsonSerializer.DeserializeAsync<AppSettings>(fs))!;
-            fs.Close();
+            await fs.DisposeAsync();
+
+            using (StreamReader sr = File.OpenText(tempFilePath))
+            {
+                ConsoleLogger.Log(sr.ReadToEnd());
+            }
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting decompressed path...", true));
 

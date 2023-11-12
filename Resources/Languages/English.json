@@ -153,7 +153,7 @@
   "PresetPalette_Braille8": "8-dot braille",
   "Autosave": "Autosave",
   "Autosave_Busy": "Autosaving all open files...",
-  "Error_Autosave_FileSaving": "Autosave failed! Exception message: {1}",
+  "Error_Autosave_FileSaving": "Autosave failed! Exception message: {0}",
   "Error_Autosave_SettingsSaving": "Settings update while autosaving failed! Exception message: {0}",
   "Tool_Options": "Tool Options",
   "Tool_PencilTool": "Pencil",
