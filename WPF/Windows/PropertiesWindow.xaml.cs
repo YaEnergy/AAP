@@ -266,6 +266,11 @@ namespace AAP.UI.Windows
         #region Slider Property Elements
         public UIElement CreateSliderProperty(string name, double min, double max, double value, double step = 1, int precision = 0)
         {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, value);
+
             WrapPanel sliderPanel = new();
 
             Slider slider = new();
