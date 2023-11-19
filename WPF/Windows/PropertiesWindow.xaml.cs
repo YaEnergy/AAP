@@ -393,6 +393,11 @@ namespace AAP.UI.Windows
 
         public UIElement CreateColorProperty(string name, Color value)
         {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, value);
+
             ColorPicker colorPicker = new();
 
             SolidColorBrush brush = new(value);
