@@ -310,6 +310,9 @@ namespace AAP.UI.ViewModels
         /// <returns>The result of the dialog</returns>
         public static bool? ShowASCIIArtDialog(ASCIIArt art, string closeMessage)
         {
+            static bool IsValidASCIIArtSize(Size size)
+                => size.Width % 1 == 0 && size.Height % 1 == 0 && size.Width >= 1 && size.Height >= 1;
+
             string dialogTitle = App.Language.GetString("ASCIIArt");
             string sizePropertyName = App.Language.GetString("Size");
 
@@ -321,13 +324,13 @@ namespace AAP.UI.ViewModels
             while (!successful)
             {
                 PropertiesWindow artWindow = new(dialogTitle, closeMessage);
-                artWindow.AddSizeIntProperty(sizePropertyName, new(art.Width, art.Height));
+                artWindow.AddProperty(sizePropertyName, artWindow.CreateInputSizeProperty("Size", new(art.Width, art.Height), IsValidASCIIArtSize));
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
                     return result;
 
-                if (artWindow.GetProperty(sizePropertyName) is not Size size || size.Width % 1 != 0 && size.Height % 1 != 0)
+                if (artWindow.GetProperty("Size") is not Size size || !IsValidASCIIArtSize(size))
                 {
                     MessageBox.Show(invalidSizeMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
@@ -378,10 +381,10 @@ namespace AAP.UI.ViewModels
             while (!successful)
             {
                 PropertiesWindow artWindow = new(dialogTitle, importButtonContent);
-                artWindow.AddBoolProperty(invertBrightnessPropertyName, options.ImageArtLayerConverter.Invert);
-                artWindow.AddSliderDoubleProperty(scalePropertyName, 0.01, 4, options.Scale, 0.01);
+                artWindow.AddProperty(invertBrightnessPropertyName, artWindow.CreateBoolProperty("Invert", options.ImageArtLayerConverter.Invert));
+                artWindow.AddProperty(scalePropertyName, artWindow.CreateSliderProperty("Scale", 0.01, 4, options.Scale, 0.01));
 
-                artWindow.AddStringProperty(charactersPropertyName, defaultCharactersString);
+                artWindow.AddProperty(charactersPropertyName, artWindow.CreateInputStringProperty("Characters", defaultCharactersString));
                 artWindow.AddLabel(charactersPropertyInfo, 12, 2);
 
                 bool? result = artWindow.ShowDialog();
@@ -389,19 +392,19 @@ namespace AAP.UI.ViewModels
                 if (result != true)
                     return result;
 
-                if (artWindow.GetProperty(invertBrightnessPropertyName) is not bool invert)
+                if (artWindow.GetProperty("Invert") is not bool invert)
                 {
                     MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, invertBrightnessPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty(scalePropertyName) is not double scale)
+                if (artWindow.GetProperty("Scale") is not double scale)
                 {
                     MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, scalePropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty(charactersPropertyName) is not string charactersString || charactersString.Length < 1)
+                if (artWindow.GetProperty("Characters") is not string charactersString || charactersString.Length < 1)
                 {
                     MessageBox.Show(invalidCharactersPropertyErrorMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
@@ -442,29 +445,29 @@ namespace AAP.UI.ViewModels
             while (!successful)
             {
                 PropertiesWindow artWindow = new(dialogTitle, exportButtonContent);
-                artWindow.AddDoubleProperty(textSizePropertyName, 12);
+                artWindow.AddProperty(textSizePropertyName, artWindow.CreateInputDoubleProperty("TextSize", 12));
                 artWindow.AddCategory(colorsCategoryName);
-                artWindow.AddColorProperty(backgroundColorPropertyName, Colors.White, 1);
-                artWindow.AddColorProperty(textColorPropertyName, Colors.Black, 1);
+                artWindow.AddProperty(backgroundColorPropertyName, artWindow.CreateColorProperty("Background", Colors.White), 1);
+                artWindow.AddProperty(textColorPropertyName, artWindow.CreateColorProperty("Text", Colors.Black), 1);
 
                 bool? result = artWindow.ShowDialog();
 
                 if (result != true)
                     return result;
 
-                if (artWindow.GetProperty(textSizePropertyName) is not double textSize || textSize < 1 || textSize > 256)
+                if (artWindow.GetProperty("TextSize") is not double textSize || textSize < 1 || textSize > 256)
                 {
                     MessageBox.Show(invalidTextSizeErrorMessage, dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty(backgroundColorPropertyName) is not Color backgroundColor)
+                if (artWindow.GetProperty("Background") is not Color backgroundColor)
                 {
                     MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, backgroundColorPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
-                if (artWindow.GetProperty(textColorPropertyName) is not Color textColor)
+                if (artWindow.GetProperty("Text") is not Color textColor)
                 {
                     MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, textColorPropertyName), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;

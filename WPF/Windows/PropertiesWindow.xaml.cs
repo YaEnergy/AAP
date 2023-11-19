@@ -1,19 +1,8 @@
 ﻿using AAP.UI.Controls;
+using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace AAP.UI.Windows
 {
@@ -37,9 +26,47 @@ namespace AAP.UI.Windows
             WindowViewModel.CloseButtonCommand = new ActionCommand((parameter) => ApplyClose());
         }
 
-        public void AddCategory(string name, int level = 0)
-            => AddLabel(name, 16 - level);
+        #region Base Properties
+        public void AddProperty(object? labelContent, object? labelTooltip, UIElement propertyElement, int level = 0)
+        {
+            WrapPanel propertyPanel = new();
+            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
 
+            if (labelContent != null)
+            {
+                Label label = new();
+                label.Content = labelContent;
+                label.ToolTip = labelTooltip;
+
+                propertyPanel.Children.Add(label);
+            }
+
+            propertyPanel.Children.Add(propertyElement);
+
+            PropertyList.Children.Add(propertyPanel);
+        }
+
+        public void AddProperty(object? labelContent, UIElement inputUIElement, int level = 0)
+            => AddProperty(labelContent, null, inputUIElement, level);
+
+        public object? GetProperty(string name)
+        {
+            if (!properties.ContainsKey(name))
+                throw new InvalidOperationException($"{name} is not a property");
+
+            return properties[name];
+        }
+
+        public void SetProperty(string name, object? value)
+        {
+            if (!properties.ContainsKey(name))
+                throw new InvalidOperationException($"{name} is not a property");
+
+            properties[name] = value;
+        }
+        #endregion
+
+        #region Decoration
         public void AddLabel(object content, double fontSize = 12, int level = 0)
         {
             Label label = new();
@@ -50,132 +77,53 @@ namespace AAP.UI.Windows
             PropertyList.Children.Add(label);
         }
 
-        public void AddStringProperty(string name, string startingValue, int level = 0)
+        public void AddCategory(string name, int level = 0)
+            => AddLabel(name, 16 - level);
+
+        #endregion
+
+        #region Input Property Elements
+        public UIElement CreateInputStringProperty(string name, string value, Predicate<string>? predicate = null)
         {
-            PropertyList.Children.Add(CreateStringPropertyUIElement(name, startingValue, level));
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
 
-            properties.Add(name, startingValue);
-        }
-
-        public void AddBoolProperty(string name, bool startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateBoolPropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddIntProperty(string name, int startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateIntPropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddFloatProperty(string name, float startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateFloatPropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddDoubleProperty(string name, double startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateDoublePropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddSliderDoubleProperty(string name, double min, double max, double startingValue, double step = 1, int level = 0)
-        {
-            PropertyList.Children.Add(CreateSliderPropertyUIElement(name, min, max, startingValue, step, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddColorProperty(string name, Color startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateColorPropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddSizeDoubleProperty(string name, Size startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateSizeDoublePropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        public void AddSizeIntProperty(string name, Size startingValue, int level = 0)
-        {
-            PropertyList.Children.Add(CreateSizeIntPropertyUIElement(name, startingValue, level));
-
-            properties.Add(name, startingValue);
-        }
-
-        #region PropertyUIElement type creations
-        private UIElement CreateStringPropertyUIElement(string name, string value, int level = 0)
-        {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
-
-            Label label = new();
-            label.Content = name;
+            properties.Add(name, value);
 
             TextBox textBox = new();
             textBox.Text = value;
-            textBox.Margin = new(5, 0, 5, 0);
             textBox.Width = 128;
             textBox.Height = 22;
 
-            textBox.LostFocus += (sender, e) => SetProperty(name, textBox.Text);
+            textBox.LostFocus += (sender, e) =>
+            {
+                if (predicate != null && !predicate.Invoke(textBox.Text))
+                    return;
 
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(textBox);
+                SetProperty(name, textBox.Text);
+            };
 
-            return propertyPanel;
+            return textBox;
         }
 
-        private UIElement CreateBoolPropertyUIElement(string name, bool value, int level = 0)
+        public UIElement CreateInputIntProperty(string name, int value, Predicate<int>? predicate = null)
         {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
 
-            CheckBox checkBox = new();
-            checkBox.Padding = new(5);
-            checkBox.Content = name;
-            checkBox.IsChecked = value;
-            checkBox.SetBinding(CheckBox.StyleProperty, "CheckBoxStyle");
-            checkBox.SetBinding(CheckBox.ForegroundProperty, "CheckBoxForeground");
-
-            checkBox.Checked += (sender, e) => SetProperty(name, checkBox.IsChecked);
-
-            propertyPanel.Children.Add(checkBox);
-
-            return propertyPanel;
-        }
-
-        private UIElement CreateIntPropertyUIElement(string name, int value, int level = 0)
-        {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
-
-            Label label = new();
-            label.Content = name;
+            properties.Add(name, value);
 
             TextBox textBox = new();
-            textBox.Margin = new(5, 0, 5, 0);
-            textBox.Width = 64;
-            textBox.Height = 22;
-
             textBox.Text = value.ToString();
+            textBox.Width = 128;
+            textBox.Height = 22;
 
             textBox.LostFocus += (sender, e) =>
             {
                 if (sender is not TextBox textBoxSender)
                     return;
 
-                if (int.TryParse(textBoxSender.Text, out int newValue))
+                if (int.TryParse(textBoxSender.Text, out int newValue) && (predicate == null || predicate.Invoke(newValue)))
                 {
                     value = newValue;
                     SetProperty(name, newValue);
@@ -184,33 +132,27 @@ namespace AAP.UI.Windows
                 textBoxSender.Text = value.ToString();
             };
 
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(textBox);
-
-            return propertyPanel;
+            return textBox;
         }
 
-        private UIElement CreateFloatPropertyUIElement(string name, float value, int level = 0)
+        public UIElement CreateInputDoubleProperty(string name, double value, Predicate<double>? predicate = null)
         {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
 
-            Label label = new();
-            label.Content = name;
+            properties.Add(name, value);
 
             TextBox textBox = new();
-            textBox.Margin = new(5, 0, 5, 0);
-            textBox.Width = 64;
-            textBox.Height = 22;
-
             textBox.Text = value.ToString();
+            textBox.Width = 128;
+            textBox.Height = 22;
 
             textBox.LostFocus += (sender, e) =>
             {
                 if (sender is not TextBox textBoxSender)
                     return;
 
-                if (float.TryParse(textBoxSender.Text, out float newValue))
+                if (double.TryParse(textBoxSender.Text, out double newValue) && (predicate == null || predicate.Invoke(newValue)))
                 {
                     value = newValue;
                     SetProperty(name, newValue);
@@ -219,33 +161,27 @@ namespace AAP.UI.Windows
                 textBoxSender.Text = value.ToString();
             };
 
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(textBox);
-
-            return propertyPanel;
+            return textBox;
         }
 
-        private UIElement CreateDoublePropertyUIElement(string name, double value, int level = 0)
+        public UIElement CreateInputFloatProperty(string name, float value, Predicate<float>? predicate = null)
         {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
 
-            Label label = new();
-            label.Content = name;
+            properties.Add(name, value);
 
             TextBox textBox = new();
-            textBox.Margin = new(5, 0, 5, 0);
-            textBox.Width = 64;
-            textBox.Height = 22;
-
             textBox.Text = value.ToString();
+            textBox.Width = 128;
+            textBox.Height = 22;
 
             textBox.LostFocus += (sender, e) =>
             {
                 if (sender is not TextBox textBoxSender)
                     return;
 
-                if (double.TryParse(textBoxSender.Text, out double newValue))
+                if (float.TryParse(textBoxSender.Text, out float newValue) && (predicate == null || predicate.Invoke(newValue)))
                 {
                     value = newValue;
                     SetProperty(name, newValue);
@@ -254,82 +190,17 @@ namespace AAP.UI.Windows
                 textBoxSender.Text = value.ToString();
             };
 
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(textBox);
-
-            return propertyPanel;
+            return textBox;
         }
 
-        private UIElement CreateSliderPropertyUIElement(string name, double min, double max, double value, double step = 1, int level = 0)
+        public UIElement CreateInputSizeProperty(string name, Size value, Predicate<Size>? predicate = null)
         {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
 
-            Label label = new();
-            label.Content = name;
+            properties.Add(name, value);
 
-            Slider slider = new();
-            slider.Width = 128;
-            slider.Height = 22;
-
-            slider.Value = value;
-            slider.Minimum = min;
-            slider.Maximum = max;
-            slider.IsSnapToTickEnabled = true;
-            slider.TickFrequency = step;
-            slider.VerticalContentAlignment = VerticalAlignment.Stretch;
-
-            Label valueLabel = new();
-            valueLabel.Content = value;
-
-            int precision = (int)Math.Abs(Math.Log10(step % 1));
-
-            slider.ValueChanged += (sender, e) => valueLabel.Content = e.NewValue.ToString("N" + precision.ToString());
-            slider.ValueChanged += (sender, e) => SetProperty(name, e.NewValue);
-
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(slider);
-            propertyPanel.Children.Add(valueLabel);
-
-            return propertyPanel;
-        }
-
-        private UIElement CreateColorPropertyUIElement(string name, Color value, int level = 0)
-        {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
-
-            Label label = new();
-            label.Content = name;
-
-            ColorPicker colorPicker = new();
-
-            SolidColorBrush brush = new(value);
-            brush.Freeze();
-
-            colorPicker.PickedColor = brush;
-
-            colorPicker.ColorChanged += (sender, color) =>
-            {
-                if (sender is not ColorPicker colorPickerSender)
-                    return;
-
-                SetProperty(name, color.Color);
-            };
-
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(colorPicker);
-
-            return propertyPanel;
-        }
-
-        private UIElement CreateSizeDoublePropertyUIElement(string name, Size value, int level = 0)
-        {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
-
-            Label label = new();
-            label.Content = name;
+            WrapPanel sizePanel = new();
 
             Label xLabel = new();
             xLabel.Content = "x";
@@ -353,11 +224,16 @@ namespace AAP.UI.Windows
 
                 if (double.TryParse(textBoxSender.Text, out double newWidth) && newWidth >= 0)
                 {
-                    value = new(newWidth, value.Height);
-                    SetProperty(name, value);
+                    Size newValue = new(newWidth, value.Height);
+
+                    if (predicate == null || predicate.Invoke(newValue))
+                    {
+                        value.Width = newWidth;
+                        SetProperty(name, value);
+                    }
                 }
-                else
-                    textBoxSender.Text = value.Width.ToString();
+
+                textBoxSender.Text = value.Width.ToString();
             };
 
             heightBox.LostFocus += (sender, e) =>
@@ -367,96 +243,174 @@ namespace AAP.UI.Windows
 
                 if (double.TryParse(textBoxSender.Text, out double newHeight) && newHeight >= 0)
                 {
-                    value = new(value.Width, newHeight);
-                    SetProperty(name, value);
+                    Size newValue = new(value.Width, newHeight);
+
+                    if (predicate == null || predicate.Invoke(newValue))
+                    {
+                        value.Height = newHeight;
+                        SetProperty(name, value);
+                    }
                 }
-                else
-                    textBoxSender.Text = value.Height.ToString();
+                
+                textBoxSender.Text = value.Height.ToString();
             };
 
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(widthBox);
-            propertyPanel.Children.Add(xLabel);
-            propertyPanel.Children.Add(heightBox);
-            
-            return propertyPanel;
-        }
+            sizePanel.Children.Add(widthBox);
+            sizePanel.Children.Add(xLabel);
+            sizePanel.Children.Add(heightBox);
 
-        private UIElement CreateSizeIntPropertyUIElement(string name, Size value, int level = 0)
-        {
-            WrapPanel propertyPanel = new();
-            propertyPanel.Margin = new(5 + level * LevelOffset, 5, 5, 5);
-
-            Label label = new();
-            label.Content = name;
-
-            Label xLabel = new();
-            xLabel.Content = "x";
-
-            TextBox widthBox = new();
-            widthBox.Margin = new(5, 0, 5, 0);
-            widthBox.Width = 64;
-            widthBox.Height = 22;
-            widthBox.Text = value.Width.ToString();
-
-            TextBox heightBox = new();
-            heightBox.Margin = new(5, 0, 5, 0);
-            heightBox.Width = 64;
-            heightBox.Height = 22;
-            heightBox.Text = value.Height.ToString();
-
-            widthBox.LostFocus += (sender, e) =>
-            {
-                if (sender is not TextBox textBoxSender)
-                    return;
-
-                if (int.TryParse(textBoxSender.Text, out int newWidth) && newWidth >= 0)
-                {
-                    value = new(newWidth, value.Height);
-                    SetProperty(name, value);
-                }
-                else
-                    textBoxSender.Text = value.Width.ToString();
-            };
-
-            heightBox.LostFocus += (sender, e) =>
-            {
-                if (sender is not TextBox textBoxSender)
-                    return;
-
-                if (int.TryParse(textBoxSender.Text, out int newHeight) && newHeight >= 0)
-                {
-                    value = new(value.Width, newHeight);
-                    SetProperty(name, value);
-                }
-                else
-                    textBoxSender.Text = value.Height.ToString();
-            };
-
-            propertyPanel.Children.Add(label);
-            propertyPanel.Children.Add(widthBox);
-            propertyPanel.Children.Add(xLabel);
-            propertyPanel.Children.Add(heightBox);
-
-            return propertyPanel;
+            return sizePanel;
         }
         #endregion
 
-        public object? GetProperty(string name)
+        #region Slider Property Elements
+        public UIElement CreateSliderProperty(string name, double min, double max, double value, double step = 1, int precision = 0)
         {
-            if (!properties.ContainsKey(name))
-                throw new InvalidOperationException($"{name} is not a property");
+            WrapPanel sliderPanel = new();
 
-            return properties[name];
+            Slider slider = new();
+            slider.Width = 128;
+            slider.Height = 22;
+
+            slider.Value = value;
+            slider.Minimum = min;
+            slider.Maximum = max;
+            slider.IsSnapToTickEnabled = true;
+            slider.TickFrequency = step;
+            slider.VerticalContentAlignment = VerticalAlignment.Stretch;
+
+            Label valueLabel = new();
+            valueLabel.Content = value;
+
+            slider.ValueChanged += (sender, e) => valueLabel.Content = e.NewValue.ToString("N" + precision.ToString());
+            slider.ValueChanged += (sender, e) => SetProperty(name, e.NewValue);
+
+            sliderPanel.Children.Add(slider);
+            sliderPanel.Children.Add(valueLabel);
+
+            return sliderPanel;
         }
 
-        public void SetProperty(string name, object? value)
-        {
-            if (!properties.ContainsKey(name))
-                throw new InvalidOperationException($"{name} is not a property");
+        public UIElement CreateSliderProperty(string name, double min, double max, double value, double step = 1)
+            => CreateSliderProperty(name, min, max, value, step, (int)Math.Abs(Math.Log10(step % 1)));
+        #endregion
 
-            properties[name] = value;
+        #region ComboBox Property Elements
+        public UIElement CreateComboBoxIntProperty(string name, List<object> items, int index = -1) 
+        {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, index);
+
+            //ComboBox
+            ComboBox comboBox = new();
+
+            foreach (object item in items)
+                comboBox.Items.Add(item);
+
+            comboBox.SelectedIndex = index;
+            comboBox.Width = 128;
+            comboBox.Height = 22;
+            comboBox.IsEditable = false;
+
+            comboBox.SelectionChanged += (sender, e) => SetProperty(name, comboBox.SelectedIndex);
+
+            return comboBox;
         }
+
+        public UIElement CreateComboBoxListProperty<T>(string name, List<T> items, int index = 0)
+        {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, items[index]);
+
+            //ComboBox
+            ComboBox comboBox = new();
+
+            foreach (T item in items)
+                comboBox.Items.Add(item);
+
+            comboBox.SelectedIndex = index;
+            comboBox.Width = 128;
+            comboBox.Height = 22;
+            comboBox.IsEditable = false;
+
+            comboBox.SelectionChanged += (sender, e) => SetProperty(name, comboBox.SelectedItem);
+
+            return comboBox;
+        }
+
+        public UIElement CreateComboBoxEnumProperty<T>(string name, T value) where T : Enum
+        {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, value);
+
+            //ComboBox
+            ComboBox comboBox = new();
+
+            foreach (string item in Enum.GetNames(typeof(T)))
+                comboBox.Items.Add(item);
+
+            comboBox.SelectedItem = Enum.GetName(typeof(T), value);
+            comboBox.Width = 128;
+            comboBox.Height = 22;
+            comboBox.IsEditable = false;
+
+            comboBox.SelectionChanged += (sender, e) => 
+            {
+                if (comboBox.SelectedItem is not string enumValueName)
+                    return;
+
+                SetProperty(name, Enum.Parse(typeof(T), enumValueName));
+            };
+
+            return comboBox;
+        }
+        #endregion
+
+        #region Other Property Elements
+        public UIElement CreateBoolProperty(string name, bool value)
+        {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, value);
+
+            CheckBox checkBox = new();
+            checkBox.Padding = new(5);
+            checkBox.IsChecked = value;
+            checkBox.SetBinding(StyleProperty, "CheckBoxStyle");
+            checkBox.SetBinding(ForegroundProperty, "CheckBoxForeground");
+
+            checkBox.Checked += (sender, e) => SetProperty(name, checkBox.IsChecked);
+
+            return checkBox;
+        }
+
+        public UIElement CreateColorProperty(string name, Color value)
+        {
+            ColorPicker colorPicker = new();
+
+            SolidColorBrush brush = new(value);
+            brush.Freeze();
+
+            colorPicker.PickedColor = brush;
+
+            colorPicker.ColorChanged += (sender, color) =>
+            {
+                if (sender is not ColorPicker colorPickerSender)
+                    return;
+
+                SetProperty(name, color.Color);
+            };
+
+            return colorPicker;
+        }
+        #endregion
 
         private void ApplyClose()
         {

@@ -140,20 +140,20 @@ namespace AAP.UI.ViewModels
             while (!successful)
             {
                 PropertiesWindow paletteWindow = new(PaletteContent, closeMessage);
-                paletteWindow.AddStringProperty(namePropertyName, palette.Name);
+                paletteWindow.AddProperty(namePropertyName, paletteWindow.CreateInputStringProperty("Name", palette.Name));
 
                 string startPaletteCharacterString = "";
                 foreach (char character in palette.Characters)
                     startPaletteCharacterString += character;
 
-                paletteWindow.AddStringProperty(charactersPropertyName, startPaletteCharacterString);
+                paletteWindow.AddProperty(charactersPropertyName, paletteWindow.CreateInputStringProperty("Characters", startPaletteCharacterString));
 
                 bool? createdPalette = paletteWindow.ShowDialog();
 
                 if (createdPalette != true)
                     return createdPalette;
 
-                if (paletteWindow.GetProperty(namePropertyName) is not string paletteName || string.IsNullOrWhiteSpace(paletteName))
+                if (paletteWindow.GetProperty("Name") is not string paletteName || string.IsNullOrWhiteSpace(paletteName))
                 {
                     MessageBox.Show(invalidPaletteNameErrorMessage, PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
@@ -184,7 +184,7 @@ namespace AAP.UI.ViewModels
                         continue;
                     }
 
-                if (paletteWindow.GetProperty(charactersPropertyName) is not string paletteCharactersString)
+                if (paletteWindow.GetProperty("Characters") is not string paletteCharactersString)
                 {
                     MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, charactersPropertyName), PaletteContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;

@@ -82,10 +82,12 @@
                                 <CheckBox Content="{Binding VisibilityCheckboxContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="{Binding FiltersMenuContent, ElementName=MainWindowViewModel}">
-                            <MenuItem Header="{Binding NoFiltersContent, ElementName=MainWindowViewModel}"></MenuItem>
-                            <MenuItem Header="Mirror"/>
-                            <MenuItem Header="Outline"/>
+                        <MenuItem Header="{Binding FiltersMenuContent}">
+                            <MenuItem.DataContext>
+                                <viewmodels:FiltersViewModel/>
+                            </MenuItem.DataContext>
+                            <MenuItem Header="{Binding MirrorFilterContent}" Command="{Binding MirrorFilterCommand}"/>
+                            <MenuItem Header="{Binding OutlineFilterContent}" Command="{Binding OutlineFilterCommand}"/>
                         </MenuItem>
                     </Menu>
                 </ToolBar>
