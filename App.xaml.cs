@@ -27,7 +27,7 @@ namespace AAP
         public static readonly int MaxArtArea = 1600000;
         public static readonly int WarningLargeArtArea = 500000;
 
-        public static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\AAP\AAP";
+        public static readonly string ApplicationDataFolderPath = $@"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\KiarasASCIIArtProgram";
 
         public static readonly string SettingsPath = $@"{ApplicationDataFolderPath}\settings";
         public static readonly string DefaultArtFilesDirectoryPath = $@"{ApplicationDataFolderPath}\Saves";
