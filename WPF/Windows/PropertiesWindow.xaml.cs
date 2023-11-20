@@ -301,7 +301,7 @@ namespace AAP.UI.Windows
         #endregion
 
         #region ComboBox Property Elements
-        public UIElement CreateComboBoxIntProperty(string name, List<object> items, int index = -1) 
+        public UIElement CreateComboBoxIntProperty<T>(string name, List<T> items, int index = -1) 
         {
             if (properties.ContainsKey(name))
                 throw new Exception("Property " + name + " already exists!");

@@ -12,22 +12,10 @@ namespace AAP.Filters
 
         public override string Description => App.Language.GetString("Filter_Outline_Description");
 
-        public ASCIIArt? Art { get; set; } = null;
         public ArtLayer? Layer { get; set; } = null;
         public Rect Affect { get; set; } = Rect.Empty;
 
         public char Character { get; set; }
-
-        /// <summary>
-        /// Creates a OutlineFilter for outlining art with a specified character.
-        /// </summary>
-        /// <param name="art">ASCIIArt to outline</param>
-        /// <param name="character">Outline character</param>
-        public OutlineFilter(ASCIIArt art, char character)
-        {
-            Art = art;
-            Character = character;
-        }
 
         /// <summary>
         /// Creates a OutlineFilter for outlining a layer with a specified character.
@@ -56,22 +44,12 @@ namespace AAP.Filters
 
         public override void Apply()
         {
-            if (Art == null && Layer != null && Affect != Rect.Empty)
+            if (Layer != null && Affect != Rect.Empty)
                 OutlineLayerRect(Layer, Affect, Character);
-            else if (Art == null && Layer != null && Affect == Rect.Empty)
+            else if (Layer != null && Affect == Rect.Empty)
                 OutlineLayer(Layer, Character);
-            else if (Art != null)
-                OutlineArt(Art, Character);
             else
                 throw new InvalidOperationException();
-        }
-
-        public static void OutlineArt(ASCIIArt art, char character)
-        {
-            foreach (ArtLayer layer in art.ArtLayers)
-            {
-                OutlineLayer(layer, character);
-            }
         }
 
         public static void OutlineLayer(ArtLayer layer, char character)
