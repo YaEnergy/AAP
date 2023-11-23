@@ -14,7 +14,6 @@ namespace AAP
     public class ASCIIArtFile: INotifyPropertyChanged, IDisposable
     {
         public ASCIIArt Art { get; }
-        public ASCIIArtDraw ArtDraw { get; }
         public ObjectTimeline ArtTimeline { get; }
 
         private string? savePath;
@@ -79,7 +78,6 @@ namespace AAP
         public ASCIIArtFile(ASCIIArt art)
         {
             Art = art;
-            ArtDraw = new(Art);
             ArtTimeline = new(Art);
 
             Art.OnArtLayerAdded += Art_OnArtLayerAdded;
@@ -89,13 +87,14 @@ namespace AAP
             Art.OnSizeChanged += Art_OnSizeChanged;
             Art.OnCropped += Art_OnCropped;
 
-            ArtDraw.DrewCharacter += ArtDraw_OnDrewCharacter;
-
             ArtTimeline.Rolledback += ArtTimeline_TimeTravelled;
             ArtTimeline.Rolledforward += ArtTimeline_TimeTravelled;
 
             foreach (ArtLayer layer in Art.ArtLayers)
+            {
                 layer.PropertyChanged += Layer_PropertyChanged;
+                layer.CharacterChanged += Layer_CharacterChanged;
+            }
         }
 
         #region Main File Methods
@@ -487,13 +486,14 @@ namespace AAP
             Art.OnSizeChanged -= Art_OnSizeChanged;
             Art.OnCropped -= Art_OnCropped;
 
-            ArtDraw.DrewCharacter -= ArtDraw_OnDrewCharacter;
-
             ArtTimeline.Rolledback -= ArtTimeline_TimeTravelled;
             ArtTimeline.Rolledforward -= ArtTimeline_TimeTravelled;
 
             foreach (ArtLayer layer in Art.ArtLayers)
+            {
                 layer.PropertyChanged -= Layer_PropertyChanged;
+                layer.CharacterChanged -= Layer_CharacterChanged;
+            }
 
             GC.SuppressFinalize(this);
         }
@@ -504,6 +504,11 @@ namespace AAP
         }
 
         private void Layer_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            UnsavedChanges = true;
+        }
+
+        private void Layer_CharacterChanged(ArtLayer layer, int x, int y)
         {
             UnsavedChanges = true;
         }
@@ -533,11 +538,6 @@ namespace AAP
         }
 
         private void Art_OnSizeChanged(int width, int height)
-        {
-            UnsavedChanges = true;
-        }
-
-        private void ArtDraw_OnDrewCharacter(int layerIndex, char? character, int x, int y)
         {
             UnsavedChanges = true;
         }

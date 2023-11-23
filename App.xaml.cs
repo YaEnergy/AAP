@@ -651,8 +651,10 @@ namespace AAP
             if (SelectedArt == Rect.Empty)
                 return;
 
-            CurrentArtFile.ArtDraw.BrushThickness = 0;
-            CurrentArtFile.ArtDraw.DrawRectangle(CurrentLayerID, null, SelectedArt, true);
+            ArtLayerDraw layerDraw = new(CurrentArtFile.Art.ArtLayers[CurrentLayerID]);
+
+            layerDraw.BrushThickness = 1;
+            layerDraw.DrawRectangle(null, SelectedArt, true);
         }
         #endregion
         #region Art

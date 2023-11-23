@@ -32,7 +32,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private double textSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
+        private double textSize = ASCIIArtViewer.DefaultTextSize;
         public double TextSize
         {
             get => textSize;
@@ -46,7 +46,7 @@ namespace AAP.UI.ViewModels
             }
         }
 
-        private double highlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
+        private double highlightThickness = ASCIIArtCanvas.DefaultHighlightRectThickness;
         public double HighlightThickness
         {
             get => highlightThickness;
@@ -288,7 +288,7 @@ namespace AAP.UI.ViewModels
             => TextSize -= 1;
 
         public void ResetTextSize(object? parameter = null)
-            => TextSize = ASCIIArtCanvasVisual.DefaultCanvasTextSize;
+            => TextSize = ASCIIArtViewer.DefaultTextSize;
 
         public void IncreaseHighlightThickness(object? parameter = null)
             => HighlightThickness += 1;
@@ -297,6 +297,6 @@ namespace AAP.UI.ViewModels
             => HighlightThickness -= 1;
 
         public void ResetHighlightThickness(object? parameter = null)
-            => HighlightThickness = ASCIIArtCanvasVisual.DefaultHighlightRectThickness;
+            => HighlightThickness = ASCIIArtCanvas.DefaultHighlightRectThickness;
     }
 }

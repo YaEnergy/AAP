@@ -80,8 +80,9 @@ namespace AAP
             Stack<Point> positionStack = new();
 
             ArtLayer artLayer = artFile.Art.ArtLayers[App.CurrentLayerID];
+            ArtLayerDraw layerDraw = new(artLayer);
 
-            if (!artFile.ArtDraw.CanDrawOn(App.CurrentLayerID, artPos))
+            if (!layerDraw.CanDrawOn(artPos))
                 return;
 
             char? findCharacter = artLayer.GetCharacter(artLayer.GetLayerPoint(artPos));
@@ -91,19 +92,19 @@ namespace AAP
             //Flood Fill Algorithm
             positionStack.Push(artPos);
 
-            artFile.ArtDraw.StayInsideSelection = StayInsideSelection;
+            layerDraw.StayInsideSelection = StayInsideSelection;
 
             while (positionStack.Count > 0)
             {
                 Point pos = positionStack.Pop();
 
-                if (!artFile.ArtDraw.CanDrawOn(App.CurrentLayerID, pos))
+                if (!layerDraw.CanDrawOn(pos))
                     continue;
 
                 if (artLayer.GetCharacter(artLayer.GetLayerPoint(pos)) != findCharacter)
                     continue;
 
-                artFile.ArtDraw.DrawCharacter(App.CurrentLayerID, Character, pos);
+                layerDraw.DrawCharacter(Character, pos);
 
                 int x = (int)pos.X;
                 int y = (int)pos.Y;
