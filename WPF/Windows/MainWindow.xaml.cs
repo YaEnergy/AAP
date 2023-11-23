@@ -340,54 +340,6 @@ namespace AAP.UI.Windows
                     break;
             }
         }
-
-        /*private void LayerSelectionViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            if (sender == null)
-                return;
-
-            if (sender is not LayerManagementViewModel vm)
-                return;
-
-            switch (e.PropertyName)
-            {
-                case nameof(vm.SelectedLayerID):
-                    App.CurrentLayerID = vm.SelectedLayerID;
-                    break;
-                case nameof(vm.SelectedLayerName):
-                    if (vm.SelectedLayer == null)
-                        break;
-
-                    if (vm.SelectedLayer.Name == vm.SelectedLayerName)
-                        break;
-
-                    App.SetArtLayerName(vm.SelectedLayer, vm.SelectedLayerName);
-                    break;
-                case nameof(vm.SelectedLayerVisibility):
-                    if (vm.SelectedLayer == null)
-                        break;
-
-                    if (vm.SelectedLayer.Visible == vm.SelectedLayerVisibility)
-                        break;
-
-                    App.SetArtLayerVisibility(vm.SelectedLayer, vm.SelectedLayerVisibility);
-                    break;
-                case nameof(vm.LayerOffsetX):
-                    if (vm.SelectedLayer == null)
-                        break;
-
-                    vm.SelectedLayer.OffsetX = vm.LayerOffsetX;
-                    break;
-                case nameof(vm.LayerOffsetY):
-                    if (vm.SelectedLayer == null)
-                        break;
-
-                    vm.SelectedLayer.OffsetY = vm.LayerOffsetY;
-                    break;
-                default:
-                    break;
-            }
-        }*/
         #endregion
     }
 }

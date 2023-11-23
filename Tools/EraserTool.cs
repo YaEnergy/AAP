@@ -41,23 +41,38 @@ namespace AAP
             }
         }
 
+        private ArtLayerDraw? layerDraw = null;
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public EraserTool(int size)
         {
             Size = size;
+
+            App.OnCurrentLayerIDChanged += OpenLayerDraw;
+        }
+
+        private void OpenLayerDraw(int id)
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            if (id == -1)
+                layerDraw = null;
+
+            layerDraw = new(App.CurrentArtFile.Art.ArtLayers[id]);
         }
 
         protected override void UseStart(Point startArtPos)
         {
-            DrawCircle(startArtPos);
+            DrawBrush(startArtPos);
 
             App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
         {
-            DrawCircle(currentArtPos);
+            DrawBrush(currentArtPos);
 
             App.CurrentArtFile?.Art.Update();
         }
@@ -67,14 +82,14 @@ namespace AAP
             App.CurrentArtFile?.ArtTimeline.NewTimePoint();
         }
 
-        public void DrawCircle(Point artPos)
+        public void DrawBrush(Point artPos)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
-            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
+            layerDraw.StayInsideSelection = StayInsideSelection;
 
-            App.CurrentArtFile.ArtDraw.DrawBrush(App.CurrentLayerID, null, artPos, Size - 1);
+            layerDraw.DrawBrush(null, artPos, Size);
         }
     }
 }

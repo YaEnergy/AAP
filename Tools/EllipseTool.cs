@@ -87,6 +87,8 @@ namespace AAP
             }
         }
 
+        private ArtLayerDraw? layerDraw = null;
+
         private Point lastPreviewStartArtPos = new(-1, -1);
         private Point lastPreviewEndArtPos = new(-1, -1);
 
@@ -97,6 +99,19 @@ namespace AAP
         {
             Character = character;
             Size = size;
+
+            App.OnCurrentLayerIDChanged += OpenLayerDraw;
+        }
+
+        private void OpenLayerDraw(int id)
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            if (id == -1)
+                layerDraw = null;
+
+            layerDraw = new(App.CurrentArtFile.Art.ArtLayers[id]);
         }
 
         protected override void UseStart(Point startArtPos)
@@ -121,11 +136,8 @@ namespace AAP
 
         public void DrawEllipse(Point startArtPos, Point endArtPos)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || layerDraw == null)
                 return;
-
-            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
-            App.CurrentArtFile.ArtDraw.BrushThickness = Size - 1;
 
             int centerX = (int)startArtPos.X;
             int centerY = (int)startArtPos.Y;
@@ -133,7 +145,10 @@ namespace AAP
             int radiusX = (int)Math.Max(endArtPos.X - startArtPos.X, startArtPos.X - endArtPos.X);
             int radiusY = (int)Math.Max(endArtPos.Y - startArtPos.Y, startArtPos.Y - endArtPos.Y);
 
-            App.CurrentArtFile.ArtDraw.DrawEllipse(App.CurrentLayerID, Character, centerX, centerY, radiusX, radiusY, Fill);
+            layerDraw.StayInsideSelection = StayInsideSelection;
+            layerDraw.BrushThickness = Size;
+
+            layerDraw.DrawEllipse(Character, centerX, centerY, radiusX, radiusY, Fill);
         }
 
         public void UpdatePreview(Point startArtPos, Point endArtPos)
@@ -182,7 +197,7 @@ namespace AAP
 
             ArtLayerDraw layerDraw = new(previewLayer)
             {
-                BrushThickness = Size - 1,
+                BrushThickness = Size,
                 StayInsideSelection = StayInsideSelection
             };
 

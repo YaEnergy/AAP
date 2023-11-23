@@ -14,9 +14,6 @@ namespace AAP
 
         public int BrushThickness { get; set; } = 1;
 
-        public delegate void ArtDrawEvent(ArtLayer layer, char? character, int x, int y);
-        public event ArtDrawEvent? DrewCharacter;
-
         public ArtLayerDraw(ArtLayer layer)
             => Layer = layer;
 
@@ -44,8 +41,6 @@ namespace AAP
                 return;
 
             Layer.SetCharacter(x, y, character);
-
-            DrewCharacter?.Invoke(Layer, character, x, y);
         }
 
         public void DrawCharacter(char? character, Point position)
@@ -53,6 +48,8 @@ namespace AAP
 
         public void DrawBrush(char? character, int centerX, int centerY, int radius)
         {
+            radius--; //Get circle radius
+
             switch (radius)
             {
                 case 0:

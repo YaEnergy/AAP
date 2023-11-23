@@ -162,6 +162,9 @@ namespace AAP
         public delegate void OffsetChangedEvent(ArtLayer layer, Point oldOffset, Point newOffset);
         public event OffsetChangedEvent? OffsetChanged;
 
+        public delegate void CharacterChangedEvent(ArtLayer layer, int x, int y);
+        public event CharacterChangedEvent? CharacterChanged;
+
         public delegate void CroppedEvent(ArtLayer layer, Rect oldRect, Rect newRect);
         public event CroppedEvent? Cropped;
 
@@ -228,18 +231,7 @@ namespace AAP
         }
 
         public char? GetCharacter(Point point)
-        {
-            int x = (int)point.X;
-            int y = (int)point.Y;
-
-            if (x < 0 || x >= Width)
-                throw new IndexOutOfRangeException($"{nameof(x)} outside of bounds of layer (x: {x})");
-
-            if (y < 0 || y >= Height)
-                throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
-
-            return Data[x][y];
-        }
+            => GetCharacter((int)point.X, (int)point.X);
 
         public void SetCharacter(int x, int y, char? character)
         {
@@ -251,22 +243,12 @@ namespace AAP
 
             if (Data[x][y] != character)
                 Data[x][y] = character;
+
+            CharacterChanged?.Invoke(this, x, y);
         }
 
         public void SetCharacter(Point point, char? character)
-        {
-            int x = (int)point.X;
-            int y = (int)point.Y;
-
-            if (x < 0 || x >= Width)
-                throw new IndexOutOfRangeException($"{nameof(x)} outside of bounds of layer (x: {x})");
-
-            if (y < 0 || y >= Height)
-                throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
-
-            if (Data[x][y] != character)
-                Data[x][y] = character;
-        }
+            => SetCharacter((int)point.X, (int)point.Y, character);
         #endregion
 
         public void Crop(Rect cropRect)

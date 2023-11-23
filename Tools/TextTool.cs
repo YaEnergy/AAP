@@ -28,6 +28,7 @@ namespace AAP
             }
         }
 
+        private ArtLayerDraw? layerDraw = null;
         private ObjectTimeline? timeline = null;
 
         public TextTool()
@@ -42,6 +43,19 @@ namespace AAP
                 timeline.Rolledback += OnArtTimelineTimeTravel;
                 timeline.Rolledforward += OnArtTimelineTimeTravel;
             }
+
+            App.OnCurrentLayerIDChanged += OpenLayerDraw;
+        }
+
+        private void OpenLayerDraw(int id)
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            if (id == -1)
+                layerDraw = null;
+
+            layerDraw = new(App.CurrentArtFile.Art.ArtLayers[id]);
         }
 
         protected override void UseStart(Point startArtPos)
@@ -63,7 +77,7 @@ namespace AAP
         {
             ConsoleLogger.Log("Text Tool: Typing character " + character);
 
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
             if (App.SelectedArt == Rect.Empty)
@@ -78,7 +92,7 @@ namespace AAP
             ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
 
             Point drawPoint = new(Math.Clamp(App.SelectedArt.Location.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(App.SelectedArt.Location.Y, layer.OffsetY, layer.OffsetY + layer.Height - 1));
-            App.CurrentArtFile.ArtDraw.DrawCharacter(App.CurrentLayerID, character == ' ' ? null : character, drawPoint);
+            layerDraw.DrawCharacter(character == ' ' ? null : character, drawPoint);
             App.CurrentArtFile.Art.Update();
 
             if (drawPoint.X < layer.OffsetX + layer.Width - 1)
@@ -104,7 +118,7 @@ namespace AAP
 
         public void OnPressedKey(Key key, ModifierKeys modifierKeys)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
             if (App.SelectedArt == Rect.Empty)
@@ -147,7 +161,7 @@ namespace AAP
                         else if (drawPoint.Y > layer.OffsetY)
                             App.SelectedArt = new(layer.OffsetX + layer.Width - 1, drawPoint.Y - 1, 1, 1);
                     
-                    App.CurrentArtFile.ArtDraw.DrawCharacter(App.CurrentLayerID, null, App.SelectedArt.Location);
+                    layerDraw.DrawCharacter(null, App.SelectedArt.Location);
                     App.CurrentArtFile.Art.Update();
                     isTyping = true;
                     break;

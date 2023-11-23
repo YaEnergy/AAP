@@ -87,6 +87,8 @@ namespace AAP
             }
         }
 
+        private ArtLayerDraw? layerDraw = null;
+
         private Point lastPreviewStartArtPos = new(-1, -1);
         private Point lastPreviewEndArtPos = new(-1, -1);
 
@@ -97,6 +99,19 @@ namespace AAP
         {
             Character = character;
             Size = size;
+
+            App.OnCurrentLayerIDChanged += OpenLayerDraw;
+        }
+
+        private void OpenLayerDraw(int id)
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            if (id == -1)
+                layerDraw = null;
+
+            layerDraw = new(App.CurrentArtFile.Art.ArtLayers[id]);
         }
 
         protected override void UseStart(Point startArtPos)
@@ -121,11 +136,11 @@ namespace AAP
 
         public void DrawRectangle(Point startArtPos, Point endArtPos)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
-            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
-            App.CurrentArtFile.ArtDraw.BrushThickness = Size - 1;
+            layerDraw.StayInsideSelection = StayInsideSelection;
+            layerDraw.BrushThickness = Size;
 
             int startX = (int)(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X);
             int startY = (int)(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y);
@@ -133,7 +148,7 @@ namespace AAP
             int width = (int)(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1);
             int height = (int)(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1);
 
-            App.CurrentArtFile.ArtDraw.DrawRectangle(App.CurrentLayerID, Character, startX, startY, width, height, Fill);
+            layerDraw.DrawRectangle(Character, startX, startY, width, height, Fill);
         }
 
         public void UpdatePreview(Point startArtPos, Point endArtPos)
@@ -182,7 +197,7 @@ namespace AAP
 
             ArtLayerDraw layerDraw = new(previewLayer)
             {
-                BrushThickness = Size - 1,
+                BrushThickness = Size,
                 StayInsideSelection = StayInsideSelection
             };
 

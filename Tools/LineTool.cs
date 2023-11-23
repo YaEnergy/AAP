@@ -72,6 +72,8 @@ namespace AAP
             }
         }
 
+        private ArtLayerDraw? layerDraw = null;
+
         private Point lastPreviewStartArtPos = new(-1, -1);
         private Point lastPreviewEndArtPos = new(-1, -1);
 
@@ -80,15 +82,25 @@ namespace AAP
 
         public LineTool(char? character)
         {
-            Character = character;   
+            Character = character;
+
+            App.OnCurrentLayerIDChanged += OpenLayerDraw;
+        }
+
+        private void OpenLayerDraw(int id)
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            if (id == -1)
+                layerDraw = null;
+
+            layerDraw = new(App.CurrentArtFile.Art.ArtLayers[id]);
         }
 
         protected override void UseStart(Point startArtPos)
         {
-            DrawCircle(startArtPos);
             UpdatePreview(startArtPos, startArtPos);
-
-            App.CurrentArtFile?.Art.Update();
         }
 
         protected override void UseUpdate(Point startArtPos, Point currentArtPos)
@@ -106,25 +118,15 @@ namespace AAP
             App.CurrentArtFile?.Art.Update();
         }
 
-        public void DrawCircle(Point artPos)
-        {
-            if (App.CurrentArtFile == null)
-                return;
-
-            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
-
-            App.CurrentArtFile.ArtDraw.DrawBrush(App.CurrentLayerID, Character, artPos, Size - 1);
-        }
-
         public void DrawLine(Point startArtPos, Point endArtPos)
         {
-            if (App.CurrentArtFile == null)
+            if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
-            App.CurrentArtFile.ArtDraw.StayInsideSelection = StayInsideSelection;
-            App.CurrentArtFile.ArtDraw.BrushThickness = Size - 1;
+            layerDraw.StayInsideSelection = StayInsideSelection;
+            layerDraw.BrushThickness = Size;
 
-            App.CurrentArtFile.ArtDraw.DrawLine(App.CurrentLayerID, Character, startArtPos, endArtPos);
+            layerDraw.DrawLine(Character, startArtPos, endArtPos);
         }
 
         public void UpdatePreview(Point start, Point end)
@@ -167,7 +169,7 @@ namespace AAP
 
             ArtLayerDraw layerDraw = new(previewLayer)
             {
-                BrushThickness = Size - 1,
+                BrushThickness = Size,
                 StayInsideSelection = StayInsideSelection
             };
 
