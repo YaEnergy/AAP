@@ -81,63 +81,67 @@ namespace AAP
 
             ArtLayer artLayer = artFile.Art.ArtLayers[App.CurrentLayerID];
             ArtLayerDraw layerDraw = new(artLayer);
+            
+            Point layerPos = artLayer.GetLayerPoint(artPos);
 
-            if (!layerDraw.CanDrawOn(artPos))
+            if (!layerDraw.CanDrawOn(layerPos))
                 return;
 
-            char? findCharacter = artLayer.GetCharacter(artLayer.GetLayerPoint(artPos));
+            char? findCharacter = artLayer.GetCharacter(layerPos);
             if (findCharacter == Character)
                 return; //No changes will be made
 
             //Flood Fill Algorithm
-            positionStack.Push(artPos);
+            positionStack.Push(layerPos);
 
             layerDraw.StayInsideSelection = StayInsideSelection;
 
             while (positionStack.Count > 0)
             {
-                Point pos = positionStack.Pop();
+                Point pos = positionStack.Pop(); 
 
                 if (!layerDraw.CanDrawOn(pos))
                     continue;
 
-                if (artLayer.GetCharacter(artLayer.GetLayerPoint(pos)) != findCharacter)
+                if (artLayer.GetCharacter(pos) != findCharacter)
                     continue;
+
+                ConsoleLogger.Log(pos.ToString());
 
                 layerDraw.DrawCharacter(Character, pos);
 
                 int x = (int)pos.X;
                 int y = (int)pos.Y;
 
-                if (x + 1 - artLayer.OffsetX < artLayer.Width)
+                if (x + 1 < artLayer.Width)
                     positionStack.Push(new(x + 1, y));
 
-                if (x - 1 - artLayer.OffsetX >= 0)
+                if (x - 1 >= 0)
                     positionStack.Push(new(x - 1, y));
 
-                if (y + 1 - artLayer.OffsetY < artLayer.Height)
+                if (y + 1 < artLayer.Height)
                     positionStack.Push(new(x, y + 1));
 
-                if (y - 1 - artLayer.OffsetY >= 0)
+                if (y - 1 >= 0)
                     positionStack.Push(new(x, y - 1));
 
                 if (EightDirectional)
                 {
-                    if (x + 1 - artLayer.OffsetX < artLayer.Width)
+                    if (x + 1 < artLayer.Width)
                     {
-                        if (y + 1 - artLayer.OffsetY < artLayer.Height)
+                        if (y + 1 < artLayer.Height)
                             positionStack.Push(new(x + 1, y + 1));
 
-                        if (y - 1 - artLayer.OffsetY >= 0)
+                        if (y - 1 >= 0)
                             positionStack.Push(new(x + 1, y - 1));
                     }
 
-                    if (x - 1 - artLayer.OffsetX >= 0)
+                    if (x - 1 >= 0)
                     {
-                        if (y + 1 - artLayer.OffsetY < artLayer.Height)
+                        if (y + 1 < artLayer.Height)
                             positionStack.Push(new(x - 1, y + 1));
 
-                        if (y - 1 - artLayer.OffsetY >= 0)
+                        if (y - 1 >= 0)
                             positionStack.Push(new(x - 1, y - 1));
                     }
                 }

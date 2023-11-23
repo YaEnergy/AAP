@@ -231,7 +231,7 @@ namespace AAP
         }
 
         public char? GetCharacter(Point point)
-            => GetCharacter((int)point.X, (int)point.X);
+            => GetCharacter((int)point.X, (int)point.Y);
 
         public void SetCharacter(int x, int y, char? character)
         {
