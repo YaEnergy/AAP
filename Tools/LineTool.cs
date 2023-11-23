@@ -92,10 +92,7 @@ namespace AAP
             if (App.CurrentArtFile == null)
                 return;
 
-            if (id == -1)
-                layerDraw = null;
-
-            layerDraw = new(App.CurrentArtFile.Art.ArtLayers[id]);
+            layerDraw = id == -1 ? null : new(App.CurrentArtFile.Art.ArtLayers[id]);
         }
 
         protected override void UseStart(Point startArtPos)
