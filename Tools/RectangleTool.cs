@@ -136,11 +136,13 @@ namespace AAP
             if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
+
             layerDraw.StayInsideSelection = StayInsideSelection;
             layerDraw.BrushThickness = Size;
 
-            int startX = (int)(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X);
-            int startY = (int)(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y);
+            int startX = (int)(endArtPos.X > startArtPos.X ? startArtPos.X : endArtPos.X) - layer.OffsetX;
+            int startY = (int)(endArtPos.Y > startArtPos.Y ? startArtPos.Y : endArtPos.Y) - layer.OffsetY;
 
             int width = (int)(endArtPos.X > startArtPos.X ? endArtPos.X - startArtPos.X + 1 : startArtPos.X - endArtPos.X + 1);
             int height = (int)(endArtPos.Y > startArtPos.Y ? endArtPos.Y - startArtPos.Y + 1 : startArtPos.Y - endArtPos.Y + 1);

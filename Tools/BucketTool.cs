@@ -106,8 +106,6 @@ namespace AAP
                 if (artLayer.GetCharacter(pos) != findCharacter)
                     continue;
 
-                ConsoleLogger.Log(pos.ToString());
-
                 layerDraw.DrawCharacter(Character, pos);
 
                 int x = (int)pos.X;

@@ -136,8 +136,10 @@ namespace AAP
             if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
-            int centerX = (int)startArtPos.X;
-            int centerY = (int)startArtPos.Y;
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
+
+            int centerX = (int)startArtPos.X - layer.OffsetX;
+            int centerY = (int)startArtPos.Y - layer.OffsetY;
 
             int radiusX = (int)Math.Max(endArtPos.X - startArtPos.X, startArtPos.X - endArtPos.X);
             int radiusY = (int)Math.Max(endArtPos.Y - startArtPos.Y, startArtPos.Y - endArtPos.Y);

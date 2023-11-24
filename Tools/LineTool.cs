@@ -120,10 +120,12 @@ namespace AAP
             if (App.CurrentArtFile == null || layerDraw == null)
                 return;
 
+            ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
+
             layerDraw.StayInsideSelection = StayInsideSelection;
             layerDraw.BrushThickness = Size;
 
-            layerDraw.DrawLine(Character, startArtPos, endArtPos);
+            layerDraw.DrawLine(Character, layer.GetLayerPoint(startArtPos), layer.GetLayerPoint(endArtPos));
         }
 
         public void UpdatePreview(Point start, Point end)

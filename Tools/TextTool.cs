@@ -89,7 +89,7 @@ namespace AAP
             ArtLayer layer = App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID];
 
             Point drawPoint = new(Math.Clamp(App.SelectedArt.Location.X, layer.OffsetX, layer.OffsetX + layer.Width - 1), Math.Clamp(App.SelectedArt.Location.Y, layer.OffsetY, layer.OffsetY + layer.Height - 1));
-            layerDraw.DrawCharacter(character == ' ' ? null : character, drawPoint);
+            layerDraw.DrawCharacter(character == ' ' ? null : character, layer.GetLayerPoint(drawPoint));
             App.CurrentArtFile.Art.Update();
 
             if (drawPoint.X < layer.OffsetX + layer.Width - 1)
@@ -158,7 +158,7 @@ namespace AAP
                         else if (drawPoint.Y > layer.OffsetY)
                             App.SelectedArt = new(layer.OffsetX + layer.Width - 1, drawPoint.Y - 1, 1, 1);
                     
-                    layerDraw.DrawCharacter(null, App.SelectedArt.Location);
+                    layerDraw.DrawCharacter(null, layer.GetLayerPoint(App.SelectedArt.Location));
                     App.CurrentArtFile.Art.Update();
                     isTyping = true;
                     break;
