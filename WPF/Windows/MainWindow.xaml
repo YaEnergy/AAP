@@ -82,7 +82,7 @@
                                 <CheckBox Content="{Binding VisibilityCheckboxContent, ElementName=MainWindowViewModel}" IsChecked="{Binding IsLayerManagementVisible, ElementName=MainWindowViewModel}" Style="{DynamicResource MenuCheckbox}"></CheckBox>
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="{Binding FiltersMenuContent}">
+                        <MenuItem Header="{Binding FiltersMenuContent}" IsEnabled="{Binding HasArtOpen,ElementName=ArtFileViewModel}">
                             <MenuItem.DataContext>
                                 <viewmodels:FiltersViewModel/>
                             </MenuItem.DataContext>

@@ -83,18 +83,18 @@ namespace AAP.UI.ViewModels
             if (App.CurrentArtFile == null)
                 return;
 
-            string affectPropertyContent = App.Language.GetString("Filters_Affect");
-            string affectPropertyTooltip = App.Language.GetString("Filters_Affect_Tooltip");
+            string affectPropertyContent = App.Language.GetString("Filters_Main_Affect");
+            string affectPropertyTooltip = App.Language.GetString("Filters_Main_Affect_Tooltip");
 
             string mirrorAxisPropertyContent = App.Language.GetString("Filters_Mirror_Axis");
             string mirrorAxisPropertyTooltip = App.Language.GetString("Filters_Mirror_Axis_Tooltip");
 
-            string affectSelectionOption = App.Language.GetString("Filters_Affect_Selection");
-            string affectLayerOption = App.Language.GetString("Filters_Affect_Layer");
-            string affectCanvasOption = App.Language.GetString("Filters_Affect_Canvas");
+            string affectSelectionOption = App.Language.GetString("Filters_Main_Affect_Selection");
+            string affectLayerOption = App.Language.GetString("Filters_Main_Affect_Layer");
+            string affectCanvasOption = App.Language.GetString("Filters_Main_Affect_Canvas");
 
             string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
-            string selectionOutsideErrorMessage = App.Language.GetString("Filters_SelectionOutsideMessage");
+            string selectionOutsideErrorMessage = App.Language.GetString("Filters_Main_SelectionOutsideMessage");
 
             List<string> affectOptions = new();
 
@@ -109,7 +109,7 @@ namespace AAP.UI.ViewModels
 
             if (affectOptions.Count == 0)
             {
-                MessageBox.Show(App.Language.GetString("Filters_UnavailableMessage"), MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(App.Language.GetString("Filters_Main_UnavailableMessage"), MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -193,17 +193,17 @@ namespace AAP.UI.ViewModels
             if (App.CurrentArtFile == null)
                 return;
 
-            string affectPropertyContent = App.Language.GetString("Filters_Affect");
-            string affectPropertyTooltip = App.Language.GetString("Filters_Affect_Tooltip");
+            string affectPropertyContent = App.Language.GetString("Filters_Main_Affect");
+            string affectPropertyTooltip = App.Language.GetString("Filters_Main_Affect_Tooltip");
 
             string characterPropertyContent = App.Language.GetString("Filters_Outline_Character");
             string characterPropertyTooltip = App.Language.GetString("Filters_Outline_Character_Tooltip");
 
-            string affectSelectionOption = App.Language.GetString("Filters_Affect_Selection");
-            string affectLayerOption = App.Language.GetString("Filters_Affect_Layer");
+            string affectSelectionOption = App.Language.GetString("Filters_Main_Affect_Selection");
+            string affectLayerOption = App.Language.GetString("Filters_Main_Affect_Layer");
 
             string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
-            string selectionOutsideErrorMessage = App.Language.GetString("Filters_SelectionOutsideMessage");
+            string selectionOutsideErrorMessage = App.Language.GetString("Filters_Main_SelectionOutsideMessage");
 
             List<string> affectOptions = new();
 
@@ -215,7 +215,7 @@ namespace AAP.UI.ViewModels
 
             if (affectOptions.Count == 0)
             {
-                MessageBox.Show(App.Language.GetString("Filters_UnavailableMessage"), OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(App.Language.GetString("Filters_Main_UnavailableMessage"), OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
