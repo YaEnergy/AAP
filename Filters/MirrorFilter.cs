@@ -61,12 +61,12 @@ namespace AAP.Filters
             else if (Art == null && Layer != null && Affect == Rect.Empty)
                 MirrorLayer(Layer, MirrorAxis);
             else if (Art != null)
-                MirrorArt(Art, MirrorAxis);
+                MirrorCanvas(Art, MirrorAxis);
             else
                 throw new InvalidOperationException();
         }
 
-        public static void MirrorArt(ASCIIArt art, Axis2D mirrorAxis)
+        public static void MirrorCanvas(ASCIIArt art, Axis2D mirrorAxis)
         {
             foreach (ArtLayer layer in art.ArtLayers)
             {
@@ -75,10 +75,10 @@ namespace AAP.Filters
                 switch(mirrorAxis)
                 {
                     case Axis2D.X:
-                        layer.OffsetX = -layer.OffsetX;
+                        layer.OffsetX = art.Width - layer.OffsetX - layer.Width;
                         break;
                     case Axis2D.Y:
-                        layer.OffsetY = -layer.OffsetY;
+                        layer.OffsetY = art.Height - layer.OffsetY - layer.Height;
                         break;
                 }
             }

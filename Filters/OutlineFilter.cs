@@ -80,12 +80,11 @@ namespace AAP.Filters
 
                 for (int y = 0; y < layer.Height; y++)
                 {
+                    bool hasNeighbors = (x + 1 < layer.Width && layer.Data[x + 1][y] != null) || (x - 1 >= 0 && layer.Data[x - 1][y] != null) || (y + 1 < layer.Height && layer.Data[x][y + 1] != null) || (y - 1 >= 0 && layer.Data[x][y - 1] != null);
+
                     //If this is inside outline region and current character can be an outline
-                    if (layer.Data[x][y] == null && x < startX + width && x >= 0 && y < startY + height && y >= 0 && 
-                        (x + 1 >= layer.Width || layer.Data[x + 1][y] != null || x - 1 < 0 || layer.Data[x - 1][y] != null || y + 1 >= layer.Height || layer.Data[x][y + 1] != null || y - 1 < 0|| layer.Data[x][y - 1] != null))
-                    {
+                    if (layer.Data[x][y] == null && x < startX + width && x >= startX && y < startY + height && y >= startY && hasNeighbors)
                         newData[x][y] = character;
-                    }
                     else
                         newData[x][y] = layer.Data[x][y];
                     

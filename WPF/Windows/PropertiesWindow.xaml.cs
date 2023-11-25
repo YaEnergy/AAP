@@ -106,6 +106,35 @@ namespace AAP.UI.Windows
             return textBox;
         }
 
+        public UIElement CreateInputCharProperty(string name, char value, Predicate<char>? predicate = null)
+        {
+            if (properties.ContainsKey(name))
+                throw new Exception("Property " + name + " already exists!");
+
+            properties.Add(name, value);
+
+            TextBox textBox = new();
+            textBox.Text = value.ToString();
+            textBox.Width = 24;
+            textBox.Height = 22;
+
+            textBox.LostFocus += (sender, e) =>
+            {
+                if (sender is not TextBox textBoxSender)
+                    return;
+
+                if (char.TryParse(textBoxSender.Text, out char newValue) && (predicate == null || predicate.Invoke(newValue)))
+                {
+                    value = newValue;
+                    SetProperty(name, newValue);
+                }
+
+                textBoxSender.Text = value.ToString();
+            };
+
+            return textBox;
+        }
+
         public UIElement CreateInputIntProperty(string name, int value, Predicate<int>? predicate = null)
         {
             if (properties.ContainsKey(name))

@@ -1,26 +1,8 @@
-﻿using AAP.BackgroundTasks;
-using AAP.FileObjects;
-using AAP.Files;
+﻿using AAP.FileObjects;
 using AAP.Filters;
-using AAP.Timelines;
 using AAP.UI.Windows;
-using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Media3D;
 
 namespace AAP.UI.ViewModels
 {
@@ -58,7 +40,7 @@ namespace AAP.UI.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        public FiltersViewModel() 
+        public FiltersViewModel()
         {
             MirrorFilterCommand = new ActionCommand((parameter) => ApplyMirrorFilter());
             OutlineFilterCommand = new ActionCommand((parameter) => ApplyOutlineFilter());
@@ -107,7 +89,29 @@ namespace AAP.UI.ViewModels
             string mirrorAxisPropertyContent = App.Language.GetString("Filters_Mirror_Axis");
             string mirrorAxisPropertyTooltip = App.Language.GetString("Filters_Mirror_Axis_Tooltip");
 
-            List<string> affectOptions = new() { "Selection", "Selected Layer", "Canvas" };
+            string affectSelectionOption = App.Language.GetString("Filters_Affect_Selection");
+            string affectLayerOption = App.Language.GetString("Filters_Affect_Layer");
+            string affectCanvasOption = App.Language.GetString("Filters_Affect_Canvas");
+
+            string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+            string selectionOutsideErrorMessage = App.Language.GetString("Filters_SelectionOutsideMessage");
+
+            List<string> affectOptions = new();
+
+            if (App.SelectedArt != Rect.Empty)
+                affectOptions.Add(affectSelectionOption);
+
+            if (App.CurrentLayerID != -1)
+                affectOptions.Add(affectLayerOption);
+
+            if (App.CurrentArtFile.Art.ArtLayers.Count != 0)
+                affectOptions.Add(affectCanvasOption);
+
+            if (affectOptions.Count == 0)
+            {
+                MessageBox.Show(App.Language.GetString("Filters_UnavailableMessage"), MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             Filter? filter = null;
 
@@ -116,11 +120,11 @@ namespace AAP.UI.ViewModels
                 PropertiesWindow artWindow = new(MirrorFilterContent, ApplyFilterContent);
 
                 // Property additions
-                artWindow.AddProperty(affectPropertyContent, affectPropertyTooltip, artWindow.CreateComboBoxIntProperty("Affect", affectOptions, 0));
+                artWindow.AddProperty(affectPropertyContent, affectPropertyTooltip, artWindow.CreateComboBoxListProperty("Affect", affectOptions, 0));
 
                 artWindow.AddProperty(mirrorAxisPropertyContent, mirrorAxisPropertyTooltip, artWindow.CreateComboBoxEnumProperty("MirrorAxis", Axis2D.X));
-                
-                artWindow.AddLabel(App.Language.GetString("Filter_Mirror_Description"));
+
+                artWindow.AddLabel(App.Language.GetString("Filters_Mirror_Description"));
 
                 bool? result = artWindow.ShowDialog();
 
@@ -129,49 +133,51 @@ namespace AAP.UI.ViewModels
 
                 // Property errors
 
-                if (artWindow.GetProperty("Affect") is not int affectInt)
+                if (artWindow.GetProperty("Affect") is not string affectString)
                 {
-                    //Invalid affect message here, somehow
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, affectPropertyContent), MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
                 if (artWindow.GetProperty("MirrorAxis") is not Axis2D mirrorAxis)
                 {
-                    //Invalid mirror axis message here, somehow
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, mirrorAxisPropertyContent), MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
                     continue;
                 }
 
                 // Create Filter
-                switch (affectInt)
+                if (affectString == affectSelectionOption)
                 {
-                    case 0:
-                        ASCIIArt art = App.CurrentArtFile.Art;
-                        ArtLayer layer = art.ArtLayers[App.CurrentLayerID];
+                    ASCIIArt art = App.CurrentArtFile.Art;
+                    ArtLayer layer = art.ArtLayers[App.CurrentLayerID];
 
-                        int left = Math.Max((int)App.SelectedArt.Left - layer.OffsetX, 0);
-                        int top = Math.Max((int)App.SelectedArt.Top - layer.OffsetY, 0);
-                        int right = Math.Min((int)App.SelectedArt.Right - layer.OffsetX, layer.Width);
-                        int bottom = Math.Min((int)App.SelectedArt.Bottom - layer.OffsetY, layer.Height);
+                    int left = Math.Max((int)App.SelectedArt.Left - layer.OffsetX, 0);
+                    int top = Math.Max((int)App.SelectedArt.Top - layer.OffsetY, 0);
+                    int right = Math.Min((int)App.SelectedArt.Right - layer.OffsetX, layer.Width);
+                    int bottom = Math.Min((int)App.SelectedArt.Bottom - layer.OffsetY, layer.Height);
 
-                        //If affect rect is outside layer, do nothing.
-                        if (left >= layer.Width || top >= layer.Height || right < 0 || bottom < 0)
-                            return;
+                    //If affect rect is outside layer, do nothing.
+                    if (left >= layer.Width || top >= layer.Height || right < 0 || bottom < 0)
+                    {
+                        MessageBox.Show(selectionOutsideErrorMessage, MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                        if (right - left <= 0 || bottom - top <= 0)
-                            return;
+                    if (right - left <= 0 || bottom - top <= 0)
+                    {
+                        MessageBox.Show(selectionOutsideErrorMessage, MirrorFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                        Rect affectRect = new(left, top, right - left, bottom - top);
-                        App.SelectedArt = affectRect;
+                    Rect affectRect = new(left, top, right - left, bottom - top);
+                    App.SelectedArt = new(Math.Max(App.SelectedArt.Left, layer.OffsetX), Math.Max(App.SelectedArt.Top, layer.OffsetY), Math.Min(App.SelectedArt.Right, layer.OffsetX + layer.Width) - Math.Max(App.SelectedArt.Left, layer.OffsetX), Math.Min(App.SelectedArt.Bottom, layer.OffsetY + layer.Height) - Math.Max(App.SelectedArt.Top, layer.OffsetY));
 
-                        filter = new MirrorFilter(layer, affectRect, mirrorAxis);
-                        break;
-                    case 1:
-                        filter = new MirrorFilter(App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID], mirrorAxis);
-                        break;
-                    case 2:
-                        filter = new MirrorFilter(App.CurrentArtFile.Art, mirrorAxis);
-                        break;
+                    filter = new MirrorFilter(layer, affectRect, mirrorAxis);
                 }
+                else if (affectString == affectLayerOption)
+                    filter = new MirrorFilter(App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID], mirrorAxis);
+                else
+                    filter = new MirrorFilter(App.CurrentArtFile.Art, mirrorAxis);
             }
 
             if (filter == null)
@@ -184,14 +190,47 @@ namespace AAP.UI.ViewModels
 
         public void ApplyOutlineFilter()
         {
+            if (App.CurrentArtFile == null)
+                return;
+
+            string affectPropertyContent = App.Language.GetString("Filters_Affect");
+            string affectPropertyTooltip = App.Language.GetString("Filters_Affect_Tooltip");
+
+            string characterPropertyContent = App.Language.GetString("Filters_Outline_Character");
+            string characterPropertyTooltip = App.Language.GetString("Filters_Outline_Character_Tooltip");
+
+            string affectSelectionOption = App.Language.GetString("Filters_Affect_Selection");
+            string affectLayerOption = App.Language.GetString("Filters_Affect_Layer");
+
+            string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+            string selectionOutsideErrorMessage = App.Language.GetString("Filters_SelectionOutsideMessage");
+
+            List<string> affectOptions = new();
+
+            if (App.SelectedArt != Rect.Empty)
+                affectOptions.Add(affectSelectionOption);
+
+            if (App.CurrentLayerID != -1)
+                affectOptions.Add(affectLayerOption);
+
+            if (affectOptions.Count == 0)
+            {
+                MessageBox.Show(App.Language.GetString("Filters_UnavailableMessage"), OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             Filter? filter = null;
 
             while (filter == null)
             {
                 PropertiesWindow artWindow = new(OutlineFilterContent, ApplyFilterContent);
-                
+
                 // Property additions
-                // Enum property additions (Need a method for adding combo boxes)
+                artWindow.AddProperty(affectPropertyContent, affectPropertyTooltip, artWindow.CreateComboBoxListProperty("Affect", affectOptions, 0));
+
+                artWindow.AddProperty(characterPropertyContent, characterPropertyTooltip, artWindow.CreateInputCharProperty("Character", '/'));
+
+                artWindow.AddLabel(App.Language.GetString("Filters_Outline_Description"));
 
                 bool? result = artWindow.ShowDialog();
 
@@ -200,13 +239,57 @@ namespace AAP.UI.ViewModels
 
                 // Property errors
 
+                if (artWindow.GetProperty("Affect") is not string affectString)
+                {
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, affectPropertyContent), OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                if (artWindow.GetProperty("Character") is not char character)
+                {
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, characterPropertyContent), OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
                 // Create Filter
+                if (affectString == affectSelectionOption)
+                {
+                    ASCIIArt art = App.CurrentArtFile.Art;
+                    ArtLayer layer = art.ArtLayers[App.CurrentLayerID];
+
+                    int left = Math.Max((int)App.SelectedArt.Left - layer.OffsetX, 0);
+                    int top = Math.Max((int)App.SelectedArt.Top - layer.OffsetY, 0);
+                    int right = Math.Min((int)App.SelectedArt.Right - layer.OffsetX, layer.Width);
+                    int bottom = Math.Min((int)App.SelectedArt.Bottom - layer.OffsetY, layer.Height);
+
+                    //If affect rect is outside layer, do nothing.
+                    if (left >= layer.Width || top >= layer.Height || right < 0 || bottom < 0)
+                    {
+                        MessageBox.Show(selectionOutsideErrorMessage, OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    if (right - left <= 0 || bottom - top <= 0)
+                    {
+                        MessageBox.Show(selectionOutsideErrorMessage, OutlineFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
+
+                    Rect affectRect = new(left, top, right - left, bottom - top);
+                    App.SelectedArt = new(Math.Max(App.SelectedArt.Left, layer.OffsetX), Math.Max(App.SelectedArt.Top, layer.OffsetY), Math.Min(App.SelectedArt.Right, layer.OffsetX + layer.Width) - Math.Max(App.SelectedArt.Left, layer.OffsetX), Math.Min(App.SelectedArt.Bottom, layer.OffsetY + layer.Height) - Math.Max(App.SelectedArt.Top, layer.OffsetY));
+
+                    filter = new OutlineFilter(layer, affectRect, character);
+                }
+                else if (affectString == affectLayerOption)
+                    filter = new OutlineFilter(App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID], character);
             }
 
             if (filter == null)
                 return;
 
             filter.Apply();
+            App.CurrentArtFile.ArtTimeline.NewTimePoint();
+            App.CurrentArtFile.Art.Update();
         }
     }
 }
