@@ -645,7 +645,7 @@ namespace AAP.UI.Controls
                 changedColumns.Add(x + layer.OffsetX);
         }
 
-        private void DisplayArtArtLayerDataChanged(ArtLayer artLayer, char?[][] oldData, char?[][] newData)
+        private void DisplayArtArtLayerDataChanged(ArtLayer artLayer, char?[,] oldData, char?[,] newData)
         {
             if (DisplayArt == null)
                 return;

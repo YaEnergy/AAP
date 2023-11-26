@@ -388,7 +388,7 @@ namespace AAP.UI.ViewModels
             LayerOffsetY = (int)newOffset.Y;
         }
 
-        private void LayerDataChanged(ArtLayer layer, char?[][] oldData, char?[][] newData)
+        private void LayerDataChanged(ArtLayer layer, char?[,] oldData, char?[,] newData)
         {
             LayerSizeX = layer.Width;
             LayerSizeY = layer.Height;

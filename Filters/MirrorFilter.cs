@@ -92,10 +92,7 @@ namespace AAP.Filters
 
         public static void MirrorLayerRect(ArtLayer layer, int startX, int startY, int width, int height, Axis2D mirrorAxis)
         {
-            char?[][] newData = new char?[layer.Width][];
-
-            for (int x = 0; x < layer.Width; x++)
-                newData[x] = new char?[layer.Height];
+            char?[,] newData = new char?[layer.Width, layer.Height];
 
             switch (mirrorAxis)
             {
@@ -104,9 +101,9 @@ namespace AAP.Filters
                         for (int y = 0; y < layer.Height; y++)
                             // If inside mirror region, mirror.
                             if (x >= startX && y >= startY && x < startX + width && y < startY + height)
-                                newData[x][y] = layer.Data[startX * 2 + width - x - 1][y];
+                                newData[x, y] = layer.GetCharacter(startX * 2 + width - x - 1, y);
                             else
-                                newData[x][y] = layer.Data[x][y];
+                                newData[x, y] = layer.GetCharacter(x, y);
 
                     break;
                 case Axis2D.Y:
@@ -114,9 +111,9 @@ namespace AAP.Filters
                         for (int y = 0; y < layer.Height; y++)
                             //If inside mirror region, mirror.
                             if (x >= startX && y >= startY && x < startX + width && y < startY + height)
-                                newData[x][y] = layer.Data[x][startY * 2 + height - y - 1];
+                                newData[x, y] = layer.GetCharacter(x, startY * 2 + height - y - 1);
                             else
-                                newData[x][y] = layer.Data[x][y];
+                                newData[x, y] = layer.GetCharacter(x, y);
 
                     break;
             }

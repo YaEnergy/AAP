@@ -234,7 +234,7 @@ namespace AAP
                 if (!artLayer.IsCanvasPointVisible(x, y))
                     continue;
 
-                char? character = artLayer.Data[x - artLayer.OffsetX][y - artLayer.OffsetY];
+                char? character = artLayer.GetCharacter(x - artLayer.OffsetX, y - artLayer.OffsetY);
                 if (character != null)
                     return character;
             }

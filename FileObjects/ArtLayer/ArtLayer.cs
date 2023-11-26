@@ -14,8 +14,8 @@ namespace AAP
     [Serializable]
     public class ArtLayer : ITimelineObject, INotifyPropertyChanged
     {
-        private char?[][] data = new char?[1][];
-        public char?[][] Data
+        private char?[,] data;
+        public char?[,] Data
         {
             get => data;
             set
@@ -23,9 +23,10 @@ namespace AAP
                 if (data == value)
                     return;
 
-                char?[][] oldData = data;
+                char?[,] old = data;
                 data = value;
-                DataChanged?.Invoke(this, oldData, value);
+
+                DataChanged?.Invoke(this, old, data);
                 PropertyChanged?.Invoke(this, new(nameof(Data)));
             }
         }
@@ -127,22 +128,12 @@ namespace AAP
 
         public int Width
         {
-            get => Data.Length;
+            get => data.GetLength(0);
         }
 
         public int Height
         {
-            get
-            {
-                if(Width == 0)
-                    throw new Exception("ArtLayer - Can't get height, width is 0.");
-
-                for (int i = 0; i < Data.Length; i++)
-                    if (Data[i] != null)
-                        return Data[i].Length;
-
-                throw new Exception("ArtLayer - Data does not contain any char? arrays!");
-            }
+            get => data.GetLength(1);
         }
         
         public Size Size
@@ -150,7 +141,7 @@ namespace AAP
             get => new(Width, Height);
         }
 
-        public delegate void DataChangedEvent(ArtLayer layer, char?[][] oldData, char?[][] newData);
+        public delegate void DataChangedEvent(ArtLayer layer, char?[,] oldData, char?[,] newData);
         public event DataChangedEvent? DataChanged;
 
         public delegate void NameChangedEvent(ArtLayer layer, string name);
@@ -176,10 +167,10 @@ namespace AAP
         /// <param name="name"></param>
         /// <param name="data"></param>
         [JsonConstructor]
-        public ArtLayer(string name, char?[][] data, int offsetX = 0, int offsetY = 0)
+        public ArtLayer(string name, char?[,] data, int offsetX = 0, int offsetY = 0)
         {
             Name = name;
-            Data = data;
+            this.data = data;
             this.offsetX = offsetX;
             this.offsetY = offsetY;
         }
@@ -193,9 +184,7 @@ namespace AAP
                 throw new Exception("Art Layer Constructor - height can not be smaller than or equal to 0!");
 
             Name = name;
-            Data = new char?[width][];
-            for (int x = 0; x < width; x++)
-                Data[x] = new char?[height];
+            data = new char?[width, height];
 
             this.offsetX = offsetX;
             this.offsetY = offsetY;
@@ -210,9 +199,7 @@ namespace AAP
                 throw new Exception("Art Layer Constructor - (int)size.Height can not be smaller than or equal to 0!");
 
             Name = name;
-            Data = new char?[(int)size.Width][];
-            for (int x = 0; x < (int)size.Width; x++)
-                Data[x] = new char?[(int)size.Height];
+            data = new char?[(int)size.Width, (int)size.Height];
 
             offsetX = (int)offset.X;
             offsetY = (int)offset.Y;
@@ -227,7 +214,7 @@ namespace AAP
             if (y < 0 || y >= Height)
                 throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
 
-            return Data[x][y];
+            return Data[x, y];
         }
 
         public char? GetCharacter(Point point)
@@ -241,8 +228,8 @@ namespace AAP
             if (y < 0 || y >= Height)
                 throw new IndexOutOfRangeException($"{nameof(y)} outside of bounds of layer (y: {y})");
 
-            if (Data[x][y] != character)
-                Data[x][y] = character;
+            if (Data[x, y] != character)
+                Data[x, y] = character;
 
             CharacterChanged?.Invoke(this, x, y);
         }
@@ -264,11 +251,9 @@ namespace AAP
             int difOffsetX = offsetX - (int)cropRect.X;
             int difOffsetY = offsetY - (int)cropRect.Y;
 
-            char?[][] newData = new char?[(int)cropRect.Width][];
+            char?[,] newData = new char?[(int)cropRect.Width, (int)cropRect.Height];
             for (int x = 0; x < (int)cropRect.Width; x++)
             {
-                newData[x] = new char?[(int)cropRect.Height];
-
                 if (x - difOffsetX >= Width || x - difOffsetX < 0)
                     continue;
 
@@ -280,7 +265,7 @@ namespace AAP
                     if (y - difOffsetY >= Height)
                         break;
 
-                    newData[x][y] = Data[x - difOffsetX][y - difOffsetY] ?? null;
+                    newData[x, y] = data[x - difOffsetX, y - difOffsetY] ?? null;
                 }
             }
 
@@ -297,8 +282,8 @@ namespace AAP
 
             for (int x = 0; x < mergeLayer.Width; x++)
                 for (int y = 0; y < mergeLayer.Height; y++)
-                    if (Data[x - OffsetX + mergeLayer.OffsetX][y - OffsetY + mergeLayer.OffsetY] == null)
-                        Data[x - OffsetX + mergeLayer.OffsetX][y - OffsetY + mergeLayer.OffsetY] = mergeLayer.Data[x][y];
+                    if (GetCharacter(x - OffsetX + mergeLayer.OffsetX, y - OffsetY + mergeLayer.OffsetY) == null)
+                        SetCharacter(x - OffsetX + mergeLayer.OffsetX, y - OffsetY + mergeLayer.OffsetY, mergeLayer.GetCharacter(x, y));
         }
 
         public object Clone()
@@ -312,7 +297,7 @@ namespace AAP
 
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    cloneLayer.Data[x][y] = Data[x][y];
+                    cloneLayer.SetCharacter(x, y, GetCharacter(x, y));
 
             return cloneLayer;
         }
@@ -324,7 +309,7 @@ namespace AAP
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)
-                    art += Data[x][y] == null ? ASCIIArt.EMPTYCHARACTER : Data[x][y].ToString();
+                    art += GetCharacter(x, y) == null ? ASCIIArt.EMPTYCHARACTER : GetCharacter(x, y).ToString();
 
                 art += "\n";
             }

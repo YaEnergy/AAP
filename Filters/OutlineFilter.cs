@@ -72,21 +72,19 @@ namespace AAP.Filters
             if (startY + height > layer.Height)
                 throw new ArgumentOutOfRangeException(nameof(height), "goes outside of layer");
 
-            char?[][] newData = new char?[layer.Width][];
+            char?[,] newData = new char?[layer.Width, layer.Height];
 
             for (int x = 0; x < layer.Width; x++)
             {
-                newData[x] = new char?[layer.Height];
-
                 for (int y = 0; y < layer.Height; y++)
                 {
-                    bool hasNeighbors = (x + 1 < layer.Width && layer.Data[x + 1][y] != null) || (x - 1 >= 0 && layer.Data[x - 1][y] != null) || (y + 1 < layer.Height && layer.Data[x][y + 1] != null) || (y - 1 >= 0 && layer.Data[x][y - 1] != null);
+                    bool hasNeighbors = (x + 1 < layer.Width && layer.GetCharacter(x + 1, y) != null) || (x - 1 >= 0 && layer.GetCharacter(x - 1, y) != null) || (y + 1 < layer.Height && layer.GetCharacter(x, y + 1) != null) || (y - 1 >= 0 && layer.GetCharacter(x, y - 1) != null);
 
                     //If this is inside outline region and current character can be an outline
-                    if (layer.Data[x][y] == null && x < startX + width && x >= startX && y < startY + height && y >= startY && hasNeighbors)
-                        newData[x][y] = character;
+                    if (layer.GetCharacter(x, y) == null && x < startX + width && x >= startX && y < startY + height && y >= startY && hasNeighbors)
+                        newData[x, y] = character;
                     else
-                        newData[x][y] = layer.Data[x][y];
+                        newData[x, y] = layer.Data[x, y];
                     
                 }
             }

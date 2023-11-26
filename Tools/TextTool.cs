@@ -152,7 +152,7 @@ namespace AAP
 
                     break;
                 case Key.Back:
-                    if (drawPoint.X != layer.OffsetX + layer.Width - 1 || drawPoint.Y != layer.OffsetY + layer.Height - 1 || layer.Data[(int)drawPoint.X - layer.OffsetX][(int)drawPoint.Y - layer.OffsetY] == null)
+                    if (drawPoint.X != layer.OffsetX + layer.Width - 1 || drawPoint.Y != layer.OffsetY + layer.Height - 1 || layer.GetCharacter((int)drawPoint.X - layer.OffsetX, (int)drawPoint.Y - layer.OffsetY) == null)
                         if (drawPoint.X > layer.OffsetX)
                             App.SelectedArt = new(drawPoint.X - 1, drawPoint.Y, 1, 1);
                         else if (drawPoint.Y > layer.OffsetY)

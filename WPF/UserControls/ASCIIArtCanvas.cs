@@ -379,7 +379,7 @@ namespace AAP.UI.Controls
         private void DisplayLayerOffsetChanged(ArtLayer layer, Point oldOffset, Point newOffset)
             => DrawDisplayLayerHighlight();
 
-        private void DisplayLayerDataChanged(ArtLayer layer, char?[][] oldData, char?[][] newData)
+        private void DisplayLayerDataChanged(ArtLayer layer, char?[,] oldData, char?[,] newData)
             => DrawDisplayLayerHighlight();
 
         private void DisplayLayerVisibilityChanged(ArtLayer layer, bool visible)
