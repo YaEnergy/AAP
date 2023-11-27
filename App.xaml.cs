@@ -9,6 +9,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Windows.Threading;
@@ -259,7 +260,13 @@ namespace AAP
                     }
                 }
                 else
+                {
                     ConsoleLogger.Log("No settings file found!");
+
+                    string defaultLanguageName = AppSettings.GetDefaultLanguageName();
+                    Settings.LanguageName = defaultLanguageName;
+                    ConsoleLogger.Log("Default language name: " + defaultLanguageName);
+                }
 
                 Stream languageStream;
                 try

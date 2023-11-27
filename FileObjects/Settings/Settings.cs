@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AAP.Properties;
+using System.Globalization;
 
 namespace AAP.Files
 {
@@ -130,6 +132,17 @@ namespace AAP.Files
 
         }
 
+        public static string GetDefaultLanguageName()
+        {
+            return CultureInfo.InstalledUICulture.TwoLetterISOLanguageName switch
+            {
+                "nl" => "Dutch",
+                "fr" => "French",
+                "es" => "Spanish",
+                _ => "English",
+            };
+        }
+
         public void Log()
         {
             ConsoleLogger.Inform("Language Name: " + this.LanguageName);
@@ -153,7 +166,7 @@ namespace AAP.Files
             CanvasTypefaceSource = Default.CanvasTypefaceSource;
             AutosaveFiles = Default.AutosaveFiles;
             AutosaveInterval = Default.AutosaveInterval;
-            LanguageName = Default.LanguageName;
+            LanguageName = GetDefaultLanguageName();
         }
     }
 }
