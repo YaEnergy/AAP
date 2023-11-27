@@ -493,6 +493,9 @@ namespace AAP.UI.ViewModels
 
             ASCIIArt art = new();
             art.SetSize(32, 16);
+            art.Version = ASCIIArt.ARTVERSION;
+
+            ConsoleLogger.Log("Version: " + art.Version);
 
             bool? result = ShowASCIIArtDialog(art, App.Language.GetString("Create"));
 
@@ -570,6 +573,9 @@ namespace AAP.UI.ViewModels
 
             if (artFile == null)
                 return;
+
+            if (artFile.Art.Version != ASCIIArt.ARTVERSION)
+                MessageBox.Show(string.Format(App.Language.GetString("File_DifferentVersionMessage"), artFile.Art.Version, ASCIIArt.ARTVERSION), OpenFileContent, MessageBoxButton.OK, MessageBoxImage.Warning);
 
             int fullArtArea = artFile.Art.GetTotalArtArea();
 

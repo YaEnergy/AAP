@@ -127,6 +127,7 @@
   "Tool_StayInsideSelection": "Stay inside selection",
   "Tool_EightDirectional": "Eight directional",
   "Tool_Fill": "Fill in",
+  "File_DifferentVersionMessage": "ASCII Art file might not be fully compatible with this build, file version is not equal to the file version this build is made to handle.\nASCII Art file version: {0}\nCurrent build file version: {1}",
   "File_ExportFailedMessage": "Failed to export art file!\nException message: {0}",
   "File_ExportBusy": "Exporting to {0}...",
   "File_ExportSuccessMessage": "Exported art file to {0}!\nOpen file?",

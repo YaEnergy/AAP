@@ -18,11 +18,24 @@ namespace AAP
     public class ASCIIArt : ITimelineObject, INotifyPropertyChanged
     {
         public static readonly char EMPTYCHARACTER = ' ';//' '; //Figure Space
-        public static readonly int VERSION = 3;
+        public static readonly int ARTVERSION = 4;
 
-        public int CreatedInVersion = 3;
-        private readonly int updatedInVersion = 3;
-        public int UpdatedInVersion { get => updatedInVersion; }
+        private int version = -1;
+
+        [JsonProperty(nameof(Version))]
+        public int Version
+        {
+            get => version;
+            set
+            {
+                if (version == value)
+                    return;
+
+                version = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(Version)));
+            }
+        }
 
         private readonly ObservableCollection<ArtLayer> artLayers = new();
         public ObservableCollection<ArtLayer> ArtLayers

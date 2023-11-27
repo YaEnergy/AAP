@@ -66,7 +66,7 @@ namespace AAP.Files
             ASCIIArt textArt = new();
 
             textArt.SetSize(txtArtLayer.Width, txtArtLayer.Height);
-            textArt.CreatedInVersion = ASCIIArt.VERSION;
+            textArt.Version = ASCIIArt.ARTVERSION;
 
             textArt.ArtLayers.Add(txtArtLayer);
 
@@ -84,7 +84,7 @@ namespace AAP.Files
             ASCIIArt textArt = new();
 
             textArt.SetSize(textArtLayer.Width, textArtLayer.Height);
-            textArt.CreatedInVersion = ASCIIArt.VERSION;
+            textArt.Version = ASCIIArt.ARTVERSION;
 
             textArt.ArtLayers.Add(textArtLayer);
 
@@ -258,7 +258,7 @@ namespace AAP.Files
             ASCIIArt art = new();
 
             art.SetSize(layer.Width, layer.Height);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             art.ArtLayers.Add(layer);
 
@@ -276,7 +276,7 @@ namespace AAP.Files
             ASCIIArt art = new();
 
             art.SetSize(layer.Width, layer.Height);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             art.ArtLayers.Add(layer);
 
@@ -345,7 +345,7 @@ namespace AAP.Files
             ASCIIArt art = new();
 
             art.SetSize(layer.Width, layer.Height);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             art.ArtLayers.Add(layer);
 
@@ -363,7 +363,7 @@ namespace AAP.Files
             ASCIIArt art = new();
 
             art.SetSize(layer.Width, layer.Height);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             art.ArtLayers.Add(layer);
 
@@ -432,7 +432,7 @@ namespace AAP.Files
             ASCIIArt art = new();
 
             art.SetSize(layer.Width, layer.Height);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             art.ArtLayers.Add(layer);
 
@@ -450,7 +450,7 @@ namespace AAP.Files
             ASCIIArt art = new();
 
             art.SetSize(layer.Width, layer.Height);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             art.ArtLayers.Add(layer);
 
@@ -659,7 +659,7 @@ namespace AAP.Files
             }
 
             art.SetSize(artWidth, artHeight);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             for (int i = 0; i < layers.Length; i++)
                 art.ArtLayers.Add(layers[i]);
@@ -693,7 +693,7 @@ namespace AAP.Files
             }
 
             art.SetSize(artWidth, artHeight);
-            art.CreatedInVersion = ASCIIArt.VERSION;
+            art.Version = ASCIIArt.ARTVERSION;
 
             for (int i = 0; i < layers.Length; i++)
                 art.ArtLayers.Add(layers[i]);
