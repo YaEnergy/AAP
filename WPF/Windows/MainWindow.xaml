@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AAP.UI.Windows"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:ui="clr-namespace:AAP.UI" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" xmlns:themes="clr-namespace:AAP.UI.Themes" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}" MinWidth="600" MinHeight="450">
+    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:ui="clr-namespace:AAP.UI" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" xmlns:themes="clr-namespace:AAP.UI.Themes" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}" MinWidth="600" MinHeight="450" AllowDrop="True">
     <Window.DataContext>
         <viewmodels:MainWindowViewModel x:Name="MainWindowViewModel"/>
     </Window.DataContext>

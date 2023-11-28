@@ -506,31 +506,9 @@ namespace AAP.UI.ViewModels
             App.SetArtAsNewFile(art);
         }
 
-        public async Task OpenFileAsync()
+        public async Task OpenFilePathAsync(string filePath)
         {
-            if (CurrentBackgroundTaskToken != null)
-            {
-                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), OpenFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            OpenFileDialog openFileDialog = new()
-            {
-                Title = OpenFileContent,
-                Filter = App.Language.GetString("SupportedFiles") + " (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
-                Multiselect = false,
-                CheckFileExists = true,
-                CheckPathExists = true,
-                InitialDirectory = App.DefaultArtFilesDirectoryPath,
-                ValidateNames = true
-            };
-
-            bool? result = openFileDialog.ShowDialog();
-
-            if (result != true)
-                return;
-
-            FileInfo fileInfo = new(openFileDialog.FileName);
+            FileInfo fileInfo = new(filePath);
 
             ASCIIArtDecodeOptions? importOptions = null;
             if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".jpeg" || fileInfo.Extension == ".gif")
@@ -548,7 +526,7 @@ namespace AAP.UI.ViewModels
             try
             {
                 BackgroundTaskToken bgTask = new(string.Format(App.Language.GetString("File_OpenBusy"), fileInfo.Name));
-                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(openFileDialog.FileName, importOptions, bgTask);
+                Task<ASCIIArtFile> task = ASCIIArtFile.OpenAsync(filePath, importOptions, bgTask);
                 bgTask.MainTask = task;
 
                 CurrentBackgroundTaskToken = bgTask;
@@ -594,6 +572,33 @@ namespace AAP.UI.ViewModels
 
             OpenArtFiles.Add(artFile);
             CurrentArtFile = artFile;
+        }
+
+        public async Task OpenFileAsync()
+        {
+            if (CurrentBackgroundTaskToken != null)
+            {
+                MessageBox.Show(App.Language.GetString("BackgroundTaskBusyMessage"), OpenFileContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            OpenFileDialog openFileDialog = new()
+            {
+                Title = OpenFileContent,
+                Filter = App.Language.GetString("SupportedFiles") + " (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
+                Multiselect = false,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                InitialDirectory = App.DefaultArtFilesDirectoryPath,
+                ValidateNames = true
+            };
+
+            bool? result = openFileDialog.ShowDialog();
+
+            if (result != true)
+                return;
+
+            await OpenFilePathAsync(openFileDialog.FileName);
         }
 
         public async Task ImportFileAsync()

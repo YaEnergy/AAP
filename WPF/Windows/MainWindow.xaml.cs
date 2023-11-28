@@ -171,6 +171,36 @@ namespace AAP.UI.Windows
             }
         }
 
+        protected override async void OnDrop(DragEventArgs e)
+        {
+            base.OnDrop(e);
+
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            
+            foreach (string path in files)
+            {
+                string? ext = Path.GetExtension(path);
+                switch (ext)
+                {
+                    case ".bmp":
+                    case ".png":
+                    case ".jpeg":
+                    case ".jpg":
+                    case ".gif":
+                    case ".txt":
+                    case ".aaf":
+                        await ArtFileViewModel.OpenFilePathAsync(path);
+                        break;
+                    case null:
+                        MessageBox.Show(string.Format(App.Language.GetString("File_Drop_NoExtensionMessage"), ext), App.Language.GetString("OpenFile"), MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                    default:
+                        MessageBox.Show(string.Format(App.Language.GetString("File_Drop_UnknownExtensionMessage"), ext), App.Language.GetString("OpenFile"), MessageBoxButton.OK, MessageBoxImage.Error);
+                        break;
+                }
+            }
+        }
+
         #region App Events
         private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
         {
