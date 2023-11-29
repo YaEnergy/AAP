@@ -191,11 +191,8 @@ namespace AAP.UI.Windows
                     case ".aaf":
                         await ArtFileViewModel.OpenFilePathAsync(path);
                         break;
-                    case null:
-                        MessageBox.Show(string.Format(App.Language.GetString("File_Drop_NoExtensionMessage"), ext), App.Language.GetString("OpenFile"), MessageBoxButton.OK, MessageBoxImage.Error);
-                        break;
                     default:
-                        MessageBox.Show(string.Format(App.Language.GetString("File_Drop_UnknownExtensionMessage"), ext), App.Language.GetString("OpenFile"), MessageBoxButton.OK, MessageBoxImage.Error);
+                        MessageBox.Show(string.Format(App.Language.GetString("File_Drop_UnknownExtensionMessage"), ext, path), App.Language.GetString("OpenFile"), MessageBoxButton.OK, MessageBoxImage.Error);
                         break;
                 }
             }

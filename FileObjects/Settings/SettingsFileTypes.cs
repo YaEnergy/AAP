@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace AAP.Files
 {
@@ -19,22 +19,25 @@ namespace AAP.Files
 
         public override void Encode()
         {
-            string tempFilePath = Path.GetTempFileName();
-
-            StreamWriter sw = File.CreateText(tempFilePath);
-
 #if DEBUG
             ConsoleLogger.Inform("--Encode Settings--");
             FileObject.Log();
 #endif
 
-            string jsonString = JsonSerializer.Serialize(FileObject);
-            sw.WriteLine(jsonString);
+            string tempFilePath = Path.GetTempFileName();
 
-            ConsoleLogger.Log(jsonString);
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamWriter sw = File.CreateText(tempFilePath);
+
+            js.Serialize(sw, FileObject);
 
             sw.Flush();
-            sw.Dispose();
+            sw.Close();
+
+            using (StreamReader srlog = File.OpenText(tempFilePath))
+            {
+                ConsoleLogger.Log(srlog.ReadToEnd());
+            }
 
             using (FileStream fs = File.OpenRead(tempFilePath))
             {
@@ -52,34 +55,36 @@ namespace AAP.Files
 
         public override async Task EncodeAsync(BackgroundTaskToken? taskToken = null)
         {
-            string tempFilePath = Path.GetTempFileName();
-
-            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Writing as uncompressed file...", true));
-            FileStream jfs = File.OpenWrite(tempFilePath);
-
 #if DEBUG
-            ConsoleLogger.Inform("--Encode Async Settings--");
+            ConsoleLogger.Inform("--Encode Settings--");
             FileObject.Log();
 #endif
 
-            await JsonSerializer.SerializeAsync(jfs, FileObject);
+            string tempFilePath = Path.GetTempFileName();
 
-            await jfs.FlushAsync();
-            await jfs.DisposeAsync();
+            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Writing as uncompressed file...", true));
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamWriter sw = File.CreateText(tempFilePath);
 
-            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
+            Task serializeTask = Task.Run(() => js.Serialize(sw, FileObject));
 
-            using(StreamReader sr = File.OpenText(tempFilePath))
+            await serializeTask;
+
+            await sw.FlushAsync();
+            sw.Close();
+
+            using (StreamReader srlog = File.OpenText(tempFilePath))
             {
-                ConsoleLogger.Log(sr.ReadToEnd());
+                ConsoleLogger.Log(srlog.ReadToEnd());
             }
 
-            using (FileStream gfs = File.OpenRead(tempFilePath))
+            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Decompressing uncompressed file to file path...", true));
+            using (FileStream fs = File.OpenRead(tempFilePath))
             {
                 GZipStream output = new(EncodeStream, CompressionLevel.SmallestSize);
-                await gfs.CopyToAsync(output);
+                await fs.CopyToAsync(output);
 
-                await gfs.FlushAsync();
+                await fs.FlushAsync();
                 await output.FlushAsync();
 
                 await output.DisposeAsync();
@@ -112,15 +117,20 @@ namespace AAP.Files
             output.Flush();
             fs.Flush();
 
-            fs.Position = 0;
-
-            AppSettings imported = JsonSerializer.Deserialize<AppSettings>(fs)!;
             fs.Dispose();
 
-            using (StreamReader sr = File.OpenText(tempFilePath))
+            using (StreamReader srlog = File.OpenText(tempFilePath))
             {
-                ConsoleLogger.Log(sr.ReadToEnd());
+                ConsoleLogger.Log(srlog.ReadToEnd());
             }
+
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamReader sr = File.OpenText(tempFilePath);
+            JsonTextReader jr = new(sr);
+
+            AppSettings imported = js.Deserialize<AppSettings>(jr)!;
+            jr.CloseInput = true;
+            jr.Close();
 
             File.Delete(tempFilePath);
 
@@ -131,27 +141,33 @@ namespace AAP.Files
         {
             string tempFilePath = Path.GetTempFileName();
 
-            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Decompressing file...", true));
+            taskToken?.ReportProgress(33, new BackgroundTaskProgressArgs("Decompressing art file...", true));
             FileStream fs = File.Create(tempFilePath);
 
             GZipStream output = new(DecodeStream, CompressionMode.Decompress);
             await output.CopyToAsync(fs);
 
+            await output.FlushAsync();
             await fs.FlushAsync();
 
-            await output.DisposeAsync();
-
-            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Deserializing decompressed file...", true));
-
-            fs.Position = 0;
-
-            AppSettings imported = (await JsonSerializer.DeserializeAsync<AppSettings>(fs))!;
             await fs.DisposeAsync();
 
-            using (StreamReader sr = File.OpenText(tempFilePath))
+            using (StreamReader srlog = File.OpenText(tempFilePath))
             {
-                ConsoleLogger.Log(sr.ReadToEnd());
+                ConsoleLogger.Log(srlog.ReadToEnd());
             }
+
+            taskToken?.ReportProgress(66, new BackgroundTaskProgressArgs("Deserializing decompressed art file...", true));
+
+            JsonSerializer js = JsonSerializer.CreateDefault();
+            StreamReader sr = File.OpenText(tempFilePath);
+            JsonTextReader jr = new(sr);
+
+            Task<AppSettings?> deserializeTask = Task.Run(() => js.Deserialize<AppSettings>(jr));
+            AppSettings imported = (await deserializeTask)!;
+
+            jr.CloseInput = true;
+            jr.Close();
 
             taskToken?.ReportProgress(100, new BackgroundTaskProgressArgs("Deleting decompressed path...", true));
 

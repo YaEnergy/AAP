@@ -428,7 +428,6 @@ namespace AAP
             Console.Out.Close();
         }
 
-
         #region Application Events
         private static async void OnAutosaveTimerTick(object? sender)
         {
