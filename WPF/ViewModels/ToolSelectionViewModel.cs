@@ -46,44 +46,44 @@ namespace AAP.UI.ViewModels
         }
 
         #region Language Content
-        private string pencilToolTip = App.Language.GetString("Tool_PencilToolTip");
+        private string pencilToolTip = App.Language.GetString("Tool_PencilTool") + " (Ctrl + Shift + D)";
         public string PencilToolTip => pencilToolTip;
 
-        private string eraserToolTip = App.Language.GetString("Tool_EraserToolTip");
+        private string eraserToolTip = App.Language.GetString("Tool_EraserTool") + " (Ctrl + Shift + E)";
         public string EraserToolTip => eraserToolTip;
 
-        private string selectToolTip = App.Language.GetString("Tool_SelectToolTip");
+        private string selectToolTip = App.Language.GetString("Tool_SelectTool") + " (Ctrl + Shift + W)";
         public string SelectToolTip => selectToolTip;
 
-        private string moveToolTip = App.Language.GetString("Tool_MoveToolTip");
+        private string moveToolTip = App.Language.GetString("Tool_MoveTool") + " (Ctrl + Shift + M)";
         public string MoveToolTip => moveToolTip;
 
-        private string lineToolTip = App.Language.GetString("Tool_LineToolTip");
+        private string lineToolTip = App.Language.GetString("Tool_LineTool") + " (Ctrl + Shift + L)";
         public string LineToolTip => lineToolTip;
 
-        private string bucketToolTip = App.Language.GetString("Tool_BucketToolTip");
+        private string bucketToolTip = App.Language.GetString("Tool_BucketTool") + " (Ctrl + Shift + B)";
         public string BucketToolTip => bucketToolTip;
 
-        private string textToolTip = App.Language.GetString("Tool_TextToolTip");
+        private string textToolTip = App.Language.GetString("Tool_TextTool") + " (Ctrl + Shift + T)";
         public string TextToolTip => textToolTip;
 
-        private string rectangleToolTip = App.Language.GetString("Tool_RectangleToolTip");
+        private string rectangleToolTip = App.Language.GetString("Tool_RectangleTool") + " (Ctrl + Shift + R)";
         public string RectangleToolTip => rectangleToolTip;
 
-        private string ellipseToolTip = App.Language.GetString("Tool_EllipseToolTip");
+        private string ellipseToolTip = App.Language.GetString("Tool_EllipseTool") + " (Ctrl + Shift + G)";
         public string EllipseToolTip => ellipseToolTip;
 
         private void OnLanguageChanged(Language language)
         {
-            pencilToolTip = language.GetString("Tool_PencilToolTip");
-            eraserToolTip = language.GetString("Tool_EraserToolTip");
-            selectToolTip = language.GetString("Tool_SelectToolTip");
-            moveToolTip = language.GetString("Tool_MoveToolTip");
-            lineToolTip = language.GetString("Tool_LineToolTip");
-            bucketToolTip = language.GetString("Tool_BucketToolTip");
-            textToolTip = language.GetString("Tool_TextToolTip");
-            rectangleToolTip = language.GetString("Tool_RectangleToolTip");
-            ellipseToolTip = language.GetString("Tool_EllipseToolTip");
+            pencilToolTip = language.GetString("Tool_PencilTool") + " (Ctrl + Shift + D)";
+            eraserToolTip = language.GetString("Tool_EraserTool") + " (Ctrl + Shift + E)";
+            selectToolTip = language.GetString("Tool_SelectTool") + " (Ctrl + Shift + W)";
+            moveToolTip = language.GetString("Tool_MoveTool") + " (Ctrl + Shift + M)";
+            lineToolTip = language.GetString("Tool_LineTool") + " (Ctrl + Shift + L)";
+            bucketToolTip = language.GetString("Tool_BucketTool") + " (Ctrl + Shift + B)";
+            textToolTip = language.GetString("Tool_TextTool") + " (Ctrl + Shift + T)";
+            rectangleToolTip = language.GetString("Tool_RectangleTool") + " (Ctrl + Shift + R)";
+            ellipseToolTip = language.GetString("Tool_EllipseTool") + " (Ctrl + Shift + G)";
 
             PropertyChanged?.Invoke(this, new(nameof(PencilToolTip)));
             PropertyChanged?.Invoke(this, new(nameof(EraserToolTip)));

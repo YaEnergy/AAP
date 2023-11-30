@@ -86,7 +86,7 @@ namespace AAP.UI.ViewModels
             string affectPropertyContent = App.Language.GetString("Filters_Main_Affect");
             string affectPropertyTooltip = App.Language.GetString("Filters_Main_Affect_Tooltip");
 
-            string mirrorAxisPropertyContent = App.Language.GetString("Filters_Mirror_Axis");
+            string mirrorAxisPropertyContent = App.Language.GetString("Filters_Main_Axis");
             string mirrorAxisPropertyTooltip = App.Language.GetString("Filters_Mirror_Axis_Tooltip");
 
             string affectSelectionOption = App.Language.GetString("Filters_Main_Affect_Selection");
