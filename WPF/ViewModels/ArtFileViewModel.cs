@@ -495,8 +495,6 @@ namespace AAP.UI.ViewModels
             art.SetSize(32, 16);
             art.Version = ASCIIArt.ARTVERSION;
 
-            ConsoleLogger.Log("Version: " + art.Version);
-
             bool? result = ShowASCIIArtDialog(art, App.Language.GetString("Create"));
 
             if (result != true)
