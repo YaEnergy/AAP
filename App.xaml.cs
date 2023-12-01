@@ -399,7 +399,6 @@ namespace AAP
                 ConsoleLogger.Log("Waiting for remaining autosave task to finish execution...");
                 AutosaveBackgroundTaskToken.MainTask?.Wait();
                 ConsoleLogger.Log("Remaining autosave task finished execution");
-                AutosaveBackgroundTaskToken = null;
             }
 
             try
@@ -429,20 +428,8 @@ namespace AAP
         }
 
         #region Application Events
-        private static async void OnAutosaveTimerTick(object? sender)
+        public static async Task AutosaveAsync()
         {
-            if (!Settings.AutosaveFiles)
-                return;
-
-            if (AutosaveBackgroundTaskToken != null)
-            {
-                ConsoleLogger.Log("Still busy autosaving, skipped.");
-                return;
-            }
-
-            BackgroundTaskToken taskToken = new(Language.GetString("Autosave_Busy"));
-            AutosaveBackgroundTaskToken = taskToken;
-
             while (Settings.AutosaveFilePaths.Count > 25)
             {
                 string filePath = Settings.AutosaveFilePaths[0];
@@ -465,9 +452,9 @@ namespace AAP
 
             ConsoleLogger.Log("Autosaving all open files...");
 
-            List<Task> saveTasks = new();
+            List<Task> tasks = new();
 
-            for (int i = 0; i < OpenArtFiles.Count; i++) 
+            for (int i = 0; i < OpenArtFiles.Count; i++)
             {
                 ASCIIArtFile artFile = OpenArtFiles[i];
 
@@ -482,20 +469,38 @@ namespace AAP
                 ConsoleLogger.Log("Autosaving " + artFile.FileName + " to " + finalPath + ext);
 
                 Task saveTask = artFile.ExportAsync(finalPath + ext, null);
-                saveTasks.Add(saveTask);
+                tasks.Add(saveTask);
                 Settings.AutosaveFilePaths.Add(finalPath + ext);
             }
 
             ConsoleLogger.Log("Saving settings...");
             Task saveSettingsTask = SaveSettingsAsync();
-            saveTasks.Add(saveSettingsTask);
+            tasks.Add(saveSettingsTask);
 
-            Task mainSaveTask = Task.WhenAll(saveTasks);
-            taskToken.MainTask = mainSaveTask;
+            await Task.WhenAll(tasks);
+
+            ConsoleLogger.Log("Autosaved all open files + saved settings");
+        }
+
+        private static async void OnAutosaveTimerTick(object? sender)
+        {
+            if (!Settings.AutosaveFiles)
+                return;
+
+            if (AutosaveBackgroundTaskToken != null)
+            {
+                ConsoleLogger.Log("Still busy autosaving, skipped.");
+                return;
+            }
+
+            BackgroundTaskToken taskToken = new(Language.GetString("Autosave_Busy"));
+            Task autosaveTask = AutosaveAsync();
+            taskToken.MainTask = autosaveTask;
+            AutosaveBackgroundTaskToken = taskToken;
 
             try
             {
-                await mainSaveTask;
+                await autosaveTask;
                 ConsoleLogger.Log("Autosaved all open files + saved settings");
                 taskToken.Complete();
             }
