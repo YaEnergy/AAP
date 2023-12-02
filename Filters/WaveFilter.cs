@@ -16,8 +16,6 @@ namespace AAP.Filters
 
         public Axis2D Axis { get; set; } = Axis2D.X;
 
-        public int Strength { get; set; } = 1;
-        public int Speed { get; set; } = 1;
         public int Offset { get; set; } = 0;
 
         /// <summary>
@@ -25,15 +23,11 @@ namespace AAP.Filters
         /// </summary>
         /// <param name="layer">Layer to outline</param>
         /// <param name="axis">The axis to execute the pattern on</param>
-        /// <param name="strength">The max & min height offset of the pattern</param>
-        /// <param name="speed">How fast the pattern goes up and down</param>
         /// <param name="offset">Offset of the pattern</param>
-        public WaveFilter(ArtLayer layer, Axis2D axis, int strength, int speed, int offset)
+        public WaveFilter(ArtLayer layer, Axis2D axis, int offset)
         {
             Layer = layer;
             Axis = axis;
-            Strength = strength;
-            Speed = speed;
             Offset = offset;
         }
 
@@ -42,70 +36,48 @@ namespace AAP.Filters
         /// </summary>
         /// <param name="layer">Layer to outline</param>
         /// <param name="axis">The axis to execute the pattern on</param>
-        /// <param name="strength">The max & min height offset of the pattern</param>
         /// <param name="speed">How fast the pattern goes up and down</param>
-        public WaveFilter(ArtLayer layer, Axis2D axis, int strength, int speed) : this(layer, axis, strength, speed, 0)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a WaveFilter with speed set to 1 and no offset
-        /// </summary>
-        /// <param name="layer">Layer to outline</param>
-        /// <param name="axis">The axis to execute the pattern on</param>
-        /// <param name="strength">The max & min height offset of the pattern</param>
-        public WaveFilter(ArtLayer layer, Axis2D axis, int strength) : this(layer, axis, strength, 1, 0)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a WaveFilter with strength and speed set to 1 and no offset
-        /// </summary>
-        /// <param name="layer">Layer to outline</param>
-        /// <param name="axis">The axis to execute the pattern on</param>
-        public WaveFilter(ArtLayer layer, Axis2D axis): this(layer, axis, 1, 1, 0)
+        public WaveFilter(ArtLayer layer, Axis2D axis) : this(layer, axis, 0)
         {
 
         }
 
         public override void Apply()
         {
-            WaveLayer(Layer, Axis, Strength, Speed, Offset);
+            WaveLayer(Layer, Axis, Offset);
         }
 
-        public static void WaveLayer(ArtLayer layer, Axis2D axis, int strength, int speed, int offset)
+        public static void WaveLayer(ArtLayer layer, Axis2D axis, int offset)
         {
             char?[,] newData;
 
             switch (axis)
             {
                 case Axis2D.X:
-                    newData = new char?[layer.Width + strength * 2, layer.Height];
+                    newData = new char?[layer.Width + 2, layer.Height];
 
                     for (int y = 0; y < layer.Height; y++)
                     {
-                        int waveOffset = (int)Math.Round(Math.Sin(speed * y + offset) * strength);
+                        int waveOffset = (int)Math.Round(Math.Sin(y + offset));
 
                         for (int x = 0; x < layer.Width; x++)
-                            newData[x + waveOffset, y] = layer.GetCharacter(x, y);
+                            newData[x + 1 + waveOffset, y] = layer.GetCharacter(x, y);
                     }
 
-                    layer.OffsetX -= strength;
+                    layer.OffsetX -= 1;
                     break;
                 case Axis2D.Y:
-                    newData = new char?[layer.Width, layer.Height + strength * 2];
+                    newData = new char?[layer.Width, layer.Height + 2];
 
                     for (int x = 0; x < layer.Width; x++)
                     {
-                        int waveOffset = (int)Math.Round(Math.Sin(speed * x + offset) * strength);
+                        int waveOffset = (int)Math.Round(Math.Sin(x + offset));
 
                         for (int y = 0; y < layer.Height; y++)
-                            newData[x, y + waveOffset] = layer.GetCharacter(x, y);
+                            newData[x, y + 1 + waveOffset] = layer.GetCharacter(x, y);
                     }
 
-                    layer.OffsetY -= strength;
+                    layer.OffsetY -= 1;
                     break;
                 default:
                     throw new ArgumentException(null, nameof(axis));

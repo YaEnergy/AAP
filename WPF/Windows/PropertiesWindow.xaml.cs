@@ -144,7 +144,7 @@ namespace AAP.UI.Windows
 
             TextBox textBox = new();
             textBox.Text = value.ToString();
-            textBox.Width = 128;
+            textBox.Width = 64;
             textBox.Height = 22;
 
             textBox.LostFocus += (sender, e) =>
@@ -340,7 +340,7 @@ namespace AAP.UI.Windows
             //ComboBox
             ComboBox comboBox = new();
 
-            foreach (object item in items)
+            foreach (T item in items)
                 comboBox.Items.Add(item);
 
             comboBox.SelectedIndex = index;

@@ -37,6 +37,7 @@ namespace AAP.UI.ViewModels
         }
         public ICommand MirrorFilterCommand { get; set; }
         public ICommand OutlineFilterCommand { get; set; }
+        public ICommand WaveFilterCommand { get; set; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -44,6 +45,7 @@ namespace AAP.UI.ViewModels
         {
             MirrorFilterCommand = new ActionCommand((parameter) => ApplyMirrorFilter());
             OutlineFilterCommand = new ActionCommand((parameter) => ApplyOutlineFilter());
+            WaveFilterCommand = new ActionCommand((parameter) => ApplyWaveFilter());
 
             App.OnLanguageChanged += OnLanguageChanged;
         }
@@ -59,6 +61,9 @@ namespace AAP.UI.ViewModels
         private string outlineFilterContent = App.Language.GetString("Filters_Outline");
         public string OutlineFilterContent => outlineFilterContent;
 
+        private string waveFilterContent = App.Language.GetString("Filters_Wave");
+        public string WaveFilterContent => waveFilterContent;
+
         private string applyFilterContent = App.Language.GetString("Filter_Apply");
         public string ApplyFilterContent => applyFilterContent;
 
@@ -67,12 +72,14 @@ namespace AAP.UI.ViewModels
             filtersMenuContent = language.GetString("FiltersMenu");
             mirrorFilterContent = language.GetString("Filters_Mirror");
             outlineFilterContent = language.GetString("Filters_Outline");
+            waveFilterContent = language.GetString("Filters_Wave");
 
             applyFilterContent = language.GetString("Filter_Apply");
 
             PropertyChanged?.Invoke(this, new(nameof(FiltersMenuContent)));
             PropertyChanged?.Invoke(this, new(nameof(MirrorFilterContent)));
             PropertyChanged?.Invoke(this, new(nameof(OutlineFilterContent)));
+            PropertyChanged?.Invoke(this, new(nameof(WaveFilterContent)));
 
             PropertyChanged?.Invoke(this, new(nameof(ApplyFilterContent)));
         }
@@ -282,6 +289,75 @@ namespace AAP.UI.ViewModels
                 }
                 else if (affectString == affectLayerOption)
                     filter = new OutlineFilter(App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID], character);
+            }
+
+            if (filter == null)
+                return;
+
+            filter.Apply();
+            App.CurrentArtFile.ArtTimeline.NewTimePoint();
+            App.CurrentArtFile.Art.Update();
+        }
+
+        public void ApplyWaveFilter()
+        {
+            if (App.CurrentArtFile == null)
+                return;
+
+            string waveAxisPropertyContent = App.Language.GetString("Filters_Main_Axis");
+            string waveAxisPropertyTooltip = App.Language.GetString("Filters_Wave_Axis_Tooltip");
+
+            string waveStrengthPropertyContent = App.Language.GetString("Filters_Main_Strength");
+            string waveStrengthPropertyTooltip = App.Language.GetString("Filters_Wave_Strength_Tooltip");
+
+            string waveSpeedPropertyContent = App.Language.GetString("Filters_Main_Speed");
+            string waveSpeedPropertyTooltip = App.Language.GetString("Filters_Wave_Speed_Tooltip");
+
+            string waveOffsetPropertyContent = App.Language.GetString("Filters_Main_Offset");
+            string waveOffsetPropertyTooltip = App.Language.GetString("Filters_Wave_Offset_Tooltip");
+
+            string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
+
+            if (App.CurrentLayerID == -1)
+            {
+                MessageBox.Show(App.Language.GetString("Filters_Main_UnavailableMessage"), WaveFilterContent, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Filter? filter = null;
+
+            while (filter == null)
+            {
+                PropertiesWindow artWindow = new(WaveFilterContent, ApplyFilterContent);
+
+                // Property additions
+                artWindow.AddProperty(waveAxisPropertyContent, waveAxisPropertyTooltip, artWindow.CreateComboBoxEnumProperty("WaveAxis", Axis2D.Y));
+
+                artWindow.AddProperty(waveOffsetPropertyContent, waveOffsetPropertyTooltip, artWindow.CreateInputIntProperty("WaveOffset", 0));
+
+                artWindow.AddLabel(App.Language.GetString("Filters_Wave_Description"));
+
+                bool? result = artWindow.ShowDialog();
+
+                if (result != true)
+                    return;
+
+                // Property errors
+
+                if (artWindow.GetProperty("WaveAxis") is not Axis2D axis)
+                {
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, waveAxisPropertyContent), WaveFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                if (artWindow.GetProperty("WaveOffset") is not int offset)
+                {
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, waveOffsetPropertyContent), WaveFilterContent, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
+                // Create Filter
+                filter = new WaveFilter(App.CurrentArtFile.Art.ArtLayers[App.CurrentLayerID], axis, offset);
             }
 
             if (filter == null)

@@ -3,10 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AAP.UI.Windows"
         mc:Ignorable="d"
         Title="ASCII Art Program - {Art Info Text Here}" Height="450" Width="800" WindowState="Maximized"
-    xmlns:System="clr-namespace:System;assembly=System.Runtime" xmlns:aap="clr-namespace:AAP" xmlns:ui="clr-namespace:AAP.UI" xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" xmlns:themes="clr-namespace:AAP.UI.Themes" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}" MinWidth="600" MinHeight="450" AllowDrop="True">
+        xmlns:viewmodels="clr-namespace:AAP.UI.ViewModels" xmlns:controls="clr-namespace:AAP.UI.Controls" d:DataContext="{d:DesignInstance Type=viewmodels:MainWindowViewModel}" MinWidth="600" MinHeight="450" AllowDrop="True">
     <Window.DataContext>
         <viewmodels:MainWindowViewModel x:Name="MainWindowViewModel"/>
     </Window.DataContext>
@@ -88,6 +87,7 @@
                             </MenuItem.DataContext>
                             <MenuItem Header="{Binding MirrorFilterContent}" Command="{Binding MirrorFilterCommand}"/>
                             <MenuItem Header="{Binding OutlineFilterContent}" Command="{Binding OutlineFilterCommand}"/>
+                            <MenuItem Header="{Binding WaveFilterContent}" Command="{Binding WaveFilterCommand}"/>
                         </MenuItem>
                     </Menu>
                 </ToolBar>

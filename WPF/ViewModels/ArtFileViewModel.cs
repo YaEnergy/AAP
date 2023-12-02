@@ -358,9 +358,9 @@ namespace AAP.UI.ViewModels
         /// Displays a Image ASCII Art Import Options Dialog that can update a ImageASCIIArtDecodeOptions object.
         /// </summary>
         /// <returns>The result of the dialog</returns>
-        public static bool? ShowImageASCIIArtImportOptionsDialog(ImageASCIIArtDecodeOptions options)
+        public static bool? ShowImageASCIIArtImportOptionsDialog(string fileName, ImageASCIIArtDecodeOptions options)
         {
-            string dialogTitle = App.Language.GetString("ImageASCIIArtImportOptions");
+            string dialogTitle = App.Language.GetString("ImageASCIIArtImportOptions") + " - " + fileName;
             string importButtonContent = App.Language.GetString("ImportFile");
 
             string invertBrightnessPropertyName = App.Language.GetString("InvertBrightness");
@@ -509,15 +509,24 @@ namespace AAP.UI.ViewModels
             FileInfo fileInfo = new(filePath);
 
             ASCIIArtDecodeOptions? importOptions = null;
-            if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".jpeg" || fileInfo.Extension == ".gif")
+            switch(fileInfo.Extension)
             {
-                ImageASCIIArtDecodeOptions imageImportOptions = new();
-                bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(imageImportOptions);
+                case ".png":
+                case ".bmp":
+                case ".jpg":
+                case ".jpeg":
+                case ".gif":
+                    ImageASCIIArtDecodeOptions imageImportOptions = new();
+                    bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(fileInfo.Name, imageImportOptions);
 
-                if (createdImportOptions != true)
-                    return;
+                    if (createdImportOptions != true)
+                        return;
 
-                importOptions = imageImportOptions;
+                    importOptions = imageImportOptions;
+
+                    break;
+                default:
+                    break;
             }
 
             ASCIIArtFile? artFile = null;
@@ -632,7 +641,7 @@ namespace AAP.UI.ViewModels
             if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".jpeg" || fileInfo.Extension == ".gif")
             {
                 ImageASCIIArtDecodeOptions imageImportOptions = new();
-                bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(imageImportOptions);
+                bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(fileInfo.Name, imageImportOptions);
 
                 if (createdImportOptions != true)
                     return;
