@@ -24,7 +24,6 @@ namespace AAP.UI.Controls
         protected readonly List<int> changedColumns = new();
 
         private double[] columnWidths = new double[1];
-        private string[] columnStrings = new string[1];
 
         #region Viewer Display Properties
         private Point ArtOffset = new(8, 8);
@@ -413,6 +412,41 @@ namespace AAP.UI.Controls
             }
         }
 
+        protected void DrawDisplayArtColumn(DrawingVisual visual, int x)
+        {
+            if (DisplayArt == null)
+                throw new InvalidOperationException("DisplayArt is null!");
+
+#if DEBUG
+            Stopwatch stopwatch = new();
+            stopwatch.Start();
+#endif
+
+            CultureInfo cultureInfo = CultureInfo.InvariantCulture;
+
+            DrawingContext dc = visual.RenderOpen();
+
+            string columnString = "";
+            for (int y = 0; y < DisplayArt.Height; y++)
+                columnString += GetDisplayArtCharacter(x, y) + "\n";
+
+            FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
+            charText.LineHeight = LineHeight;
+            dc.DrawText(charText, new(0, 0));
+
+            if (!string.IsNullOrWhiteSpace(columnString))
+                columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
+            else
+                columnWidths[x] = DefaultColumnWidth;
+
+            dc.Close();
+
+#if DEBUG
+            stopwatch.Stop();
+            ConsoleLogger.Inform($"Drew column {x + 1}! ({stopwatch.ElapsedMilliseconds} ms)");
+#endif
+        }
+
         /// <summary>
         /// Draws Display Art, updating the viewer if there any neccessary changes
         /// </summary>
@@ -450,35 +484,14 @@ namespace AAP.UI.Controls
                 }
 
                 double offsetX = ArtOffset.X;
-                double defaultWidth = DefaultColumnWidth;
 
                 for (int x = 0; x < DisplayArt.Width; x++)
                 {
                     DrawingVisual columnVisual = displayArtVisuals[x];
-
-                    DrawingContext dc = columnVisual.RenderOpen();
-
-                    string columnString = "";
-                    for (int y = 0; y < DisplayArt.Height; y++)
-                        columnString += GetDisplayArtCharacter(x, y) + "\n";
-
-                    FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, Text, 1);
-                    charText.LineHeight = LineHeight;
-                    dc.DrawText(charText, new(0, 0));
-
-                    if (!string.IsNullOrWhiteSpace(columnString))
-                        columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
-                    else
-                        columnWidths[x] = defaultWidth;
+                    DrawDisplayArtColumn(columnVisual, x);
 
                     columnVisual.Offset = new(offsetX, ArtOffset.Y);
                     offsetX += columnWidths[x];
-
-                    dc.Close();
-
-                    BitmapCacheBrush bitmapCache = new(columnVisual);
-
-                    columnVisual.CacheMode = bitmapCache.BitmapCache;
                 }
 
                 UpdateBackground();
@@ -495,8 +508,6 @@ namespace AAP.UI.Controls
         /// </summary>
         protected virtual void UpdateDisplayArt()
         {
-            CultureInfo cultureInfo = CultureInfo.InvariantCulture;
-
             if (DisplayArt == null)
                 throw new NullReferenceException(nameof(DisplayArt));
 
@@ -506,31 +517,19 @@ namespace AAP.UI.Controls
             Stopwatch stopwatch = new();
             stopwatch.Start();
 
-            Brush TextBrush = (Brush)Text.GetCurrentValueAsFrozen();
-
             int lowestColumnNumWidthChanged = -1;
             foreach (int x in changedColumns)
             {
+                double oldColumnWidth = columnWidths[x];
+
                 DrawingVisual columnVisual = displayArtVisuals[x];
-                DrawingContext dc = columnVisual.RenderOpen();
+                DrawDisplayArtColumn(columnVisual, x);
 
-                string columnString = "";
-                for (int y = 0; y < DisplayArt.Height; y++)
-                    columnString += GetDisplayArtCharacter(x, y) + "\n";
-
-                FormattedText charText = new(columnString, cultureInfo, FlowDirection, ArtFont, TextSize, TextBrush, 1);
-                charText.LineHeight = LineHeight;
-                dc.DrawText(charText, new(0, 0));
-
-                if (columnWidths[x] != charText.WidthIncludingTrailingWhitespace)
+                if (columnWidths[x] != oldColumnWidth)
                 {
-                    columnWidths[x] = charText.WidthIncludingTrailingWhitespace;
-
                     if (lowestColumnNumWidthChanged > x || lowestColumnNumWidthChanged == -1)
                         lowestColumnNumWidthChanged = x;
                 }
-
-                dc.Close();
             }
 
             if (lowestColumnNumWidthChanged != -1) //Update background and art column visual offsets if a column width has changed
