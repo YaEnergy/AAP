@@ -177,18 +177,7 @@ namespace AAP
         public delegate void OnLanguageChangedEvent(Language language);
         public static event OnLanguageChangedEvent? OnLanguageChanged;
 
-        private static BackgroundTaskToken? autosaveBackgroundTaskToken = null;
-        public static BackgroundTaskToken? AutosaveBackgroundTaskToken
-        {
-            get => autosaveBackgroundTaskToken;
-            set
-            {
-                if (autosaveBackgroundTaskToken == value)
-                    return;
-
-                autosaveBackgroundTaskToken = value;
-            }
-        }
+        private static Task? AutosaveTask { get; set; } = null;
 
         public App()
         {
@@ -394,11 +383,14 @@ namespace AAP
 
             AutosaveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
-            if (AutosaveBackgroundTaskToken != null)
+            if (AutosaveTask != null)
             {
                 ConsoleLogger.Log("Waiting for remaining autosave task to finish execution...");
-                AutosaveBackgroundTaskToken.MainTask?.Wait();
+                bool success = AutosaveTask.Wait(10000);
                 ConsoleLogger.Log("Remaining autosave task finished execution");
+
+                if (!success)
+                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_UnfinishedQuit")), Language.GetString("Autosave"));
             }
 
             try
@@ -487,31 +479,27 @@ namespace AAP
             if (!Settings.AutosaveFiles)
                 return;
 
-            if (AutosaveBackgroundTaskToken != null)
+            if (AutosaveTask != null)
             {
                 ConsoleLogger.Log("Still busy autosaving, skipped.");
                 return;
             }
 
-            BackgroundTaskToken taskToken = new(Language.GetString("Autosave_Busy"));
             Task autosaveTask = AutosaveAsync();
-            taskToken.MainTask = autosaveTask;
-            AutosaveBackgroundTaskToken = taskToken;
+            AutosaveTask = autosaveTask;
 
             try
             {
                 await autosaveTask;
                 ConsoleLogger.Log("Autosaved all open files + saved settings");
-                taskToken.Complete();
             }
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
                 MessageBox.Show(string.Format(Language.GetString("Error_Autosave_FileSaving"), ex.Message), Language.GetString("Autosave"));
-                taskToken.Complete(ex);
             }
 
-            AutosaveBackgroundTaskToken = null;
+            AutosaveTask = null;
         }
 
         private static void OnApplicationExit(object? sender, ExitEventArgs e)

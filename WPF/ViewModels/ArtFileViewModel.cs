@@ -509,12 +509,13 @@ namespace AAP.UI.ViewModels
             FileInfo fileInfo = new(filePath);
 
             ASCIIArtDecodeOptions? importOptions = null;
-            switch(fileInfo.Extension)
+            switch(fileInfo.Extension.ToLower())
             {
                 case ".png":
                 case ".bmp":
                 case ".jpg":
                 case ".jpeg":
+                case ".jfif":
                 case ".gif":
                     ImageASCIIArtDecodeOptions imageImportOptions = new();
                     bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(fileInfo.Name, imageImportOptions);
@@ -592,7 +593,7 @@ namespace AAP.UI.ViewModels
             OpenFileDialog openFileDialog = new()
             {
                 Title = OpenFileContent,
-                Filter = App.Language.GetString("SupportedFiles") + " (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
+                Filter = App.Language.GetString("SupportedFiles") + " (*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif)|*.aaf;*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif|ASCII Art Files (*.aaf)|*.aaf|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -622,7 +623,7 @@ namespace AAP.UI.ViewModels
             OpenFileDialog openFileDialog = new()
             {
                 Title = ImportLayerContent,
-                Filter = App.Language.GetString("SupportedFiles") + " (*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.gif|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.gif",
+                Filter = App.Language.GetString("SupportedFiles") + " (*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif)|*.txt;*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif|Text Files (*.txt)|*.txt|Image Files (*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif)|*.png;*.bmp;*.jpg;*.jpeg;*.jfif;*.gif",
                 Multiselect = false,
                 CheckFileExists = true,
                 CheckPathExists = true,
@@ -638,15 +639,25 @@ namespace AAP.UI.ViewModels
             FileInfo fileInfo = new(openFileDialog.FileName);
 
             ASCIIArtDecodeOptions? importOptions = null;
-            if (fileInfo.Extension == ".png" || fileInfo.Extension == ".bmp" || fileInfo.Extension == ".jpg" || fileInfo.Extension == ".jpeg" || fileInfo.Extension == ".gif")
+            switch (fileInfo.Extension)
             {
-                ImageASCIIArtDecodeOptions imageImportOptions = new();
-                bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(fileInfo.Name, imageImportOptions);
+                case ".png":
+                case ".bmp":
+                case ".jpg":
+                case ".jpeg":
+                case ".jfif":
+                case ".gif":
+                    ImageASCIIArtDecodeOptions imageImportOptions = new();
+                    bool? createdImportOptions = ShowImageASCIIArtImportOptionsDialog(fileInfo.Name, imageImportOptions);
 
-                if (createdImportOptions != true)
-                    return;
+                    if (createdImportOptions != true)
+                        return;
 
-                importOptions = imageImportOptions;
+                    importOptions = imageImportOptions;
+
+                    break;
+                default:
+                    break;
             }
 
             try
@@ -808,15 +819,25 @@ namespace AAP.UI.ViewModels
 
             ASCIIArtEncodeOptions? exportOptions = null;
             string extension = Path.GetExtension(savePath).ToLower();
-            if (extension == ".png" || extension == ".bmp" || extension == ".jpg" || extension == ".gif")
+            switch (extension)
             {
-                ImageASCIIArtEncodeOptions imageExportOptions = new();
-                bool? createdExportOptions = ShowImageASCIIArtExportOptionsDialog(imageExportOptions);
+                case ".png":
+                case ".bmp":
+                case ".jpg":
+                case ".jpeg":
+                case ".jfif":
+                case ".gif":
+                    ImageASCIIArtEncodeOptions imageExportOptions = new();
+                    bool? createdExportOptions = ShowImageASCIIArtExportOptionsDialog(imageExportOptions);
 
-                if (createdExportOptions != true)
-                    return;
+                    if (createdExportOptions != true)
+                        return;
 
-                exportOptions = imageExportOptions;
+                    exportOptions = imageExportOptions;
+
+                    break;
+                default:
+                    break;
             }
 
             try

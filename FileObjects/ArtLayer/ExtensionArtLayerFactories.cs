@@ -27,6 +27,8 @@ namespace AAP.Files
                 ".bmp" => new BitmapArtLayerDecoder(new(), stream),
                 ".png" => new PngArtLayerDecoder(new(), stream) ,
                 ".jpg" => new JpegArtLayerDecoder(new(), stream),
+                ".jpeg" => new JpegArtLayerDecoder(new(), stream),
+                ".jfif" => new JpegArtLayerDecoder(new(), stream),
                 _ => throw new Exception($"No ArtLayer decoder exists for extension {ext}!"),
             };
         }
@@ -47,6 +49,8 @@ namespace AAP.Files
                 ".bmp" => new BitmapArtLayerDecoder(new(), stream),
                 ".png" => new PngArtLayerDecoder(new(), stream),
                 ".jpg" => new JpegArtLayerDecoder(new(), stream),
+                ".jpeg" => new JpegArtLayerDecoder(new(), stream),
+                ".jfif" => new JpegArtLayerDecoder(new(), stream),
                 _ => throw new Exception($"No ArtLayer decoder exists for extension {ext}!"),
             };
         }

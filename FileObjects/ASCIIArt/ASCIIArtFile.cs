@@ -136,6 +136,7 @@ namespace AAP
                     break;
                 case ".jpeg":
                 case ".jpg":
+                case ".jfif":
                     if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
                         throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
 
@@ -207,6 +208,7 @@ namespace AAP
                     break;
                 case ".jpeg":
                 case ".jpg":
+                case ".jfif":
                     if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
                         throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
 
@@ -247,6 +249,7 @@ namespace AAP
 
             ConsoleLogger.Log("Save File: Saving art file to " + SavePath);
 
+            Art.Version = ASCIIArt.ARTVERSION;
             FileStream stream = File.Create(SavePath);
             AAFASCIIArtEncoder aafASCIIArt = new(Art, stream);
 
@@ -265,6 +268,7 @@ namespace AAP
 
             ConsoleLogger.Log("Save File: Saving art file to " + SavePath);
 
+            Art.Version = ASCIIArt.ARTVERSION;
             FileStream stream = File.Create(SavePath);
             AAFASCIIArtEncoder aafASCIIArt = new(Art, stream);
 
@@ -388,6 +392,7 @@ namespace AAP
                     break;
                 case ".jpeg":
                 case ".jpg":
+                case ".jfif":
                     if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
                         throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
 
@@ -450,6 +455,7 @@ namespace AAP
                     break;
                 case ".jpeg":
                 case ".jpg":
+                case ".jfif":
                     if (importOptions is not ImageASCIIArtDecodeOptions jpegImportOptions)
                         throw new Exception("Import Options is not ImageASCIIArtDecodeOptions!");
 

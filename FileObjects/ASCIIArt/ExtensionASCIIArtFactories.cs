@@ -28,6 +28,8 @@ namespace AAP.Files
                 ".bmp" => new BitmapASCIIArtEncoder(art, stream) { EncodeOptions = new() },
                 ".png" => new PngASCIIArtEncoder(art, stream) { EncodeOptions = new() },
                 ".jpg" => new JpegASCIIArtEncoder(art, stream) { EncodeOptions = new() },
+                ".jpeg" => new JpegASCIIArtEncoder(art, stream) { EncodeOptions = new() },
+                ".jfif" => new JpegASCIIArtEncoder(art, stream) { EncodeOptions = new() },
                 ".gif" => new GifASCIIArtEncoder(art, stream) { EncodeOptions = new() },
                 _ => throw new Exception($"No ASCII Art encoder exists for extension {ext}!"),
             };
@@ -50,6 +52,8 @@ namespace AAP.Files
                 ".bmp" => new BitmapASCIIArtEncoder(art, stream) { EncodeOptions = encodeOptions },
                 ".png" => new PngASCIIArtEncoder(art, stream) { EncodeOptions = encodeOptions },
                 ".jpg" => new JpegASCIIArtEncoder(art, stream) { EncodeOptions = encodeOptions },
+                ".jpeg" => new JpegASCIIArtEncoder(art, stream) { EncodeOptions = encodeOptions },
+                ".jfif" => new JpegASCIIArtEncoder(art, stream) { EncodeOptions = encodeOptions },
                 ".gif" => new GifASCIIArtEncoder(art, stream) { EncodeOptions = encodeOptions },
                 _ => throw new Exception($"No ASCII Art encoder exists for extension {ext}!"),
             };
@@ -74,6 +78,8 @@ namespace AAP.Files
                 ".bmp" => new BitmapASCIIArtDecoder(new(), stream),
                 ".png" => new PngASCIIArtDecoder(new(), stream) ,
                 ".jpg" => new JpegASCIIArtDecoder(new(), stream),
+                ".jpeg" => new JpegASCIIArtDecoder(new(), stream),
+                ".jfif" => new JpegASCIIArtDecoder(new(), stream),
                 ".gif" => new GifASCIIArtDecoder(new(), stream),
                 _ => throw new Exception($"No ASCII Art decoder exists for extension {ext}!"),
             };
@@ -84,7 +90,6 @@ namespace AAP.Files
         /// </summary>
         /// <param name="ext"></param>
         /// <param name="stream"></param>
-        /// <param name="imageLayerConverter"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         public static FileObjectDecoder<ASCIIArt> New(string ext, Stream stream, ImageASCIIArtDecodeOptions decodeOptions)
@@ -96,6 +101,8 @@ namespace AAP.Files
                 ".bmp" => new BitmapASCIIArtDecoder(decodeOptions, stream),
                 ".png" => new PngASCIIArtDecoder(decodeOptions, stream),
                 ".jpg" => new JpegASCIIArtDecoder(decodeOptions, stream),
+                ".jpeg" => new JpegASCIIArtDecoder(decodeOptions, stream),
+                ".jfif" => new JpegASCIIArtDecoder(decodeOptions, stream),
                 ".gif" => new GifASCIIArtDecoder(decodeOptions, stream),
                 _ => throw new Exception($"No ASCII Art decoder exists for extension {ext}!"),
             };
