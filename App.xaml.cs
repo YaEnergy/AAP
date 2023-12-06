@@ -381,20 +381,6 @@ namespace AAP
 
             GC.Collect();
 
-            //For testing
-            for (int i = 0; i < 100; i++)
-            {
-                ASCIIArt art = new();
-                art.SetSize(100, 100);
-                art.Version = ASCIIArt.ARTVERSION;
-                art.ArtLayers.Add(new("Test" + i, 100, 100, 0, 0));
-
-                ASCIIArtFile file = new(art);
-                file.UnsavedChanges = true;
-
-                OpenArtFiles.Add(file);
-            }   
-
             app.Run();
 
             //See OnApplicationExit()
