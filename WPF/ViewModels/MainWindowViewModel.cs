@@ -105,7 +105,7 @@ namespace AAP.UI.ViewModels
         {
             OpenAboutCommand = new ActionCommand((parameter) => OpenAboutWindow());
             OpenSettingsCommand = new ActionCommand((parameter) => OpenSettingsWindow());
-            ExitCommand = new ActionCommand((parameter) => Application.Current.Shutdown());
+            ExitCommand = new ActionCommand((parameter) => Application.Current.MainWindow.Close());
 
             App.Settings.PropertyChanged += Settings_PropertyChanged;
             App.OnLanguageChanged += OnLanguageChanged;
