@@ -177,7 +177,7 @@ namespace AAP
         public delegate void OnLanguageChangedEvent(Language language);
         public static event OnLanguageChangedEvent? OnLanguageChanged;
 
-        private static Task? AutosaveTask { get; set; } = null;
+        public static Task? AutosaveTask { get; set; } = null;
 
         public App()
         {
@@ -257,6 +257,7 @@ namespace AAP
                     ConsoleLogger.Log("Default language name: " + defaultLanguageName);
                 }
 
+                bool languageGetStreamSuccess = true;
                 Stream languageStream;
                 try
                 {
@@ -264,16 +265,19 @@ namespace AAP
                 }
                 catch (Exception ex)
                 {
-                    Settings.LanguageName = "English";
+                    Settings.LanguageName = AppSettings.GetDefaultLanguageName();
                     languageStream = GetResourceStream(new($"/Resources/Languages/{Settings.LanguageName}.json", UriKind.Relative)).Stream;
+                    languageGetStreamSuccess = false;
 
                     ConsoleLogger.Error(ex);
-                    MessageBox.Show("Failed to get language resource! Defaulted to English!\nException message: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 
                 Language = Language.Decode(languageStream);
 
                 languageStream.Dispose();
+
+                if (!languageGetStreamSuccess)
+                    MessageBox.Show(string.Format(Language.GetString("Language_GetStreamError"), Settings.LanguageName), Language.GetString("Settings_Language"), MessageBoxButton.OK, MessageBoxImage.Error);
 
                 if (!mutex.WaitOne(0, false)) //If another instance is already running, quit
                 {
@@ -377,54 +381,31 @@ namespace AAP
 
             GC.Collect();
 
+            //For testing
+            for (int i = 0; i < 100; i++)
+            {
+                ASCIIArt art = new();
+                art.SetSize(100, 100);
+                art.Version = ASCIIArt.ARTVERSION;
+                art.ArtLayers.Add(new("Test" + i, 100, 100, 0, 0));
+
+                ASCIIArtFile file = new(art);
+                file.UnsavedChanges = true;
+
+                OpenArtFiles.Add(file);
+            }   
+
             app.Run();
 
-            //After exit
-
-            AutosaveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
-
-            if (AutosaveTask != null)
-            {
-                ConsoleLogger.Log("Waiting for remaining autosave task to finish execution...");
-                bool success = AutosaveTask.Wait(10000);
-                ConsoleLogger.Log("Remaining autosave task finished execution");
-
-                if (!success)
-                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_UnfinishedQuit")), Language.GetString("Autosave"));
-            }
-
-            try
-            {
-                ConsoleLogger.Log("Saving settings... (application exit)");
-                SaveSettings();
-            }
-            catch (Exception ex)
-            {
-                ConsoleLogger.Error(ex);
-
-                MessageBoxResult result = MessageBox.Show(string.Format(Language.GetString("Application_Exit_SettingsSaveErrorMessage"), ex.Message), ProgramTitle, MessageBoxButton.YesNo, MessageBoxImage.Error);
-
-                if (result == MessageBoxResult.Yes)
-                    Process.Start("explorer.exe", ApplicationDataFolderPath + @"\log.txt");
-            }
-
-            ConsoleLogger.LogFileOut?.Flush();
-            ConsoleLogger.LogFileError?.Flush();
-
-            ConsoleLogger.LogFileOut?.Close();
-            ConsoleLogger.LogFileError?.Close();
-
-            ConsoleLogger.LogFileOut?.Dispose();
-            ConsoleLogger.LogFileError?.Dispose();
-            Console.Out.Close();
+            //See OnApplicationExit()
         }
 
         #region Application Events
-        public static async Task AutosaveAsync()
+        public static void Autosave()
         {
             while (Settings.AutosaveFilePaths.Count > 25)
             {
-                string filePath = Settings.AutosaveFilePaths[0];
+                string filePath = $@"{AutoSaveDirectoryPath}\{Settings.AutosaveFilePaths[0]}";
                 Settings.AutosaveFilePaths.RemoveAt(0);
 
                 if (!File.Exists(filePath))
@@ -439,7 +420,7 @@ namespace AAP
             }
 
             DateTime dateTime = DateTime.Now;
-            string autosaveFilePath = AutoSaveDirectoryPath + $@"\Autosave_{dateTime.Day}-{dateTime.Month}-{dateTime.Year}_{dateTime.Hour}-{dateTime.Minute}-{dateTime.Second}";
+            string autosaveFileNameFormat = $"Autosave_{dateTime.Day}-{dateTime.Month}-{dateTime.Year}_{dateTime.Hour}-{dateTime.Minute}-{dateTime.Second}";
             string ext = ".aaf";
 
             ConsoleLogger.Log("Autosaving all open files...");
@@ -456,21 +437,23 @@ namespace AAP
                     continue;
                 }
 
-                string finalPath = i == 0 ? autosaveFilePath : autosaveFilePath + "+" + i;
+                string fileName = autosaveFileNameFormat;
 
-                ConsoleLogger.Log("Autosaving " + artFile.FileName + " to " + finalPath + ext);
+                if (i != 0)
+                    fileName += "+" + i.ToString();
 
-                Task saveTask = artFile.ExportAsync(finalPath + ext, null);
-                tasks.Add(saveTask);
-                Settings.AutosaveFilePaths.Add(finalPath + ext);
+                fileName += ext;
+
+                string finalPath = $@"{AutoSaveDirectoryPath}\{fileName}";
+
+                ConsoleLogger.Log("Autosaving " + artFile.FileName + " to " + finalPath);
+
+                artFile.Export(finalPath, null);
+                Settings.AutosaveFilePaths.Add(fileName);
             }
 
             ConsoleLogger.Log("Saving settings...");
-            Task saveSettingsTask = SaveSettingsAsync();
-            tasks.Add(saveSettingsTask);
-
-            await Task.WhenAll(tasks);
-
+            SaveSettings();
             ConsoleLogger.Log("Autosaved all open files + saved settings");
         }
 
@@ -485,13 +468,16 @@ namespace AAP
                 return;
             }
 
-            Task autosaveTask = AutosaveAsync();
-            AutosaveTask = autosaveTask;
+            //This is neccessary because if not, AutosaveTask won't be set to the actual autosave task for some reason, 
+            //causing issues if the program is closed during the task.
+            Task task = new(Autosave);
+            AutosaveTask = task;
+            ConsoleLogger.Log("Set AutosaveTask!");
+            task.Start();
 
             try
             {
-                await autosaveTask;
-                ConsoleLogger.Log("Autosaved all open files + saved settings");
+                await task;
             }
             catch (Exception ex)
             {
@@ -500,13 +486,38 @@ namespace AAP
             }
 
             AutosaveTask = null;
+            ConsoleLogger.Log("Set AutosaveTask to null.");
         }
 
         private static void OnApplicationExit(object? sender, ExitEventArgs e)
         {
             ConsoleLogger.Log("\n--APPLICATION EXIT--\n");
 
+            AutosaveTimer.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+
+            if (AutosaveTask != null)
+            {
+                ConsoleLogger.Log("Waiting for remaining autosave task to finish execution...");
+                bool success = AutosaveTask.Wait(30000);
+                ConsoleLogger.Log("Remaining autosave task finished execution");
+
+                if (!success)
+                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_UnfinishedQuit")), Language.GetString("Autosave"));
+            }
+            else
+                ConsoleLogger.Log("No autosave task to wait for!");
+
             ConsoleLogger.Log("Application exited with code {0}", e.ApplicationExitCode);
+
+            ConsoleLogger.LogFileOut?.Flush();
+            ConsoleLogger.LogFileError?.Flush();
+
+            ConsoleLogger.LogFileOut?.Close();
+            ConsoleLogger.LogFileError?.Close();
+
+            ConsoleLogger.LogFileOut?.Dispose();
+            ConsoleLogger.LogFileError?.Dispose();
+            Console.Out.Close();
         }
 
         private static void OnThreadException(object? sender, DispatcherUnhandledExceptionEventArgs e)
