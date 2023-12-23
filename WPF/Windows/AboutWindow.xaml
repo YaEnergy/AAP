@@ -26,10 +26,6 @@
                 <Label Content="{Binding TranslationSectionContent}"/>
                 <Label Content="{Binding TranslationCreditsContent}" HorizontalAlignment="Right" DockPanel.Dock="Right"/>
             </DockPanel>
-            <DockPanel>
-                <Label Content="{Binding TestersSectionContent}"/>
-                <Label Content="{Binding TestersCreditsContent}" HorizontalAlignment="Right" DockPanel.Dock="Right"/>
-            </DockPanel>
         </StackPanel>
     </DockPanel>
 </Window>

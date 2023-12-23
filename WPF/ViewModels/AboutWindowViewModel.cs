@@ -42,12 +42,6 @@ namespace AAP.UI.ViewModels
         private string developedByCreditsContent = App.Language.GetString("Credits_DevelopedBy");
         public string DevelopedByCreditsContent => developedByCreditsContent;
 
-        private string testersSectionContent = App.Language.GetString("Credits_Section_Testers");
-        public string TestersSectionContent => testersSectionContent;
-
-        private string testersCreditsContent = App.Language.GetString("Credits_Testers");
-        public string TestersCreditsContent => testersCreditsContent;
-
         private void OnLanguageChanged(Language language)
         {
             programTitleContent = App.Language.GetString("ProgramTitle");
@@ -57,8 +51,6 @@ namespace AAP.UI.ViewModels
             translationCreditsContent = App.Language.GetString("Credits_Translation");
             developedBySectionContent = App.Language.GetString("Credits_Section_DevelopedBy");
             developedByCreditsContent = App.Language.GetString("Credits_DevelopedBy");
-            testersSectionContent = App.Language.GetString("Credits_Section_Testers");
-            testersCreditsContent = App.Language.GetString("Credits_Testers");
 
             PropertyChanged?.Invoke(this, new(nameof(ProgramTitleContent)));
             PropertyChanged?.Invoke(this, new(nameof(AboutContent)));
@@ -67,8 +59,6 @@ namespace AAP.UI.ViewModels
             PropertyChanged?.Invoke(this, new(nameof(TranslationCreditsContent)));
             PropertyChanged?.Invoke(this, new(nameof(DevelopedBySectionContent)));
             PropertyChanged?.Invoke(this, new(nameof(DevelopedByCreditsContent)));
-            PropertyChanged?.Invoke(this, new(nameof(TestersSectionContent)));
-            PropertyChanged?.Invoke(this, new(nameof(TestersCreditsContent)));
         }
         #endregion
     }
