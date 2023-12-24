@@ -33,7 +33,7 @@ namespace AAP.Files
             int width = pixels.GetLength(0);
             int height = pixels.GetLength(1);
 
-            ArtLayer layer = new("Imported Layer", width, height);
+            ArtLayer layer = new(App.Language.GetString("Default_Layer_Imported"), width, height);
 
             for (int artX = 0; artX < width; artX++)
             {

@@ -163,6 +163,7 @@
   "Default_Palettes_New": "Nieuw palet",
   "Default_Layers_Background": "Achtergrond",
   "Default_Layers_NewLayer": "Nieuwe laag",
+  "Default_Layer_Imported": "Geïmporteerde laag",
   "Default_Layers_CloneFormat": "{0} kopie",
   "Error_DefaultInvalidPropertyMessage": "Ongeldig(e) {0}!",
   "PresetPalette_Alphabet": "Alfabet",
@@ -187,4 +188,4 @@
   "Tool_RectangleTool": "Rechthoek",
   "Tool_EllipseTool": "Ovaal",
   "SupportedFiles": "Ondersteunde bestandstypen"
-}
+} 

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ViewModels="clr-namespace:AAP.UI.ViewModels"
         mc:Ignorable="d"
-        Title="Object Properties" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="350" MaxHeight="1200">
+        Title="Object Properties" ResizeMode="NoResize" SizeToContent="WidthAndHeight" MinWidth="250" MinHeight="150" MaxWidth="800" MaxHeight="1200">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

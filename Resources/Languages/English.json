@@ -163,6 +163,7 @@
   "Default_Palettes_New": "New palette",
   "Default_Layers_Background": "Background",
   "Default_Layers_NewLayer": "New layer",
+  "Default_Layer_Imported": "Imported layer",
   "Default_Layers_CloneFormat": "{0} copy",
   "Error_DefaultInvalidPropertyMessage": "Invalid {0}!",
   "PresetPalette_Alphabet": "Alphabet",

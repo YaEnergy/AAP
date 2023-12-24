@@ -163,6 +163,7 @@
   "Default_Palettes_New": "Nueva paleta",
   "Default_Layers_Background": "Fondo",
   "Default_Layers_NewLayer": "Nueva capa",
+  "Default_Layer_Imported": "Capa importada",
   "Default_Layers_CloneFormat": "{0} copia",
   "Error_DefaultInvalidPropertyMessage": "¡Inválido {0}!",
   "PresetPalette_Alphabet": "Alfabeto",
