@@ -468,7 +468,7 @@ namespace AAP
             catch (Exception ex)
             {
                 ConsoleLogger.Error(ex);
-                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_FileSaving"), ex.Message), Language.GetString("Autosave"));
+                MessageBox.Show(string.Format(Language.GetString("Error_Autosave_FileSaving"), ex.Message), Language.GetString("Autosave"), MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
             AutosaveTask = null;
@@ -488,7 +488,7 @@ namespace AAP
                 ConsoleLogger.Log("Remaining autosave task finished execution");
 
                 if (!success)
-                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_UnfinishedQuit")), Language.GetString("Autosave"));
+                    MessageBox.Show(string.Format(Language.GetString("Error_Autosave_UnfinishedQuit")), Language.GetString("Autosave"), MessageBoxButton.OK, MessageBoxImage.Warning);
             }
             else
                 ConsoleLogger.Log("No autosave task to wait for!");
