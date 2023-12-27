@@ -12,13 +12,25 @@
             <viewmodels:ColorPickerViewModel x:Name="ControlViewModel"/>
         </DockPanel.DataContext>
         <Rectangle Fill="{Binding ColorBrush}" Stroke="LightGray" Width="45" Margin="5,5,5,5"/>
-        <Label Content="R" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Width="30" Margin="5,5,5,5" Text="{Binding RedText}"/>
-        <Label Content="G" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Width="30" Margin="5,5,5,5" Text="{Binding GreenText}"/>
-        <Label Content="B" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox Width="30" Margin="5,5,5,5" Text="{Binding BlueText}"/>
-        <Label Content="Hex" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-        <TextBox MaxWidth="120" MinWidth="30" Margin="5,5,5,5" Text="{Binding HexText}"/>
+        <DockPanel>
+            <Label Content="A" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <TextBox Width="30" Margin="5,5,5,5" Text="{Binding AlphaText}"/>
+        </DockPanel>
+        <DockPanel>
+            <Label Content="R" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <TextBox Width="30" Margin="5,5,5,5" Text="{Binding RedText}"/>
+        </DockPanel>
+        <DockPanel>
+            <Label Content="G" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <TextBox Width="30" Margin="5,5,5,5" Text="{Binding GreenText}"/>
+        </DockPanel>
+        <DockPanel>
+            <Label Content="B" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <TextBox Width="30" Margin="5,5,5,5" Text="{Binding BlueText}"/>
+        </DockPanel>
+        <DockPanel>
+            <Label Content="Hex" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+            <TextBox MinWidth="30" MaxWidth="120" Margin="5,5,5,5" Text="{Binding HexText}"/>
+        </DockPanel>
     </DockPanel>
 </UserControl>

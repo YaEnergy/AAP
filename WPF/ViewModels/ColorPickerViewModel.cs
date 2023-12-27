@@ -27,13 +27,15 @@ namespace AAP.UI.ViewModels
                 pickedColor = value;
 
                 ColorBrush = new SolidColorBrush(PickedColor);
+                alphaText = value.A.ToString();
+                PropertyChanged?.Invoke(this, new(nameof(AlphaText)));
                 redText = value.R.ToString();
                 PropertyChanged?.Invoke(this, new(nameof(RedText)));
                 greenText = value.G.ToString();
                 PropertyChanged?.Invoke(this, new(nameof(GreenText)));
                 blueText = value.B.ToString();
                 PropertyChanged?.Invoke(this, new(nameof(BlueText)));
-                hexText = "#" + ToHex(value.R, 2) + ToHex(value.G, 2) + ToHex(value.B, 2);
+                hexText = "#" + ToHex(value.A, 2) + ToHex(value.R, 2) + ToHex(value.G, 2) + ToHex(value.B, 2);
                 PropertyChanged?.Invoke(this, new(nameof(HexText)));
 
                 PropertyChanged?.Invoke(this, new(nameof(PickedColor)));
@@ -55,6 +57,30 @@ namespace AAP.UI.ViewModels
             }
         }
 
+        private string alphaText;
+        public string AlphaText
+        {
+            get => alphaText;
+            set
+            {
+                if (alphaText == value)
+                    return;
+
+                try
+                {
+                    PickedColor = Color.FromArgb(byte.Parse(value), byte.Parse(RedText), byte.Parse(GreenText), byte.Parse(BlueText));
+
+                    alphaText = value;
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show(InvalidColorMessage, ColorPickerName, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                PropertyChanged?.Invoke(this, new(nameof(AlphaText)));
+            }
+        }
+
         private string redText;
         public string RedText
         {
@@ -66,7 +92,7 @@ namespace AAP.UI.ViewModels
                 
                 try
                 {
-                    PickedColor = Color.FromRgb(byte.Parse(value), byte.Parse(GreenText), byte.Parse(BlueText));
+                    PickedColor = Color.FromArgb(byte.Parse(AlphaText), byte.Parse(value), byte.Parse(GreenText), byte.Parse(BlueText));
 
                     redText = value;
                 }
@@ -90,7 +116,7 @@ namespace AAP.UI.ViewModels
 
                 try
                 {
-                    PickedColor = Color.FromRgb(byte.Parse(RedText), byte.Parse(value), byte.Parse(BlueText));
+                    PickedColor = Color.FromArgb(byte.Parse(AlphaText), byte.Parse(RedText), byte.Parse(value), byte.Parse(BlueText));
 
                     greenText = value;
                 }
@@ -114,7 +140,7 @@ namespace AAP.UI.ViewModels
 
                 try
                 {
-                    PickedColor = Color.FromRgb(byte.Parse(RedText), byte.Parse(GreenText), byte.Parse(value));
+                    PickedColor = Color.FromArgb(byte.Parse(AlphaText), byte.Parse(RedText), byte.Parse(GreenText), byte.Parse(value));
 
                     blueText = value;
                 }
@@ -213,10 +239,11 @@ namespace AAP.UI.ViewModels
         public ColorPickerViewModel()
         {
             colorBrush = new SolidColorBrush(PickedColor);
+            alphaText = PickedColor.A.ToString();
             redText = PickedColor.R.ToString();
             greenText = PickedColor.G.ToString();
             blueText = PickedColor.B.ToString();
-            hexText = "#" + ToHex(PickedColor.R, 2) + ToHex(PickedColor.G, 2) + ToHex(PickedColor.B, 2);
+            hexText = "#" + ToHex(PickedColor.A, 2) + ToHex(PickedColor.R, 2) + ToHex(PickedColor.G, 2) + ToHex(PickedColor.B, 2);
             PropertyChanged?.Invoke(this, new(nameof(HexText)));
         }
     }
