@@ -112,7 +112,7 @@ namespace AAP.Files
             Brush backgroundBrush = new SolidColorBrush(EncodeOptions.BackgroundColor);
             backgroundBrush.Freeze();
 
-            Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
+            Typeface artTypeface = new(App.Settings.CanvasTypefaceSource);
             double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, EncodeOptions.TextSize, textBrush, 1).Width;
 
             FormattedText[] columnTexts = new FormattedText[FileObject.Width];
@@ -477,7 +477,7 @@ namespace AAP.Files
             Brush backgroundBrush = new SolidColorBrush(EncodeOptions.BackgroundColor);
             backgroundBrush.Freeze();
 
-            Typeface artTypeface = new(Properties.Settings.Default.CanvasTypefaceSource);
+            Typeface artTypeface = new(App.Settings.CanvasTypefaceSource);
             double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, EncodeOptions.TextSize, textBrush, 1).Width;
 
             ArtLayer layer = FileObject.ArtLayers[layerIndex];
