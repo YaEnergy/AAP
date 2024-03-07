@@ -23,7 +23,7 @@ namespace AAP
     {
         public static readonly DirectoryInfo? ExecutableDirectory = Environment.ProcessPath != null ? Directory.GetParent(Environment.ProcessPath) : null;
         public static string ProgramTitle => Language.GetString("ProgramName");
-        public static readonly string Version = "v1.0.2";
+        public static readonly string Version = "v1.1.0";
 
         public static readonly int MaxArtArea = 1600000;
         public static readonly int WarningLargeArtArea = 500000;
@@ -578,7 +578,6 @@ namespace AAP
             ConsoleLogger.Log("Copy Selected Art To Clipboard: Copying selected art to clipboard...");
             ArtLayer currentLayerClone = (ArtLayer)CurrentArtFile.Art.ArtLayers[CurrentLayerID].Clone();
 
-            currentLayerClone.Name = "Clipboard";
             currentLayerClone.Crop(SelectedArt);
 
             IDataObject dataObject = new DataObject();
@@ -609,6 +608,8 @@ namespace AAP
 
             if (dataObject.GetData(typeof(ArtLayer).FullName) is not ArtLayer clipboardLayer)
                 return;
+
+            clipboardLayer.Name = Language.GetString("Default_Layer_Imported");
 
             ConsoleLogger.Log("Paste Layer From Clipboard: Pasting layer from clipboard...");
             int layerID = CurrentLayerID == -1 ? 0 : CurrentLayerID;
