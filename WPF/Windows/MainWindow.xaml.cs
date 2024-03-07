@@ -40,6 +40,10 @@ namespace AAP.UI.Windows
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
 
+            //Select first palette if exists
+            if (App.CharacterPalettes.Count > 0)
+                CharacterPaletteSelectionViewModel.SelectedPalette = App.CharacterPalettes[0];
+
             App.Settings.PropertyChanged += SettingsPropertyChanged;
 
             ArtCanvasViewModel.CanvasTypeface = new(App.Settings.CanvasTypefaceSource);
