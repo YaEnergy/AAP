@@ -26,6 +26,7 @@ namespace AAP.UI.Windows
 
             App.OnCurrentArtFileChanged += OnCurrentArtFileChanged;
             App.OnCurrentToolChanged += OnCurrentToolChanged;
+            App.OnCurrentCharacterPaletteChanged += OnCurrentCharacterPaletteChanged;
             App.OnSelectedArtChanged += OnSelectedArtChanged;
             App.OnCurrentLayerIDChanged += CurrentLayerIDChanged;
 
@@ -39,10 +40,7 @@ namespace AAP.UI.Windows
             ToolOptionsViewModel.CharacterPaletteSelectionViewModel = CharacterPaletteSelectionViewModel;
 
             CharacterPaletteSelectionViewModel.Palettes = App.CharacterPalettes;
-
-            //Select first palette if exists
-            if (App.CharacterPalettes.Count > 0)
-                CharacterPaletteSelectionViewModel.SelectedPalette = App.CharacterPalettes[0];
+            CharacterPaletteSelectionViewModel.SelectedPalette = App.CurrentCharacterPalette;
 
             App.Settings.PropertyChanged += SettingsPropertyChanged;
 
@@ -203,6 +201,7 @@ namespace AAP.UI.Windows
         }
 
         #region App Events
+
         private void OnCurrentArtFileChanged(ASCIIArtFile? artFile)
         {
             //Remove old listeners
@@ -229,6 +228,11 @@ namespace AAP.UI.Windows
         private void OnCurrentToolChanged(Tool? tool)
         {
             ArtFileViewModel.CurrentTool = tool;
+        }
+
+        private void OnCurrentCharacterPaletteChanged(CharacterPalette? palette)
+        {
+            CharacterPaletteSelectionViewModel.SelectedPalette = palette;
         }
 
         private void OnSelectedArtChanged(Rect selected)
