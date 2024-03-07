@@ -1,24 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 using System.Windows.Input;
-using AAP.UI.Controls;
-using AAP.Properties;
 using System.IO;
-using System.Windows.Media;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using AAP.FileObjects;
 using Newtonsoft.Json;
+using AAP.Files;
 
 namespace AAP.UI.ViewModels
 {
     public class SettingsWindowViewModel : INotifyPropertyChanged
     {
-        public string[] TypefaceSources { get; } = new string[] { "Consolas", "Courier New", "Cascadia Code", "Cascadia Mono", "Noto Mono", "Lucida Console" };
+        public string[] TypefaceSources
+        {
+            get => AppSettings.CanvasTypefaceSources;
+        }
 
         private bool darkMode = App.Settings.DarkMode;
         public bool DarkMode

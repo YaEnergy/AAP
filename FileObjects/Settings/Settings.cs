@@ -17,6 +17,8 @@ namespace AAP.Files
     [Serializable]
     public class AppSettings : INotifyPropertyChanged
     {
+        public static string[] CanvasTypefaceSources { get; } = new string[] { "Consolas", "Courier New", "Cascadia Code", "Cascadia Mono", "Noto Mono", "Lucida Console" };
+        
         public static AppSettings Default { get; } = new();
 
         private bool darkMode = false;

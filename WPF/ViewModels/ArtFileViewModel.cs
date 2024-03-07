@@ -436,6 +436,7 @@ namespace AAP.UI.ViewModels
             string colorsCategoryName = App.Language.GetString("Colors");
             string backgroundColorPropertyName = App.Language.GetString("BackgroundColor");
             string textColorPropertyName = App.Language.GetString("TextColor");
+            string canvasFontContent = App.Language.GetString("Settings_CanvasFont");
 
             string invalidPropertyNameErrorMessage = App.Language.GetString("Error_DefaultInvalidPropertyMessage");
             string invalidTextSizeErrorMessage = App.Language.GetString("Error_InvalidImageExportTextSizeMessage");
@@ -444,8 +445,18 @@ namespace AAP.UI.ViewModels
 
             while (!successful)
             {
+                List<string> canvasTypefaceSources = new(AppSettings.CanvasTypefaceSources);
+
+                //Use current selected canvas type face as default export typeface
+                int selectedTypefaceIndex = 0;
+
+                for (int i = 0; i < canvasTypefaceSources.Count; i++)
+                    if (App.Settings.CanvasTypefaceSource == canvasTypefaceSources[i])
+                        selectedTypefaceIndex = i;
+
                 PropertiesWindow artWindow = new(dialogTitle, exportButtonContent);
                 artWindow.AddProperty(textSizePropertyName, artWindow.CreateInputDoubleProperty("TextSize", 12));
+                artWindow.AddProperty(canvasFontContent, artWindow.CreateComboBoxListProperty("Font", canvasTypefaceSources, selectedTypefaceIndex), 1);
                 artWindow.AddCategory(colorsCategoryName);
                 artWindow.AddProperty(backgroundColorPropertyName, artWindow.CreateColorProperty("Background", Colors.White), 1);
                 artWindow.AddProperty(textColorPropertyName, artWindow.CreateColorProperty("Text", Colors.Black), 1);
@@ -473,9 +484,16 @@ namespace AAP.UI.ViewModels
                     continue;
                 }
 
+                if (artWindow.GetProperty("Font") is not string canvasTypefaceSource)
+                {
+                    MessageBox.Show(string.Format(invalidPropertyNameErrorMessage, canvasFontContent), dialogTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                    continue;
+                }
+
                 options.BackgroundColor = backgroundColor;
                 options.TextColor = textColor;
                 options.TextSize = textSize;
+                options.TextTypefaceSource = canvasTypefaceSource;
 
                 successful = true;
             }

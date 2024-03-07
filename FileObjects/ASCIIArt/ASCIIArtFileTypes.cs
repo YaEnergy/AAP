@@ -112,7 +112,7 @@ namespace AAP.Files
             Brush backgroundBrush = new SolidColorBrush(EncodeOptions.BackgroundColor);
             backgroundBrush.Freeze();
 
-            Typeface artTypeface = new(App.Settings.CanvasTypefaceSource);
+            Typeface artTypeface = new(EncodeOptions.TextTypefaceSource);
             double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, EncodeOptions.TextSize, textBrush, 1).Width;
 
             FormattedText[] columnTexts = new FormattedText[FileObject.Width];
@@ -477,7 +477,7 @@ namespace AAP.Files
             Brush backgroundBrush = new SolidColorBrush(EncodeOptions.BackgroundColor);
             backgroundBrush.Freeze();
 
-            Typeface artTypeface = new(App.Settings.CanvasTypefaceSource);
+            Typeface artTypeface = new(EncodeOptions.TextTypefaceSource);
             double defaultWidth = new FormattedText("A", System.Globalization.CultureInfo.InvariantCulture, FlowDirection.LeftToRight, artTypeface, EncodeOptions.TextSize, textBrush, 1).Width;
 
             ArtLayer layer = FileObject.ArtLayers[layerIndex];
@@ -843,6 +843,7 @@ namespace AAP.Files
 
     public class ImageASCIIArtEncodeOptions : ASCIIArtEncodeOptions, INotifyPropertyChanged
     {
+
         private Color backgroundColor = Colors.White;
         public Color BackgroundColor
         {
@@ -888,6 +889,21 @@ namespace AAP.Files
             }
         }
 
+        private string textTypefaceSource = "Consolas";
+        public string TextTypefaceSource
+        {
+            get => textTypefaceSource;
+            set
+            {
+                if (textTypefaceSource == value)
+                    return;
+
+                textTypefaceSource = value;
+
+                PropertyChanged?.Invoke(this, new(nameof(TextTypefaceSource)));
+            }
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         public ImageASCIIArtEncodeOptions()
@@ -895,11 +911,12 @@ namespace AAP.Files
 
         }
 
-        public ImageASCIIArtEncodeOptions(Color backgroundColor, Color textColor, double textSize)
+        public ImageASCIIArtEncodeOptions(Color backgroundColor, Color textColor, double textSize, string textTypefaceSource)
         {
             BackgroundColor = backgroundColor;
             TextColor = textColor;
             TextSize = textSize;
+            TextTypefaceSource = textTypefaceSource;
         }
     }
 
