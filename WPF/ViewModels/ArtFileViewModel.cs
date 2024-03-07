@@ -456,7 +456,7 @@ namespace AAP.UI.ViewModels
 
                 PropertiesWindow artWindow = new(dialogTitle, exportButtonContent);
                 artWindow.AddProperty(textSizePropertyName, artWindow.CreateInputDoubleProperty("TextSize", 12));
-                artWindow.AddProperty(canvasFontContent, artWindow.CreateComboBoxListProperty("Font", canvasTypefaceSources, selectedTypefaceIndex), 1);
+                artWindow.AddProperty(canvasFontContent, artWindow.CreateComboBoxListProperty("Font", canvasTypefaceSources, selectedTypefaceIndex));
                 artWindow.AddCategory(colorsCategoryName);
                 artWindow.AddProperty(backgroundColorPropertyName, artWindow.CreateColorProperty("Background", Colors.White), 1);
                 artWindow.AddProperty(textColorPropertyName, artWindow.CreateColorProperty("Text", Colors.Black), 1);

@@ -23,7 +23,7 @@ namespace AAP
     {
         public static readonly DirectoryInfo? ExecutableDirectory = Environment.ProcessPath != null ? Directory.GetParent(Environment.ProcessPath) : null;
         public static string ProgramTitle => Language.GetString("ProgramName");
-        public static readonly string Version = "v1.1.0";
+        public static readonly string Version = "v1.0.2";
 
         public static readonly int MaxArtArea = 1600000;
         public static readonly int WarningLargeArtArea = 500000;
